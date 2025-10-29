@@ -42,6 +42,7 @@ namespace GACloud.API.Infrastructure.Persistence.Contexts
     public DbSet<AgenciaFuneraria> AgenciasFunerarias { get; set; }
     public DbSet<Coveiro> Coveiros { get; set; }
     public DbSet<Marca> Marcas { get; set; }
+    public DbSet<Modelo> Modelos { get; set; }
   
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

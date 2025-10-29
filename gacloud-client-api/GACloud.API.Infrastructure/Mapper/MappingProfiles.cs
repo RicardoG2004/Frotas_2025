@@ -12,6 +12,7 @@ using GACloud.API.Application.Services.Base.RubricaService.DTOs;
 using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs;
 using GACloud.API.Application.Services.Frotas.CoveiroService.DTOs;
 using GACloud.API.Application.Services.Frotas.MarcaService.DTOs;
+using GACloud.API.Application.Services.Frotas.ModeloService.DTOs;
 using GACloud.API.Domain.Entities.Base;
 using GACloud.API.Domain.Entities.Frotas;
 
@@ -139,6 +140,13 @@ namespace GACloud.API.Infrastructure.Mapper
       _ = CreateMap<Marca, MarcaDTO>();
       _ = CreateMap<CreateMarcaRequest, Marca>();
       _ = CreateMap<UpdateMarcaRequest, Marca>();
+
+      // Modelos mappings
+      _ = CreateMap<Modelo, ModeloDTO>();
+      _ = CreateMap<CreateModeloRequest, Modelo>()
+        .ForMember(dest => dest.Marca, opt => opt.Ignore());
+      _ = CreateMap<UpdateModeloRequest, Modelo>()
+        .ForMember(dest => dest.Marca, opt => opt.Ignore());
 
       // add new entity mappings here...
     }
