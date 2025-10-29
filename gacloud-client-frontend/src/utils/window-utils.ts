@@ -1,6 +1,6 @@
 import { roleHeaderMenus } from '@/config/menu-items'
 import { utilitariosRoutes } from '@/routes/base/utilitarios-routes'
-import { cemiteriosRoutes } from '@/routes/cemiterios/cemiterios-routes'
+import { frotasRoutes } from '@/routes/frotas/frotas-routes'
 import { useLocation } from 'react-router-dom'
 import { useFormsStore } from '@/stores/use-forms-store'
 import { usePagesStore } from '@/stores/use-pages-store'
@@ -63,7 +63,7 @@ export function getCurrentWindowId() {
  */
 export function shouldManageWindow(pathname: string): boolean {
   // Combine all routes
-  const allRoutes = [...utilitariosRoutes, ...cemiteriosRoutes]
+  const allRoutes = [...utilitariosRoutes, ...frotasRoutes]
 
   // Find the route that matches the pathname
   const route = allRoutes.find((route) => {
@@ -773,10 +773,10 @@ export function getWindowMetadata(path: string): {
   color: string
   title: string
 } {
-  // Check cemiterios menu items
-  const cemiteriosMenu = roleHeaderMenus.client.cemiterios?.[0]?.items || []
+  // Check frotas menu items
+  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
 
-  for (const item of cemiteriosMenu) {
+  for (const item of frotasMenu) {
     if (item.href === path) {
       return {
         icon: item.icon as keyof typeof Icons,
@@ -813,8 +813,8 @@ export function getWindowMetadata(path: string): {
     const parentPathSegments = pathSegments.slice(0, -1)
     const parentPath = '/' + parentPathSegments.join('/')
 
-    // Check cemiterios menu items for parent
-    for (const item of cemiteriosMenu) {
+    // Check frotas menu items for parent
+    for (const item of frotasMenu) {
       if (item.href === parentPath) {
         return {
           icon: item.icon as keyof typeof Icons,

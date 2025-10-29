@@ -3,10 +3,10 @@ import { roleHeaderMenus } from '@/config/menu-items'
 type IconTheme = 'colorful' | 'theme-color' | 'pastel' | 'vibrant' | 'neon'
 
 export function getMenuColor(path: string): string {
-  // Check cemiterios menu items
-  const cemiteriosMenu = roleHeaderMenus.client.cemiterios?.[0]?.items || []
+  // Check frotas menu items
+  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
 
-  for (const item of cemiteriosMenu) {
+  for (const item of frotasMenu) {
     if (item.href === path && 'color' in item && item.color) {
       return item.color as string
     }
@@ -35,10 +35,10 @@ export function getMenuColor(path: string): string {
 }
 
 export function getMenuColorByTheme(path: string, theme: IconTheme): string {
-  // Check cemiterios menu items
-  const cemiteriosMenu = roleHeaderMenus.client.cemiterios?.[0]?.items || []
+  // Check frotas menu items
+  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
 
-  for (const item of cemiteriosMenu) {
+  for (const item of frotasMenu) {
     if (item.href === path && 'colors' in item && item.colors) {
       return item.colors[theme] || item.colors['colorful'] || 'bg-gray-500'
     }
@@ -83,10 +83,10 @@ export function getMenuColorByTheme(path: string, theme: IconTheme): string {
 }
 
 export function getMenuColorByLabel(label: string): string {
-  // Check cemiterios menu items
-  const cemiteriosMenu = roleHeaderMenus.client.cemiterios?.[0]?.items || []
+  // Check frotas menu items
+  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
 
-  for (const item of cemiteriosMenu) {
+  for (const item of frotasMenu) {
     if (item.label === label && 'color' in item && item.color) {
       return item.color as string
     }

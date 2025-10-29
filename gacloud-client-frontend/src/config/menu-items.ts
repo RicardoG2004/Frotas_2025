@@ -44,10 +44,10 @@ export const roleMenuItems = {
       label: 'Taxas e Licenças',
       items: [
         {
-          title: 'cemiterios',
-          href: '/cemiterios',
-          icon: 'IconGrave',
-          label: 'Cemitérios',
+          title: 'frotas',
+          href: '/frotas',
+          icon: 'car',
+          label: 'Frotas',
           colors: {
             colorful: 'bg-blue-500',
             'theme-color': 'bg-primary',
@@ -55,14 +55,7 @@ export const roleMenuItems = {
             vibrant: 'bg-blue-600',
             neon: 'bg-cyan-400',
           },
-          moduloId: modules.cemiterios.id,
-        },
-        {
-          title: 'canideos',
-          href: '/canideos',
-          icon: 'IconCat',
-          label: 'Canídeos',
-          moduloId: modules.canideos.id,
+          moduloId: modules.frotas.id,
         },
       ],
     },
@@ -234,16 +227,16 @@ export const roleHeaderMenus = {
         ],
       },
     ],
-    cemiterios: [
+    frotas: [
       {
         label: 'Configurações',
-        href: '/cemiterios/configuracoes',
+        href: '/frotas/configuracoes',
         icon: '',
         funcionalidadeId: '',
         items: [
           {
             label: 'Coveiros',
-            href: '/cemiterios/configuracoes/coveiros',
+            href: '/frotas/configuracoes/coveiros',
             description: 'Faça a gestão de coveiros de cemitérios',
             icon: 'user',
             colors: {
@@ -255,11 +248,11 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-purple-600 shadow-[0_0_30px_rgba(147,51,234,0.8)]',
             },
-            funcionalidadeId: modules.cemiterios.permissions.coveiros.id,
+            funcionalidadeId: modules.frotas.permissions.coveiros.id,
           },
           {
             label: 'Agências Funerárias',
-            href: '/cemiterios/configuracoes/agencias-funerarias',
+            href: '/frotas/configuracoes/agencias-funerarias',
             description: 'Faça a gestão de agências funerárias',
             icon: 'IconBuilding',
             colors: {
@@ -272,11 +265,11 @@ export const roleHeaderMenus = {
                 'bg-purple-700 shadow-[0_0_35px_rgba(126,34,206,0.9)]',
             },
             funcionalidadeId:
-              modules.cemiterios.permissions.agenciasFunerarias.id,
+              modules.frotas.permissions.agenciasFunerarias.id,
           },
           {
             label: 'Marcas',
-            href: '/cemiterios/configuracoes/marcas',
+            href: '/frotas/configuracoes/marcas',
             description: 'Faça a gestão de marcas de carros',
             icon: 'shield',
             colors: {

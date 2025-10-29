@@ -107,46 +107,18 @@ export const getPageTitleFromPath = (path: string): string => {
 
   // Map common paths to user-friendly titles
   const pathTitleMap: Record<string, string> = {
-    // Cemitérios - Configurações
-    '/cemiterios/configuracoes/cemiterios': 'Cemitérios',
-    '/cemiterios/configuracoes/cemiterios/create': 'Criar Cemitério',
-    '/cemiterios/configuracoes/cemiterios/update': 'Editar Cemitério',
-    '/cemiterios/configuracoes/zonas': 'Zonas de Cemitérios',
-    '/cemiterios/configuracoes/zonas/create': 'Criar Zona',
-    '/cemiterios/configuracoes/zonas/update': 'Editar Zona',
-    '/cemiterios/configuracoes/talhoes': 'Talhões',
-    '/cemiterios/configuracoes/talhoes/create': 'Criar Talhão',
-    '/cemiterios/configuracoes/talhoes/update': 'Editar Talhão',
-    '/cemiterios/configuracoes/sepulturas': 'Sepulturas',
-    '/cemiterios/configuracoes/sepulturas/create': 'Criar Sepultura',
-    '/cemiterios/configuracoes/sepulturas/update': 'Editar Sepultura',
-    '/cemiterios/configuracoes/sepulturas/tipos': 'Tipos de Sepulturas',
-    '/cemiterios/configuracoes/sepulturas/tipos/create':
-      'Criar Tipo de Sepultura',
-    '/cemiterios/configuracoes/sepulturas/tipos/update':
-      'Editar Tipo de Sepultura',
-    '/cemiterios/configuracoes/mapa': 'Mapa de Cemitérios',
-    '/cemiterios/configuracoes/mapa/view': 'Visualizar Mapa',
-    '/cemiterios/configuracoes/proprietarios': 'Proprietários',
-    '/cemiterios/configuracoes/proprietarios/create': 'Criar Proprietário',
-    '/cemiterios/configuracoes/proprietarios/update': 'Editar Proprietário',
-    '/cemiterios/configuracoes/coveiros': 'Coveiros',
-    '/cemiterios/configuracoes/coveiros/create': 'Criar Coveiro',
-    '/cemiterios/configuracoes/coveiros/update': 'Editar Coveiro',
-    '/cemiterios/configuracoes/agencias-funerarias': 'Agências Funerárias',
-    '/cemiterios/configuracoes/agencias-funerarias/create':
+    // Frotas - Configurações
+    '/frotas/configuracoes/coveiros': 'Coveiros',
+    '/frotas/configuracoes/coveiros/create': 'Criar Coveiro',
+    '/frotas/configuracoes/coveiros/update': 'Editar Coveiro',
+    '/frotas/configuracoes/agencias-funerarias': 'Agências Funerárias',
+    '/frotas/configuracoes/agencias-funerarias/create':
       'Criar Agência Funerária',
-    '/cemiterios/configuracoes/agencias-funerarias/update':
+    '/frotas/configuracoes/agencias-funerarias/update':
       'Editar Agência Funerária',
-    '/cemiterios/configuracoes/marcas': 'Marcas',
-    '/cemiterios/configuracoes/marcas/create': 'Criar Marca',
-    '/cemiterios/configuracoes/marcas/update': 'Editar Marca',
-    '/cemiterios/configuracoes/defuntos/tipos': 'Tipos de Defuntos',
-    '/cemiterios/configuracoes/defuntos/tipos/create': 'Criar Tipo de Defunto',
-    '/cemiterios/configuracoes/defuntos/tipos/update': 'Editar Tipo de Defunto',
-    '/cemiterios/outros/tipos-descricoes': 'Tipos e Descrições',
-    '/cemiterios/outros/tipos-descricoes/create': 'Criar Tipo e Descrição',
-    '/cemiterios/outros/tipos-descricoes/update': 'Editar Tipo e Descrição',
+    '/frotas/configuracoes/marcas': 'Marcas',
+    '/frotas/configuracoes/marcas/create': 'Criar Marca',
+    '/frotas/configuracoes/marcas/update': 'Editar Marca',
 
     // Utilitários - Tabelas Geográficas
     '/utilitarios/tabelas/geograficas/paises': 'Países',
@@ -205,8 +177,7 @@ export const getPageTitleFromPath = (path: string): string => {
 
 // Helper function to get module from path
 export const getModuleFromPath = (path: string): string => {
-  if (path.startsWith('/cemiterios')) return 'Cemitérios'
+  if (path.startsWith('/frotas')) return 'Frotas'
   if (path.startsWith('/utilitarios')) return 'Utilitários'
-  if (path.startsWith('/canideos')) return 'Canídeos'
   return 'Sistema'
 }

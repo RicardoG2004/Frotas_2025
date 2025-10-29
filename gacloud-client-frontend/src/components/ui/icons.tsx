@@ -11,6 +11,7 @@ import {
 import {
   AlertTriangle,
   ArrowRight,
+  Car,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -94,6 +95,7 @@ export const Icons = {
   IconBuilding: IconBuilding,
   IconTag: IconTag,
   shield: Shield,
+  car: Car,
 } as const
 
 export type IconKey = keyof typeof Icons

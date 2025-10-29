@@ -1,6 +1,12 @@
-import { Forma } from '@/pages/cemiterios/cemiterios-mapa/types'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
+// TODO: Move this type to a proper types file when cemiterios-mapa module is created
+export type Forma = {
+  id: string
+  type: string
+  // Add other properties as needed
+}
 
 interface MapState {
   formas: Forma[]

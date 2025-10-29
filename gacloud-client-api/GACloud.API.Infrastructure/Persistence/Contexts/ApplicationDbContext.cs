@@ -1,6 +1,6 @@
 ﻿using GACloud.API.Domain.Common;
 using GACloud.API.Domain.Entities.Base;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 using GACloud.API.Infrastructure.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 

@@ -16,13 +16,13 @@ export function DashboardPage() {
   // Define module configurations with icons, colors, and descriptions
   const moduleConfigs = [
     {
-      id: modules.cemiterios.id,
-      name: modules.cemiterios.name,
+      id: modules.frotas.id,
+      name: modules.frotas.name,
       description:
-        'Gestão completa de cemitérios, sepulturas, mapas e proprietários',
-      icon: Icons.IconGrave,
+        'Gestão completa de frotas e veículos',
+      icon: Icons.car,
       color: 'bg-blue-500',
-      path: '/cemiterios',
+      path: '/frotas',
       gradient: 'from-blue-500 to-blue-600',
       bgGradient:
         'from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20',
@@ -37,17 +37,6 @@ export function DashboardPage() {
       gradient: 'from-green-500 to-green-600',
       bgGradient:
         'from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20',
-    },
-    {
-      id: modules.canideos.id,
-      name: modules.canideos.name,
-      description: 'Gestão de registos de canídeos e licenças',
-      icon: Icons.IconCat,
-      color: 'bg-purple-500',
-      path: '/canideos',
-      gradient: 'from-purple-500 to-purple-600',
-      bgGradient:
-        'from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20',
     },
     // Fake modules for layout testing
     {

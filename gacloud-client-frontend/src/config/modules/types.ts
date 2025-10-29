@@ -11,7 +11,6 @@ export interface Module {
 
 export interface Modules {
   utilitarios: Module
-  cemiterios: Module
-  canideos: Module
+  frotas: Module
   // Add other modules here as they are created
 }

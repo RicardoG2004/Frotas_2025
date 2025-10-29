@@ -399,7 +399,7 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Rubrica", "Base");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.AgenciaFuneraria", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.AgenciaFuneraria", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -427,10 +427,10 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("EntidadeId");
 
-                    b.ToTable("AgenciaFuneraria", "Cemiterios");
+                    b.ToTable("AgenciaFuneraria", "Frotas");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Cemiterio", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Cemiterio", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -467,7 +467,7 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Cemiterio", "Cemiterios");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Coveiro", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Coveiro", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

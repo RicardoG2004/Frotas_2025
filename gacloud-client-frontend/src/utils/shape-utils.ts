@@ -1,6 +1,6 @@
-import { SepulturaDTO } from '@/types/dtos/cemiterios/sepulturas.dtos'
-import { TalhaoDTO } from '@/types/dtos/cemiterios/talhoes.dtos'
-import { ZonaDTO } from '@/types/dtos/cemiterios/zonas.dtos'
+import { SepulturaDTO } from '@/types/dtos/frotas/sepulturas.dtos'
+import { TalhaoDTO } from '@/types/dtos/frotas/talhoes.dtos'
+import { ZonaDTO } from '@/types/dtos/frotas/zonas.dtos'
 
 /**
  * Filters sepulturas that have shapes (shapeId is not null/undefined)

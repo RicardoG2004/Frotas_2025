@@ -1,6 +1,5 @@
 import { utilitarios } from './base/utilitarios-module'
-import { canideos } from './canideos/canideos-module'
-import { cemiterios } from './cemiterios/cemiterios-module'
+import { frotas } from './frotas/frotas-module'
 import { Modules } from './types'
 
 export const actionTypes = {
@@ -13,7 +12,6 @@ export const actionTypes = {
 
 export const modules: Modules = {
   utilitarios,
-  cemiterios,
-  canideos,
+  frotas,
   // Add other modules here as they are created
 }

@@ -9,7 +9,7 @@ using GACloud.API.Domain.Entities.Frotas;
 using Microsoft.EntityFrameworkCore;
 
 // After creating this service:
-// -- 1. Create a AgenciaFuneraria domain entity in GACloud.API.Domain/Entities/Cemiterios
+// -- 1. Create a AgenciaFuneraria domain entity in GACloud.API.Domain/Entities/Frotas
 // -- 2. Add DbSet<AgenciaFuneraria> to GACloud.API.Infrastructure/Persistence/Contexts/ApplicationDbContext and create a new migration
 // -- 3. Add mapping configuration for the new DTOs in GACloud.API.Infrastructure/Mapper/MappingProfiles
 // -- 4. Create a CemiterioAgenciasFunerarias api controller, you can use the command: dotnet new nano-controller -s (single name) -p (plural name) -ap (app name) -ui (spa/razor)

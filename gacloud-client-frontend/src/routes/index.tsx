@@ -7,7 +7,7 @@ import { useNavigationTracking } from '@/hooks/use-navigation-tracking'
 import { ProtectedRoute } from '@/components/auth/protected-route'
 import { RoleRouter } from '@/components/auth/role-router'
 import { utilitariosRoutes } from './base/utilitarios-routes'
-import { cemiteriosRoutes } from './cemiterios/cemiterios-routes'
+import { frotasRoutes } from './frotas/frotas-routes'
 
 const DashboardLayout = lazy(
   () => import('@/components/layout/dashboard-layout')
@@ -64,7 +64,7 @@ export default function AppRouter() {
           element: <NotFound />,
         },
         ...utilitariosRoutes,
-        ...cemiteriosRoutes,
+        ...frotasRoutes,
       ],
     },
     {

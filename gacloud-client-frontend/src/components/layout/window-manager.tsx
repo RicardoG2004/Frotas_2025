@@ -1,6 +1,6 @@
 import { useEffect, Suspense, memo, useState, useRef } from 'react'
 import { utilitariosRoutes } from '@/routes/base/utilitarios-routes'
-import { cemiteriosRoutes } from '@/routes/cemiterios/cemiterios-routes'
+import { frotasRoutes } from '@/routes/frotas/frotas-routes'
 import {
   X,
   Pencil,
@@ -375,7 +375,7 @@ export function WindowManager({ children }: WindowManagerProps) {
   const findRouteWithManageWindow = (pathname: string) => {
     const allRoutes = [
       ...utilitariosRoutes,
-      ...cemiteriosRoutes,
+      ...frotasRoutes,
       // Add any other route arrays
     ]
 
