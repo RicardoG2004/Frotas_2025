@@ -40,7 +40,7 @@ export const CellAction = ({ data }: CellActionProps) => {
   const handleUpdateClick = (marca: MarcaDTO) => {
     const instanceId = generateInstanceId()
     navigate(
-      `/cemiterios/configuracoes/marcas/update?marcaId=${marca.id}&instanceId=${instanceId}`
+      `/frotas/configuracoes/marcas/update?marcaId=${marca.id}&instanceId=${instanceId}`
     )
   }
 

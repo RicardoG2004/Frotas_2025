@@ -88,7 +88,7 @@ export function AgenciasFunerariasTable({
                 icon: <Plus className='h-4 w-4' />,
                 onClick: () =>
                   handlers.handleCreateClick(
-                    '/cemiterios/configuracoes/agencias-funerarias'
+                    '/frotas/configuracoes/agencias-funerarias'
                   ),
                 variant: 'emerald',
               },

@@ -45,11 +45,11 @@ export function CoveirosPage() {
         items={[
           {
             title: 'Configurações',
-            link: '/cemiterios/configuracoes',
+            link: '/frotas/configuracoes',
           },
           {
             title: 'Coveiros',
-            link: '/cemiterios/configuracoes/coveiros',
+            link: '/frotas/configuracoes/coveiros',
           },
         ]}
       />

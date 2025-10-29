@@ -36,7 +36,7 @@ export function CoveirosUpdatePage() {
 
   // If no coveiroId is provided, redirect to coveiros page
   if (!coveiroId) {
-    navigate('/cemiterios/configuracoes/coveiros')
+    navigate('/frotas/configuracoes/coveiros')
     return null
   }
 
@@ -76,15 +76,15 @@ export function CoveirosUpdatePage() {
           items={[
             {
               title: 'Configurações',
-              link: '/cemiterios/configuracoes',
+              link: '/frotas/configuracoes',
             },
             {
               title: 'Coveiros',
-              link: '/cemiterios/configuracoes/coveiros',
+              link: '/frotas/configuracoes/coveiros',
             },
             {
               title: 'Atualizar',
-              link: `/cemiterios/configuracoes/coveiros/update?coveiroId=${coveiroId}&instanceId=${instanceId}`,
+              link: `/frotas/configuracoes/coveiros/update?coveiroId=${coveiroId}&instanceId=${instanceId}`,
             },
           ]}
         />

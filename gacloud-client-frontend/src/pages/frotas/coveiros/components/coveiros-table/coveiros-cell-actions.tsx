@@ -40,7 +40,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const handleUpdateClick = (coveiro: CoveiroDTO) => {
     const instanceId = generateInstanceId()
     navigate(
-      `/cemiterios/configuracoes/coveiros/update?coveiroId=${coveiro.id}&instanceId=${instanceId}`
+      `/frotas/configuracoes/coveiros/update?coveiroId=${coveiro.id}&instanceId=${instanceId}`
     )
   }
 

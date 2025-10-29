@@ -45,11 +45,11 @@ export function MarcasPage() {
         items={[
           {
             title: 'Configurações',
-            link: '/cemiterios/configuracoes',
+            link: '/frotas/configuracoes',
           },
           {
             title: 'Marcas',
-            link: '/cemiterios/configuracoes/marcas',
+            link: '/frotas/configuracoes/marcas',
           },
         ]}
       />

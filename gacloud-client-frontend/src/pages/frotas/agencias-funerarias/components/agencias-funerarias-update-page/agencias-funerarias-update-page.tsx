@@ -37,7 +37,7 @@ export function AgenciasFunerariasUpdatePage() {
 
   // If no agenciaFunerariaId is provided, redirect to agencias-funerarias page
   if (!agenciaFunerariaId) {
-    navigate('/cemiterios/configuracoes/agencias-funerarias')
+    navigate('/frotas/configuracoes/agencias-funerarias')
     return null
   }
 
@@ -82,15 +82,15 @@ export function AgenciasFunerariasUpdatePage() {
           items={[
             {
               title: 'Configurações',
-              link: '/cemiterios/configuracoes',
+              link: '/frotas/configuracoes',
             },
             {
               title: 'Agências Funerárias',
-              link: '/cemiterios/configuracoes/agencias-funerarias',
+              link: '/frotas/configuracoes/agencias-funerarias',
             },
             {
               title: 'Atualizar',
-              link: `/cemiterios/configuracoes/agencias-funerarias/update?agenciaFunerariaId=${agenciaFunerariaId}&instanceId=${instanceId}`,
+              link: `/frotas/configuracoes/agencias-funerarias/update?agenciaFunerariaId=${agenciaFunerariaId}&instanceId=${instanceId}`,
             },
           ]}
         />

@@ -86,9 +86,9 @@ export function MarcasTable({
                 label: 'Adicionar',
                 icon: <Plus className='h-4 w-4' />,
                 onClick: () =>
-                  handlers.handleCreateClick(
-                    '/cemiterios/configuracoes/marcas'
-                  ),
+                handlers.handleCreateClick(
+                  '/frotas/configuracoes/marcas'
+                ),
                 variant: 'emerald',
               },
             ]}

@@ -48,15 +48,15 @@ export function MarcasCreatePage() {
           items={[
             {
               title: 'Configurações',
-              link: '/cemiterios/configuracoes',
+              link: '/frotas/configuracoes',
             },
             {
               title: 'Marcas',
-              link: '/cemiterios/configuracoes/marcas',
+              link: '/frotas/configuracoes/marcas',
             },
             {
               title: 'Criar',
-              link: `/cemiterios/configuracoes/marcas/create?instanceId=${instanceId}`,
+              link: `/frotas/configuracoes/marcas/create?instanceId=${instanceId}`,
             },
           ]}
         />

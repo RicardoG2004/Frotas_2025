@@ -48,15 +48,15 @@ export function CoveirosCreatePage() {
           items={[
             {
               title: 'Configurações',
-              link: '/cemiterios/configuracoes',
+              link: '/frotas/configuracoes',
             },
             {
               title: 'Coveiros',
-              link: '/cemiterios/configuracoes/coveiros',
+              link: '/frotas/configuracoes/coveiros',
             },
             {
               title: 'Criar',
-              link: `/cemiterios/configuracoes/coveiros/create?instanceId=${instanceId}`,
+              link: `/frotas/configuracoes/coveiros/create?instanceId=${instanceId}`,
             },
           ]}
         />

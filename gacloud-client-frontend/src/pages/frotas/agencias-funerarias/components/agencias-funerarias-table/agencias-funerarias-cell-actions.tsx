@@ -42,7 +42,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const handleUpdateClick = (agenciaFuneraria: AgenciaFunerariaDTO) => {
     const instanceId = generateInstanceId()
     navigate(
-      `/cemiterios/configuracoes/agencias-funerarias/update?agenciaFunerariaId=${agenciaFuneraria.id}&instanceId=${instanceId}`
+      `/frotas/configuracoes/agencias-funerarias/update?agenciaFunerariaId=${agenciaFuneraria.id}&instanceId=${instanceId}`
     )
   }
 

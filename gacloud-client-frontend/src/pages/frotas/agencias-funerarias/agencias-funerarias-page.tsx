@@ -45,11 +45,11 @@ export function AgenciasFunerariasPage() {
         items={[
           {
             title: 'Configurações',
-            link: '/cemiterios/configuracoes',
+            link: '/frotas/configuracoes',
           },
           {
             title: 'Agências Funerárias',
-            link: '/cemiterios/configuracoes/agencias-funerarias',
+            link: '/frotas/configuracoes/agencias-funerarias',
           },
         ]}
       />

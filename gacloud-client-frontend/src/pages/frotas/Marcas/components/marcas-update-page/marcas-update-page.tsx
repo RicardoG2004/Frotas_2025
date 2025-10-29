@@ -34,9 +34,9 @@ export function MarcasUpdatePage() {
     }
   }
 
-  // If no coveiroId is provided, redirect to coveiros page
+  // If no marcaId is provided, redirect to marcas page
   if (!marcaId) {
-    navigate('/cemiterios/configuracoes/marcas')
+    navigate('/frotas/configuracoes/marcas')
     return null
   }
 
@@ -76,15 +76,15 @@ export function MarcasUpdatePage() {
           items={[
             {
               title: 'Configurações',
-              link: '/cemiterios/configuracoes',
+              link: '/frotas/configuracoes',
             },
             {
               title: 'Marcas',
-              link: '/cemiterios/configuracoes/marcas',
+              link: '/frotas/configuracoes/marcas',
             },
             {
               title: 'Atualizar',
-              link: `/cemiterios/configuracoes/marcas/update?marcaId=${marcaId}&instanceId=${instanceId}`,
+              link: `/frotas/configuracoes/marcas/update?marcaId=${marcaId}&instanceId=${instanceId}`,
             },
           ]}
         />

@@ -48,15 +48,15 @@ export function AgenciasFunerariasCreatePage() {
           items={[
             {
               title: 'Configurações',
-              link: '/cemiterios/configuracoes',
+              link: '/frotas/configuracoes',
             },
             {
               title: 'Agências Funerárias',
-              link: '/cemiterios/configuracoes/agencias-funerarias',
+              link: '/frotas/configuracoes/agencias-funerarias',
             },
             {
               title: 'Criar',
-              link: `/cemiterios/configuracoes/agencias-funerarias/create?instanceId=${instanceId}`,
+              link: `/frotas/configuracoes/agencias-funerarias/create?instanceId=${instanceId}`,
             },
           ]}
         />
