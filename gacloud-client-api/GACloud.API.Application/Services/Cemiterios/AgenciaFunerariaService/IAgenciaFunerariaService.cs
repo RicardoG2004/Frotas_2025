@@ -1,0 +1,30 @@
+using GACloud.API.Application.Common.Marker;
+using GACloud.API.Application.Common.Wrapper;
+using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs;
+using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.Filters;
+
+namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService
+{
+  public interface IAgenciaFunerariaService : ITransientService
+  {
+    Task<Response<IEnumerable<AgenciaFunerariaDTO>>> GetAgenciasFunerariasAsync(
+      string keyword = ""
+    );
+    Task<
+      PaginatedResponse<AgenciaFunerariaDTO>
+    > GetAgenciasFunerariasPaginatedAsync(AgenciaFunerariaTableFilter filter);
+    Task<Response<AgenciaFunerariaDTO>> GetAgenciaFunerariaAsync(Guid id);
+    Task<Response<Guid>> CreateAgenciaFunerariaAsync(
+      CreateAgenciaFunerariaRequest request
+    );
+    Task<Response<Guid>> UpdateAgenciaFunerariaAsync(
+      UpdateAgenciaFunerariaRequest request,
+      Guid id
+    );
+    Task<Response<Guid>> DeleteAgenciaFunerariaAsync(Guid id);
+    Task<Response<IEnumerable<Guid>>> DeleteMultipleAgenciasFunerariasAsync(
+      IEnumerable<Guid> ids
+    );
+  }
+}
+

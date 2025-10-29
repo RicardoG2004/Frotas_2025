@@ -1,0 +1,3303 @@
+{
+	"info": {
+		"_postman_id": "28bd2c23-94d1-4b08-a48f-66ea46235133",
+		"name": "GSLP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30682215"
+	},
+	"item": [
+		{
+			"name": "Tokens",
+			"item": [
+				{
+					"name": "get-token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", jsonData.data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "en-US"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"administrator@globalsoft.pt\",\r\n    \"password\":\"Password123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/tokens",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", jsonData.data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "en-US"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/tokens/XIa9ITaoBx94rNEv7AUjIOsSuAFifywXLGM79ryydcU",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tokens",
+								"XIa9ITaoBx94rNEv7AUjIOsSuAFifywXLGM79ryydcU"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tenants",
+			"item": [
+				{
+					"name": "get-tenants-full-list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/tenants",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tenants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-tenant-options",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/tenants/tenant-options",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"tenant-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-tenant",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"zeta\",\r\n    \"name\": \"Zeta Corporation\",\r\n    \"adminEmail\": \"admin@email.com\",\r\n    \"password\": \"Password123!\",\r\n    \"hasIsolatedDatabase\" : true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/tenants",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tenants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-tenant",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Zeta Corporation\",\r\n    \"isActive\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/tenants/zeta",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"zeta"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Identity",
+			"item": [
+				{
+					"name": "Admin",
+					"item": [
+						{
+							"name": "create-basic-user",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "tenant",
+										"value": "beta",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"firstName\": \"a\",\r\n  \"lastName\": \"a\",\r\n  \"email\": \"asssswbsldw@globalsoft.pt\",\r\n  \"password\": \"Password123!\",\r\n  \"roleId\": \"admin\",\r\n  \"clienteId\": \"ebe3f722-2d0c-4d87-8da3-be9c5b0dc6ca\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/identity/users/create",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"identity",
+										"users",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-basic-user",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"firstName\": \"a\",\r\n  \"lastName\": \"a\",\r\n  \"email\": \"asssswbsldw@globalsoft.pt\",\r\n  \"roleId\": \"client\",\r\n  \"isActive\": true,\r\n  \"perfilId\": \"dd20d2bd-2640-4a8a-b991-08dd28c96730\",\r\n  \"clienteId\": \"ebe3f722-2d0c-4d87-8da3-be9c5b0dc6ca\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/identity/users/aa2f5882-1f6b-4c36-a07f-d39736bbdcd7/update",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"identity",
+										"users",
+										"aa2f5882-1f6b-4c36-a07f-d39736bbdcd7",
+										"update"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-basic-users-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/identity/clientes/ebe3f722-2d0c-4d87-8da3-be9c5b0dc6ca/users/list",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"identity",
+										"clientes",
+										"ebe3f722-2d0c-4d87-8da3-be9c5b0dc6ca",
+										"users",
+										"list"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-basic-user-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/identity/users/25A5179D-A5C8-4C0B-BB70-C14D1971FEBD/get",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"identity",
+										"users",
+										"25A5179D-A5C8-4C0B-BB70-C14D1971FEBD",
+										"get"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-basic-user",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/identity/users/a8061feb-628b-4166-aae8-6897422ac8a6/delete",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"identity",
+										"users",
+										"a8061feb-628b-4166-aae8-6897422ac8a6",
+										"delete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "get-users-full-list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/identity/users",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-permissions-by-utilizadorId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/identity/users/710784e3-468b-4da1-b818-c513ee002273/permissions",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users",
+								"710784e3-468b-4da1-b818-c513ee002273",
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "beta",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Vitor\",\r\n  \"lastName\": \"Mesquita\",\r\n  \"email\": \"vitormesquidtdassadfd3@globalsoft.pt\",\r\n  \"password\": \"Password123!\",\r\n  \"roleId\": \"Admin\",\r\n  \"clienteId\": \"EBE3F722-2D0C-4D87-8DA3-BE9C5B0DC6CA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/users",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-user-by-ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/identity/users/63543ee0-afc8-4346-bedc-70e3945359ca",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users",
+								"63543ee0-afc8-4346-bedc-70e3945359ca"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Tasha\",\r\n  \"lastName\": \"Yar\",\r\n  \"phoneNumber\": \"444-555-6666\",\r\n  \"email\": \"tasha@email.com\",\r\n  \"roleId\": \"admin\",\r\n  \"isActive\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/users/393c721a-72fd-4006-98f4-7e82b58fc5cc",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users",
+								"393c721a-72fd-4006-98f4-7e82b58fc5cc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/identity/users/a63410e8-42d5-4fd7-873a-741737304778",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users",
+								"a63410e8-42d5-4fd7-873a-741737304778"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-my-profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/identity/profile/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"profile",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-users",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"ids\": [\r\n    \"a63410e8-42d5-4fd7-873a-741737304778\",\r\n    \"a63410e8-42d5-4fd7-873a-74173730477e\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/users",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-my-profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Admin\",\r\n  \"lastName\": \"Zoolander\",\r\n  \"phoneNumber\": \"555-555-5555\",\r\n  \"email\": \"admin@email.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/profile",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-my-profile-image",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "ImageFile",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "DeleteCurrentImage",
+									"value": "false",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/profile-image",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"profile-image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change-my-password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"password\": \"Password123!\",\r\n  \"newPassword\": \"Password456!\",\r\n  \"confirmNewPassword\": \"Password456!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/change-password",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forgot-password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@email.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/forgot-password",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset-password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"CfDJ8Mq/p79FSp1NibA8Uo/o1hoLF2y7is9Rix/q4TBNdZwUrNCBFbQfjcQBVjubaE25p7CvDyET4C3souy8HVMPwI0NiubV/cWyMOXWEvVQbfgUIPck80UQ8b/ENWsjsdKD2mQ6TM4jzTWSnP9fvjlnYSrNi+XF/UxNMgtBE22oHjqQ/uQZtx9FvtNZ6ZdCN3J+NmlW5j37fuHGaWUzzofZhLuECzW4g3RBM3zqMaHZWheX\",\r\n    \"email\": \"admin@email.com\",\r\n    \"password\": \"Newpass123\",\r\n    \"confirmPassword\": \"Newpass123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/reset-password",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-users-paginated",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/identity/users/users-paginated",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"identity",
+								"users",
+								"users-paginated"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Entities",
+			"item": [
+				{
+					"name": "Areas",
+					"item": [
+						{
+							"name": "get-areas-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/aplicacoes/aplicacoes-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes",
+										"aplicacoes-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-areas-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/aplicacoes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-areas",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"ids\": [\r\n    \"E504611C-5E63-4F22-E2BA-08DD50225BCF\",\r\n    \"1758617E-7490-49F2-E2BB-08DD50225BCF\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/areas/bulk-delete",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"areas",
+										"bulk-delete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Aplicacao",
+					"item": [
+						{
+							"name": "get-aplicacaoes-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/aplicacoes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-aplicacoes-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/aplicacoes/aplicacoes-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes",
+										"aplicacoes-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-aplicacoes-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/aplicacoes/00000001-0000-0000-0000-000000000000",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes",
+										"00000001-0000-0000-0000-000000000000"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-aplicacao",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"SmartScannesssr47ss8wwwwwww\",\r\n    \"descricao\": \"A mobile document scanner that quickly converts your phone into a scanner.\", \r\n    \"versao\": \"3.0.0\",\r\n    \"ativo\": true,\r\n    \"areaId\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/aplicacoes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-aplicacao",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Clicloud atualizado\",\r\n    \"descricao\": \"Aplicacao\",\r\n    \"versao\": \"1.0.0\",\r\n    \"ativo\": true,\r\n    \"areaId\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/aplicacoes/ff977aa3-1304-47bc-652c-08dd15207ad7",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes",
+										"ff977aa3-1304-47bc-652c-08dd15207ad7"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-aplicacao",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/aplicacoes/884c5728-6ab8-4898-a746-08dd1082b2d7",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"aplicacoes",
+										"884c5728-6ab8-4898-a746-08dd1082b2d7"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Modulo",
+					"item": [
+						{
+							"name": "get-modulos-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/modulos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"modulos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-modulos-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/modulos/modulos-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"modulos",
+										"modulos-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-modulos-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/modulos/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"modulos",
+										"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-modulo",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Administracao 1\",\r\n    \"descricao\": \"Modulo Administracao 2\",\r\n    \"versao\": \"1.0.0\",\r\n    \"aplicacaoid\": \"ea08c45e-b8e2-4a01-ab75-0019d25b0cac\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/modulos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"modulos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-modulos",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Modulo Faturação atualizado\",\r\n    \"descricao\": \"Modulo Faturação atualizado\",\r\n    \"versao\": \"1.0.0\",\r\n    \"aplicacaoid\": \"7a95e0a1-e0c1-40b7-9d2e-9c8a128b9cda\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/modulos/8a4e81a0-8d52-445b-a7c7-08dd1b5d24c2",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"modulos",
+										"8a4e81a0-8d52-445b-a7c7-08dd1b5d24c2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-modulos",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/modulos/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"modulos",
+										"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Funcionalidade",
+					"item": [
+						{
+							"name": "get-funcionalidades-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-funcionalidades-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/funcionalidades/funcionalidades-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades",
+										"funcionalidades-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-funcionalidades-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/funcionalidades/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades",
+										"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-funcionalidades-by-aplicacaoId",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/funcionalidades/aplicacao/53e1d04b-6744-477a-9466-fc06f62f9cde",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades",
+										"aplicacao",
+										"53e1d04b-6744-477a-9466-fc06f62f9cde"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-funcionalidades",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Funcionalidade 4\",\r\n    \"descricao\": \"Funcionalidade 2\",\r\n    \"versao\": \"1.0.0\",\r\n    \"moduloid\": \"cc7323d8-b5e8-4d1d-70b4-08dd240e656a\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-funcionalidades",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Clicloud atualizado\",\r\n    \"descricao\": \"Aplicacao\",\r\n    \"versao\": \"1.0.0\",\r\n    \"ativo\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/funcionalidades/dffd1693-14bb-4b3f-08dc-08dd12f23e6e",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades",
+										"dffd1693-14bb-4b3f-08dc-08dd12f23e6e"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-funcionalidades",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/funcionalidades/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades",
+										"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-funcionalidades-by-moduloId",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/funcionalidades/modulo/b8e82c3a-36de-4c96-8c63-9671c431cb82",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"funcionalidades",
+										"modulo",
+										"b8e82c3a-36de-4c96-8c63-9671c431cb82"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Cliente",
+					"item": [
+						{
+							"name": "get-clientes-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/clientes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"clientes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-clientes-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": [{\r\n            \"id\": \"nome\",\r\n            \"desc\": true\r\n        }]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/clientes/clientes-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"clientes",
+										"clientes-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-clientes-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/clientes/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"clientes",
+										"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-cliente-by-licencaId",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/clientes/by-licenca/67aa9870-6fc4-455e-1044-08dd193bad83",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"clientes",
+										"by-licenca",
+										"67aa9870-6fc4-455e-1044-08dd193bad83"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-clientes",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"cliente deteste\",\r\n    \"sigla\": \"teste\",\r\n    \"nif\": \"999999990\",\r\n    \"ativo\": true,\r\n    \"dadosexternos\": true,\r\n    \"dadosurl\": \"http://localhost:3000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/clientes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"clientes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-clientes",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Cliente de Teste atualizado\",\r\n    \"sigla\": \"teste\",\r\n    \"nif\": \"999999990\",\r\n    \"dadosexternos\": false,\r\n    \"dadosurl\": \"http://localhost:3000\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/clientes/dffd1693-14bb-4b3f-08dc-08dd12f23e6e",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"clientes",
+										"dffd1693-14bb-4b3f-08dc-08dd12f23e6e"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-clientes",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/clientes/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"clientes",
+										"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Licenca",
+					"item": [
+						{
+							"name": "get-licencas-by-clienteid",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/by-cliente/00000001-0000-0000-0000-000000000010",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"by-cliente",
+										"00000001-0000-0000-0000-000000000010"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licenca-perfis-utilizadores Copy",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/perfis/utilizadores",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"perfis",
+										"utilizadores"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licencas-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licenca-modulos-funcionalidades-by-apikey",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/by-api-key/modulos/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"by-api-key",
+										"modulos",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-modulos-funcionalidades",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE/modulos/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+										"modulos",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licencas-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": [\r\n        {\r\n            \"id\": \"aplicacao.nome\",\r\n            \"desc\": false\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/licencas-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"licencas-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licenca-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licenca-by-apikey",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/by-api-key",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"by-api-key"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-licencas",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Licença Cliente J\",\r\n    \"datainicio\": \"2024-12-01T00:00:00\",\r\n    \"datafim\": \"2025-12-01T00:00:00\",\r\n    \"numeroutilizadores\": 50,\r\n    \"aplicacaoid\": \"00000007-0000-0000-0000-000000000000\",\r\n    \"clienteid\": \"6f6e13c3-b4ca-4526-99f6-1ecfe56ab436\",\r\n    \"ativo\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-licencas",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Licença Teste atualizado\",\r\n    \"datainicio\": \"2024-12-01T00:00:00\",\r\n    \"datafim\": \"2026-12-01T00:00:00\",\r\n    \"numeroutilizadores\": 600,\r\n    \"ativo\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/cca42999-818f-4caa-b4c0-08dd1860793c",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"cca42999-818f-4caa-b4c0-08dd1860793c"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-licencas",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/96f01c10-1bb0-40ad-e599-08dd186f1f9d",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"96f01c10-1bb0-40ad-e599-08dd186f1f9d"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-licencas-apikey",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/keys/51effe76-0145-476f-f84c-08dd1e92a983/create",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"keys",
+										"51effe76-0145-476f-f84c-08dd1e92a983",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "set-apikey-status",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"isActive\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/keys/67aa9870-6fc4-455e-1044-08dd193bad83/set-status",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"keys",
+										"67aa9870-6fc4-455e-1044-08dd193bad83",
+										"set-status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "block-licenca",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"motivoBloqueio\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/block",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"block"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "unblock-licenca",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/unblock",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"unblock"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "LicencaModulo",
+					"item": [
+						{
+							"name": "add-modulo-to-licenca",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/modulos/59bf3816-fb3f-4df4-aaba-08dd23493405",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"modulos",
+										"59bf3816-fb3f-4df4-aaba-08dd23493405"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-modulos-to-licenca",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"0fd28227-70b1-40ee-57f9-08dd20d4795b\",\r\n    \"59bf3816-fb3f-4df4-aaba-08dd23493405\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/modulos/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"modulos",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove-modulo-from-licenca",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/modulos/59bf3816-fb3f-4df4-aaba-08dd23493405",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"modulos",
+										"59bf3816-fb3f-4df4-aaba-08dd23493405"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove-modulos-from-licenca",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"0fd28227-70b1-40ee-57f9-08dd20d4795b\",\r\n    \"59bf3816-fb3f-4df4-aaba-08dd23493405\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/modulos/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"modulos",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "LicencaFuncionalidade",
+					"item": [
+						{
+							"name": "add-funcionalidade-to-licenca",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/funcionalidades/2abdafe3-401c-45ac-5e99-08dd20d48141",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"funcionalidades",
+										"2abdafe3-401c-45ac-5e99-08dd20d48141"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-funcionalidades-to-licenca",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"b22f74a6-d45b-4e40-64ae-08dd240e70dd\",\r\n    \"796d2309-db17-4235-ec7b-08dd25934b6a\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/funcionalidades/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"funcionalidades",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-funcionalidades-from-licenca",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"2abdafe3-401c-45ac-5e99-08dd20d48141\",\r\n    \"b69f19bb-3918-48fc-50bb-08dd1dc3cedd\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/funcionalidades/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"funcionalidades",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-modulos-funcionalidades-to-licenca",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"FuncionalidadeId\": \"d1200e0b-089c-41f5-f2b7-08dd2fcba09d\",\r\n    \"ModuloId\": \"1e0e7e17-baa3-4974-bb9c-08dd2fcb95d2\"\r\n  },\r\n  {\r\n    \"FuncionalidadeId\": \"d1200e0b-089c-41f5-f2b7-08dd2fcba09d\",\r\n    \"ModuloId\": \"1e0e7e17-baa3-4974-bb9c-08dd2fcb95d2\"\r\n  }\r\n]\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/modulos/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"modulos",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove-funcionalidade-from-licenca",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/funcionalidades/b22f74a6-d45b-4e40-64ae-08dd240e70dd",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"funcionalidades",
+										"b22f74a6-d45b-4e40-64ae-08dd240e70dd"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove-funcionalidades-from-licenca",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"b22f74a6-d45b-4e40-64ae-08dd240e70dd\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/funcionalidades/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"funcionalidades",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-modulos-funcionalidades-licenca",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/modulos/funcionalidades/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"modulos",
+										"funcionalidades",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "LicencaUtilizador",
+					"item": [
+						{
+							"name": "add-utilizador-to-licenca",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"utilizadorid\": \"592bb4d9-d21d-4ef0-a4de-b5f030f004b9\",\r\n    \"ativo\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/utilizador/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"utilizador",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-utilizadores-to-licenca",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n        \"utilizadorid\": \"51bf1518-af13-4fa0-9f2a-c597585407a4\",\r\n        \"ativo\": false\r\n    }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/utilizadores/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"utilizadores",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-utilizador-from-licenca",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "    {\r\n        \"utilizadorid\": \"592bb4d9-d21d-4ef0-a4de-b5f030f004b9\",\r\n        \"ativo\": false\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/utilizador/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"utilizador",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-utilizadores-from-licenca",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n        \"utilizadorid\": \"1b77edb4-ae80-46b5-a388-d033eeddac1d\",\r\n        \"ativo\": true\r\n    },\r\n    {\r\n        \"utilizadorid\": \"592bb4d9-d21d-4ef0-a4de-b5f030f004b9\",\r\n        \"ativo\": true\r\n    },\r\n    {\r\n        \"utilizadorid\": \"338a756b-7900-4a08-b6bc-f86856f16895\",\r\n        \"ativo\": false\r\n    }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/utilizadores/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"utilizadores",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove-utilizadores-from-licenca",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"1b77edb4-ae80-46b5-a388-d033eeddac1d\",\r\n    \"592bb4d9-d21d-4ef0-a4de-b5f030f004b9\",\r\n    \"338a756b-7900-4a08-b6bc-f86856f16895\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/utilizadores/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"utilizadores",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licenca-utilizadores",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/licencas/e2718081-b7b7-462f-b49e-9cb0b2af0dde/utilizadores",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"licencas",
+										"e2718081-b7b7-462f-b49e-9cb0b2af0dde",
+										"utilizadores"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-licencas-utilizadores-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/identity/clientes/EBE3F722-2D0C-4D87-8DA3-BE9C5B0DC6CA/users/users-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"identity",
+										"clientes",
+										"EBE3F722-2D0C-4D87-8DA3-BE9C5B0DC6CA",
+										"users",
+										"users-paginated"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Perfil",
+					"item": [
+						{
+							"name": "Admin",
+							"item": [
+								{
+									"name": "get-perfis-full-list-licenca",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/perfis/admin/",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"perfis",
+												"admin",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-perfis-by-ID-licenca",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/perfis/admin/9F82589E-8036-4D01-050F-08DD46D2FB66",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"perfis",
+												"admin",
+												"9F82589E-8036-4D01-050F-08DD46D2FB66"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "create-perfis-licenca",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"nome\": \"Perfil Teste4\",\r\n    \"ativo\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/perfis/admin/create",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"perfis",
+												"admin",
+												"create"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "update-perfis-licenca",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"nome\": \"Perfil teste\",\r\n    \"ativo\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/perfis/admin/41814286-5f46-4042-de1a-08dd1512593a",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"perfis",
+												"admin",
+												"41814286-5f46-4042-de1a-08dd1512593a"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete-perfis-licenca",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/perfis/admin/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"perfis",
+												"admin",
+												"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-perfis-paginated",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/perfis/admin/perfis-paginated",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"perfis",
+												"admin",
+												"perfis-paginated"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "get-perfis-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-perfis-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/perfis-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"perfis-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-by-licencaId-perfis-full-list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/licenca/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"licenca",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-by-licencaId-perfis-paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/licenca/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE/perfis-paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"licenca",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+										"perfis-paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-by-licencaId-perfis-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/licenca/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE/perfil/EFEBA44A-FA9D-4869-B3D9-08DD50E008E9",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"licenca",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+										"perfil",
+										"EFEBA44A-FA9D-4869-B3D9-08DD50E008E9"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-by-licencaId-perfis",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Global SOFT\",\r\n    \"ativo\": true,\r\n    \"licencaid\": \"e2718081-b7b7-462f-b49e-9cb0b2af0dde\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/licenca/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE/create",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"licenca",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-perfis-by-ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/ecc37f86-148d-4da1-493c-08dd2017ac59",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"ecc37f86-148d-4da1-493c-08dd2017ac59"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create-perfis",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Global SOFT\",\r\n    \"ativo\": true,\r\n    \"licencaid\": \"e2718081-b7b7-462f-b49e-9cb0b2af0dde\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-permissions-by-perfilId",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/438264c9-e80e-47b7-aa3f-6b6fe4323734/permissions",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"438264c9-e80e-47b7-aa3f-6b6fe4323734",
+										"permissions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-perfis",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Perfil teste\",\r\n    \"ativo\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/41814286-5f46-4042-de1a-08dd1512593a",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"41814286-5f46-4042-de1a-08dd1512593a"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-perfis",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/88d53f82-0ee8-477a-aa54-3f5a5e0f5990",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"88d53f82-0ee8-477a-aa54-3f5a5e0f5990"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-by-licencaId-perfis",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Perfil tessssste\",\r\n    \"ativo\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/licenca/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE/perfil/288408dd-404c-48a0-7804-08dd56896ad9",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"licenca",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+										"perfil",
+										"288408dd-404c-48a0-7804-08dd56896ad9"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-by-licencaId-perfis",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/licenca/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE/perfil/288408dd-404c-48a0-7804-08dd56896ad9",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"licenca",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+										"perfil",
+										"288408dd-404c-48a0-7804-08dd56896ad9"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-by-licencaId-multiple-perfis",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"ids\": [\r\n    \"EFEBA44A-FA9D-4869-B3D9-08DD50E008E9\"\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/licenca/E2718081-B7B7-462F-B49E-9CB0B2AF0DDE/bulk-delete",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"licenca",
+										"E2718081-B7B7-462F-B49E-9CB0B2AF0DDE",
+										"bulk-delete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "PerfilFuncionalidade",
+					"item": [
+						{
+							"name": "add-funcionalidade-to-perfil",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"authver\": true,\r\n    \"authadd\": false,\r\n    \"authchg\": false,\r\n    \"authdel\": true,\r\n    \"authprt\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/ecc37f86-148d-4da1-493c-08dd2017ac59/funcionalidades/b22f74a6-d45b-4e40-64ae-08dd240e70dd",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"ecc37f86-148d-4da1-493c-08dd2017ac59",
+										"funcionalidades",
+										"b22f74a6-d45b-4e40-64ae-08dd240e70dd"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-funcionalidades-to-perfil",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"funcionalidadeId\": \"ee7ca7c8-eb17-411a-3893-08dd234999b6\",\r\n    \"authver\": true,\r\n    \"authadd\": true,\r\n    \"authchg\": true,\r\n    \"authdel\": true,\r\n    \"authprt\": true\r\n  },\r\n  {\r\n    \"funcionalidadeId\": \"6e15c979-60ea-4780-ccde-08dd23f78ec6\",\r\n    \"authver\": false,\r\n    \"authadd\": false,\r\n    \"authchg\": false,\r\n    \"authdel\": true,\r\n    \"authprt\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/c60b7276-d161-4b7f-d610-08dd23361870/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"c60b7276-d161-4b7f-d610-08dd23361870",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-funcionalidades-from-perfil",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"funcionalidadeId\": \"b22f74a6-d45b-4e40-64ae-08dd240e70dd\",\r\n    \"authver\": true,\r\n    \"authadd\": true,\r\n    \"authchg\": true,\r\n    \"authdel\": true,\r\n    \"authprt\": true\r\n  },\r\n  {\r\n    \"funcionalidadeId\": \"796d2309-db17-4235-ec7b-08dd25934b6a\",\r\n    \"authver\": true,\r\n    \"authadd\": false,\r\n    \"authchg\": true,\r\n    \"authdel\": true,\r\n    \"authprt\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/3cbf0b54-58bb-48c6-9370-08dd240ea519/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"3cbf0b54-58bb-48c6-9370-08dd240ea519",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove-funcionalidades-from-perfil",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"b22f74a6-d45b-4e40-64ae-08dd240e70dd\",\r\n    \"796d2309-db17-4235-ec7b-08dd25934b6a\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/3cbf0b54-58bb-48c6-9370-08dd240ea519/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"3cbf0b54-58bb-48c6-9370-08dd240ea519",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-funcionalidades-from-perfil",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/4389447B-FA5A-49F9-4E6D-08DD453306E7/funcionalidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"4389447B-FA5A-49F9-4E6D-08DD453306E7",
+										"funcionalidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-modulos-funcionalidades-tree-from-perfil",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/4389447B-FA5A-49F9-4E6D-08DD453306E7/funcionalidades/tree",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"4389447B-FA5A-49F9-4E6D-08DD453306E7",
+										"funcionalidades",
+										"tree"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "PerfilUtilizador",
+					"item": [
+						{
+							"name": "add-utilizador-perfil",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/3cbf0b54-58bb-48c6-9370-08dd240ea519/utilizadores/1b77edb4-ae80-46b5-a388-d033eeddac1d",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"3cbf0b54-58bb-48c6-9370-08dd240ea519",
+										"utilizadores",
+										"1b77edb4-ae80-46b5-a388-d033eeddac1d"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-utilizadores-to-perfil",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"51bf1518-af13-4fa0-9f2a-c597585407a4\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/3cbf0b54-58bb-48c6-9370-08dd240ea519/utilizadores/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"3cbf0b54-58bb-48c6-9370-08dd240ea519",
+										"utilizadores",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-utilizadores-from-perfil",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"1b77edb4-ae80-46b5-a388-d033eeddac1d\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/3cbf0b54-58bb-48c6-9370-08dd240ea519/utilizadores/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"3cbf0b54-58bb-48c6-9370-08dd240ea519",
+										"utilizadores",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove-utilizadores-from-perfil",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    \"1b77edb4-ae80-46b5-a388-d033eeddac1d\",\r\n    \"592bb4d9-d21d-4ef0-a4de-b5f030f004b9\",\r\n    \"338a756b-7900-4a08-b6bc-f86856f16895\"\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/perfis/3cbf0b54-58bb-48c6-9370-08dd240ea519/utilizadores/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"3cbf0b54-58bb-48c6-9370-08dd240ea519",
+										"utilizadores",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get-utilizadores-from-perfil",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/perfis/738BE55F-AD70-4A74-FE81-08DD4F448814/utilizadores/",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"perfis",
+										"738BE55F-AD70-4A74-FE81-08DD4F448814",
+										"utilizadores",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "get-report-json",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/reports/json?mapa=ListagemClientes.mrt",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports",
+								"json"
+							],
+							"query": [
+								{
+									"key": "mapa",
+									"value": "ListagemClientes.mrt"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save-report-json",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Filename\": \"listaz\",\r\n    \"Content\": \"ewogICJSZXBvcnRWZXJzaW9uIjogIjIwMjUuMS4yIiwKICAiUmVwb3J0R3VpZCI6ICJhMTYzNTdiN2FjZjBlNzkzMDdhM2ViMmNmNGZmNjRiNSIsCiAgIlJlcG9ydE5hbWUiOiAiUmVwb3J0IiwKICAiUmVwb3J0QWxpYXMiOiAiUmVwb3J0IiwKICAiUmVwb3J0RmlsZSI6ICJSZXBvcnQubXJ0IiwKICAiUmVwb3J0Q3JlYXRlZCI6ICIvRGF0ZSgxNzM2NDMzOTMxMDAwKzAwMDApLyIsCiAgIlJlcG9ydENoYW5nZWQiOiAiL0RhdGUoMTczNjQzNjg0OTAwMCswMDAwKS8iLAogICJFbmdpbmVWZXJzaW9uIjogIkVuZ2luZVYyIiwKICAiUmVwb3J0VW5pdCI6ICJDZW50aW1ldGVycyIsCiAgIkN1bHR1cmUiOiAicHQtUFQiLAogICJDYWxjdWxhdGlvbk1vZGUiOiAiSW50ZXJwcmV0YXRpb24iLAogICJEaWN0aW9uYXJ5IjogewogICAgIlZhcmlhYmxlcyI6IHsKICAgICAgIjAiOiB7CiAgICAgICAgIlZhbHVlIjogIkxpY2VuY2lhZG8gYSAuLi4uIiwKICAgICAgICAiTmFtZSI6ICJMaWNlbmNpYWRvIiwKICAgICAgICAiRGlhbG9nSW5mbyI6IHsKICAgICAgICAgICJEYXRlVGltZVR5cGUiOiAiRGF0ZUFuZFRpbWUiLAogICAgICAgICAgIlNvcnREaXJlY3Rpb24iOiAiTm9uZSIsCiAgICAgICAgICAiQ2hlY2tlZENvbHVtbiI6ICJudWxsOyIKICAgICAgICB9LAogICAgICAgICJBbGlhcyI6ICJMaWNlbmNpYWRvIiwKICAgICAgICAiVHlwZSI6ICJTeXN0ZW0uU3RyaW5nIgogICAgICB9CiAgICB9LAogICAgIkRhdGFTb3VyY2VzIjogewogICAgICAiMCI6IHsKICAgICAgICAiSWRlbnQiOiAiU3RpRGF0YVRhYmxlU291cmNlIiwKICAgICAgICAiTmFtZSI6ICJyb290IiwKICAgICAgICAiQWxpYXMiOiAicm9vdCIsCiAgICAgICAgIkNvbHVtbnMiOiB7CiAgICAgICAgICAiMCI6IHsKICAgICAgICAgICAgIk5hbWUiOiAiaWQiLAogICAgICAgICAgICAiTmFtZUluU291cmNlIjogImlkIiwKICAgICAgICAgICAgIkFsaWFzIjogImlkIiwKICAgICAgICAgICAgIlR5cGUiOiAiU3lzdGVtLlN0cmluZyIKICAgICAgICAgIH0sCiAgICAgICAgICAiMSI6IHsKICAgICAgICAgICAgIk5hbWUiOiAibm9tZSIsCiAgICAgICAgICAgICJOYW1lSW5Tb3VyY2UiOiAibm9tZSIsCiAgICAgICAgICAgICJBbGlhcyI6ICJub21lIiwKICAgICAgICAgICAgIlR5cGUiOiAiU3lzdGVtLlN0cmluZyIKICAgICAgICAgIH0sCiAgICAgICAgICAiMiI6IHsKICAgICAgICAgICAgIk5hbWUiOiAic2lnbGEiLAogICAgICAgICAgICAiTmFtZUluU291cmNlIjogInNpZ2xhIiwKICAgICAgICAgICAgIkFsaWFzIjogInNpZ2xhIiwKICAgICAgICAgICAgIlR5cGUiOiAiU3lzdGVtLlN0cmluZyIKICAgICAgICAgIH0sCiAgICAgICAgICAiMyI6IHsKICAgICAgICAgICAgIk5hbWUiOiAiYXRpdm8iLAogICAgICAgICAgICAiTmFtZUluU291cmNlIjogImF0aXZvIiwKICAgICAgICAgICAgIkFsaWFzIjogImF0aXZvIiwKICAgICAgICAgICAgIlR5cGUiOiAiU3lzdGVtLkJvb2xlYW4iCiAgICAgICAgICB9LAogICAgICAgICAgIjQiOiB7CiAgICAgICAgICAgICJOYW1lIjogIm5pZiIsCiAgICAgICAgICAgICJOYW1lSW5Tb3VyY2UiOiAibmlmIiwKICAgICAgICAgICAgIkFsaWFzIjogIm5pZiIsCiAgICAgICAgICAgICJUeXBlIjogIlN5c3RlbS5TdHJpbmciCiAgICAgICAgICB9LAogICAgICAgICAgIjUiOiB7CiAgICAgICAgICAgICJOYW1lIjogImRhZG9zRXh0ZXJub3MiLAogICAgICAgICAgICAiTmFtZUluU291cmNlIjogImRhZG9zRXh0ZXJub3MiLAogICAgICAgICAgICAiQWxpYXMiOiAiZGFkb3NFeHRlcm5vcyIsCiAgICAgICAgICAgICJUeXBlIjogIlN5c3RlbS5Cb29sZWFuIgogICAgICAgICAgfSwKICAgICAgICAgICI2IjogewogICAgICAgICAgICAiTmFtZSI6ICJkYWRvc1VybCIsCiAgICAgICAgICAgICJOYW1lSW5Tb3VyY2UiOiAiZGFkb3NVcmwiLAogICAgICAgICAgICAiQWxpYXMiOiAiZGFkb3NVcmwiLAogICAgICAgICAgICAiVHlwZSI6ICJTeXN0ZW0uU3RyaW5nIgogICAgICAgICAgfSwKICAgICAgICAgICI3IjogewogICAgICAgICAgICAiTmFtZSI6ICJjcmVhdGVkT24iLAogICAgICAgICAgICAiTmFtZUluU291cmNlIjogImNyZWF0ZWRPbiIsCiAgICAgICAgICAgICJBbGlhcyI6ICJjcmVhdGVkT24iLAogICAgICAgICAgICAiVHlwZSI6ICJTeXN0ZW0uU3RyaW5nIgogICAgICAgICAgfQogICAgICAgIH0sCiAgICAgICAgIk5hbWVJblNvdXJjZSI6ICJNeURhdGFTb3VyY2Uucm9vdCIKICAgICAgfQogICAgfQogIH0sCiAgIlBhZ2VzIjogewogICAgIjAiOiB7CiAgICAgICJJZGVudCI6ICJTdGlQYWdlIiwKICAgICAgIk5hbWUiOiAiUGFnZTEiLAogICAgICAiR3VpZCI6ICJiZGI1ZDE4M2YxYTM0YzIxYmIxMWU5ZTkwMWFiMWQzMiIsCiAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgIH0sCiAgICAgICJCb3JkZXIiOiAiOzsyOzs7Oztzb2xpZDpCbGFjayIsCiAgICAgICJCcnVzaCI6ICJzb2xpZDoiLAogICAgICAiQ29tcG9uZW50cyI6IHsKICAgICAgICAiMCI6IHsKICAgICAgICAgICJJZGVudCI6ICJTdGlQYWdlSGVhZGVyQmFuZCIsCiAgICAgICAgICAiTmFtZSI6ICJQYWdlSGVhZGVyQmFuZDEiLAogICAgICAgICAgIkNhbkdyb3ciOiB0cnVlLAogICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIwLDAuNCwxOSw1IiwKICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgfSwKICAgICAgICAgICJCb3JkZXIiOiAiOzs7Ozs7O3NvbGlkOkJsYWNrIiwKICAgICAgICAgICJCcnVzaCI6ICJzb2xpZDoiLAogICAgICAgICAgIkNvbXBvbmVudHMiOiB7CiAgICAgICAgICAgICIwIjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlUZXh0IiwKICAgICAgICAgICAgICAiTmFtZSI6ICJUZXh0MSIsCiAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICI1LjQsMC42LDguMiwwLjgiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJUZXh0IjogewogICAgICAgICAgICAgICAgIlZhbHVlIjogIkxpc3RhZ2VtIGRlIENsaWVudGVzIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIkhvckFsaWdubWVudCI6ICJDZW50ZXIiLAogICAgICAgICAgICAgICJGb250IjogIjsxODs7IiwKICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIkJydXNoIjogInNvbGlkOiIsCiAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIlR5cGUiOiAiRXhwcmVzc2lvbiIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjEiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVBhbmVsIiwKICAgICAgICAgICAgICAiTmFtZSI6ICJQYW5lbDEiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMCw0LjIsMTksMC44IiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDowLDAsMCIsCiAgICAgICAgICAgICAgIkJydXNoIjogInNvbGlkOjI0MiwyNDIsMjQyIiwKICAgICAgICAgICAgICAiQ29tcG9uZW50cyI6IHsKICAgICAgICAgICAgICAgICIwIjogewogICAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpVGV4dCIsCiAgICAgICAgICAgICAgICAgICJOYW1lIjogIlRleHQyIiwKICAgICAgICAgICAgICAgICAgIkd1aWQiOiAiYWU1ZGZlYTlhZThjYjYwNzk4MTdhNmI0ZWRkMjBjYWMiLAogICAgICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsMCwxLjYsMC44IiwKICAgICAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgIlRleHQiOiB7CiAgICAgICAgICAgICAgICAgICAgIlZhbHVlIjogIlNpZ2xhIgogICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAiSG9yQWxpZ25tZW50IjogIkNlbnRlciIsCiAgICAgICAgICAgICAgICAgICJWZXJ0QWxpZ25tZW50IjogIkNlbnRlciIsCiAgICAgICAgICAgICAgICAgICJGb250IjogIjsxMDs7IiwKICAgICAgICAgICAgICAgICAgIkJvcmRlciI6ICI7Ozs7Ozs7c29saWQ6QmxhY2siLAogICAgICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgICAgICJUeXBlIjogIkV4cHJlc3Npb24iCiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgIjEiOiB7CiAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlUZXh0IiwKICAgICAgICAgICAgICAgICAgIk5hbWUiOiAiVGV4dDMiLAogICAgICAgICAgICAgICAgICAiR3VpZCI6ICJiZTc1ZjljNTE1ZDgwMGI4ZGQxNTg2NGIxOTE4MWRmYyIsCiAgICAgICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMS44LDAsNi40LDAuOCIsCiAgICAgICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICJUZXh0IjogewogICAgICAgICAgICAgICAgICAgICJWYWx1ZSI6ICJOb21lIgogICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAiSG9yQWxpZ25tZW50IjogIkNlbnRlciIsCiAgICAgICAgICAgICAgICAgICJWZXJ0QWxpZ25tZW50IjogIkNlbnRlciIsCiAgICAgICAgICAgICAgICAgICJGb250IjogIjsxMDs7IiwKICAgICAgICAgICAgICAgICAgIkJvcmRlciI6ICI7Ozs7Ozs7c29saWQ6QmxhY2siLAogICAgICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgICAgICJUeXBlIjogIkV4cHJlc3Npb24iCiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgIjIiOiB7CiAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlUZXh0IiwKICAgICAgICAgICAgICAgICAgIk5hbWUiOiAiVGV4dDQiLAogICAgICAgICAgICAgICAgICAiR3VpZCI6ICJkYjZmNTAxZGM4MDRkMzgwYzVhMTgwYzM5OTY3MGYwNCIsCiAgICAgICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiOC40MSwwLDQuNiwwLjgiLAogICAgICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAiVGV4dCI6IHsKICAgICAgICAgICAgICAgICAgICAiVmFsdWUiOiAiVXJsIgogICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAiSG9yQWxpZ25tZW50IjogIkNlbnRlciIsCiAgICAgICAgICAgICAgICAgICJWZXJ0QWxpZ25tZW50IjogIkNlbnRlciIsCiAgICAgICAgICAgICAgICAgICJGb250IjogIjsxMDs7IiwKICAgICAgICAgICAgICAgICAgIkJvcmRlciI6ICI7Ozs7Ozs7c29saWQ6QmxhY2siLAogICAgICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgICAgICJUeXBlIjogIkV4cHJlc3Npb24iCiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgIjMiOiB7CiAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlUZXh0IiwKICAgICAgICAgICAgICAgICAgIk5hbWUiOiAiVGV4dDYiLAogICAgICAgICAgICAgICAgICAiR3VpZCI6ICIzMGFjOWQ1YWU2ZmMxYzVjYTc1ZDY4ODE3OTk2ZDhiOCIsCiAgICAgICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMTMuMiwwLDIuMiwwLjgiLAogICAgICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAiVGV4dCI6IHsKICAgICAgICAgICAgICAgICAgICAiVmFsdWUiOiAiQXRpdm8iCiAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICJIb3JBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAgICAgIlZlcnRBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAgICAgIkZvbnQiOiAiOzEwOzsiLAogICAgICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgICAgICJCcnVzaCI6ICJzb2xpZDoiLAogICAgICAgICAgICAgICAgICAiVGV4dEJydXNoIjogInNvbGlkOkJsYWNrIiwKICAgICAgICAgICAgICAgICAgIlR5cGUiOiAiRXhwcmVzc2lvbiIKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAiNCI6IHsKICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aVRleHQiLAogICAgICAgICAgICAgICAgICAiTmFtZSI6ICJUZXh0NSIsCiAgICAgICAgICAgICAgICAgICJHdWlkIjogImRiYzJmNjA5NzkxYjkyOThlZTU0MTIxNDFmYjE5YTYwIiwKICAgICAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxNS40LDAsMy42LDAuOCIsCiAgICAgICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICJUZXh0IjogewogICAgICAgICAgICAgICAgICAgICJWYWx1ZSI6ICJEdC5Dcmlhw6fDo28iCiAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICJIb3JBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAgICAgIlZlcnRBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAgICAgIkZvbnQiOiAiOzEwOzsiLAogICAgICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgICAgICJCcnVzaCI6ICJzb2xpZDoiLAogICAgICAgICAgICAgICAgICAiVGV4dEJydXNoIjogInNvbGlkOkJsYWNrIiwKICAgICAgICAgICAgICAgICAgIlR5cGUiOiAiRXhwcmVzc2lvbiIKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAiNSI6IHsKICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUhvcml6b250YWxMaW5lUHJpbWl0aXZlIiwKICAgICAgICAgICAgICAgICAgIk5hbWUiOiAiSG9yaXpvbnRhbExpbmVQcmltaXRpdmUxIiwKICAgICAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIwLDAsMTksMC4wMjU0IiwKICAgICAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgIlN0YXJ0Q2FwIjogIjs7OyIsCiAgICAgICAgICAgICAgICAgICJFbmRDYXAiOiAiOzs7IgogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICI2IjogewogICAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpU3RhcnRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgICAgICJOYW1lIjogIlN0YXJ0UG9pbnRQcmltaXRpdmUxIiwKICAgICAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIwLDAsMCwwIiwKICAgICAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICIyNTU4OGRiYjU3MjMwMjc4MjRmNTg3YTMzOTM1NjQ1MCIKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAiNyI6IHsKICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICAgICAiTmFtZSI6ICJTdGFydFBvaW50UHJpbWl0aXZlOCIsCiAgICAgICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMS42LDAsMCwwIiwKICAgICAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJjZGM4MmNlM2M5MjY4YjU2ZmVmOWZhODU4M2QxMGI2MyIKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAiOCI6IHsKICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICAgICAiTmFtZSI6ICJTdGFydFBvaW50UHJpbWl0aXZlOSIsCiAgICAgICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiOC40LDAsMCwwIiwKICAgICAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJjMjcwNzYxZGUyYjBhMDg4NGQwMjEzNjUyNTJmMWZmOCIKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAiOSI6IHsKICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICAgICAiTmFtZSI6ICJTdGFydFBvaW50UHJpbWl0aXZlMTAiLAogICAgICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEzLjIsMCwwLDAiLAogICAgICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAiUmVmZXJlbmNlVG9HdWlkIjogIjRlZTNlZTIzZGY3ZWViNmIzOTIwZTYwZGVlNGY5NjhjIgogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICIxMCI6IHsKICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICAgICAiTmFtZSI6ICJTdGFydFBvaW50UHJpbWl0aXZlMTEiLAogICAgICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjE1LjQsMCwwLDAiLAogICAgICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAiUmVmZXJlbmNlVG9HdWlkIjogIjVlMjcxNDlkMTU3ZDlmMmE3NzU5N2FlYTRkYWJhYjBhIgogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjIiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVRleHQiLAogICAgICAgICAgICAgICJOYW1lIjogIlRleHQ3IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsMy4yLDIuMiwwLjQiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJUZXh0IjogewogICAgICAgICAgICAgICAgIlZhbHVlIjogIkRhdGEgSW1wcmVzc8OjbzoiCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDowLDAsMCIsCiAgICAgICAgICAgICAgIkJydXNoIjogInNvbGlkOiIsCiAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIlR5cGUiOiAiRXhwcmVzc2lvbiIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjMiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVRleHQiLAogICAgICAgICAgICAgICJOYW1lIjogIlRleHQ4IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjIuOCwzLjIsMywwLjYiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJUZXh0IjogewogICAgICAgICAgICAgICAgIlZhbHVlIjogIntSZXBvcnRDcmVhdGVkfSIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJCb3JkZXIiOiAiOzs7Ozs7O3NvbGlkOjAsMCwwIiwKICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAiVGV4dEJydXNoIjogInNvbGlkOkJsYWNrIiwKICAgICAgICAgICAgICAiVGV4dEZvcm1hdCI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlEYXRlRm9ybWF0U2VydmljZSIsCiAgICAgICAgICAgICAgICAiU3RyaW5nRm9ybWF0IjogImciCiAgICAgICAgICAgICAgfQogICAgICAgICAgICB9LAogICAgICAgICAgICAiNCI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpVGV4dCIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiVGV4dDkiLAogICAgICAgICAgICAgICJHdWlkIjogImEzZDJiNTU3YzRmNWE0YWVlM2ZhNDJiODQyMWFhZjRiIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsMy42LDIuMiwwLjQiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJUZXh0IjogewogICAgICAgICAgICAgICAgIlZhbHVlIjogIlDDoWdpbmE6IgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIkJvcmRlciI6ICI7Ozs7Ozs7c29saWQ6MCwwLDAiLAogICAgICAgICAgICAgICJCcnVzaCI6ICJzb2xpZDoiLAogICAgICAgICAgICAgICJUZXh0QnJ1c2giOiAic29saWQ6QmxhY2siLAogICAgICAgICAgICAgICJUeXBlIjogIkV4cHJlc3Npb24iCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICI1IjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlUZXh0IiwKICAgICAgICAgICAgICAiTmFtZSI6ICJUZXh0MTAiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMi44LDMuNiwzLDAuNCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlRleHQiOiB7CiAgICAgICAgICAgICAgICAiVmFsdWUiOiAie1BhZ2VOb2ZNfSIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJCb3JkZXIiOiAiOzs7Ozs7O3NvbGlkOjAsMCwwIiwKICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAiVGV4dEJydXNoIjogInNvbGlkOkJsYWNrIgogICAgICAgICAgICB9LAogICAgICAgICAgICAiNiI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSG9yaXpvbnRhbExpbmVQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIkhvcml6b250YWxMaW5lUHJpbWl0aXZlMyIsCiAgICAgICAgICAgICAgIkd1aWQiOiAiM2U1YWQ0Y2JmNDAxOTJkMDRkYjkxMmUwY2EwYTk2OTgiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMCw1LDE5LDAuMDI1NCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlN0YXJ0Q2FwIjogIjs7OyIsCiAgICAgICAgICAgICAgIkVuZENhcCI6ICI7OzsiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICI3IjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmUxIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsNSwwLDAiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJSZWZlcmVuY2VUb0d1aWQiOiAiMjU1ODhkYmI1NzIzMDI3ODI0ZjU4N2EzMzkzNTY0NTAiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICI4IjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmU4IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEuNiw1LDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJjZGM4MmNlM2M5MjY4YjU2ZmVmOWZhODU4M2QxMGI2MyIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjkiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aUVuZFBvaW50UHJpbWl0aXZlIiwKICAgICAgICAgICAgICAiTmFtZSI6ICJFbmRQb2ludFByaW1pdGl2ZTkiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiOC40LDUsMCwwIiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiUmVmZXJlbmNlVG9HdWlkIjogImMyNzA3NjFkZTJiMGEwODg0ZDAyMTM2NTI1MmYxZmY4IgogICAgICAgICAgICB9LAogICAgICAgICAgICAiMTAiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aUVuZFBvaW50UHJpbWl0aXZlIiwKICAgICAgICAgICAgICAiTmFtZSI6ICJFbmRQb2ludFByaW1pdGl2ZTEwIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEzLjIsNSwwLDAiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJSZWZlcmVuY2VUb0d1aWQiOiAiNGVlM2VlMjNkZjdlZWI2YjM5MjBlNjBkZWU0Zjk2OGMiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICIxMSI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpRW5kUG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIkVuZFBvaW50UHJpbWl0aXZlMTEiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMTUuNCw1LDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICI1ZTI3MTQ5ZDE1N2Q5ZjJhNzc1OTdhZWE0ZGFiYWIwYSIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjEyIjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmUxMiIsCiAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxOSw1LDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJkZmEzMTMwMTFkMmU3MmNkNmMzYWI3NWZjYjFkMzdkOSIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjEzIjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlTdGFydFBvaW50UHJpbWl0aXZlIiwKICAgICAgICAgICAgICAiTmFtZSI6ICJTdGFydFBvaW50UHJpbWl0aXZlMTIiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMTksNC4yLDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJkZmEzMTMwMTFkMmU3MmNkNmMzYWI3NWZjYjFkMzdkOSIKICAgICAgICAgICAgfQogICAgICAgICAgfQogICAgICAgIH0sCiAgICAgICAgIjEiOiB7CiAgICAgICAgICAiSWRlbnQiOiAiU3RpUGFnZUZvb3RlckJhbmQiLAogICAgICAgICAgIk5hbWUiOiAiUGFnZUZvb3RlckJhbmQxIiwKICAgICAgICAgICJDYW5Hcm93IjogdHJ1ZSwKICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMCwyNi45LDE5LDAuOCIsCiAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgIH0sCiAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICJDb21wb25lbnRzIjogewogICAgICAgICAgICAiMCI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpVGV4dCIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiVGV4dDExIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAuMiwwLjEsNi4yLDAuNiIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlRleHQiOiB7CiAgICAgICAgICAgICAgICAiVmFsdWUiOiAie0xpY2VuY2lhZG99IgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlZlcnRBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAiRm9udCI6ICI7MTA7OyIsCiAgICAgICAgICAgICAgIkJvcmRlciI6ICI7Ozs7Ozs7c29saWQ6MCwwLDAiLAogICAgICAgICAgICAgICJCcnVzaCI6ICJzb2xpZDoiLAogICAgICAgICAgICAgICJUZXh0QnJ1c2giOiAic29saWQ6MCwwLDAiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0KICAgICAgICB9LAogICAgICAgICIyIjogewogICAgICAgICAgIklkZW50IjogIlN0aURhdGFCYW5kIiwKICAgICAgICAgICJOYW1lIjogIkRhdGFyb290IiwKICAgICAgICAgICJDYW5Hcm93IjogdHJ1ZSwKICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMCw2LjIsMTksMC44IiwKICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgIklkZW50IjogIlN0aUJhbmRJbnRlcmFjdGlvbiIKICAgICAgICAgIH0sCiAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICJDb21wb25lbnRzIjogewogICAgICAgICAgICAiMCI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpVGV4dCIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRGF0YXJvb3Rfc2lnbGEiLAogICAgICAgICAgICAgICJDYW5Hcm93IjogdHJ1ZSwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsMCwxLjYsMC44IiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiVGV4dCI6IHsKICAgICAgICAgICAgICAgICJWYWx1ZSI6ICJ7cm9vdC5zaWdsYX0iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiSG9yQWxpZ25tZW50IjogIkNlbnRlciIsCiAgICAgICAgICAgICAgIlZlcnRBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIkJydXNoIjogInNvbGlkOiIsCiAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIlRleHRPcHRpb25zIjogewogICAgICAgICAgICAgICAgIldvcmRXcmFwIjogdHJ1ZQogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjEiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVRleHQiLAogICAgICAgICAgICAgICJOYW1lIjogIkRhdGFyb290X25vbWUiLAogICAgICAgICAgICAgICJDYW5Hcm93IjogdHJ1ZSwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEuOCwwLDYuNCwwLjgiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJUZXh0IjogewogICAgICAgICAgICAgICAgIlZhbHVlIjogIntyb290Lm5vbWV9IgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlZlcnRBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIkJydXNoIjogInNvbGlkOiIsCiAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIlRleHRPcHRpb25zIjogewogICAgICAgICAgICAgICAgIldvcmRXcmFwIjogdHJ1ZQogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjIiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVRleHQiLAogICAgICAgICAgICAgICJOYW1lIjogIkRhdGFyb290X2RhZG9zVXJsIiwKICAgICAgICAgICAgICAiQ2FuR3JvdyI6IHRydWUsCiAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICI4LjYsMCw0LjYsMC44IiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiVGV4dCI6IHsKICAgICAgICAgICAgICAgICJWYWx1ZSI6ICJ7cm9vdC5kYWRvc1VybH0iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiVmVydEFsaWdubWVudCI6ICJDZW50ZXIiLAogICAgICAgICAgICAgICJCb3JkZXIiOiAiOzs7Ozs7O3NvbGlkOkJsYWNrIiwKICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAiVGV4dEJydXNoIjogInNvbGlkOkJsYWNrIiwKICAgICAgICAgICAgICAiVGV4dE9wdGlvbnMiOiB7CiAgICAgICAgICAgICAgICAiV29yZFdyYXAiOiB0cnVlCiAgICAgICAgICAgICAgfQogICAgICAgICAgICB9LAogICAgICAgICAgICAiMyI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpVGV4dCIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRGF0YXJvb3RfY3JlYXRlZE9uIiwKICAgICAgICAgICAgICAiQ2FuR3JvdyI6IHRydWUsCiAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxNS42LDAsMy4yLDAuOCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlRleHQiOiB7CiAgICAgICAgICAgICAgICAiVmFsdWUiOiAie3Jvb3QuY3JlYXRlZE9ufSIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJIb3JBbGlnbm1lbnQiOiAiQ2VudGVyIiwKICAgICAgICAgICAgICAiVmVydEFsaWdubWVudCI6ICJDZW50ZXIiLAogICAgICAgICAgICAgICJCb3JkZXIiOiAiOzs7Ozs7O3NvbGlkOkJsYWNrIiwKICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAiVGV4dEJydXNoIjogInNvbGlkOkJsYWNrIiwKICAgICAgICAgICAgICAiVGV4dE9wdGlvbnMiOiB7CiAgICAgICAgICAgICAgICAiV29yZFdyYXAiOiB0cnVlCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiVGV4dEZvcm1hdCI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlEYXRlRm9ybWF0U2VydmljZSIsCiAgICAgICAgICAgICAgICAiU3RyaW5nRm9ybWF0IjogImciCiAgICAgICAgICAgICAgfQogICAgICAgICAgICB9LAogICAgICAgICAgICAiNCI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpQ2hlY2tCb3giLAogICAgICAgICAgICAgICJOYW1lIjogIkRhdGFyb290X2F0aXZvIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEzLjIsMCwyLjIsMC44IiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiQnJ1c2giOiAic29saWQ6IiwKICAgICAgICAgICAgICAiQm9yZGVyIjogIjs7Ozs7Oztzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDpCbGFjayIsCiAgICAgICAgICAgICAgIkNoZWNrZWQiOiB7CiAgICAgICAgICAgICAgICAiVmFsdWUiOiAie3Jvb3QuYXRpdm99IgogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjUiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aUhvcml6b250YWxMaW5lUHJpbWl0aXZlIiwKICAgICAgICAgICAgICAiTmFtZSI6ICJIb3Jpem9udGFsTGluZVByaW1pdGl2ZTIiLAogICAgICAgICAgICAgICJHdWlkIjogImIyZDcwY2QzMGM4MTNkMTU0YzlmYzgxZjI3YmU2NGU1IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsMCwxOSwwLjAyNTQiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJTdGFydENhcCI6ICI7OzsiLAogICAgICAgICAgICAgICJFbmRDYXAiOiAiOzs7IgogICAgICAgICAgICB9LAogICAgICAgICAgICAiNiI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSG9yaXpvbnRhbExpbmVQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIkhvcml6b250YWxMaW5lUHJpbWl0aXZlNCIsCiAgICAgICAgICAgICAgIkd1aWQiOiAiMTlkMzE1NDQ4NTFiZDA1NmEzY2Y0MjMyMzQ4OTdkZjAiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMCwwLjgsMTksMC4wMjU0IiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiU3RhcnRDYXAiOiAiOzs7IiwKICAgICAgICAgICAgICAiRW5kQ2FwIjogIjs7OyIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjciOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIlN0YXJ0UG9pbnRQcmltaXRpdmUyIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsMCwwLDAiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJSZWZlcmVuY2VUb0d1aWQiOiAiNTk2MmZmOTU2NjNlNzM2OGY1ZGMyZWQ0YzUyNzM2NzkiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICI4IjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmUyIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjAsMC44LDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICI1OTYyZmY5NTY2M2U3MzY4ZjVkYzJlZDRjNTI3MzY3OSIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjkiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIlN0YXJ0UG9pbnRQcmltaXRpdmUzIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEuNiwwLDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICIzNzljZWVmZTQwOWNjMmY0NGU3ZjgzYzgxOGYxOGE3NCIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjEwIjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmUzIiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEuNiwwLjgsMCwwIiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiUmVmZXJlbmNlVG9HdWlkIjogIjM3OWNlZWZlNDA5Y2MyZjQ0ZTdmODNjODE4ZjE4YTc0IgogICAgICAgICAgICB9LAogICAgICAgICAgICAiMTEiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIlN0YXJ0UG9pbnRQcmltaXRpdmU0IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjguNCwwLDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJmY2Q4NWFmZmI3NDBkYzM2ZjBmMjIyODZjYmJlYzY1MSIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjEyIjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmU0IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjguNCwwLjgsMCwwIiwKICAgICAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiUmVmZXJlbmNlVG9HdWlkIjogImZjZDg1YWZmYjc0MGRjMzZmMGYyMjI4NmNiYmVjNjUxIgogICAgICAgICAgICB9LAogICAgICAgICAgICAiMTMiOiB7CiAgICAgICAgICAgICAgIklkZW50IjogIlN0aVN0YXJ0UG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIlN0YXJ0UG9pbnRQcmltaXRpdmU1IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEzLjIsMCwwLDAiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJSZWZlcmVuY2VUb0d1aWQiOiAiMWM4NTZmMjZiNDk5NGJiNGE3NmE3ZWVhNTZlMTg1M2MiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICIxNCI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpRW5kUG9pbnRQcmltaXRpdmUiLAogICAgICAgICAgICAgICJOYW1lIjogIkVuZFBvaW50UHJpbWl0aXZlNSIsCiAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxMy4yLDAuOCwwLDAiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJSZWZlcmVuY2VUb0d1aWQiOiAiMWM4NTZmMjZiNDk5NGJiNGE3NmE3ZWVhNTZlMTg1M2MiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICIxNSI6IHsKICAgICAgICAgICAgICAiSWRlbnQiOiAiU3RpU3RhcnRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiU3RhcnRQb2ludFByaW1pdGl2ZTYiLAogICAgICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMTUuNCwwLDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJhMmQ0NDJiYjQ4YjY3ZTJkNWU5NmVmZDY4NzA4ODQ4NCIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjE2IjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmU2IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjE1LjQsMC44LDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICJhMmQ0NDJiYjQ4YjY3ZTJkNWU5NmVmZDY4NzA4ODQ4NCIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjE3IjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlTdGFydFBvaW50UHJpbWl0aXZlIiwKICAgICAgICAgICAgICAiTmFtZSI6ICJTdGFydFBvaW50UHJpbWl0aXZlNyIsCiAgICAgICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxOSwwLDAsMCIsCiAgICAgICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIlJlZmVyZW5jZVRvR3VpZCI6ICI0ZDkxZGIzZWI5NjVkY2M5OTA1MTY1ZTc4NWIxMzljNyIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIjE4IjogewogICAgICAgICAgICAgICJJZGVudCI6ICJTdGlFbmRQb2ludFByaW1pdGl2ZSIsCiAgICAgICAgICAgICAgIk5hbWUiOiAiRW5kUG9pbnRQcmltaXRpdmU3IiwKICAgICAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjE5LDAuOCwwLDAiLAogICAgICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJSZWZlcmVuY2VUb0d1aWQiOiAiNGQ5MWRiM2ViOTY1ZGNjOTkwNTE2NWU3ODViMTM5YzciCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICAiRGF0YVNvdXJjZU5hbWUiOiAicm9vdCIKICAgICAgICB9LAogICAgICAgICIzIjogewogICAgICAgICAgIklkZW50IjogIlN0aVZlcnRpY2FsTGluZVByaW1pdGl2ZSIsCiAgICAgICAgICAiTmFtZSI6ICJWZXJ0aWNhbExpbmVQcmltaXRpdmUyIiwKICAgICAgICAgICJHdWlkIjogIjU5NjJmZjk1NjYzZTczNjhmNWRjMmVkNGM1MjczNjc5IiwKICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMCw2LjIsMC4wMjU0LDAuOCIsCiAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgIH0sCiAgICAgICAgICAiU3RhcnRDYXAiOiAiOzs7IiwKICAgICAgICAgICJFbmRDYXAiOiAiOzs7IgogICAgICAgIH0sCiAgICAgICAgIjQiOiB7CiAgICAgICAgICAiSWRlbnQiOiAiU3RpVmVydGljYWxMaW5lUHJpbWl0aXZlIiwKICAgICAgICAgICJOYW1lIjogIlZlcnRpY2FsTGluZVByaW1pdGl2ZTMiLAogICAgICAgICAgIkd1aWQiOiAiMzc5Y2VlZmU0MDljYzJmNDRlN2Y4M2M4MThmMThhNzQiLAogICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxLjYsNi4yLDAuMDI1NCwwLjgiLAogICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICB9LAogICAgICAgICAgIlN0YXJ0Q2FwIjogIjs7OyIsCiAgICAgICAgICAiRW5kQ2FwIjogIjs7OyIKICAgICAgICB9LAogICAgICAgICI1IjogewogICAgICAgICAgIklkZW50IjogIlN0aVZlcnRpY2FsTGluZVByaW1pdGl2ZSIsCiAgICAgICAgICAiTmFtZSI6ICJWZXJ0aWNhbExpbmVQcmltaXRpdmU0IiwKICAgICAgICAgICJHdWlkIjogImZjZDg1YWZmYjc0MGRjMzZmMGYyMjI4NmNiYmVjNjUxIiwKICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiOC40LDYuMiwwLjAyNTQsMC44IiwKICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgfSwKICAgICAgICAgICJTdGFydENhcCI6ICI7OzsiLAogICAgICAgICAgIkVuZENhcCI6ICI7OzsiCiAgICAgICAgfSwKICAgICAgICAiNiI6IHsKICAgICAgICAgICJJZGVudCI6ICJTdGlWZXJ0aWNhbExpbmVQcmltaXRpdmUiLAogICAgICAgICAgIk5hbWUiOiAiVmVydGljYWxMaW5lUHJpbWl0aXZlNSIsCiAgICAgICAgICAiR3VpZCI6ICIxYzg1NmYyNmI0OTk0YmI0YTc2YTdlZWE1NmUxODUzYyIsCiAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEzLjIsNi4yLDAuMDI1NCwwLjgiLAogICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICB9LAogICAgICAgICAgIlN0YXJ0Q2FwIjogIjs7OyIsCiAgICAgICAgICAiRW5kQ2FwIjogIjs7OyIKICAgICAgICB9LAogICAgICAgICI3IjogewogICAgICAgICAgIklkZW50IjogIlN0aVZlcnRpY2FsTGluZVByaW1pdGl2ZSIsCiAgICAgICAgICAiTmFtZSI6ICJWZXJ0aWNhbExpbmVQcmltaXRpdmU2IiwKICAgICAgICAgICJHdWlkIjogImEyZDQ0MmJiNDhiNjdlMmQ1ZTk2ZWZkNjg3MDg4NDg0IiwKICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMTUuNCw2LjIsMC4wMjU0LDAuOCIsCiAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgIH0sCiAgICAgICAgICAiU3RhcnRDYXAiOiAiOzs7IiwKICAgICAgICAgICJFbmRDYXAiOiAiOzs7IgogICAgICAgIH0sCiAgICAgICAgIjgiOiB7CiAgICAgICAgICAiSWRlbnQiOiAiU3RpVmVydGljYWxMaW5lUHJpbWl0aXZlIiwKICAgICAgICAgICJOYW1lIjogIlZlcnRpY2FsTGluZVByaW1pdGl2ZTciLAogICAgICAgICAgIkd1aWQiOiAiNGQ5MWRiM2ViOTY1ZGNjOTkwNTE2NWU3ODViMTM5YzciLAogICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxOSw2LjIsMC4wMjU0LDAuOCIsCiAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgIH0sCiAgICAgICAgICAiU3RhcnRDYXAiOiAiOzs7IiwKICAgICAgICAgICJFbmRDYXAiOiAiOzs7IgogICAgICAgIH0sCiAgICAgICAgIjkiOiB7CiAgICAgICAgICAiSWRlbnQiOiAiU3RpVmVydGljYWxMaW5lUHJpbWl0aXZlIiwKICAgICAgICAgICJOYW1lIjogIlZlcnRpY2FsTGluZVByaW1pdGl2ZTEiLAogICAgICAgICAgIkd1aWQiOiAiMjU1ODhkYmI1NzIzMDI3ODI0ZjU4N2EzMzkzNTY0NTAiLAogICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIwLDQuNiwwLjAyNTQsMC44IiwKICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgfSwKICAgICAgICAgICJTdGFydENhcCI6ICI7OzsiLAogICAgICAgICAgIkVuZENhcCI6ICI7OzsiCiAgICAgICAgfSwKICAgICAgICAiMTAiOiB7CiAgICAgICAgICAiSWRlbnQiOiAiU3RpVmVydGljYWxMaW5lUHJpbWl0aXZlIiwKICAgICAgICAgICJOYW1lIjogIlZlcnRpY2FsTGluZVByaW1pdGl2ZTgiLAogICAgICAgICAgIkd1aWQiOiAiY2RjODJjZTNjOTI2OGI1NmZlZjlmYTg1ODNkMTBiNjMiLAogICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxLjYsNC42LDAuMDI1NCwwLjgiLAogICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICB9LAogICAgICAgICAgIlN0YXJ0Q2FwIjogIjs7OyIsCiAgICAgICAgICAiRW5kQ2FwIjogIjs7OyIKICAgICAgICB9LAogICAgICAgICIxMSI6IHsKICAgICAgICAgICJJZGVudCI6ICJTdGlWZXJ0aWNhbExpbmVQcmltaXRpdmUiLAogICAgICAgICAgIk5hbWUiOiAiVmVydGljYWxMaW5lUHJpbWl0aXZlOSIsCiAgICAgICAgICAiR3VpZCI6ICJjMjcwNzYxZGUyYjBhMDg4NGQwMjEzNjUyNTJmMWZmOCIsCiAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjguNCw0LjYsMC4wMjU0LDAuOCIsCiAgICAgICAgICAiSW50ZXJhY3Rpb24iOiB7CiAgICAgICAgICAgICJJZGVudCI6ICJTdGlJbnRlcmFjdGlvbiIKICAgICAgICAgIH0sCiAgICAgICAgICAiU3RhcnRDYXAiOiAiOzs7IiwKICAgICAgICAgICJFbmRDYXAiOiAiOzs7IgogICAgICAgIH0sCiAgICAgICAgIjEyIjogewogICAgICAgICAgIklkZW50IjogIlN0aVZlcnRpY2FsTGluZVByaW1pdGl2ZSIsCiAgICAgICAgICAiTmFtZSI6ICJWZXJ0aWNhbExpbmVQcmltaXRpdmUxMCIsCiAgICAgICAgICAiR3VpZCI6ICI0ZWUzZWUyM2RmN2VlYjZiMzkyMGU2MGRlZTRmOTY4YyIsCiAgICAgICAgICAiQ2xpZW50UmVjdGFuZ2xlIjogIjEzLjIsNC42LDAuMDI1NCwwLjgiLAogICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICB9LAogICAgICAgICAgIlN0YXJ0Q2FwIjogIjs7OyIsCiAgICAgICAgICAiRW5kQ2FwIjogIjs7OyIKICAgICAgICB9LAogICAgICAgICIxMyI6IHsKICAgICAgICAgICJJZGVudCI6ICJTdGlWZXJ0aWNhbExpbmVQcmltaXRpdmUiLAogICAgICAgICAgIk5hbWUiOiAiVmVydGljYWxMaW5lUHJpbWl0aXZlMTEiLAogICAgICAgICAgIkd1aWQiOiAiNWUyNzE0OWQxNTdkOWYyYTc3NTk3YWVhNGRhYmFiMGEiLAogICAgICAgICAgIkNsaWVudFJlY3RhbmdsZSI6ICIxNS40LDQuNiwwLjAyNTQsMC44IiwKICAgICAgICAgICJJbnRlcmFjdGlvbiI6IHsKICAgICAgICAgICAgIklkZW50IjogIlN0aUludGVyYWN0aW9uIgogICAgICAgICAgfSwKICAgICAgICAgICJTdGFydENhcCI6ICI7OzsiLAogICAgICAgICAgIkVuZENhcCI6ICI7OzsiCiAgICAgICAgfSwKICAgICAgICAiMTQiOiB7CiAgICAgICAgICAiSWRlbnQiOiAiU3RpVmVydGljYWxMaW5lUHJpbWl0aXZlIiwKICAgICAgICAgICJOYW1lIjogIlZlcnRpY2FsTGluZVByaW1pdGl2ZTEyIiwKICAgICAgICAgICJHdWlkIjogImRmYTMxMzAxMWQyZTcyY2Q2YzNhYjc1ZmNiMWQzN2Q5IiwKICAgICAgICAgICJDbGllbnRSZWN0YW5nbGUiOiAiMTksNC42LDAuMDI1NCwwLjgiLAogICAgICAgICAgIkludGVyYWN0aW9uIjogewogICAgICAgICAgICAiSWRlbnQiOiAiU3RpSW50ZXJhY3Rpb24iCiAgICAgICAgICB9LAogICAgICAgICAgIlN0YXJ0Q2FwIjogIjs7OyIsCiAgICAgICAgICAiRW5kQ2FwIjogIjs7OyIKICAgICAgICB9CiAgICAgIH0sCiAgICAgICJXYXRlcm1hcmsiOiB7CiAgICAgICAgIlRleHRCcnVzaCI6ICJzb2xpZDo1MCwwLDAsMCIKICAgICAgfQogICAgfQogIH0KfQ==\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/reports/json",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"reports",
+								"json"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Client",
+			"item": [
+				{
+					"name": "token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"cliente.cmb@globalsoft.pt\",\r\n    \"password\": \"Password123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/client-token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"client-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", jsonData.data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "en-US"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/client-token/refresh/--8MRAPXrLqnjDq7TWsvlZDTc7j6roR3YKtenXtK33w",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"client-token",
+								"refresh",
+								"--8MRAPXrLqnjDq7TWsvlZDTc7j6roR3YKtenXtK33w"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.request.headers.upsert({key: 'X-API-Key', value: 'm98elJqm0pTtpHcw2+3DfPLRxaGLyPbaWuooThMePwM4aFc7wxlbva9lSCLIlta6oPRYx50tma2kYZQY25tG4A==' })"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://localhost:8081",
+			"type": "default"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}

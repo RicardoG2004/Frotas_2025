@@ -1,0 +1,47 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: GSLP.WebApi/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certs/cert.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD}
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=GSlicenses;User Id=sa;Password=pISI8LLup28YigA5cdfA5YFco6HaU6jp;TrustServerCertificate=true;MultipleActiveResultSets=true;
+    secrets:
+      - source: ssl_cert
+        target: /app/certs/cert.pfx
+    depends_on:
+      - sqlserver
+    networks:
+      - mynetwork
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=pISI8LLup28YigA5cdfA5YFco6HaU6jp
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - mynetwork
+
+secrets:
+  ssl_cert:
+    file: ./certs/cert.pfx
+  db_password:
+    external: true
+
+volumes:
+  sqlserver-data:
+    driver: local
+
+networks:
+  mynetwork:
+    driver: bridge

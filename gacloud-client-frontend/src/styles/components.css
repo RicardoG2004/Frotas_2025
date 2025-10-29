@@ -1,0 +1,232 @@
+@layer components {
+  /* Light theme styles */
+  .ant-tree {
+    @apply bg-background text-foreground;
+  }
+
+  .ant-tree .ant-tree-node-content-wrapper:hover {
+    @apply bg-accent;
+  }
+
+  .ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+    @apply bg-accent;
+  }
+
+  /* Dark theme styles */
+  .dark .ant-tree {
+    @apply bg-background text-foreground;
+  }
+
+  .dark .ant-tree .ant-tree-node-content-wrapper:hover {
+    @apply bg-accent;
+  }
+
+  .dark .ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+    @apply bg-accent;
+  }
+
+  .dark .ant-tree .ant-tree-checkbox-inner {
+    @apply border-border bg-background;
+  }
+
+  .dark .ant-tree .ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+    @apply border-primary bg-primary;
+  }
+
+  .dark .ant-tree .ant-tree-switcher {
+    @apply bg-transparent text-foreground;
+  }
+
+  .secondary-nav-container {
+    @apply relative;
+  }
+
+  .secondary-nav-wrapper {
+    @apply absolute left-0 right-0 transform transition-all duration-200 ease-in-out;
+  }
+
+  .secondary-nav-enter {
+    @apply translate-y-0 opacity-100;
+  }
+
+  .secondary-nav-exit {
+    @apply -translate-y-2 opacity-0;
+  }
+
+  .table-header {
+    background-color: hsl(var(--table-header));
+    color: hsl(var(--foreground));
+  }
+
+  .sidebar-link {
+    @apply flex w-full items-center justify-between rounded-lg py-2.5 text-sm font-medium;
+    @apply text-muted-foreground hover:bg-primary/10 hover:text-primary;
+    @apply transition-all duration-200;
+    @apply px-3;
+  }
+
+  .sidebar-link .icon-wrapper {
+    @apply flex items-center justify-center;
+    @apply size-9 rounded-lg;
+    @apply bg-primary/5 text-primary;
+    @apply transition-all duration-200;
+    @apply ring-1 ring-primary/10;
+  }
+
+  .sidebar-link:hover .icon-wrapper {
+    @apply scale-105 bg-primary/10;
+    @apply shadow-sm ring-1 ring-primary/20;
+  }
+
+  .sidebar-link.active {
+    @apply bg-primary/10 text-primary;
+    @apply before:absolute before:left-0 before:top-[50%] before:h-8 before:w-1;
+    @apply before:-translate-y-1/2 before:rounded-r before:bg-primary;
+    @apply before:shadow-[0_0_12px_0_hsl(var(--primary)/30%)];
+    @apply relative;
+  }
+
+  .sidebar-link.active .icon-wrapper {
+    @apply bg-primary text-white;
+    @apply shadow-md shadow-primary/25;
+  }
+
+  .sidebar-nav-item {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium;
+    @apply text-muted-foreground hover:bg-primary/10 hover:text-primary;
+    @apply transition-all duration-200 ease-in-out;
+    @apply relative overflow-hidden;
+  }
+
+  .sidebar-nav-item .icon-wrapper {
+    @apply flex items-center justify-center;
+    @apply size-8 rounded-lg;
+    @apply bg-primary/10 text-primary;
+    @apply transition-all duration-200;
+  }
+
+  .sidebar-nav-item:hover .icon-wrapper {
+    @apply scale-105 bg-primary/20;
+    @apply shadow-sm ring-1 ring-primary/20;
+  }
+
+  .sidebar-nav-item.active .icon-wrapper {
+    @apply bg-primary text-white;
+    @apply shadow-md shadow-primary/25;
+  }
+
+  .sidebar-nav-item.active {
+    @apply bg-primary/15 font-medium text-primary;
+    @apply before:absolute before:left-0 before:top-[50%] before:h-8 before:w-1;
+    @apply before:-translate-y-1/2 before:rounded-r before:bg-primary;
+    @apply before:shadow-[0_0_12px_0_hsl(var(--primary)/30%)];
+  }
+
+  .sidebar-nav-item:hover {
+    @apply translate-x-1;
+  }
+
+  .sidebar-scroll {
+    @apply overflow-y-auto;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 20%) transparent;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-primary/20 hover:bg-primary/30;
+  }
+
+  /* Dark mode refinements */
+  .dark .sidebar-nav-item {
+    @apply hover:bg-primary/10;
+  }
+
+  .dark .sidebar-nav-item.active {
+    @apply bg-primary/20;
+  }
+}
+
+/* Add after your existing .ant-tree styles */
+.ant-tree:focus {
+  outline: none !important;
+}
+
+.ant-tree-list:focus {
+  outline: none !important;
+}
+
+.ant-tree-list-holder-inner:focus {
+  outline: none !important;
+}
+
+.ant-tree .ant-tree-node-content-wrapper:focus {
+  outline: none !important;
+}
+
+/* Add these styles to remove focus outline from Tree component */
+.ant-tree .ant-tree-treenode {
+  @apply outline-none;
+}
+
+.ant-tree .ant-tree-treenode:focus-within {
+  @apply outline-none;
+}
+
+.ant-tree .ant-tree-treenode .ant-tree-node-content-wrapper:focus-visible {
+  @apply outline-none;
+}
+
+.ant-tree-checkbox:focus-visible {
+  @apply outline-none;
+}
+
+.ant-tree-checkbox-input:focus + .ant-tree-checkbox-inner {
+  @apply outline-none;
+}
+
+.filter-bar {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-badge {
+  transition: all 0.15s ease;
+}
+
+.filter-badge:hover {
+  background-color: hsl(var(--muted));
+}
+
+/* Add these styles at the end of your index.css file */
+.secondary-nav a:focus,
+.secondary-nav a:focus-visible,
+.secondary-nav button:focus,
+.secondary-nav button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  ring: 0 !important;
+}
+
+.no-transitions * {
+  transition: none !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.2s ease-in-out;
+}

@@ -1,0 +1,50 @@
+/* Main button/trigger styling */
+.ReactFlagsSelect-module_selectBtn__19wW7 {
+  @apply h-[50px] w-full rounded-md border border-input bg-transparent px-4 py-6 text-sm text-foreground shadow-inner drop-shadow-xl transition-colors;
+}
+
+/* Placeholder text */
+.ReactFlagsSelect-module_placeholder__1rz0E {
+  @apply text-muted-foreground;
+}
+
+/* Selected text */
+.ReactFlagsSelect-module_selectValue__152eS {
+  @apply text-foreground;
+}
+
+.ReactFlagsSelect-module_selectOptions__3LNBJ {
+  @apply overflow-x-hidden border-input bg-background text-foreground;
+}
+
+.ReactFlagsSelect-module_filterBox__3m8EU {
+  @apply overflow-x-hidden border-input bg-background;
+}
+
+.ReactFlagsSelect-module_filterBox__3m8EU input {
+  @apply w-full border-input bg-background px-3 py-2 text-foreground;
+}
+
+.ReactFlagsSelect-module_selectOption__3pcgW {
+  @apply text-foreground;
+}
+
+.ReactFlagsSelect-module_selectOption__3pcgW:hover {
+  @apply bg-accent;
+}
+
+.dark .ReactFlagsSelect-module_selectOptions__3LNBJ {
+  @apply border-input bg-background text-foreground;
+}
+
+.dark .ReactFlagsSelect-module_filterBox__3m8EU {
+  @apply border-input bg-background;
+}
+
+.dark .ReactFlagsSelect-module_filterBox__3m8EU input {
+  @apply border-input bg-background text-foreground;
+}
+
+.ReactFlagsSelect-module_label__27pw9 {
+  @apply text-foreground;
+}

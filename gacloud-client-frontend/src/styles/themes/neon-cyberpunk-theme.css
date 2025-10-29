@@ -1,0 +1,165 @@
+@layer base {
+  /* Neon Cyberpunk Theme - Active Menu Item Title and Description Styling */
+  .neon-cyberpunk .bg-accent .line-clamp-2,
+  .neon-cyberpunk .bg-accent span.line-clamp-2,
+  .neon-cyberpunk .bg-accent .text-muted-foreground,
+  .neon-cyberpunk .bg-accent h3,
+  .neon-cyberpunk .bg-accent h4,
+  .neon-cyberpunk .bg-accent h5,
+  .neon-cyberpunk .bg-accent h6,
+  .neon-cyberpunk .bg-accent .font-medium,
+  .neon-cyberpunk .bg-accent .font-semibold {
+    color: #000000 !important; /* Black text for high contrast on neon backgrounds */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+  }
+
+  /* Neon Cyberpunk Theme - Navigation Bar Active Parent Item Styling */
+  .neon-cyberpunk .bg-accent,
+  .neon-cyberpunk .bg-accent *,
+  .neon-cyberpunk .bg-accent span,
+  .neon-cyberpunk .bg-accent div,
+  .neon-cyberpunk .bg-accent .text-accent-foreground {
+    color: #000000 !important; /* Black color for navigation bar active parent items */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+  }
+
+  /* Neon glow effects for interactive elements */
+  .neon-cyberpunk .bg-accent {
+    box-shadow:
+      0 0 20px rgba(0, 255, 255, 0.4),
+      0 0 40px rgba(0, 255, 255, 0.2),
+      inset 0 0 20px rgba(0, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.6);
+  }
+
+  .neon-cyberpunk {
+    --background: 240 100% 2%;
+    --foreground: 180 100% 90%;
+    --card: 240 100% 4%;
+    --card-foreground: 180 100% 90%;
+    --popover: 240 100% 4%;
+    --popover-foreground: 180 100% 90%;
+    --primary: 180 100% 50%;
+    --primary-foreground: 240 100% 2%;
+    --secondary: 300 100% 15%;
+    --secondary-foreground: 180 100% 90%;
+    --muted: 240 50% 8%;
+    --muted-foreground: 180 50% 60%;
+    --accent: 0 100% 50%;
+    --accent-foreground: 240 100% 2%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 240 100% 2%;
+    --border: 180 100% 20%;
+    --input: 180 100% 20%;
+    --ring: 180 100% 50%;
+    --chart-1: 180 100% 50%;
+    --chart-2: 300 100% 50%;
+    --chart-3: 60 100% 50%;
+    --chart-4: 0 100% 50%;
+    --chart-5: 240 100% 50%;
+    --success: 120 100% 50%;
+    --success-foreground: 240 100% 2%;
+    --warning: 45 100% 50%;
+    --warning-foreground: 240 100% 2%;
+    --emerald: 120 100% 50%;
+    --emerald-foreground: 240 100% 2%;
+    --sidebar: 240 100% 3%;
+    --sidebar-foreground: 180 100% 90%;
+    --sidebar-primary: 180 100% 50%;
+    --sidebar-primary-foreground: 240 100% 2%;
+    --sidebar-accent: 300 100% 15%;
+    --sidebar-accent-foreground: 180 100% 90%;
+    --sidebar-border: 180 100% 20%;
+    --sidebar-ring: 180 100% 50%;
+    --font-sans: 'Orbitron', 'Exo 2', 'Rajdhani', sans-serif;
+    --font-serif: 'Orbitron', serif;
+    --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+    --radius: 0.2rem;
+    --shadow-2xs: 0px 0px 10px hsl(180 100% 50% / 0.3);
+    --shadow-xs: 0px 0px 15px hsl(180 100% 50% / 0.3);
+    --shadow-sm:
+      0px 0px 20px hsl(180 100% 50% / 0.4), 0px 0px 40px hsl(300 100% 50% / 0.2);
+    --shadow:
+      0px 0px 20px hsl(180 100% 50% / 0.4), 0px 0px 40px hsl(300 100% 50% / 0.2);
+    --shadow-md:
+      0px 0px 25px hsl(180 100% 50% / 0.5), 0px 0px 50px hsl(300 100% 50% / 0.3);
+    --shadow-lg:
+      0px 0px 30px hsl(180 100% 50% / 0.6), 0px 0px 60px hsl(300 100% 50% / 0.4);
+    --shadow-xl:
+      0px 0px 35px hsl(180 100% 50% / 0.7), 0px 0px 70px hsl(300 100% 50% / 0.5);
+    --shadow-2xl: 0px 0px 40px hsl(180 100% 50% / 0.8);
+  }
+
+  /* Custom neon animations */
+  .neon-cyberpunk .animate-pulse {
+    animation: neon-pulse 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes neon-pulse {
+    from {
+      box-shadow:
+        0 0 20px hsl(180 100% 50% / 0.4),
+        0 0 40px hsl(300 100% 50% / 0.2);
+    }
+    to {
+      box-shadow:
+        0 0 30px hsl(180 100% 50% / 0.6),
+        0 0 60px hsl(300 100% 50% / 0.4);
+    }
+  }
+
+  /* Cyberpunk grid background effect */
+  .neon-cyberpunk::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Neon text effects for headings */
+  .neon-cyberpunk h1,
+  .neon-cyberpunk h2,
+  .neon-cyberpunk h3 {
+    text-shadow:
+      0 0 5px hsl(180 100% 50%),
+      0 0 10px hsl(180 100% 50%),
+      0 0 15px hsl(180 100% 50%),
+      0 0 20px hsl(180 100% 50%);
+  }
+
+  /* Cyberpunk button effects */
+  .neon-cyberpunk button:hover {
+    box-shadow:
+      0 0 15px hsl(180 100% 50% / 0.6),
+      0 0 30px hsl(300 100% 50% / 0.4);
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+  }
+
+  /* Neon scrollbar */
+  .neon-cyberpunk ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .neon-cyberpunk ::-webkit-scrollbar-track {
+    background: hsl(240 100% 4%);
+  }
+
+  .neon-cyberpunk ::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, hsl(180 100% 50%), hsl(300 100% 50%));
+    border-radius: 4px;
+    box-shadow: 0 0 10px hsl(180 100% 50% / 0.5);
+  }
+
+  .neon-cyberpunk ::-webkit-scrollbar-thumb:hover {
+    box-shadow: 0 0 15px hsl(180 100% 50% / 0.8);
+  }
+}

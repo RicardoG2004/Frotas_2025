@@ -1,0 +1,19 @@
+{
+  // Identificação visual do projeto Client App
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#E774BB",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#E774BB99",
+    "titleBar.inactiveForeground": "#ffffffcc",
+    "statusBar.background": "#E774BB",
+    "statusBar.foreground": "#ffffff",
+    "statusBar.debuggingBackground": "#E774BB",
+    "statusBar.debuggingForeground": "#ffffff",
+    "statusBar.noFolderBackground": "#E774BB",
+    "activityBar.activeBackground": "#E774BB33",
+    "activityBar.activeBorder": "#E774BB",
+    "panel.border": "#E774BB",
+    "sideBar.border": "#E774BB33"
+  },
+  "window.title": "Frontend - ${dirty}${activeEditorShort}${separator}${rootName}"
+}
