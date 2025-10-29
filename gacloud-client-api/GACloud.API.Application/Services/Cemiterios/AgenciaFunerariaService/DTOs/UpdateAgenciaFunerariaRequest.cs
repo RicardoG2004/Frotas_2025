@@ -2,7 +2,7 @@ using FluentValidation;
 using GACloud.API.Application.Common.Marker;
 using GACloud.API.Application.Utility;
 
-namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs
+namespace GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs
 {
   public class UpdateAgenciaFunerariaRequest : IDto
   {

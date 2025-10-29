@@ -1,13 +1,13 @@
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.Filters;
+using GACloud.API.Application.Services.Frotas.CoveiroService;
+using GACloud.API.Application.Services.Frotas.CoveiroService.DTOs;
+using GACloud.API.Application.Services.Frotas.CoveiroService.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GACloud.API.WebApi.Controllers.Cemiterios
+namespace GACloud.API.WebApi.Controllers.Frotas
 {
-  [Route("client/cemiterios/coveiros")]
+  [Route("client/frotas/coveiros")]
   [ApiController]
   public class CoveirosController(ICoveiroService CoveiroService)
     : ControllerBase

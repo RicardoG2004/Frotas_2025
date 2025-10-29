@@ -1,9 +1,9 @@
 using GACloud.API.Application.Common.Marker;
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.Filters;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.Filters;
 
-namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService
+namespace GACloud.API.Application.Services.Frotas.AgenciaFunerariaService
 {
   public interface IAgenciaFunerariaService : ITransientService
   {

@@ -1,7 +1,7 @@
 using FluentValidation;
 using GACloud.API.Application.Common.Marker;
 
-namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs
+namespace GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs
 {
   public class DeleteMultipleAgenciaFunerariaRequest : IDto
   {

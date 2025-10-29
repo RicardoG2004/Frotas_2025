@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 using GACloud.API.Domain.Entities.Common;
 
 namespace GACloud.API.Domain.Entities.Base

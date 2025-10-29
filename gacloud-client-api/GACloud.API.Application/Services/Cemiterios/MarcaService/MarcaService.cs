@@ -1,14 +1,14 @@
 using AutoMapper;
 using GACloud.API.Application.Common;
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.Filters;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.Specifications;
+using GACloud.API.Application.Services.Frotas.MarcaService.DTOs;
+using GACloud.API.Application.Services.Frotas.MarcaService.Filters;
+using GACloud.API.Application.Services.Frotas.MarcaService.Specifications;
 using GACloud.API.Application.Utility;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 using Microsoft.EntityFrameworkCore;
 
-namespace GACloud.API.Application.Services.Cemiterios.MarcaService
+namespace GACloud.API.Application.Services.Frotas.MarcaService
 {
   public class MarcaService : IMarcaService
   {

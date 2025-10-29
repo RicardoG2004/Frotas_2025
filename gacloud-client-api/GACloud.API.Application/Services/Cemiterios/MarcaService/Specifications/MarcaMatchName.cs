@@ -1,7 +1,7 @@
 using Ardalis.Specification;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 
-namespace GACloud.API.Application.Services.Cemiterios.MarcaService.Specifications
+namespace GACloud.API.Application.Services.Frotas.MarcaService.Specifications
 {
   public class MarcaMatchName : Specification<Marca>
   {

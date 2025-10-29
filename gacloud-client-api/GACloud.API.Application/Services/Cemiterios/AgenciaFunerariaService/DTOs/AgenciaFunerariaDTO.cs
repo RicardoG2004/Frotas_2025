@@ -1,7 +1,7 @@
 using GACloud.API.Application.Common.Marker;
 using GACloud.API.Application.Services.Base.EntidadeService.DTOs;
 
-namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs
+namespace GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs
 {
   public class AgenciaFunerariaDTO : IDto
   {

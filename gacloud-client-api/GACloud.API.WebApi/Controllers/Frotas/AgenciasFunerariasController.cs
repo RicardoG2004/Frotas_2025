@@ -1,13 +1,13 @@
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.Filters;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GACloud.API.WebApi.Controllers.Cemiterios
+namespace GACloud.API.WebApi.Controllers.Frotas
 {
-  [Route("client/cemiterios/agenciasfunerarias")]
+  [Route("client/frotas/agenciasfunerarias")]
   [ApiController]
   public class AgenciasFunerariasController(
     IAgenciaFunerariaService AgenciaFunerariaService

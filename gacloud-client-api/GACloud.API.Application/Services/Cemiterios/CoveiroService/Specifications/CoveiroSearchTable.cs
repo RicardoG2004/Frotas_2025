@@ -1,9 +1,9 @@
 using Ardalis.Specification;
 using GACloud.API.Application.Common.Filter;
 using GACloud.API.Application.Common.Specification;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 
-namespace GACloud.API.Application.Services.Cemiterios.CoveiroService.Specifications
+namespace GACloud.API.Application.Services.Frotas.CoveiroService.Specifications
 {
   public class CoveiroSearchTable : Specification<Coveiro>
   {

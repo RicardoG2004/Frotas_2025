@@ -1,13 +1,13 @@
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.MarcaService;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.Filters;
+using GACloud.API.Application.Services.Frotas.MarcaService;
+using GACloud.API.Application.Services.Frotas.MarcaService.DTOs;
+using GACloud.API.Application.Services.Frotas.MarcaService.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GACloud.API.WebApi.Controllers.Cemiterios
+namespace GACloud.API.WebApi.Controllers.Frotas
 {
-  [Route("client/cemiterios/marcas")]
+  [Route("client/frotas/marcas")]
   [ApiController]
   public class MarcasController(IMarcaService MarcaService)
     : ControllerBase

@@ -1,7 +1,7 @@
 using Ardalis.Specification;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 
-namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.Specifications
+namespace GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.Specifications
 {
   public class AgenciaFunerariaSearchList : Specification<AgenciaFuneraria>
   {

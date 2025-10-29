@@ -1,9 +1,9 @@
 using GACloud.API.Application.Common.Marker;
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.Filters;
+using GACloud.API.Application.Services.Frotas.CoveiroService.DTOs;
+using GACloud.API.Application.Services.Frotas.CoveiroService.Filters;
 
-namespace GACloud.API.Application.Services.Cemiterios.CoveiroService
+namespace GACloud.API.Application.Services.Frotas.CoveiroService
 {
   public interface ICoveiroService : ITransientService
   {

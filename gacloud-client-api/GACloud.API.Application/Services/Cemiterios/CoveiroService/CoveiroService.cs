@@ -1,14 +1,14 @@
 using AutoMapper;
 using GACloud.API.Application.Common;
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.Filters;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.Specifications;
+using GACloud.API.Application.Services.Frotas.CoveiroService.DTOs;
+using GACloud.API.Application.Services.Frotas.CoveiroService.Filters;
+using GACloud.API.Application.Services.Frotas.CoveiroService.Specifications;
 using GACloud.API.Application.Utility;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 using Microsoft.EntityFrameworkCore;
 
-namespace GACloud.API.Application.Services.Cemiterios.CoveiroService
+namespace GACloud.API.Application.Services.Frotas.CoveiroService
 {
   public class CoveiroService : ICoveiroService
   {

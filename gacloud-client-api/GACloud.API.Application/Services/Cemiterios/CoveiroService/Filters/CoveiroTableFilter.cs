@@ -1,6 +1,6 @@
 using GACloud.API.Application.Common.Filter;
 
-namespace GACloud.API.Application.Services.Cemiterios.CoveiroService.Filters
+namespace GACloud.API.Application.Services.Frotas.CoveiroService.Filters
 {
   public class CoveiroTableFilter : PaginationFilter
   {

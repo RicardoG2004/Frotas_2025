@@ -1,6 +1,6 @@
 using GACloud.API.Application.Common.Marker;
 
-namespace GACloud.API.Application.Services.Cemiterios.MarcaService.DTOs
+namespace GACloud.API.Application.Services.Frotas.MarcaService.DTOs
 {
   public class MarcaDTO : IDto
   {

@@ -1,11 +1,11 @@
 using AutoMapper;
 using GACloud.API.Application.Common;
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.Filters;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.Specifications;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.Filters;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.Specifications;
 using GACloud.API.Application.Utility;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 using Microsoft.EntityFrameworkCore;
 
 // After creating this service:
@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 // -- 2. Add DbSet<AgenciaFuneraria> to GACloud.API.Infrastructure/Persistence/Contexts/ApplicationDbContext and create a new migration
 // -- 3. Add mapping configuration for the new DTOs in GACloud.API.Infrastructure/Mapper/MappingProfiles
 // -- 4. Create a CemiterioAgenciasFunerarias api controller, you can use the command: dotnet new nano-controller -s (single name) -p (plural name) -ap (app name) -ui (spa/razor)
-namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService
+namespace GACloud.API.Application.Services.Frotas.AgenciaFunerariaService
 {
   public class AgenciaFunerariaService(IRepositoryAsync repository, IMapper mapper)
     : IAgenciaFunerariaService

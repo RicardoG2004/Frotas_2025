@@ -1,6 +1,6 @@
 using GACloud.API.Application.Common.Filter;
 
-namespace GACloud.API.Application.Services.Cemiterios.MarcaService.Filters
+namespace GACloud.API.Application.Services.Frotas.MarcaService.Filters
 {
   public class MarcaTableFilter : PaginationFilter
   {

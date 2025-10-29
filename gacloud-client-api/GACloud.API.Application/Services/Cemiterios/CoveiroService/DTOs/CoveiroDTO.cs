@@ -2,7 +2,7 @@ using GACloud.API.Application.Common.Marker;
 using GACloud.API.Application.Services.Base.CodigoPostalService.DTOs;
 using GACloud.API.Application.Services.Base.RuaService.DTOs;
 
-namespace GACloud.API.Application.Services.Cemiterios.CoveiroService.DTOs
+namespace GACloud.API.Application.Services.Frotas.CoveiroService.DTOs
 {
   public class CoveiroDTO : IDto
   {

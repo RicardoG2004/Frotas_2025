@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using GACloud.API.Domain.Entities.Base;
 using GACloud.API.Domain.Entities.Common;
 
-namespace GACloud.API.Domain.Entities.Cemiterios
+namespace GACloud.API.Domain.Entities.Frotas
 {
-  [Table("Coveiro", Schema = "Cemiterios")]
+  [Table("Coveiro", Schema = "Frotas")]
   public class Coveiro : AuditableEntity
   {
     public string Nome { get; set; }

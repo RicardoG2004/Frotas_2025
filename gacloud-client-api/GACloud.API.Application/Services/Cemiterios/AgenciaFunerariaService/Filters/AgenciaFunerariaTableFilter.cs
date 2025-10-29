@@ -1,6 +1,6 @@
 using GACloud.API.Application.Common.Filter;
 
-namespace GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.Filters
+namespace GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.Filters
 {
   public class AgenciaFunerariaTableFilter : PaginationFilter
   {

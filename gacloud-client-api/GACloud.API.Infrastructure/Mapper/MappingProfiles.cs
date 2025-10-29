@@ -9,11 +9,11 @@ using GACloud.API.Application.Services.Base.FreguesiaService.DTOs;
 using GACloud.API.Application.Services.Base.PaisService.DTOs;
 using GACloud.API.Application.Services.Base.RuaService.DTOs;
 using GACloud.API.Application.Services.Base.RubricaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.CoveiroService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.DTOs;
+using GACloud.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs;
+using GACloud.API.Application.Services.Frotas.CoveiroService.DTOs;
+using GACloud.API.Application.Services.Frotas.MarcaService.DTOs;
 using GACloud.API.Domain.Entities.Base;
-using GACloud.API.Domain.Entities.Cemiterios;
+using GACloud.API.Domain.Entities.Frotas;
 
 namespace GACloud.API.Infrastructure.Mapper
 {

@@ -1,9 +1,9 @@
 using GACloud.API.Application.Common.Marker;
 using GACloud.API.Application.Common.Wrapper;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.MarcaService.Filters;
+using GACloud.API.Application.Services.Frotas.MarcaService.DTOs;
+using GACloud.API.Application.Services.Frotas.MarcaService.Filters;
 
-namespace GACloud.API.Application.Services.Cemiterios.MarcaService
+namespace GACloud.API.Application.Services.Frotas.MarcaService
 {
   public interface IMarcaService : ITransientService
   {

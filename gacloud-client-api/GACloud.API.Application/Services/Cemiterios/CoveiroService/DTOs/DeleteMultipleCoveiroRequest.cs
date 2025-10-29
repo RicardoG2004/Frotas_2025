@@ -1,6 +1,6 @@
 using GACloud.API.Application.Common.Marker;
 
-namespace GACloud.API.Application.Services.Cemiterios.CoveiroService.DTOs
+namespace GACloud.API.Application.Services.Frotas.CoveiroService.DTOs
 {
   public class DeleteMultipleCoveiroRequest : IDto
   {
