@@ -1,4 +1,3 @@
-import { useViewStore } from '@/pages/cemiterios/cemiterios-view/store/view-store'
 import { useRouter } from '@/routes/hooks'
 import { useNavigate } from 'react-router-dom'
 import { useMapStore } from '@/stores/use-map-store'
@@ -66,10 +65,6 @@ export function NotFound() {
       // Clean up map data for this window
       const mapStore = useMapStore.getState()
       mapStore.cleanupWindowData(window.id)
-
-      // Clean up view data for this window
-      const viewStore = useViewStore.getState()
-      viewStore.cleanupWindowData(window.id)
     })
 
     // Clean up all form instances

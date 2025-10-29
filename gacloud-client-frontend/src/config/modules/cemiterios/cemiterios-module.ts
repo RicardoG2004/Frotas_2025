@@ -52,6 +52,10 @@ export const cemiterios: Module = {
       id: '00000003-0002-0000-0012-000000000002',
       name: 'Agências Funerárias',
     },
+    marcas: {
+      id: '00000003-0002-0000-0015-000000000002',
+      name: 'Marcas',
+    },
     defuntosTipos: {
       id: '00000003-0002-0000-0013-000000000002',
       name: 'Tipos de Defunto',

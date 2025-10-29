@@ -6,6 +6,7 @@ import {
   IconGrave,
   IconReportMoney,
   IconBuilding,
+  IconTag,
 } from '@tabler/icons-react'
 import {
   AlertTriangle,
@@ -37,6 +38,7 @@ import {
   Pizza,
   Plus,
   Settings,
+  Shield,
   SunMedium,
   Trash,
   User,
@@ -90,6 +92,8 @@ export const Icons = {
   IconGrave: IconGrave,
   IconReportMoney: IconReportMoney,
   IconBuilding: IconBuilding,
+  IconTag: IconTag,
+  shield: Shield,
 } as const
 
 export type IconKey = keyof typeof Icons

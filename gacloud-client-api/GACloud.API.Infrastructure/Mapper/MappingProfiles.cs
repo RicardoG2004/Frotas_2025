@@ -10,15 +10,8 @@ using GACloud.API.Application.Services.Base.PaisService.DTOs;
 using GACloud.API.Application.Services.Base.RuaService.DTOs;
 using GACloud.API.Application.Services.Base.RubricaService.DTOs;
 using GACloud.API.Application.Services.Cemiterios.AgenciaFunerariaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.CemiterioService.DTOs;
 using GACloud.API.Application.Services.Cemiterios.CoveiroService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.DefuntoTipoService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.ProprietarioService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.SepulturaService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.SepulturaTipoDescricaoService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.SepulturaTipoService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.TalhaoService.DTOs;
-using GACloud.API.Application.Services.Cemiterios.ZonaService.DTOs;
+using GACloud.API.Application.Services.Cemiterios.MarcaService.DTOs;
 using GACloud.API.Domain.Entities.Base;
 using GACloud.API.Domain.Entities.Cemiterios;
 
@@ -72,11 +65,10 @@ namespace GACloud.API.Infrastructure.Mapper
       _ = CreateMap<Entidade, EntidadeDTO>()
         .ForMember(dest => dest.Contactos, opt => opt.MapFrom(src => src.Contactos)); // Explicitly map Contactos (safe - no circular ref in DTO)
       _ = CreateMap<CreateEntidadeRequest, Entidade>()
-        .ForMember(dest => dest.Contactos, opt => opt.Ignore())
-        .ForMember(dest => dest.Proprietarios, opt => opt.Ignore());
+        .ForMember(dest => dest.Contactos, opt => opt.Ignore());
       _ = CreateMap<UpdateEntidadeRequest, Entidade>()
-        .ForMember(dest => dest.Contactos, opt => opt.Ignore())
-        .ForMember(dest => dest.Proprietarios, opt => opt.Ignore());
+        .ForMember(dest => dest.Contactos, opt => opt.Ignore());
+
 
       // entidade contacto mappings
       _ = CreateMap<EntidadeContacto, EntidadeContactoDTO>(); // Note: Does not map back to Entidade (safe)
@@ -126,67 +118,6 @@ namespace GACloud.API.Infrastructure.Mapper
       _ = CreateMap<CreateRubricaRequest, Rubrica>();
       _ = CreateMap<UpdateRubricaRequest, Rubrica>();
 
-      // cemiterio mappings
-      _ = CreateMap<Cemiterio, CemiterioDTO>(); // Note: Proprietarios collection not mapped in DTO (safe)
-      _ = CreateMap<CreateCemiterioRequest, Cemiterio>()
-        .ForMember(dest => dest.Proprietarios, opt => opt.Ignore());
-      _ = CreateMap<UpdateCemiterioRequest, Cemiterio>()
-        .ForMember(dest => dest.Proprietarios, opt => opt.Ignore());
-
-      // Zona mappings
-      _ = CreateMap<Zona, ZonaDTO>();
-      _ = CreateMap<CreateZonaRequest, Zona>()
-        .ForMember(dest => dest.Cemiterio, opt => opt.Ignore());
-      _ = CreateMap<UpdateZonaRequest, Zona>()
-        .ForMember(dest => dest.Cemiterio, opt => opt.Ignore());
-
-      // Talhao mappings
-      _ = CreateMap<Talhao, TalhaoDTO>();
-      _ = CreateMap<CreateTalhaoRequest, Talhao>()
-        .ForMember(dest => dest.Zona, opt => opt.Ignore());
-      _ = CreateMap<UpdateTalhaoRequest, Talhao>()
-        .ForMember(dest => dest.Zona, opt => opt.Ignore());
-
-      // SepulturaTipodescricao mappings
-      _ = CreateMap<SepulturaTipoDescricao, SepulturaTipoDescricaoDTO>();
-      _ = CreateMap<CreateSepulturaTipoDescricaoRequest, SepulturaTipoDescricao>();
-      _ = CreateMap<UpdateSepulturaTipoDescricaoRequest, SepulturaTipoDescricao>();
-
-      // SepulturaTipo mappings
-      _ = CreateMap<SepulturaTipo, SepulturaTipoDTO>();
-      _ = CreateMap<CreateSepulturaTipoRequest, SepulturaTipo>()
-        .ForMember(dest => dest.Epoca, opt => opt.Ignore())
-        .ForMember(dest => dest.SepulturaTipoDescricao, opt => opt.Ignore());
-      _ = CreateMap<UpdateSepulturaTipoRequest, SepulturaTipo>()
-        .ForMember(dest => dest.Epoca, opt => opt.Ignore())
-        .ForMember(dest => dest.SepulturaTipoDescricao, opt => opt.Ignore());
-
-      // Sepultura mappings
-      _ = CreateMap<Sepultura, SepulturaDTO>();
-      _ = CreateMap<CreateSepulturaRequest, Sepultura>()
-        .ForMember(dest => dest.Proprietarios, opt => opt.Ignore())
-        .ForMember(dest => dest.Talhao, opt => opt.Ignore())
-        .ForMember(dest => dest.SepulturaTipo, opt => opt.Ignore());
-      _ = CreateMap<UpdateSepulturaRequest, Sepultura>()
-        .ForMember(dest => dest.Proprietarios, opt => opt.Ignore())
-        .ForMember(dest => dest.Talhao, opt => opt.Ignore())
-        .ForMember(dest => dest.SepulturaTipo, opt => opt.Ignore());
-
-      // Proprietario mappings
-      _ = CreateMap<Proprietario, ProprietarioDTO>()
-        .ForMember(dest => dest.Sepulturas, opt => opt.Ignore()); // Prevent circular reference
-      _ = CreateMap<CreateProprietarioRequest, Proprietario>()
-        .ForMember(dest => dest.Sepulturas, opt => opt.Ignore())
-        .ForMember(dest => dest.Cemiterio, opt => opt.Ignore())
-        .ForMember(dest => dest.Entidade, opt => opt.Ignore());
-      _ = CreateMap<UpdateProprietarioRequest, Proprietario>()
-        .ForMember(dest => dest.Sepulturas, opt => opt.Ignore())
-        .ForMember(dest => dest.Cemiterio, opt => opt.Ignore())
-        .ForMember(dest => dest.Entidade, opt => opt.Ignore());
-
-      // Proprietario sepultura mappings
-      _ = CreateMap<ProprietarioSepultura, ProprietarioSepulturaDTO>()
-        .ForMember(dest => dest.Sepultura, opt => opt.Ignore()); // Prevent circular reference
 
       // AgenciaFuneraria mappings
       _ = CreateMap<AgenciaFuneraria, AgenciaFunerariaDTO>();
@@ -204,10 +135,10 @@ namespace GACloud.API.Infrastructure.Mapper
         .ForMember(dest => dest.Rua, opt => opt.Ignore())
         .ForMember(dest => dest.CodigoPostal, opt => opt.Ignore());
 
-      // DefuntoTipo mappings
-      _ = CreateMap<DefuntoTipo, DefuntoTipoDTO>();
-      _ = CreateMap<CreateDefuntoTipoRequest, DefuntoTipo>();
-      _ = CreateMap<UpdateDefuntoTipoRequest, DefuntoTipo>();
+        // Marcas mappings
+      _ = CreateMap<Marca, MarcaDTO>();
+      _ = CreateMap<CreateMarcaRequest, Marca>();
+      _ = CreateMap<UpdateMarcaRequest, Marca>();
 
       // add new entity mappings here...
     }

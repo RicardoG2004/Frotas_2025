@@ -23,6 +23,5 @@ namespace GACloud.API.Domain.Entities.Base
     public bool Ativo { get; set; }
     public bool Historico { get; set; }
     public ICollection<EntidadeContacto> Contactos { get; set; } = new List<EntidadeContacto>();
-    public ICollection<Proprietario> Proprietarios { get; set; } = [];
   }
 }

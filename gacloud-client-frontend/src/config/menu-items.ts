@@ -242,134 +242,6 @@ export const roleHeaderMenus = {
         funcionalidadeId: '',
         items: [
           {
-            label: 'Cemitérios',
-            href: '/cemiterios/configuracoes/cemiterios',
-            description: 'Faça a gestão de cemitérios',
-            icon: 'IconGrave',
-            colors: {
-              colorful: 'bg-cyan-500',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-cyan-300',
-              vibrant: 'bg-cyan-600',
-              neon: 'bg-cyan-400',
-              'neon-cyberpunk':
-                'bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.6)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.cemiterios.id,
-          },
-          {
-            label: 'Zonas',
-            href: '/cemiterios/configuracoes/zonas',
-            description: 'Faça a gestão de zonas de cemitérios',
-            icon: 'tablerMap',
-            colors: {
-              colorful: 'bg-cyan-600',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-cyan-400',
-              vibrant: 'bg-cyan-700',
-              neon: 'bg-blue-400',
-              'neon-cyberpunk':
-                'bg-cyan-600 shadow-[0_0_25px_rgba(8,145,178,0.7)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.zonas.id,
-          },
-          {
-            label: 'Talhões',
-            href: '/cemiterios/configuracoes/talhoes',
-            description: 'Faça a gestão de talhões de cemitérios',
-            icon: 'tablerFolder',
-            colors: {
-              colorful: 'bg-cyan-700',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-cyan-500',
-              vibrant: 'bg-cyan-800',
-              neon: 'bg-purple-400',
-              'neon-cyberpunk':
-                'bg-cyan-700 shadow-[0_0_30px_rgba(14,116,144,0.8)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.talhoes.id,
-          },
-          {
-            label: 'Sepulturas',
-            href: '/cemiterios/configuracoes/sepulturas',
-            description: 'Faça a gestão de sepulturas de cemitérios',
-            icon: 'IconGrave',
-            colors: {
-              colorful: 'bg-emerald-400',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-emerald-200',
-              vibrant: 'bg-emerald-500',
-              neon: 'bg-green-400',
-              'neon-cyberpunk':
-                'bg-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.6)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.sepulturas.id,
-          },
-          {
-            label: 'Tipos de Sepultura',
-            href: '/cemiterios/configuracoes/sepulturas/tipos',
-            description: 'Faça a gestão de tipos de sepultura da época',
-            icon: 'list',
-            colors: {
-              colorful: 'bg-emerald-500',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-emerald-300',
-              vibrant: 'bg-emerald-600',
-              neon: 'bg-lime-400',
-              'neon-cyberpunk':
-                'bg-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.7)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.sepulturasTipos.id,
-          },
-          {
-            label: 'Proprietários',
-            href: '/cemiterios/configuracoes/proprietarios',
-            description: 'Faça a gestão de proprietários de sepultura',
-            icon: 'user',
-            colors: {
-              colorful: 'bg-emerald-600',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-emerald-400',
-              vibrant: 'bg-emerald-700',
-              neon: 'bg-pink-400',
-              'neon-cyberpunk':
-                'bg-emerald-600 shadow-[0_0_30px_rgba(5,150,105,0.8)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.proprietarios.id,
-          },
-          {
-            label: 'Defuntos',
-            href: '/cemiterios/configuracoes/defuntos',
-            description: 'Faça a gestão de defuntos de cemitérios',
-            icon: 'IconGrave',
-            colors: {
-              colorful: 'bg-orange-400',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-orange-200',
-              vibrant: 'bg-orange-500',
-              neon: 'bg-orange-400',
-              'neon-cyberpunk':
-                'bg-orange-400 shadow-[0_0_20px_rgba(251,146,60,0.6)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.defuntos.id,
-          },
-          {
-            label: 'Tipos de Defunto',
-            href: '/cemiterios/configuracoes/defuntos/tipos',
-            description: 'Faça a gestão de tipos de defunto',
-            icon: 'list',
-            colors: {
-              colorful: 'bg-orange-500',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-orange-300',
-              vibrant: 'bg-orange-600',
-              neon: 'bg-yellow-400',
-              'neon-cyberpunk':
-                'bg-orange-500 shadow-[0_0_25px_rgba(249,115,22,0.7)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.defuntosTipos.id,
-          },
-          {
             label: 'Coveiros',
             href: '/cemiterios/configuracoes/coveiros',
             description: 'Faça a gestão de coveiros de cemitérios',
@@ -403,61 +275,20 @@ export const roleHeaderMenus = {
               modules.cemiterios.permissions.agenciasFunerarias.id,
           },
           {
-            label: 'Criar/Editar Mapa',
-            href: '/cemiterios/configuracoes/mapa',
-            description: 'Faça a gestão de mapas de cemitérios',
-            icon: 'tablerMap',
+            label: 'Marcas',
+            href: '/cemiterios/configuracoes/marcas',
+            description: 'Faça a gestão de marcas de carros',
+            icon: 'shield',
             colors: {
-              colorful: 'bg-pink-500',
+              colorful: 'bg-purple-700',
               'theme-color': 'bg-primary',
-              pastel: 'bg-pink-300',
-              vibrant: 'bg-pink-600',
-              neon: 'bg-rose-400',
+              pastel: 'bg-purple-300',
+              vibrant: 'bg-purple-600',
+              neon: 'bg-violet-400',
               'neon-cyberpunk':
-                'bg-pink-500 shadow-[0_0_25px_rgba(236,72,153,0.7)]',
+                'bg-purple-700 shadow-[0_0_35px_rgba(126,34,206,0.9)]',
             },
-            funcionalidadeId: modules.cemiterios.permissions.mapas.id,
-          },
-          {
-            label: 'Ver Mapa',
-            href: '/cemiterios/configuracoes/mapa/view',
-            description: 'Consulte mapas de cemitérios',
-            icon: 'tablerMap',
-            colors: {
-              colorful: 'bg-pink-600',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-pink-400',
-              vibrant: 'bg-pink-700',
-              neon: 'bg-pink-400',
-              'neon-cyberpunk':
-                'bg-pink-600 shadow-[0_0_30px_rgba(219,39,119,0.8)]',
-            },
-            funcionalidadeId: modules.cemiterios.permissions.mapas.id,
-          },
-        ],
-      },
-      {
-        label: 'Outros',
-        href: '/cemiterios/outros',
-        icon: '',
-        funcionalidadeId: '',
-        items: [
-          {
-            label: 'Tipos de Sepultura',
-            href: '/cemiterios/outros/tipos-descricoes',
-            description: 'Faça a gestão de tipos de sepultura geral',
-            icon: 'list',
-            colors: {
-              colorful: 'bg-rose-500',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-rose-300',
-              vibrant: 'bg-rose-600',
-              neon: 'bg-indigo-400',
-              'neon-cyberpunk':
-                'bg-rose-500 shadow-[0_0_25px_rgba(244,63,94,0.7)]',
-            },
-            funcionalidadeId:
-              modules.cemiterios.permissions.sepulturasTiposDescricoes.id,
+            funcionalidadeId: '', // Removed permission check temporarily
           },
         ],
       },

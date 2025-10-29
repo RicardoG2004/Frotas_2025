@@ -138,6 +138,9 @@ export const getPageTitleFromPath = (path: string): string => {
       'Criar Agência Funerária',
     '/cemiterios/configuracoes/agencias-funerarias/update':
       'Editar Agência Funerária',
+    '/cemiterios/configuracoes/marcas': 'Marcas',
+    '/cemiterios/configuracoes/marcas/create': 'Criar Marca',
+    '/cemiterios/configuracoes/marcas/update': 'Editar Marca',
     '/cemiterios/configuracoes/defuntos/tipos': 'Tipos de Defuntos',
     '/cemiterios/configuracoes/defuntos/tipos/create': 'Criar Tipo de Defunto',
     '/cemiterios/configuracoes/defuntos/tipos/update': 'Editar Tipo de Defunto',

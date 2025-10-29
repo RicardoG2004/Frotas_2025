@@ -10,7 +10,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { CemiterioSelector } from './cemiterio-selector'
 import { DataTrabalhoSelector } from './data-trabalho-selector'
 import { EpocaSelector } from './epoca-selector'
 
@@ -51,7 +50,6 @@ export function AppOptionsDrawer() {
           )}
         >
           <EpocaSelector />
-          <CemiterioSelector />
           <DataTrabalhoSelector />
         </div>
       </SheetContent>

@@ -1,7 +1,6 @@
 ﻿using GACloud.API.Domain.Common;
 using GACloud.API.Domain.Entities.Base;
 using GACloud.API.Domain.Entities.Cemiterios;
-using GACloud.API.Infrastructure.Persistence.Configurations;
 using GACloud.API.Infrastructure.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,17 +39,10 @@ namespace GACloud.API.Infrastructure.Persistence.Contexts
     public DbSet<EntidadeContacto> EntidadeContactos { get; set; }
     public DbSet<Epoca> Epocas { get; set; }
     public DbSet<Rubrica> Rubricas { get; set; }
-    public DbSet<Cemiterio> Cemiterios { get; set; }
-    public DbSet<Zona> Zonas { get; set; }
-    public DbSet<Talhao> Talhoes { get; set; }
-    public DbSet<SepulturaTipoDescricao> SepulturaTiposDescricao { get; set; }
-    public DbSet<SepulturaTipo> SepulturaTipos { get; set; }
-    public DbSet<Sepultura> Sepulturas { get; set; }
-    public DbSet<Proprietario> Proprietarios { get; set; }
-    public DbSet<ProprietarioSepultura> ProprietarioSepulturas { get; set; }
     public DbSet<AgenciaFuneraria> AgenciasFunerarias { get; set; }
     public DbSet<Coveiro> Coveiros { get; set; }
-    public DbSet<DefuntoTipo> DefuntoTipos { get; set; }
+    public DbSet<Marca> Marcas { get; set; }
+  
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -67,8 +59,6 @@ namespace GACloud.API.Infrastructure.Persistence.Contexts
       // query filters
       _ = modelBuilder.AppendGlobalQueryFilter<ISoftDelete>(s => s.DeletedOn == null);
 
-      // Apply configurations
-      _ = modelBuilder.ApplyConfiguration(new SepulturaConfiguration());
 
       modelBuilder.SeedStaticData();
     }

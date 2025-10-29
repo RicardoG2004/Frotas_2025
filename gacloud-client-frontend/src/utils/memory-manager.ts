@@ -1,4 +1,3 @@
-import { useViewStore } from '@/pages/cemiterios/cemiterios-view/store/view-store'
 import { useFormsStore } from '@/stores/use-forms-store'
 import { useMapStore } from '@/stores/use-map-store'
 import { useNavigationHistoryStore } from '@/stores/use-navigation-history-store'
@@ -261,14 +260,12 @@ class MemoryManager {
     const pagesStore = usePagesStore.getState()
     const windowsStore = useWindowsStore.getState()
     const mapStore = useMapStore.getState()
-    const viewStore = useViewStore.getState()
     const navigationStore = useNavigationHistoryStore.getState()
 
     formsStore.clearAllFormData()
     pagesStore.pages = {}
     windowsStore.clearAllWindows()
     mapStore.maps = {}
-    viewStore.clearAllViewStates()
     navigationStore.clearHistory()
 
     // Clear localStorage
@@ -283,7 +280,6 @@ class MemoryManager {
     usePagesStore.persist.clearStorage()
     useWindowsStore.persist.clearStorage()
     useMapStore.persist.clearStorage()
-    useViewStore.persist.clearStorage()
     useNavigationHistoryStore.persist.clearStorage()
 
     // Navigate to home page if navigate function is provided
@@ -296,7 +292,6 @@ class MemoryManager {
         const delayedPagesStore = usePagesStore.getState()
         const delayedWindowsStore = useWindowsStore.getState()
         const delayedMapStore = useMapStore.getState()
-        const delayedViewStore = useViewStore.getState()
 
         // Clear any forms that were created during navigation
         if (Object.keys(delayedFormsStore.forms).length > 0) {
@@ -319,12 +314,6 @@ class MemoryManager {
           delayedMapStore.maps = {}
           useMapStore.persist.clearStorage()
         }
-
-        if (Object.keys(delayedViewStore.viewStates).length > 0) {
-          delayedViewStore.clearAllViewStates()
-          useViewStore.persist.clearStorage()
-        }
-
         // Trigger a custom event to notify components that cleanup is complete
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('memoryCleanupComplete'))

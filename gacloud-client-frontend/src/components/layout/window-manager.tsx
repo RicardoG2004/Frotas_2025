@@ -1,5 +1,4 @@
 import { useEffect, Suspense, memo, useState, useRef } from 'react'
-import { useViewStore } from '@/pages/cemiterios/cemiterios-view/store/view-store'
 import { utilitariosRoutes } from '@/routes/base/utilitarios-routes'
 import { cemiteriosRoutes } from '@/routes/cemiterios/cemiterios-routes'
 import {
@@ -266,7 +265,6 @@ export function WindowManager({ children }: WindowManagerProps) {
     findWindowByPathAndInstanceId,
   } = useWindowsStore()
   const mapStore = useMapStore.getState()
-  const viewStore = useViewStore.getState()
 
   // Helper function to get parent window information
   const getParentWindowInfo = (parentWindowId: string) => {
@@ -547,9 +545,6 @@ export function WindowManager({ children }: WindowManagerProps) {
     // Clean up map data for this window
     mapStore.cleanupWindowData(windowId)
 
-    // Clean up view data for this window
-    viewStore.cleanupWindowData(windowId)
-
     // Check if this was the last window
     const remainingWindows = windows.filter((w) => w.id !== windowId)
     if (remainingWindows.length === 0) {
@@ -621,8 +616,6 @@ export function WindowManager({ children }: WindowManagerProps) {
       // Clean up map data for this window
       mapStore.cleanupWindowData(window.id)
 
-      // Clean up view data for this window
-      viewStore.cleanupWindowData(window.id)
     })
 
     // Clean up all form instances
