@@ -1,0 +1,31 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-Frotas
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=pISI8LLup28YigA5cdfA5YFco6HaU6jp
+      - MSSQL_PID=Developer
+      - TZ=Europe/Lisbon
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+      - ./backups:/var/opt/mssql/backup
+    user: root
+    networks:
+      - mynetwork
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "pISI8LLup28YigA5cdfA5YFco6HaU6jp" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  sqlserver-data:
+    driver: local
+
+networks:
+  mynetwork:
+    driver: bridge 

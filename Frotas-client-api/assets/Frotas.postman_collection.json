@@ -1,0 +1,1719 @@
+{
+	"info": {
+		"_postman_id": "ef3f5365-c55b-40a3-b646-eb639e4a7cdc",
+		"name": "Frotas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30682215"
+	},
+	"item": [
+		{
+			"name": "Tokens",
+			"item": [
+				{
+					"name": "get-token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", jsonData.data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "en-US"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"cliente.cmb@globalsoft.pt\",\r\n    \"password\":\"Password123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8081/api/tokens",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", jsonData.data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "en-US"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8081/api/tokens/iwgQgch9kG4QuECsc0TpSLW-0HFpje7YjoXeT0lRz-k",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"tokens",
+								"iwgQgch9kG4QuECsc0TpSLW-0HFpje7YjoXeT0lRz-k"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Client Token",
+			"item": [
+				{
+					"name": "token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", jsonData.data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"cliente.cmb@globalsoft.pt\",\r\n    \"password\": \"Password123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8081/api/client-token",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"client-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.collectionVariables.set(\"token\", jsonData.data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "tenant",
+								"value": "root"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "en-US"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8081/api/client-token/refresh/--8MRAPXrLqnjDq7TWsvlZDTc7j6roR3YKtenXtK33w",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"client-token",
+								"refresh",
+								"--8MRAPXrLqnjDq7TWsvlZDTc7j6roR3YKtenXtK33w"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Entities",
+			"item": [
+				{
+					"name": "Pais",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/paises",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"paises"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/paises/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"paises",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/paises/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"paises",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"codigo\": \"PT\",\r\n    \"nome\": \"Portugal\", \r\n    \"prefixo\": \"PT\",\r\n    \"codigosef\": \"PT\",\r\n    \"codigoine\": \"PT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/paises",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"paises"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"codigo\": \"PT\",\r\n    \"nome\": \"Portugal\", \r\n    \"prefixo\": \"PT\",\r\n    \"codigosef\": \"PT\",\r\n    \"codigoine\": \"PT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/paises/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"paises",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/paises/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"paises",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "CodigoPostal",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/codigospostais",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"codigospostais"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/codigospostais/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"codigospostais",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/codigospostais/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"codigospostais",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"codigo\": \"4700-029\",\r\n    \"Localidade\": \"Maximinos\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/codigospostais",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"codigospostais"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"codigo\": \"4700-760\",\r\n    \"Localidade\": \"Braga\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/codigospostais/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"codigospostais",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/codigospostais/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"codigospostais",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Distrito",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/distritos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"distritos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/distritos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"distritos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/distritos/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"distritos",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Braga\",\r\n    \"paisid\": \"44383bdf-51e6-4cff-7413-08dd5fea6833\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/distritos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"distritos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Braga\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/distritos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"distritos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/distritos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"distritos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Concelho",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/concelhos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"concelhos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/concelhos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"concelhos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/concelhos/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"concelhos",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Braga\",\r\n    \"distritoid\": \"1c42daff-315e-4338-76b6-08dd5feaae3d\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/concelhos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"concelhos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Braga\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/concelhos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"concelhos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/concelhos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"concelhos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Freguesia",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/freguesias",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"freguesias"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/freguesias/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"freguesias",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/freguesias/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"freguesias",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Maximinos\",\r\n    \"concelhoid\": \"87191dca-5528-44a7-d54c-08dd5feab94f\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/freguesias",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"freguesias"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Braga\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/freguesias/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"freguesias",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/freguesias/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"freguesias",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Rua",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/ruas",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"ruas"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/ruas/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"ruas",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/ruas/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"ruas",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Rua da Boucinha\",\r\n    \"freguesiaid\": \"1012d4c8-89e2-4483-5629-08dd5feacaa7\",\r\n    \"codigopostalid\": \"9d74d9e6-fc37-4009-9f45-08dd5feb0fe5\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/ruas",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"ruas"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Rua da Boucinha\",\r\n    \"freguesiaid\": \"2ae50fde-d259-4c9c-d541-08dd5d96f809\",\r\n    \"codigopostalid\": \"2ae50fde-d259-4c9c-d541-08dd5d96f809\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/ruas/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"ruas",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/ruas/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"ruas",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "EntidadeTipo",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/entidadetipos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidadetipos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/entidadetipos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidadetipos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/entidadetipos/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidadetipos",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Cliente\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/entidadetipos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidadetipos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Cliente\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/entidadetipos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidadetipos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/entidadetipos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidadetipos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "CartaoIdentificacaoTipo",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/cartaoidentificacaotipos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"cartaoidentificacaotipos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/cartaoidentificacaotipos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"cartaoidentificacaotipos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/cartaoidentificacaotipos/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"cartaoidentificacaotipos",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Cartao de Cidadao\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/cartaoidentificacaotipos",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"cartaoidentificacaotipos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Cartao de Cidadao\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/cartaoidentificacaotipos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"cartaoidentificacaotipos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/cartaoidentificacaotipos/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"cartaoidentificacaotipos",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "EstadoCivil",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/estadoscivis",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"estadoscivis"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/estadoscivis/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"estadoscivis",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/estadoscivis/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"estadoscivis",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Casado\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/estadoscivis",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"estadoscivis"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"Casado\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/estadoscivis/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"estadoscivis",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/estadoscivis/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"estadoscivis",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Entidade",
+					"item": [
+						{
+							"name": "list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/entidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/entidades/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidades",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "paginated",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pageNumber\": 1,\r\n    \"pageSize\": 5,\r\n    \"keyword\": \"\",\r\n    \"sorting\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/entidades/paginated",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidades",
+										"paginated"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"João Silva\",\r\n    \"nif\": \"123456789\",\r\n    \"nifEstrangeiro\": false,\r\n    \"ruaId\": \"945992fc-38e4-4ec5-7e00-08dd5d6f4f70\",\r\n    \"ruaNumeroPorta\": \"42\",\r\n    \"ruaAndar\": \"3º Esq\",\r\n    \"cartaoIdentificacaoTipoId\": \"36097135-42e3-4dbc-855b-08dd5d96ea4f\",\r\n    \"cartaoIdentificacaoNumero\": \"12345678\",\r\n    \"cartaoIdentificacaoDataEmissao\": \"2020-01-01T00:00:00\",\r\n    \"cartaoIdentificacaoDataValidade\": \"2030-01-01T00:00:00\",\r\n    \"estadoCivilId\": \"2ae50fde-d259-4c9c-d541-08dd5d96f809\",\r\n    \"sexo\": \"M\",\r\n    \"ativo\": true,\r\n    \"historico\": false,\r\n    \"entidadetipo\": \"a39244d5-3928-4681-588d-08dd6171a1a4\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/entidades",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"nome\": \"João Silva\",\r\n    \"nif\": \"123456789\",\r\n    \"nifEstrangeiro\": false,\r\n    \"ruaId\": \"945992fc-38e4-4ec5-7e00-08dd5d6f4f70\",\r\n    \"ruaNumeroPorta\": \"42\",\r\n    \"ruaAndar\": \"3º Esq\",\r\n    \"cartaoIdentificacaoTipoId\": \"36097135-42e3-4dbc-855b-08dd5d96ea4f\",\r\n    \"cartaoIdentificacaoNumero\": \"12345678\",\r\n    \"cartaoIdentificacaoDataEmissao\": \"2020-01-01T00:00:00\",\r\n    \"cartaoIdentificacaoDataValidade\": \"2030-01-01T00:00:00\",\r\n    \"estadoCivilId\": \"2ae50fde-d259-4c9c-d541-08dd5d96f809\",\r\n    \"sexo\": \"M\",\r\n    \"ativo\": true,\r\n    \"historico\": false,\r\n    \"entidadetipo\": \"a39244d5-3928-4681-588d-08dd6171a1a4\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/client/entidades/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidades",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/client/entidades/945992fc-38e4-4ec5-7e00-08dd5d6f4f70",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"client",
+										"entidades",
+										"945992fc-38e4-4ec5-7e00-08dd5d6f4f70"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.request.headers.upsert({key: 'X-API-Key', value: 'CMBFrotas2024Key+lta6oPRYx50tma2kYZQY25tG4A==' })"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://localhost:725",
+			"type": "default"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}
