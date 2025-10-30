@@ -51,7 +51,7 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     CreatedOn = new DateTime(2024, 12, 24, 10, 01, 00, DateTimeKind.Utc),
                     AplicacaoId = Guid.Parse("00000002-0000-0000-0000-000000000000"),
                 },
-                // Módulos for GAcloud (Autarquias)
+                // Módulos for Frotas (Autarquias)
                 new()
                 {
                     Id = Guid.Parse("00000003-0001-0000-0000-000000000000"),

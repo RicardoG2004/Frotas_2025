@@ -133,7 +133,7 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     CreatedOn = new DateTime(2024, 12, 24, 10, 01, 00, DateTimeKind.Utc),
                     ModuloId = Guid.Parse("00000002-0002-0000-0000-000000000000"),
                 },
-                // Funcionalidades for GAcloud - Gestão de Processos
+                // Funcionalidades for Frotas - Gestão de Processos
                 new()
                 {
                     Id = Guid.Parse("00000003-0001-0001-0000-000000000000"),
@@ -164,7 +164,7 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     CreatedOn = new DateTime(2024, 12, 24, 10, 02, 00, DateTimeKind.Utc),
                     ModuloId = Guid.Parse("00000003-0001-0000-0000-000000000000"),
                 },
-                // Funcionalidades for GAcloud - Atendimento ao Cidadão
+                // Funcionalidades for Frotas - Atendimento ao Cidadão
                 new()
                 {
                     Id = Guid.Parse("00000003-0002-0001-0000-000000000000"),

@@ -40,10 +40,10 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                 new()
                 {
                     Id = Guid.Parse("00000003-0000-0000-0000-000000000000"),
-                    Nome = "GAcloud",
+                    Nome = "Frotas",
                     Descricao = "Plataforma de gestão municipal integrada.",
                     Versao = "3.0.0",
-                    FicheiroXAP = "gacloud.xap",
+                    FicheiroXAP = "frotas.xap",
                     Ativo = true,
                     CreatedBy = Guid.Parse("1b77edb4-ae80-46b5-a388-d033eeddac1d"),
                     CreatedOn = new DateTime(2024, 12, 24, 10, 02, 00, DateTimeKind.Utc),

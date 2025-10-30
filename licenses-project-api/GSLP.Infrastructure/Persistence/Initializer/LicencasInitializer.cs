@@ -37,11 +37,11 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     CreatedBy = Guid.Parse("1b77edb4-ae80-46b5-a388-d033eeddac1d"),
                     CreatedOn = new DateTime(2024, 12, 24, 10, 00, 00, DateTimeKind.Utc),
                 },
-                // Câmara Municipal de Lisboa - GAcloud
+                // Câmara Municipal de Lisboa - Frotas
                 new()
                 {
                     Id = Guid.Parse("00000001-0002-0000-0001-000000000000"),
-                    Nome = "Licença GAcloud - CML",
+                    Nome = "Licença Frotas - CML",
                     AplicacaoId = Guid.Parse("00000003-0000-0000-0000-000000000000"),
                     DataInicio = new DateTime(2024, 12, 24, 10, 01, 00, DateTimeKind.Utc),
                     DataFim = new DateTime(2025, 12, 24, 10, 01, 00, DateTimeKind.Utc),
@@ -79,11 +79,11 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     CreatedBy = Guid.Parse("1b77edb4-ae80-46b5-a388-d033eeddac1d"),
                     CreatedOn = new DateTime(2024, 12, 24, 10, 03, 00, DateTimeKind.Utc),
                 },
-                // Câmara Municipal do Porto - GAcloud
+                // Câmara Municipal do Porto - Frotas
                 new()
                 {
                     Id = Guid.Parse("00000001-0005-0000-0001-000000000000"),
-                    Nome = "Licença GAcloud - CMP",
+                    Nome = "Licença Frotas - CMP",
                     AplicacaoId = Guid.Parse("00000003-0000-0000-0000-000000000000"),
                     DataInicio = new DateTime(2024, 12, 24, 10, 04, 00, DateTimeKind.Utc),
                     DataFim = new DateTime(2025, 12, 24, 10, 04, 00, DateTimeKind.Utc),
@@ -121,11 +121,11 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     CreatedBy = Guid.Parse("1b77edb4-ae80-46b5-a388-d033eeddac1d"),
                     CreatedOn = new DateTime(2024, 12, 24, 10, 06, 00, DateTimeKind.Utc),
                 },
-                // Câmara Municipal de Braga - GAcloud
+                // Câmara Municipal de Braga - Frotas
                 new()
                 {
                     Id = Guid.Parse("00000001-0008-0000-0001-000000000000"),
-                    Nome = "Licença GAcloud - CMB",
+                    Nome = "Licença Frotas - CMB",
                     AplicacaoId = Guid.Parse("00000003-0000-0000-0000-000000000000"),
                     DataInicio = new DateTime(2024, 12, 24, 10, 07, 00, DateTimeKind.Utc),
                     DataFim = new DateTime(2025, 12, 24, 10, 07, 00, DateTimeKind.Utc),
@@ -185,11 +185,11 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     Ativo = true,
                     LicencaId = Guid.Parse("00000001-0001-0000-0001-000000000000"),
                 },
-                // Câmara Municipal de Lisboa - GAcloud
+                // Câmara Municipal de Lisboa - Frotas
                 new()
                 {
                     APIKey =
-                        "CMLGAcloud2024Key+ThMePwM4aFc7wxlbva9lSCLIlta6oPRYx50tma2kYZQY25tG4A==",
+                        "CMLFrotas2024Key+ThMePwM4aFc7wxlbva9lSCLIlta6oPRYx50tma2kYZQY25tG4A==",
                     Ativo = true,
                     LicencaId = Guid.Parse("00000001-0002-0000-0001-000000000000"),
                 },
@@ -207,10 +207,10 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     Ativo = true,
                     LicencaId = Guid.Parse("00000001-0004-0000-0001-000000000000"),
                 },
-                // Câmara Municipal do Porto - GAcloud
+                // Câmara Municipal do Porto - Frotas
                 new()
                 {
-                    APIKey = "CMPGAcloud2024Key+lbva9lSCLIlta6oPRYx50tma2kYZQY25tG4A==",
+                    APIKey = "CMPFrotas2024Key+lbva9lSCLIlta6oPRYx50tma2kYZQY25tG4A==",
                     Ativo = true,
                     LicencaId = Guid.Parse("00000001-0005-0000-0001-000000000000"),
                 },
@@ -228,10 +228,10 @@ namespace GSLP.Infrastructure.Persistence.Initializer
                     Ativo = true,
                     LicencaId = Guid.Parse("00000001-0007-0000-0001-000000000000"),
                 },
-                // Câmara Municipal de Braga - GAcloud
+                // Câmara Municipal de Braga - Frotas
                 new()
                 {
-                    APIKey = "CMBGAcloud2024Key+lta6oPRYx50tma2kYZQY25tG4A==",
+                    APIKey = "CMBFrotas2024Key+lta6oPRYx50tma2kYZQY25tG4A==",
                     Ativo = true,
                     LicencaId = Guid.Parse("00000001-0008-0000-0001-000000000000"),
                 },
