@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GACloud.API.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251027151215_InitialCreate")]
+    [Migration("20251030110857_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -430,43 +430,6 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.ToTable("AgenciaFuneraria", "Frotas");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Cemiterio", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CodigoPostalId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Morada")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Predefinido")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CodigoPostalId");
-
-                    b.ToTable("Cemiterio", "Cemiterios");
-                });
-
             modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Coveiro", b =>
                 {
                     b.Property<Guid>("Id")
@@ -506,381 +469,10 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RuaId");
 
-                    b.ToTable("Coveiro", "Cemiterios");
+                    b.ToTable("Coveiro", "Frotas");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.DefuntoTipo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DefuntoTipo", "Cemiterios");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Proprietario", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CemiterioId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("EntidadeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CemiterioId");
-
-                    b.HasIndex("EntidadeId");
-
-                    b.ToTable("Proprietario", "Cemiterios");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.ProprietarioSepultura", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Data")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataInativacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Fracao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Historico")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsProprietario")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsResponsavel")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsResponsavelGuiaReceita")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Observacoes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ProprietarioId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SepulturaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProprietarioId");
-
-                    b.HasIndex("SepulturaId");
-
-                    b.ToTable("ProprietarioSepultura", "Cemiterios");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Sepultura", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Anulado")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("Area")
-                        .HasColumnType("decimal(10, 2)")
-                        .HasColumnName("Area");
-
-                    b.Property<bool>("Bloqueada")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Coluna")
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("Coluna");
-
-                    b.Property<decimal?>("Comprimento")
-                        .HasColumnType("decimal(10, 2)")
-                        .HasColumnName("Comprimento");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataAnulacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataConcessao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataConhecimento")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataFimAluguer")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataFimReserva")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataInicioAluguer")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DataInicioReserva")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Fila")
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("Fila");
-
-                    b.Property<bool>("Fundura1")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Fundura2")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Fundura3")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("Largura")
-                        .HasColumnType("decimal(10, 2)")
-                        .HasColumnName("Largura");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool?>("Litigio")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumeroConhecimento")
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("NumeroConhecimento");
-
-                    b.Property<string>("Observacao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("Profundidade")
-                        .HasColumnType("decimal(10, 2)")
-                        .HasColumnName("Profundidade");
-
-                    b.Property<int>("SepulturaEstadoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SepulturaSituacaoId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("SepulturaTipoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ShapeId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("TalhaoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("TemSvgShape")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SepulturaTipoId");
-
-                    b.HasIndex("TalhaoId");
-
-                    b.ToTable("Sepultura", "Cemiterios");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.SepulturaTipo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AluguerDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AluguerRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("AluguerValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("AlvaraDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AlvaraRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("AlvaraValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ConcessionadaDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ConcessionadaRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("ConcessionadaValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("EpocaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ExumacaoDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ExumacaoRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("ExumacaoValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("InumacaoDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InumacaoRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("InumacaoValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("SepulturaTipoDescricaoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TransferenciaDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransferenciaRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("TransferenciaValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("TransladacaoDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransladacaoRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("TransladacaoValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("VendaDescricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VendaRubrica")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("VendaValor")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EpocaId");
-
-                    b.HasIndex("SepulturaTipoDescricaoId");
-
-                    b.ToTable("SepulturaTipo", "Cemiterios");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.SepulturaTipoDescricao", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SepulturaTipoDescricao", "Cemiterios");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Talhao", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Marca", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -901,29 +493,15 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Property<string>("Nome")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ShapeId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TemSvgShape")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ZonaId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ZonaId");
-
-                    b.ToTable("Talhao", "Cemiterios");
+                    b.ToTable("Marca", "Frotas");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Zona", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Modelo", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CemiterioId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CreatedBy")
@@ -938,20 +516,17 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("MarcaId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Nome")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ShapeId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TemSvgShape")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CemiterioId");
+                    b.HasIndex("MarcaId");
 
-                    b.ToTable("Zona", "Cemiterios");
+                    b.ToTable("Modelo", "Frotas");
                 });
 
             modelBuilder.Entity("GACloud.API.Domain.Entities.Base.Concelho", b =>
@@ -1049,7 +624,7 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Epoca");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.AgenciaFuneraria", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.AgenciaFuneraria", b =>
                 {
                     b.HasOne("GACloud.API.Domain.Entities.Base.Entidade", "Entidade")
                         .WithMany()
@@ -1059,17 +634,7 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Entidade");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Cemiterio", b =>
-                {
-                    b.HasOne("GACloud.API.Domain.Entities.Base.CodigoPostal", "CodigoPostal")
-                        .WithMany()
-                        .HasForeignKey("CodigoPostalId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("CodigoPostal");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Coveiro", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Coveiro", b =>
                 {
                     b.HasOne("GACloud.API.Domain.Entities.Base.CodigoPostal", "CodigoPostal")
                         .WithMany()
@@ -1086,100 +651,15 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Rua");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Proprietario", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Modelo", b =>
                 {
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.Cemiterio", "Cemiterio")
-                        .WithMany("Proprietarios")
-                        .HasForeignKey("CemiterioId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("GACloud.API.Domain.Entities.Base.Entidade", "Entidade")
-                        .WithMany("Proprietarios")
-                        .HasForeignKey("EntidadeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Cemiterio");
-
-                    b.Navigation("Entidade");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.ProprietarioSepultura", b =>
-                {
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.Proprietario", "Proprietario")
-                        .WithMany("Sepulturas")
-                        .HasForeignKey("ProprietarioId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.Sepultura", "Sepultura")
-                        .WithMany("Proprietarios")
-                        .HasForeignKey("SepulturaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Proprietario");
-
-                    b.Navigation("Sepultura");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Sepultura", b =>
-                {
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.SepulturaTipo", "SepulturaTipo")
+                    b.HasOne("GACloud.API.Domain.Entities.Frotas.Marca", "Marca")
                         .WithMany()
-                        .HasForeignKey("SepulturaTipoId")
+                        .HasForeignKey("MarcaId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.Talhao", "Talhao")
-                        .WithMany()
-                        .HasForeignKey("TalhaoId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("SepulturaTipo");
-
-                    b.Navigation("Talhao");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.SepulturaTipo", b =>
-                {
-                    b.HasOne("GACloud.API.Domain.Entities.Base.Epoca", "Epoca")
-                        .WithMany()
-                        .HasForeignKey("EpocaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.SepulturaTipoDescricao", "SepulturaTipoDescricao")
-                        .WithMany()
-                        .HasForeignKey("SepulturaTipoDescricaoId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Epoca");
-
-                    b.Navigation("SepulturaTipoDescricao");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Talhao", b =>
-                {
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.Zona", "Zona")
-                        .WithMany()
-                        .HasForeignKey("ZonaId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Zona");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Zona", b =>
-                {
-                    b.HasOne("GACloud.API.Domain.Entities.Cemiterios.Cemiterio", "Cemiterio")
-                        .WithMany()
-                        .HasForeignKey("CemiterioId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Cemiterio");
+                    b.Navigation("Marca");
                 });
 
             modelBuilder.Entity("GACloud.API.Domain.Entities.Base.CodigoPostal", b =>
@@ -1200,8 +680,6 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("GACloud.API.Domain.Entities.Base.Entidade", b =>
                 {
                     b.Navigation("Contactos");
-
-                    b.Navigation("Proprietarios");
                 });
 
             modelBuilder.Entity("GACloud.API.Domain.Entities.Base.Freguesia", b =>
@@ -1217,21 +695,6 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("GACloud.API.Domain.Entities.Base.Rua", b =>
                 {
                     b.Navigation("Entidades");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Cemiterio", b =>
-                {
-                    b.Navigation("Proprietarios");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Proprietario", b =>
-                {
-                    b.Navigation("Sepulturas");
-                });
-
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Sepultura", b =>
-                {
-                    b.Navigation("Proprietarios");
                 });
 #pragma warning restore 612, 618
         }

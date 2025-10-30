@@ -28,6 +28,7 @@ import {
   Image,
   Laptop,
   LayoutDashboard,
+  Layers,
   Link,
   List,
   Lock,
@@ -96,6 +97,7 @@ export const Icons = {
   IconTag: IconTag,
   shield: Shield,
   car: Car,
+  layers: Layers,
 } as const
 
 export type IconKey = keyof typeof Icons

@@ -119,6 +119,9 @@ export const getPageTitleFromPath = (path: string): string => {
     '/frotas/configuracoes/marcas': 'Marcas',
     '/frotas/configuracoes/marcas/create': 'Criar Marca',
     '/frotas/configuracoes/marcas/update': 'Editar Marca',
+    '/frotas/configuracoes/modelos': 'Modelos',
+    '/frotas/configuracoes/modelos/create': 'Criar Modelo',
+    '/frotas/configuracoes/modelos/update': 'Editar Modelo',
 
     // Utilitários - Tabelas Geográficas
     '/utilitarios/tabelas/geograficas/paises': 'Países',

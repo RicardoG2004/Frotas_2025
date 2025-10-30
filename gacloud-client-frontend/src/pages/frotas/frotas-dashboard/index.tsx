@@ -37,6 +37,14 @@ export function FrotasDashboardPage() {
       color: useIconThemeColor('/frotas/configuracoes/marcas'),
       openInNewWindow: true,
     },
+    {
+      title: 'Modelos',
+      description: 'Gestão de modelos de veículos',
+      icon: Icons.layers,
+      path: '/frotas/configuracoes/modelos',
+      color: useIconThemeColor('/frotas/configuracoes/modelos'),
+      openInNewWindow: true,
+    },
   ]
 
   return (

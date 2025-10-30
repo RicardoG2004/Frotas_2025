@@ -507,6 +507,10 @@ export const openRuaCreationWindow = createEntityCreationWindow(
   '/utilitarios/tabelas/geograficas/ruas/create'
 )
 
+export const openMarcaCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/marcas/create'
+)
+
 /**
  * Opens a window for viewing/editing an existing entity.
  * This is used when you want to open an entity in update mode.
@@ -632,6 +636,11 @@ export const openCodigoPostalViewWindow = createEntityViewWindow(
 export const openRuaViewWindow = createEntityViewWindow(
   '/utilitarios/tabelas/geograficas/ruas/update',
   'ruaId'
+)
+
+export const openMarcaViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/marcas/update',
+  'marcaId'
 )
 
 /**

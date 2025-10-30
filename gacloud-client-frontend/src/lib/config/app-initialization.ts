@@ -41,42 +41,15 @@ export const initializeAppData = {
     }
   },
 
-  // Initialize cemiterio-related settings
-  async initializeCemiterio(
-    getSelectedCemiterio: () => any,
-    updatePredefinedCemiterio: () => Promise<void>
-  ) {
-    try {
-      const selectedCemiterio = getSelectedCemiterio()
-
-      if (!selectedCemiterio) {
-        // Only update predefined cemiterio if no cemiterio is selected
-        await updatePredefinedCemiterio()
-      } else {
-        // Set the selected cemiterio in the auth store
-        useAuthStore.setState({ selectedCemiterio })
-      }
-    } catch (error) {
-      console.error('Error initializing cemiterio:', error)
-      toast.error('Erro ao inicializar cemitério')
-    }
-  },
-
   // Main initialization function
   async initialize(
     getSelectedEpoca: () => any,
-    updatePredefinedEpoca: () => Promise<void>,
-    getSelectedCemiterio: () => any,
-    updatePredefinedCemiterio: () => Promise<void>
+    updatePredefinedEpoca: () => Promise<void>
   ) {
     try {
       await Promise.all([
         this.initializeDates(),
         this.initializeEpoca(getSelectedEpoca, updatePredefinedEpoca),
-        this.initializeCemiterio(
-          getSelectedCemiterio,
-          updatePredefinedCemiterio
-        ),
         // Add more initialization functions here as needed
       ])
     } catch (error) {

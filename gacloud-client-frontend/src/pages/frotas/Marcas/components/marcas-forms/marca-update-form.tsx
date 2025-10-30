@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { UpdateMarcaDTO } from '@/types/dtos/frotas/marcas.dtos'
-import { User, Package } from 'lucide-react'
+import { Shield, Layers } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
@@ -288,9 +288,11 @@ const MarcaUpdateForm = ({
           >
             <PersistentTabsList>
               <PersistentTabsTrigger value='identificacao'>
+                <Shield className='mr-2 h-4 w-4' />
                 Identificação
               </PersistentTabsTrigger>
               <PersistentTabsTrigger value='modelo'>
+                <Layers className='mr-2 h-4 w-4' />
                 Modelo
               </PersistentTabsTrigger>
             </PersistentTabsList>
@@ -300,7 +302,7 @@ const MarcaUpdateForm = ({
                   <CardHeader className='pb-4'>
                     <div className='flex items-center gap-3'>
                       <div className='flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary'>
-                        <User className='h-4 w-4' />
+                        <Shield className='h-4 w-4' />
                       </div>
                       <div>
                         <CardTitle className='text-base flex items-center gap-2'>
@@ -323,7 +325,7 @@ const MarcaUpdateForm = ({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className='flex items-center gap-2'>
-                              <User className='h-4 w-4' />
+                              <Shield className='h-4 w-4' />
                               Nome
                               <Badge variant='secondary' className='text-xs'>
                                 Obrigatório
@@ -351,7 +353,7 @@ const MarcaUpdateForm = ({
                   <CardHeader className='pb-4'>
                     <div className='flex items-center gap-3'>
                       <div className='flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary'>
-                        <Package className='h-4 w-4' />
+                        <Layers className='h-4 w-4' />
                       </div>
                       <div>
                         <CardTitle className='text-base flex items-center gap-2'>

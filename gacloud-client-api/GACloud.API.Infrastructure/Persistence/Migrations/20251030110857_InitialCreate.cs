@@ -36,23 +36,6 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Marca",
-                schema: "Frotas",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DefuntoTipo", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Epoca",
                 schema: "Base",
                 columns: table => new
@@ -77,6 +60,23 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                         principalSchema: "Base",
                         principalTable: "Epoca",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Marca",
+                schema: "Frotas",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Marca", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -122,6 +122,30 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                         column: x => x.EpocaId,
                         principalSchema: "Base",
                         principalTable: "Epoca",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Modelo",
+                schema: "Frotas",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MarcaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Modelo", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Modelo_Marca_MarcaId",
+                        column: x => x.MarcaId,
+                        principalSchema: "Frotas",
+                        principalTable: "Marca",
                         principalColumn: "Id");
                 });
 
@@ -196,7 +220,6 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                         principalTable: "Concelho",
                         principalColumn: "Id");
                 });
-
 
             migrationBuilder.CreateTable(
                 name: "Rua",
@@ -403,6 +426,12 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                 column: "ConcelhoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Modelo_MarcaId",
+                schema: "Frotas",
+                table: "Modelo",
+                column: "MarcaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Rua_CodigoPostalId",
                 schema: "Base",
                 table: "Rua",
@@ -419,7 +448,6 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                 schema: "Base",
                 table: "Rubrica",
                 column: "EpocaId");
-
         }
 
         /// <inheritdoc />
@@ -434,12 +462,12 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                 schema: "Frotas");
 
             migrationBuilder.DropTable(
-                name: "Marca",
-                schema: "Frotas");
-
-            migrationBuilder.DropTable(
                 name: "EntidadeContacto",
                 schema: "Base");
+
+            migrationBuilder.DropTable(
+                name: "Modelo",
+                schema: "Frotas");
 
             migrationBuilder.DropTable(
                 name: "Rubrica",
@@ -450,11 +478,19 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                 schema: "Base");
 
             migrationBuilder.DropTable(
+                name: "Marca",
+                schema: "Frotas");
+
+            migrationBuilder.DropTable(
+                name: "Epoca",
+                schema: "Base");
+
+            migrationBuilder.DropTable(
                 name: "Rua",
                 schema: "Base");
 
             migrationBuilder.DropTable(
-                name: "Epoca",
+                name: "CodigoPostal",
                 schema: "Base");
 
             migrationBuilder.DropTable(
@@ -463,10 +499,6 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Concelho",
-                schema: "Base");
-
-            migrationBuilder.DropTable(
-                name: "CodigoPostal",
                 schema: "Base");
 
             migrationBuilder.DropTable(

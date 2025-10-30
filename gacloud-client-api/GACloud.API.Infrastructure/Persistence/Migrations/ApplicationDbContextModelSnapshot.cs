@@ -396,7 +396,7 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Rubrica", "Base");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.AgenciaFuneraria", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.AgenciaFuneraria", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -424,10 +424,10 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("EntidadeId");
 
-                    b.ToTable("AgenciaFuneraria", "Cemiterios");
+                    b.ToTable("AgenciaFuneraria", "Frotas");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Coveiro", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Coveiro", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -466,10 +466,10 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RuaId");
 
-                    b.ToTable("Coveiro", "Cemiterios");
+                    b.ToTable("Coveiro", "Frotas");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Marca", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Marca", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -492,7 +492,38 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Marca", "Cemiterios");
+                    b.ToTable("Marca", "Frotas");
+                });
+
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Modelo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("MarcaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MarcaId");
+
+                    b.ToTable("Modelo", "Frotas");
                 });
 
             modelBuilder.Entity("GACloud.API.Domain.Entities.Base.Concelho", b =>
@@ -590,7 +621,7 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Epoca");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.AgenciaFuneraria", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.AgenciaFuneraria", b =>
                 {
                     b.HasOne("GACloud.API.Domain.Entities.Base.Entidade", "Entidade")
                         .WithMany()
@@ -600,7 +631,7 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Entidade");
                 });
 
-            modelBuilder.Entity("GACloud.API.Domain.Entities.Cemiterios.Coveiro", b =>
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Coveiro", b =>
                 {
                     b.HasOne("GACloud.API.Domain.Entities.Base.CodigoPostal", "CodigoPostal")
                         .WithMany()
@@ -615,6 +646,17 @@ namespace GACloud.API.Infrastructure.Persistence.Migrations
                     b.Navigation("CodigoPostal");
 
                     b.Navigation("Rua");
+                });
+
+            modelBuilder.Entity("GACloud.API.Domain.Entities.Frotas.Modelo", b =>
+                {
+                    b.HasOne("GACloud.API.Domain.Entities.Frotas.Marca", "Marca")
+                        .WithMany()
+                        .HasForeignKey("MarcaId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Marca");
                 });
 
             modelBuilder.Entity("GACloud.API.Domain.Entities.Base.CodigoPostal", b =>

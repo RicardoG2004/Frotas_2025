@@ -10,6 +10,9 @@ import { FrotasDashboardPage } from '@/pages/frotas/frotas-dashboard'
 import { MarcasPage } from '@/pages/frotas/Marcas/marcas-page'
 import { MarcasCreatePage } from '@/pages/frotas/Marcas/components/marcas-create.page/marcas-create-page'
 import { MarcasUpdatePage } from '@/pages/frotas/Marcas/components/marcas-update-page/marcas-update-page'
+import { ModelosPage } from '@/pages/frotas/modelos/modelos-page'
+import { ModelosCreatePage } from '@/pages/frotas/modelos/components/modelos-create-page/modelos-create-page'
+import { ModelosUpdatePage } from '@/pages/frotas/modelos/components/modelos-update-page/modelos-update-page'
 
 import { LicenseGuard } from '@/components/auth/license-guard'
 
@@ -149,15 +152,41 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/marcas/update',
     element: (
-      <LicenseGuard
-        requiredModule={frotas.id}
-        requiredPermission={frotas.permissions.marcas.id}
-        actionType={actionTypes.AuthChg}
-      >
+      <LicenseGuard requiredModule={frotas.id}>
         <MarcasUpdatePage />
       </LicenseGuard>
     ),
     manageWindow: true,
     windowName: 'Atualizar Marca',
+  },
+  {
+    path: 'frotas/configuracoes/modelos',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <ModelosPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Modelos',
+  },
+  {
+    path: 'frotas/configuracoes/modelos/create',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <ModelosCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Modelo',
+  },
+  {
+    path: 'frotas/configuracoes/modelos/update',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <ModelosUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Modelo',
   },
 ]

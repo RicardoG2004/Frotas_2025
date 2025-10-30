@@ -6,21 +6,21 @@ import {
   PaginatedResponse,
 } from '@/types/api/responses'
 import {
-  MarcaDTO,
-  CreateMarcaDTO,
-  UpdateMarcaDTO,
-} from '@/types/dtos/frotas/marcas.dtos'
+  ModeloDTO,
+  CreateModeloDTO,
+  UpdateModeloDTO,
+} from '@/types/dtos/frotas/modelos.dtos'
 import { ResponseApi } from '@/types/responses'
 import { BaseApiClient, BaseApiError } from '@/lib/base-client'
-import { MarcaError } from './marcas-errors'
+import { ModeloError } from './modelos-errors'
 
-export class MarcasClient extends BaseApiClient {
-  public async getMarcasPaginated(
+export class ModelosClient extends BaseApiClient {
+  public async getModelosPaginated(
     params: PaginatedRequest
-  ): Promise<ResponseApi<PaginatedResponse<MarcaDTO>>> {
+  ): Promise<ResponseApi<PaginatedResponse<ModeloDTO>>> {
     const cacheKey = this.getCacheKey(
       'POST',
-      '/client/frotas/marcas/paginated',
+      '/client/frotas/modelos/paginated',
       params
     )
     return this.withCache(cacheKey, () =>
@@ -28,18 +28,18 @@ export class MarcasClient extends BaseApiClient {
         try {
           const response = await this.httpClient.postRequest<
             PaginatedRequest,
-            PaginatedResponse<MarcaDTO>
-          >(state.URL, '/client/frotas/marcas/paginated', params)
+            PaginatedResponse<ModeloDTO>
+          >(state.URL, '/client/frotas/modelos/paginated', params)
 
           if (!response.info) {
             console.error('Formato de resposta inválido:', response)
-            throw new MarcaError('Formato de resposta inválido')
+            throw new ModeloError('Formato de resposta inválido')
           }
 
           return response
         } catch (error) {
-          throw new MarcaError(
-            'Falha ao obter marcas paginadas',
+          throw new ModeloError(
+            'Falha ao obter modelos paginados',
             undefined,
             error
           )
@@ -48,69 +48,68 @@ export class MarcasClient extends BaseApiClient {
     )
   }
 
-  public async getMarcas(): Promise<ResponseApi<GSResponse<MarcaDTO[]>>> {
-    const cacheKey = this.getCacheKey('GET', '/client/frotas/marcas')
+  public async getModelos(): Promise<ResponseApi<GSResponse<ModeloDTO[]>>> {
+    const cacheKey = this.getCacheKey('GET', '/client/frotas/modelos')
     return this.withCache(cacheKey, () =>
       this.withRetry(async () => {
         try {
           const response = await this.httpClient.getRequest<
-            GSResponse<MarcaDTO[]>
-          >(state.URL, '/client/frotas/marcas')
+            GSResponse<ModeloDTO[]>
+          >(state.URL, '/client/frotas/modelos')
 
           if (!response.info) {
             console.error('Formato de resposta inválido:', response)
-            throw new MarcaError('Formato de resposta inválido')
+            throw new ModeloError('Formato de resposta inválido')
           }
 
           return response
         } catch (error) {
-          throw new MarcaError('Falha ao obter marcas', undefined, error)
+          throw new ModeloError('Falha ao obter modelos', undefined, error)
         }
       })
     )
   }
 
-  public async getMarca(
+  public async getModelo(
     id: string
-  ): Promise<ResponseApi<GSResponse<MarcaDTO>>> {
+  ): Promise<ResponseApi<GSResponse<ModeloDTO>>> {
     const cacheKey = this.getCacheKey(
       'GET',
-      `/client/frotas/marcas/${id}`
+      `/client/frotas/modelos/${id}`
     )
     return this.withCache(cacheKey, () =>
       this.withRetry(async () => {
         try {
           const response = await this.httpClient.getRequest<
-            GSResponse<MarcaDTO>
-          >(state.URL, `/client/frotas/marcas/${id}`)
+            GSResponse<ModeloDTO>
+          >(state.URL, `/client/frotas/modelos/${id}`)
 
           if (!response.info) {
             console.error('Formato de resposta inválido:', response)
-            throw new MarcaError('Formato de resposta inválido')
+            throw new ModeloError('Formato de resposta inválido')
           }
 
           return response
         } catch (error) {
-          throw new MarcaError('Falha ao obter marca', undefined, error)
+          throw new ModeloError('Falha ao obter modelo', undefined, error)
         }
       })
     )
   }
 
-  public async createMarca(
-    data: CreateMarcaDTO
+  public async createModelo(
+    data: CreateModeloDTO
   ): Promise<ResponseApi<GSResponse<string>>> {
     return this.withRetry(async () => {
       try {
         const response = await this.httpClient.postRequest<
-          CreateMarcaDTO,
+          CreateModeloDTO,
           GSResponse<string>
-        >(state.URL, '/client/frotas/marcas', data)
+        >(state.URL, '/client/frotas/modelos', data)
 
         return response
       } catch (error) {
         if (error instanceof BaseApiError && error.data) {
-          // If it's a validation error, return it as a response
           return {
             info: error.data as GSResponse<string>,
             status: error.statusCode || 400,
@@ -122,52 +121,52 @@ export class MarcasClient extends BaseApiClient {
     })
   }
 
-  public async updateMarca(
+  public async updateModelo(
     id: string,
-    data: UpdateMarcaDTO
+    data: UpdateModeloDTO
   ): Promise<ResponseApi<GSResponse<string>>> {
     return this.withRetry(async () => {
       try {
         const response = await this.httpClient.putRequest<
-          UpdateMarcaDTO,
+          UpdateModeloDTO,
           GSResponse<string>
-        >(state.URL, `/client/frotas/marcas/${id}`, data)
+        >(state.URL, `/client/frotas/modelos/${id}`, data)
 
         if (!response.info) {
           console.error('Formato de resposta inválido:', response)
-          throw new MarcaError('Formato de resposta inválido')
+          throw new ModeloError('Formato de resposta inválido')
         }
 
         return response
       } catch (error) {
-        throw new MarcaError('Falha ao atualizar marcas', undefined, error)
+        throw new ModeloError('Falha ao atualizar modelo', undefined, error)
       }
     })
   }
 
-  public async deleteMarca(
+  public async deleteModelo(
     id: string
   ): Promise<ResponseApi<GSGenericResponse>> {
     return this.withRetry(async () => {
       try {
         const response = await this.httpClient.deleteRequest<GSGenericResponse>(
           state.URL,
-          `/client/frotas/marcas/${id}`
+          `/client/frotas/modelos/${id}`
         )
 
         if (!response.info) {
           console.error('Formato de resposta inválido:', response)
-          throw new MarcaError('Formato de resposta inválido')
+          throw new ModeloError('Formato de resposta inválido')
         }
 
         return response
       } catch (error) {
-        throw new MarcaError('Falha ao apagar marca', undefined, error)
+        throw new ModeloError('Falha ao apagar modelo', undefined, error)
       }
     })
   }
 
-  public async deleteMultipleMarcas(
+  public async deleteMultipleModelos(
     ids: string[]
   ): Promise<ResponseApi<GSGenericResponse>> {
     return this.withRetry(async () => {
@@ -175,17 +174,18 @@ export class MarcasClient extends BaseApiClient {
         const response = await this.httpClient.deleteRequestWithBody<
           { ids: string[] },
           GSGenericResponse
-        >(state.URL, '/client/frotas/marcas/bulk', { ids: ids })
+        >(state.URL, '/client/frotas/modelos/bulk', { ids: ids })
 
         if (!response.info) {
           console.error('Formato de resposta inválido:', response)
-          throw new MarcaError('Formato de resposta inválido')
+          throw new ModeloError('Formato de resposta inválido')
         }
 
         return response
       } catch (error) {
-        throw new MarcaError('Falha ao apagar marcas', undefined, error)
+        throw new ModeloError('Falha ao apagar modelos', undefined, error)
       }
     })
   }
 }
+

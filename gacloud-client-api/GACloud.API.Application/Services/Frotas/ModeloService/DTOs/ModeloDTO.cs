@@ -1,4 +1,5 @@
 using GACloud.API.Application.Common.Marker;
+using GACloud.API.Application.Services.Frotas.MarcaService.DTOs;
 
 namespace GACloud.API.Application.Services.Frotas.ModeloService.DTOs
 {

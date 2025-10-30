@@ -283,6 +283,22 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '', // Removed permission check temporarily
           },
+          {
+            label: 'Modelos',
+            href: '/frotas/configuracoes/modelos',
+            description: 'Faça a gestão de modelos de veículos',
+            icon: 'layers',
+            colors: {
+              colorful: 'bg-purple-800',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-purple-200',
+              vibrant: 'bg-purple-500',
+              neon: 'bg-indigo-400',
+              'neon-cyberpunk':
+                'bg-purple-800 shadow-[0_0_40px_rgba(109,40,217,0.95)]',
+            },
+            funcionalidadeId: '', // Removed permission check temporarily
+          },
         ],
       },
     ],
