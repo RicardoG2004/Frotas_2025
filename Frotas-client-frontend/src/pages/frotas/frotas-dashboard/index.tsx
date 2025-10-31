@@ -45,6 +45,14 @@ export function FrotasDashboardPage() {
       color: useIconThemeColor('/frotas/configuracoes/modelos'),
       openInNewWindow: true,
     },
+    {
+      title: 'Categorias',
+      description: 'Gestão de categorias de veículos',
+      icon: Icons.truck,
+      path: '/frotas/configuracoes/categorias',
+      color: useIconThemeColor('/frotas/configuracoes/categorias'),
+      openInNewWindow: true,
+    },
   ]
 
   return (

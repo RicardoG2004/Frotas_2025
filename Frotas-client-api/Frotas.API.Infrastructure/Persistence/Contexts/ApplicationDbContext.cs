@@ -43,7 +43,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Coveiro> Coveiros { get; set; }
     public DbSet<Marca> Marcas { get; set; }
     public DbSet<Modelo> Modelos { get; set; }
-  
+    public DbSet<Categoria> Categorias { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

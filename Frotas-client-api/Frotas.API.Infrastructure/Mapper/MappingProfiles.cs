@@ -11,8 +11,10 @@ using Frotas.API.Application.Services.Base.RuaService.DTOs;
 using Frotas.API.Application.Services.Base.RubricaService.DTOs;
 using Frotas.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs;
 using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
+using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
+
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
 
@@ -147,6 +149,11 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.Marca, opt => opt.Ignore());
       _ = CreateMap<UpdateModeloRequest, Modelo>()
         .ForMember(dest => dest.Marca, opt => opt.Ignore());
+
+      // Categorias mappings
+      _ = CreateMap<Categoria, CategoriaDTO>();
+      _ = CreateMap<CreateCategoriaRequest, Categoria>();
+      _ = CreateMap<UpdateCategoriaRequest, Categoria>();
 
       // add new entity mappings here...
     }

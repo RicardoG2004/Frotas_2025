@@ -43,6 +43,7 @@ import {
   Shield,
   SunMedium,
   Trash,
+  Truck,
   User,
   User2,
   X,
@@ -98,6 +99,8 @@ export const Icons = {
   shield: Shield,
   car: Car,
   layers: Layers,
+  truck: Truck,
+  tag: IconTag,
 } as const
 
 export type IconKey = keyof typeof Icons

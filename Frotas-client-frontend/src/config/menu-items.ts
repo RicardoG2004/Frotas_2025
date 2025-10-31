@@ -240,13 +240,13 @@ export const roleHeaderMenus = {
             description: 'Faça a gestão de coveiros de cemitérios',
             icon: 'user',
             colors: {
-              colorful: 'bg-purple-600',
+              colorful: 'bg-purple-500',
               'theme-color': 'bg-primary',
-              pastel: 'bg-purple-400',
-              vibrant: 'bg-purple-700',
-              neon: 'bg-pink-400',
+              pastel: 'bg-purple-300',
+              vibrant: 'bg-purple-600',
+              neon: 'bg-purple-400',
               'neon-cyberpunk':
-                'bg-purple-600 shadow-[0_0_30px_rgba(147,51,234,0.8)]',
+                'bg-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.8)]',
             },
             funcionalidadeId: modules.frotas.permissions.coveiros.id,
           },
@@ -256,13 +256,13 @@ export const roleHeaderMenus = {
             description: 'Faça a gestão de agências funerárias',
             icon: 'IconBuilding',
             colors: {
-              colorful: 'bg-purple-700',
+              colorful: 'bg-purple-600',
               'theme-color': 'bg-primary',
-              pastel: 'bg-purple-300',
-              vibrant: 'bg-purple-600',
-              neon: 'bg-violet-400',
+              pastel: 'bg-purple-400',
+              vibrant: 'bg-purple-700',
+              neon: 'bg-purple-500',
               'neon-cyberpunk':
-                'bg-purple-700 shadow-[0_0_35px_rgba(126,34,206,0.9)]',
+                'bg-purple-600 shadow-[0_0_35px_rgba(147,51,234,0.85)]',
             },
             funcionalidadeId:
               modules.frotas.permissions.agenciasFunerarias.id,
@@ -273,13 +273,13 @@ export const roleHeaderMenus = {
             description: 'Faça a gestão de marcas de carros',
             icon: 'shield',
             colors: {
-              colorful: 'bg-purple-700',
+              colorful: 'bg-violet-500',
               'theme-color': 'bg-primary',
-              pastel: 'bg-purple-300',
-              vibrant: 'bg-purple-600',
+              pastel: 'bg-violet-300',
+              vibrant: 'bg-violet-600',
               neon: 'bg-violet-400',
               'neon-cyberpunk':
-                'bg-purple-700 shadow-[0_0_35px_rgba(126,34,206,0.9)]',
+                'bg-violet-500 shadow-[0_0_35px_rgba(139,92,246,0.9)]',
             },
             funcionalidadeId: '', // Removed permission check temporarily
           },
@@ -289,13 +289,29 @@ export const roleHeaderMenus = {
             description: 'Faça a gestão de modelos de veículos',
             icon: 'layers',
             colors: {
-              colorful: 'bg-purple-800',
+              colorful: 'bg-indigo-500',
               'theme-color': 'bg-primary',
-              pastel: 'bg-purple-200',
-              vibrant: 'bg-purple-500',
+              pastel: 'bg-indigo-300',
+              vibrant: 'bg-indigo-600',
               neon: 'bg-indigo-400',
               'neon-cyberpunk':
-                'bg-purple-800 shadow-[0_0_40px_rgba(109,40,217,0.95)]',
+                'bg-indigo-500 shadow-[0_0_40px_rgba(99,102,241,0.9)]',
+            },
+            funcionalidadeId: '', // Removed permission check temporarily
+          },
+          {
+            label: 'Categorias',
+            href: '/frotas/configuracoes/categorias',
+            description: 'Faça a gestão de categorias de veículos',
+            icon: 'truck',
+            colors: {
+              colorful: 'bg-blue-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-blue-300',
+              vibrant: 'bg-blue-600',
+              neon: 'bg-blue-400',
+              'neon-cyberpunk':
+                'bg-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.9)]',
             },
             funcionalidadeId: '', // Removed permission check temporarily
           },

@@ -13,6 +13,9 @@ import { MarcasUpdatePage } from '@/pages/frotas/Marcas/components/marcas-update
 import { ModelosPage } from '@/pages/frotas/modelos/modelos-page'
 import { ModelosCreatePage } from '@/pages/frotas/modelos/components/modelos-create-page/modelos-create-page'
 import { ModelosUpdatePage } from '@/pages/frotas/modelos/components/modelos-update-page/modelos-update-page'
+import { CategoriasPage } from '@/pages/frotas/categorias/categorias-page'
+import { CategoriasCreatePage } from '@/pages/frotas/categorias/components/categorias-create-page/categorias-create-page'
+import { CategoriasUpdatePage } from '@/pages/frotas/categorias/components/categorias-update-page/categorias-update-page'
 
 import { LicenseGuard } from '@/components/auth/license-guard'
 
@@ -188,5 +191,35 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Modelo',
+  },
+  {
+    path: 'frotas/configuracoes/categorias',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CategoriasPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Categorias',
+  },
+  {
+    path: 'frotas/configuracoes/categorias/create',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CategoriasCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Categoria',
+  },
+  {
+    path: 'frotas/configuracoes/categorias/update',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CategoriasUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Categoria',
   },
 ]
