@@ -15,6 +15,7 @@ using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
 using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
+using Frotas.API.Application.Services.Frotas.FornecedorService.DTOs;
 
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
@@ -160,6 +161,19 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Combustivel, CombustivelDTO>();
       _ = CreateMap<CreateCombustivelRequest, Combustivel>();
       _ = CreateMap<UpdateCombustivelRequest, Combustivel>();
+
+      // Fornecedores mappings
+      _ = CreateMap<Fornecedor, FornecedorDTO>();
+      _ = CreateMap<CreateFornecedorRequest, Fornecedor>()
+        .ForMember(dest => dest.CodigoPostalEscritorio, opt => opt.Ignore())
+        .ForMember(dest => dest.PaisEscritorio, opt => opt.Ignore())
+        .ForMember(dest => dest.CodigoPostalCarga, opt => opt.Ignore())
+        .ForMember(dest => dest.PaisCarga, opt => opt.Ignore());
+      _ = CreateMap<UpdateFornecedorRequest, Fornecedor>()
+        .ForMember(dest => dest.CodigoPostalEscritorio, opt => opt.Ignore())
+        .ForMember(dest => dest.PaisEscritorio, opt => opt.Ignore())
+        .ForMember(dest => dest.CodigoPostalCarga, opt => opt.Ignore())
+        .ForMember(dest => dest.PaisCarga, opt => opt.Ignore());
 
       // add new entity mappings here...
     }
