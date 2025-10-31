@@ -22,12 +22,6 @@ namespace Frotas.API.Application.Services.Frotas.CombustivelService.Specificatio
                 _ = Query.Where(x => x.Nome.Contains(filter.Value));
               }
               break;
-            case "precolitro":
-              if (decimal.TryParse(filter.Value, out decimal precoLitro))
-              {
-                _ = Query.Where(x => x.PrecoLitro == precoLitro);
-              }
-              break;
             default:
               break;
           }

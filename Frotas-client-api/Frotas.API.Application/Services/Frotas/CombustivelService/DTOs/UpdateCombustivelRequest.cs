@@ -7,7 +7,6 @@ namespace Frotas.API.Application.Services.Frotas.CombustivelService.DTOs
   public class UpdateCombustivelRequest : IDto
   {
     public required string Nome { get; set; }
-    public required decimal PrecoLitro { get; set; }
   }
 
   public class UpdateCombustivelValidator : AbstractValidator<UpdateCombustivelRequest>
@@ -15,7 +14,6 @@ namespace Frotas.API.Application.Services.Frotas.CombustivelService.DTOs
     public UpdateCombustivelValidator()
     {
       _ = RuleFor(x => x.Nome).NotEmpty();
-      _ = RuleFor(x => x.PrecoLitro).NotEmpty();
     }
   }
 }

@@ -182,7 +182,7 @@ namespace Frotas.API.Application.Services.Frotas.CombustivelService
         {
           // Partial success - some deletions succeeded, some failed
           string message =
-            $"Eliminados com sucesso {successfullyDeletedIds.Count} de {idsList.Count} modelos.";
+            $"Eliminados com sucesso {successfullyDeletedIds.Count} de {idsList.Count} combustíveis.";
           return Response<IEnumerable<Guid>>.PartialSuccess(successfullyDeletedIds, message);
         }
         else

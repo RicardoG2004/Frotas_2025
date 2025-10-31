@@ -7,6 +7,5 @@ namespace Frotas.API.Domain.Entities.Frotas
   public class Combustivel : AuditableEntity
   {
     public string Nome { get; set; }
-    public decimal PrecoLitro { get; set; }
   }
 }

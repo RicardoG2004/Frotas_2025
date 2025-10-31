@@ -10,7 +10,7 @@ namespace Frotas.API.Application.Services.Frotas.CombustivelService.Specificatio
       // filters
       if (!string.IsNullOrEmpty(keyword))
       {
-        _ = Query.Where(x => x.Nome.Contains(keyword) || x.PrecoLitro.ToString().Contains(keyword));
+        _ = Query.Where(x => x.Nome.Contains(keyword));
       }
 
       _ = Query.OrderByDescending(x => x.CreatedOn); // default sort order

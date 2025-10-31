@@ -6,7 +6,6 @@ namespace Frotas.API.Application.Services.Frotas.CombustivelService.DTOs
   {
     public Guid Id { get; set; }
     public required string Nome { get; set; }
-    public decimal PrecoLitro { get; set; }
     public DateTime CreatedOn { get; set; }
   }
 }
