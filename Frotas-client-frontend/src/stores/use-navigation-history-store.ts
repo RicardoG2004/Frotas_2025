@@ -125,6 +125,9 @@ export const getPageTitleFromPath = (path: string): string => {
     '/frotas/configuracoes/categorias': 'Categorias',
     '/frotas/configuracoes/categorias/create': 'Criar Categoria',
     '/frotas/configuracoes/categorias/update': 'Editar Categoria',
+    '/frotas/configuracoes/combustiveis': 'Combustíveis',
+    '/frotas/configuracoes/combustiveis/create': 'Criar Combustível',
+    '/frotas/configuracoes/combustiveis/update': 'Editar Combustível',
 
     // Utilitários - Tabelas Geográficas
     '/utilitarios/tabelas/geograficas/paises': 'Países',

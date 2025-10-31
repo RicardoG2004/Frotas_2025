@@ -53,6 +53,14 @@ export function FrotasDashboardPage() {
       color: useIconThemeColor('/frotas/configuracoes/categorias'),
       openInNewWindow: true,
     },
+    {
+      title: 'Combustíveis',
+      description: 'Gestão de combustíveis',
+      icon: Icons.droplets,
+      path: '/frotas/configuracoes/combustiveis',
+      color: useIconThemeColor('/frotas/configuracoes/combustiveis'),
+      openInNewWindow: true,
+    },
   ]
 
   return (

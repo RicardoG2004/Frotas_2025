@@ -7,6 +7,10 @@ import { usePagesStore } from '@/stores/use-pages-store'
 import { useWindowsStore, WindowState } from '@/stores/use-windows-store'
 import { Icons } from '@/components/ui/icons'
 
+// ============================================================================
+// WINDOW IDENTIFICATION
+// ============================================================================
+
 /**
  * Hook to get the current window ID based on the location and instance ID.
  * This is useful for components that need to access the current window's page state.
@@ -58,6 +62,30 @@ export function getCurrentWindowId() {
 }
 
 /**
+ * Gets the current window instance ID from the URL.
+ */
+export function getCurrentInstanceId(): string {
+  const searchParams = new URLSearchParams(window.location.search)
+  return searchParams.get('instanceId') || 'default'
+}
+
+/**
+ * Gets the current window path and instance ID.
+ */
+export function getCurrentWindowInfo(): { path: string; instanceId: string } {
+  const location = window.location
+  const searchParams = new URLSearchParams(location.search)
+  return {
+    path: location.pathname,
+    instanceId: searchParams.get('instanceId') || 'default',
+  }
+}
+
+// ============================================================================
+// ROUTE & WINDOW MANAGEMENT
+// ============================================================================
+
+/**
  * Check if a route should manage windows based on the pathname.
  * This is used to determine if a new instance ID should be added to the URL.
  */
@@ -76,18 +104,6 @@ export function shouldManageWindow(pathname: string): boolean {
 
   // Return true if the route has manageWindow set to true
   return !!route?.manageWindow
-}
-
-/**
- * Gets the form ID for a specific form type and window instance.
- * This is used to uniquely identify form state across different window instances.
- */
-export function getFormId(
-  formType: string,
-  entityType: string,
-  instanceId: string
-): string {
-  return `${entityType}-${formType}-${instanceId}`
 }
 
 /**
@@ -124,6 +140,117 @@ export function handleWindowClose(
 }
 
 /**
+ * Generates a unique instance ID for window management
+ */
+export function generateInstanceId(): string {
+  return crypto.randomUUID()
+}
+
+/**
+ * Clears all window, page, and form data from stores and localStorage.
+ */
+export function clearAllWindowData() {
+  // Get all stores
+  const windowsStore = useWindowsStore.getState()
+  const pagesStore = usePagesStore.getState()
+  const formsStore = useFormsStore.getState()
+
+  // Clear windows store
+  windowsStore.windows = []
+  windowsStore.activeWindow = null
+  windowsStore.windowCache = new Map()
+
+  // Clear pages store
+  pagesStore.pages = {}
+
+  // Clear forms store
+  formsStore.forms = {}
+
+  // Clear localStorage items
+  localStorage.removeItem('windows-storage')
+  localStorage.removeItem('pages-storage')
+  localStorage.removeItem('form-instances-storage')
+
+  // Force Zustand to persist the cleared state
+  useWindowsStore.persist.clearStorage()
+  usePagesStore.persist.clearStorage()
+  useFormsStore.persist.clearStorage()
+}
+
+// ============================================================================
+// FORM CHANGE DETECTION
+// ============================================================================
+
+/**
+ * Compares two values for equality handling different data types appropriately.
+ */
+function compareValues(current: any, reference: any, normalizeEmpty: boolean = false): boolean {
+  // Boolean comparison
+  if (typeof current === 'boolean') {
+    return current !== reference
+  }
+
+  // Date comparison
+  if (current instanceof Date && reference instanceof Date) {
+    return current.getTime() !== reference.getTime()
+  }
+
+  // Array comparison
+  if (Array.isArray(current) && Array.isArray(reference)) {
+    if (current.length !== reference.length) return true
+
+    return current.some((item, index) => {
+      const refItem = reference[index]
+      if (typeof item === 'object' && typeof refItem === 'object') {
+        return JSON.stringify(item) !== JSON.stringify(refItem)
+      }
+      return item !== refItem
+    })
+  }
+
+  // String comparison with optional empty normalization
+  if (typeof current === 'string') {
+    if (normalizeEmpty) {
+      return (current || '') !== (reference || '')
+    }
+    return current !== (reference || '')
+  }
+
+  // Number comparison
+  if (typeof current === 'number') {
+    return current !== (reference || 0)
+  }
+
+  // Default strict equality
+  return current !== reference
+}
+
+/**
+ * Detects if form values have changed from their original/default values.
+ * For update forms, set normalizeEmpty to true to handle null/undefined vs empty string equivalence.
+ */
+export function detectFormChanges(
+  currentValues: Record<string, any>,
+  referenceValues: Record<string, any>,
+  normalizeEmpty: boolean = false
+): boolean {
+  return Object.entries(currentValues).some(([key, value]) => {
+    const referenceValue = referenceValues[key]
+    return compareValues(value, referenceValue, normalizeEmpty)
+  })
+}
+
+/**
+ * @deprecated Use detectFormChanges with normalizeEmpty=true instead
+ */
+export function detectUpdateFormChanges(
+  currentValues: Record<string, any>,
+  originalValues: Record<string, any>
+): boolean {
+  return detectFormChanges(currentValues, originalValues, true)
+}
+
+/**
  * Updates window form data state when form values change.
  * This is used in form components to track if a form has unsaved changes.
  */
@@ -133,119 +260,6 @@ export function updateWindowFormData(
   setWindowHasFormData: (id: string, hasFormData: boolean) => void
 ) {
   setWindowHasFormData(windowId, hasChanges)
-}
-
-/**
- * Gets the current window instance ID from the URL.
- */
-export function getCurrentInstanceId(): string {
-  const searchParams = new URLSearchParams(window.location.search)
-  return searchParams.get('instanceId') || 'default'
-}
-
-/**
- * Gets the current window path and instance ID.
- */
-export function getCurrentWindowInfo(): { path: string; instanceId: string } {
-  const location = window.location
-  const searchParams = new URLSearchParams(location.search)
-  return {
-    path: location.pathname,
-    instanceId: searchParams.get('instanceId') || 'default',
-  }
-}
-
-/**
- * Detects if form values have changed from their original values in update forms.
- * This provides a more accurate way to determine if an update form has unsaved changes.
- */
-export function detectUpdateFormChanges(
-  currentValues: Record<string, any>,
-  originalValues: Record<string, any>
-): boolean {
-  const hasChanges = Object.entries(currentValues).some(([key, value]) => {
-    const originalValue = originalValues[key]
-
-    // Handle different data types
-    let isChanged = false
-    if (typeof value === 'boolean') {
-      isChanged = value !== originalValue
-    } else if (value instanceof Date && originalValue instanceof Date) {
-      isChanged = value.getTime() !== originalValue.getTime()
-    } else if (Array.isArray(value) && Array.isArray(originalValue)) {
-      // For arrays, compare contents instead of references
-      if (value.length !== originalValue.length) {
-        isChanged = true
-      } else {
-        isChanged = value.some((item, index) => {
-          const originalItem = originalValue[index]
-          if (typeof item === 'object' && typeof originalItem === 'object') {
-            return JSON.stringify(item) !== JSON.stringify(originalItem)
-          }
-          return item !== originalItem
-        })
-      }
-    } else if (typeof value === 'string') {
-      // Handle null/undefined vs empty string equivalence
-      const normalizedCurrent = value || ''
-      const normalizedOriginal = originalValue || ''
-      isChanged = normalizedCurrent !== normalizedOriginal
-    } else if (typeof value === 'number') {
-      isChanged = value !== originalValue
-    } else {
-      // For other types, use strict equality
-      isChanged = value !== originalValue
-    }
-
-    return isChanged
-  })
-
-  return hasChanges
-}
-
-/**
- * Detects if form values have changed from their default values.
- * This provides a more accurate way to determine if a form has unsaved changes.
- */
-export function detectFormChanges(
-  currentValues: Record<string, any>,
-  defaultValues: Record<string, any>
-): boolean {
-  const hasChanges = Object.entries(currentValues).some(([key, value]) => {
-    const defaultValue = defaultValues[key]
-
-    // Handle different data types
-    let isChanged = false
-    if (typeof value === 'boolean') {
-      isChanged = value !== defaultValue
-    } else if (value instanceof Date && defaultValue instanceof Date) {
-      isChanged = value.getTime() !== defaultValue.getTime()
-    } else if (Array.isArray(value) && Array.isArray(defaultValue)) {
-      // For arrays, compare contents instead of references
-      if (value.length !== defaultValue.length) {
-        isChanged = true
-      } else {
-        isChanged = value.some((item, index) => {
-          const defaultItem = defaultValue[index]
-          if (typeof item === 'object' && typeof defaultItem === 'object') {
-            return JSON.stringify(item) !== JSON.stringify(defaultItem)
-          }
-          return item !== defaultItem
-        })
-      }
-    } else if (typeof value === 'string') {
-      isChanged = value !== (defaultValue || '')
-    } else if (typeof value === 'number') {
-      isChanged = value !== (defaultValue || 0)
-    } else {
-      // For other types, use strict equality
-      isChanged = value !== defaultValue
-    }
-
-    return isChanged
-  })
-
-  return hasChanges
 }
 
 /**
@@ -278,6 +292,10 @@ export function updateCreateFormData(
   setWindowHasFormData(windowId, hasChanges)
 }
 
+// ============================================================================
+// WINDOW UTILITIES
+// ============================================================================
+
 /**
  * Cleans up all forms associated with a window
  */
@@ -298,13 +316,6 @@ export function cleanupWindowForms(windowId: string) {
       formsStore.removeFormState(formId)
     }
   })
-}
-
-/**
- * Generates a unique instance ID for window management
- */
-export function generateInstanceId(): string {
-  return crypto.randomUUID()
 }
 
 /**
@@ -341,442 +352,44 @@ export function getChildWindows(
 }
 
 /**
- * Updates the window title for a create form based on the field value
+ * Updates the window title based on a field value.
+ * Falls back to a default title if no value is provided.
+ */
+export function updateWindowTitle(
+  windowId: string,
+  value: string | undefined,
+  defaultTitle: string,
+  updateWindowState: (id: string, updates: Partial<WindowState>) => void
+) {
+  const title = value ? truncateWindowTitle(value) : defaultTitle
+  updateWindowState(windowId, { title })
+}
+
+/**
+ * @deprecated Use updateWindowTitle with defaultTitle='Criar' instead
  */
 export function updateCreateWindowTitle(
   windowId: string,
   value: string | undefined,
   updateWindowState: (id: string, updates: Partial<WindowState>) => void
 ) {
-  if (value) {
-    const title = truncateWindowTitle(value)
-    updateWindowState(windowId, { title })
-  } else {
-    updateWindowState(windowId, { title: 'Criar' })
-  }
+  updateWindowTitle(windowId, value, 'Criar', updateWindowState)
 }
 
 /**
- * Updates the window title for an update form based on the field value
+ * @deprecated Use updateWindowTitle with defaultTitle='Atualizar' instead
  */
 export function updateUpdateWindowTitle(
   windowId: string,
   value: string | undefined,
   updateWindowState: (id: string, updates: Partial<WindowState>) => void
 ) {
-  if (value) {
-    const title = truncateWindowTitle(value)
-    updateWindowState(windowId, { title })
-  } else {
-    updateWindowState(windowId, { title: 'Atualizar' })
-  }
-}
-
-export function clearAllWindowData() {
-  // Get all stores
-  const windowsStore = useWindowsStore.getState()
-  const pagesStore = usePagesStore.getState()
-  const formsStore = useFormsStore.getState()
-
-  // Clear windows store
-  windowsStore.windows = []
-  windowsStore.activeWindow = null
-  windowsStore.windowCache = new Map()
-
-  // Clear pages store
-  pagesStore.pages = {}
-
-  // Clear forms store
-  formsStore.forms = {}
-
-  // Clear localStorage items
-  localStorage.removeItem('windows-storage')
-  localStorage.removeItem('pages-storage')
-  localStorage.removeItem('form-instances-storage')
-
-  // Force Zustand to persist the cleared state
-  useWindowsStore.persist.clearStorage()
-  usePagesStore.persist.clearStorage()
-  useFormsStore.persist.clearStorage()
+  updateWindowTitle(windowId, value, 'Atualizar', updateWindowState)
 }
 
 /**
- * Opens a new window for creating an item and sets up communication
- * with the parent window for auto-selection when the item is created.
+ * Gets window metadata including icon, color, and title from menu configuration.
  */
-export function openCreationWindow(
-  navigate: (path: string) => void,
-  parentWindowId: string,
-  route: string,
-  updateWindowState: (id: string, updates: Partial<WindowState>) => void,
-  findWindowByPathAndInstanceId: (
-    path: string,
-    instanceId: string
-  ) => WindowState | undefined
-) {
-  const windowId = `create-${Date.now()}`
-
-  // Store the parent window ID in sessionStorage for the new window to access
-  sessionStorage.setItem(`parent-window-${windowId}`, parentWindowId)
-
-  // Navigate to the route (this will trigger window manager to create a window)
-  navigate(`${route}?instanceId=${windowId}`)
-
-  // Update the window with parent reference after a delay
-  setTimeout(() => {
-    const createdWindow = findWindowByPathAndInstanceId(route, windowId)
-
-    if (createdWindow) {
-      updateWindowState(createdWindow.id, {
-        parentWindowId: parentWindowId,
-      })
-    }
-  }, 500)
-}
-
-/**
- * Helper function to create custom creation window functions for different entities.
- * This makes it very easy to create specific functions for different entity types.
- */
-export function createEntityCreationWindow(route: string) {
-  return function openEntityCreationWindow(
-    navigate: (path: string) => void,
-    parentWindowId: string,
-    updateWindowState: (id: string, updates: Partial<WindowState>) => void,
-    findWindowByPathAndInstanceId: (
-      path: string,
-      instanceId: string
-    ) => WindowState | undefined
-  ) {
-    return openCreationWindow(
-      navigate,
-      parentWindowId,
-      route,
-      updateWindowState,
-      findWindowByPathAndInstanceId
-    )
-  }
-}
-
-// Pre-defined creation window functions for common entities
-export const openEntidadeCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/configuracoes/entidades/create'
-)
-
-export const openSepulturaCreationWindow = createEntityCreationWindow(
-  '/cemiterios/configuracoes/sepulturas/create'
-)
-
-export const openCemiterioCreationWindow = createEntityCreationWindow(
-  '/cemiterios/configuracoes/cemiterios/create'
-)
-
-export const openTipoCreationWindow = createEntityCreationWindow(
-  '/cemiterios/configuracoes/sepulturas/tipos/create'
-)
-
-export const openTalhaoCreationWindow = createEntityCreationWindow(
-  '/cemiterios/configuracoes/talhoes/create'
-)
-
-export const openProprietarioCreationWindow = createEntityCreationWindow(
-  '/cemiterios/configuracoes/proprietarios/create'
-)
-
-export const openPaisCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/geograficas/paises/create'
-)
-
-export const openDistritoCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/geograficas/distritos/create'
-)
-
-export const openConcelhoCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/geograficas/concelhos/create'
-)
-
-export const openFreguesiaCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/geograficas/freguesias/create'
-)
-
-export const openCodigoPostalCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/geograficas/codigospostais/create'
-)
-
-export const openRuaCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/geograficas/ruas/create'
-)
-
-export const openMarcaCreationWindow = createEntityCreationWindow(
-  '/frotas/configuracoes/marcas/create'
-)
-
-/**
- * Opens a window for viewing/editing an existing entity.
- * This is used when you want to open an entity in update mode.
- */
-export function openViewWindow(
-  navigate: (path: string) => void,
-  parentWindowId: string,
-  route: string,
-  entityId: string,
-  entityIdParamName: string,
-  updateWindowState: (id: string, updates: Partial<WindowState>) => void,
-  findWindowByPathAndInstanceId: (
-    path: string,
-    instanceId: string
-  ) => WindowState | undefined
-) {
-  const windowId = `view-${Date.now()}`
-
-  // Store the parent window ID in sessionStorage for the new window to access
-  sessionStorage.setItem(`parent-window-${windowId}`, parentWindowId)
-
-  // Navigate to the route with the entity ID parameter
-  navigate(`${route}?${entityIdParamName}=${entityId}&instanceId=${windowId}`)
-
-  // Update the window with parent reference after a delay
-  setTimeout(() => {
-    const createdWindow = findWindowByPathAndInstanceId(route, windowId)
-
-    if (createdWindow) {
-      updateWindowState(createdWindow.id, {
-        parentWindowId: parentWindowId,
-      })
-    }
-  }, 500)
-}
-
-/**
- * Helper function to create custom view window functions for different entities.
- * This makes it very easy to create specific functions for viewing different entity types.
- */
-export function createEntityViewWindow(
-  route: string,
-  entityIdParamName: string
-) {
-  return function openEntityViewWindow(
-    navigate: (path: string) => void,
-    parentWindowId: string,
-    entityId: string,
-    updateWindowState: (id: string, updates: Partial<WindowState>) => void,
-    findWindowByPathAndInstanceId: (
-      path: string,
-      instanceId: string
-    ) => WindowState | undefined
-  ) {
-    return openViewWindow(
-      navigate,
-      parentWindowId,
-      route,
-      entityId,
-      entityIdParamName,
-      updateWindowState,
-      findWindowByPathAndInstanceId
-    )
-  }
-}
-
-// Pre-defined view window functions for common entities
-export const openEntidadeViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/configuracoes/entidades/update',
-  'entidadeId'
-)
-
-export const openSepulturaViewWindow = createEntityViewWindow(
-  '/cemiterios/configuracoes/sepulturas/update',
-  'sepulturaId'
-)
-
-export const openCemiterioViewWindow = createEntityViewWindow(
-  '/cemiterios/configuracoes/cemiterios/update',
-  'cemiterioId'
-)
-
-export const openTipoViewWindow = createEntityViewWindow(
-  '/cemiterios/configuracoes/sepulturas/tipos/update',
-  'sepulturaTipoId'
-)
-
-export const openTalhaoViewWindow = createEntityViewWindow(
-  '/cemiterios/configuracoes/talhoes/update',
-  'cemiterioTalhaoId'
-)
-
-export const openProprietarioViewWindow = createEntityViewWindow(
-  '/cemiterios/configuracoes/proprietarios/update',
-  'proprietarioId'
-)
-
-export const openPaisViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/geograficas/paises/update',
-  'paisId'
-)
-
-export const openDistritoViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/geograficas/distritos/update',
-  'distritoId'
-)
-
-export const openConcelhoViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/geograficas/concelhos/update',
-  'concelhoId'
-)
-
-export const openFreguesiaViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/geograficas/freguesias/update',
-  'freguesiaId'
-)
-
-export const openCodigoPostalViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/geograficas/codigospostais/update',
-  'codigoPostalId'
-)
-
-export const openRuaViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/geograficas/ruas/update',
-  'ruaId'
-)
-
-export const openMarcaViewWindow = createEntityViewWindow(
-  '/frotas/configuracoes/marcas/update',
-  'marcaId'
-)
-
-/**
- * Sets the return data for a window that will be used by the parent window
- * when this window closes. Includes multiple fallback mechanisms for reliability.
- */
-export function setWindowReturnData(
-  windowId: string,
-  data: any,
-  setWindowReturnData: (id: string, data: any) => void
-) {
-  setWindowReturnData(windowId, data)
-}
-
-/**
- * Sets return data with multiple fallback mechanisms for maximum reliability.
- */
-export function setReturnDataWithFallbacks(
-  windowId: string,
-  data: any,
-  setWindowReturnData: (id: string, data: any) => void,
-  parentWindowIdFromStorage?: string
-) {
-  // Primary mechanism: set return data for the current window
-  setWindowReturnData(windowId, data)
-
-  // Fallback mechanism: set return data with parent window ID from storage
-  if (parentWindowIdFromStorage) {
-    setWindowReturnData(parentWindowIdFromStorage, data)
-
-    // Backup mechanism: store in sessionStorage for longer persistence
-    sessionStorage.setItem(
-      `return-data-${parentWindowIdFromStorage}`,
-      JSON.stringify(data)
-    )
-  }
-}
-
-/**
- * Sets entity-specific return data with multiple fallback mechanisms for maximum reliability.
- * This function uses entity-specific sessionStorage keys to prevent conflicts between different entity types.
- */
-export function setEntityReturnDataWithFallbacks(
-  windowId: string,
-  data: any,
-  entityType: string,
-  setWindowReturnData: (id: string, data: any) => void,
-  parentWindowIdFromStorage?: string
-) {
-  // Primary mechanism: set return data for the current window
-  setWindowReturnData(windowId, data)
-
-  // Fallback mechanism: set return data with parent window ID from storage
-  if (parentWindowIdFromStorage) {
-    setWindowReturnData(parentWindowIdFromStorage, data)
-
-    // Backup mechanism: store in sessionStorage with entity-specific key for longer persistence
-    const sessionKey = `return-data-${parentWindowIdFromStorage}-${entityType.toLowerCase()}`
-    sessionStorage.setItem(sessionKey, JSON.stringify(data))
-  }
-}
-
-/**
- * Sets entity-specific return data with toast suppression to prevent stuttering.
- * This function prevents duplicate toasts when the parent window already shows a success toast.
- */
-export function setEntityReturnDataWithToastSuppression(
-  windowId: string,
-  data: any,
-  entityType: string,
-  setWindowReturnData: (id: string, data: any) => void,
-  parentWindowIdFromStorage?: string,
-  instanceId?: string
-) {
-  // Set return data with fallbacks
-  setEntityReturnDataWithFallbacks(
-    windowId,
-    data,
-    entityType,
-    setWindowReturnData,
-    parentWindowIdFromStorage
-  )
-
-  // Set flag to suppress auto-selection toast to prevent stuttering
-  // This prevents duplicate toasts when the parent window already shows success
-  if (parentWindowIdFromStorage) {
-    const suppressionKey = `suppress-auto-selection-toast-${parentWindowIdFromStorage}`
-    sessionStorage.setItem(suppressionKey, 'true')
-  }
-
-  // Clean up sessionStorage after a delay to ensure parent window has time to read it
-  if (parentWindowIdFromStorage && instanceId) {
-    setTimeout(() => {
-      sessionStorage.removeItem(`parent-window-${instanceId}`)
-      // Don't remove the suppression flag here - let useAutoSelection handle it
-      // sessionStorage.removeItem(
-      //   `suppress-auto-selection-toast-${parentWindowIdFromStorage}`
-      // )
-    }, 2000) // 2 second delay
-  }
-}
-
-/**
- * Gets the return data from a child window and clears it.
- */
-export function getAndClearWindowReturnData(
-  windowId: string,
-  getWindowReturnData: (id: string) => any,
-  clearWindowReturnData: (id: string) => void
-) {
-  const data = getWindowReturnData(windowId)
-  if (data) {
-    clearWindowReturnData(windowId)
-  }
-  return data
-}
-
-/**
- * Checks if there are any child windows with return data for the given parent window.
- */
-export function checkForChildWindowReturnData(
-  parentWindowId: string,
-  findChildWindows: (parentWindowId: string) => WindowState[],
-  getWindowReturnData: (id: string) => any
-) {
-  const childWindows = findChildWindows(parentWindowId)
-
-  for (const childWindow of childWindows) {
-    const returnData = getWindowReturnData(childWindow.id)
-    if (returnData) {
-      return { childWindowId: childWindow.id, returnData }
-    }
-  }
-  return null
-}
-
 export function getWindowMetadata(path: string): {
   icon: keyof typeof Icons | null
   color: string
@@ -855,4 +468,292 @@ export function getWindowMetadata(path: string): {
     color: 'bg-gray-500',
     title: 'Window',
   }
+}
+
+// ============================================================================
+// WINDOW CREATION & NAVIGATION
+// ============================================================================
+
+/**
+ * Opens a new window for creating an item and sets up communication
+ * with the parent window for auto-selection when the item is created.
+ */
+export function openCreationWindow(
+  navigate: (path: string) => void,
+  parentWindowId: string,
+  route: string,
+  updateWindowState: (id: string, updates: Partial<WindowState>) => void,
+  findWindowByPathAndInstanceId: (
+    path: string,
+    instanceId: string
+  ) => WindowState | undefined
+) {
+  const windowId = `create-${Date.now()}`
+
+  // Store the parent window ID in sessionStorage for the new window to access
+  sessionStorage.setItem(`parent-window-${windowId}`, parentWindowId)
+
+  // Navigate to the route (this will trigger window manager to create a window)
+  navigate(`${route}?instanceId=${windowId}`)
+
+  // Update the window with parent reference after a delay
+  setTimeout(() => {
+    const createdWindow = findWindowByPathAndInstanceId(route, windowId)
+
+    if (createdWindow) {
+      updateWindowState(createdWindow.id, {
+        parentWindowId: parentWindowId,
+      })
+    }
+  }, 500)
+}
+
+/**
+ * Helper function to create custom creation window functions for different entities.
+ * This makes it very easy to create specific functions for different entity types.
+ */
+export function createEntityCreationWindow(route: string) {
+  return function openEntityCreationWindow(
+    navigate: (path: string) => void,
+    parentWindowId: string,
+    updateWindowState: (id: string, updates: Partial<WindowState>) => void,
+    findWindowByPathAndInstanceId: (
+      path: string,
+      instanceId: string
+    ) => WindowState | undefined
+  ) {
+    return openCreationWindow(
+      navigate,
+      parentWindowId,
+      route,
+      updateWindowState,
+      findWindowByPathAndInstanceId
+    )
+  }
+}
+
+// Pre-defined creation window functions for common entities
+
+// Utilitários - Entidades
+export const openEntidadeCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/entidades/create'
+)
+
+// Utilitários - Geografia
+export const openPaisCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/geograficas/paises/create'
+)
+
+export const openDistritoCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/geograficas/distritos/create'
+)
+
+export const openConcelhoCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/geograficas/concelhos/create'
+)
+
+export const openFreguesiaCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/geograficas/freguesias/create'
+)
+
+export const openCodigoPostalCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/geograficas/codigospostais/create'
+)
+
+export const openRuaCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/geograficas/ruas/create'
+)
+
+// Frotas - Configurações
+export const openMarcaCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/marcas/create'
+)
+
+// ============================================================================
+// WINDOW VIEW FUNCTIONS
+// ============================================================================
+
+/**
+ * Opens a window for viewing/editing an existing entity.
+ * This is used when you want to open an entity in update mode.
+ */
+export function openViewWindow(
+  navigate: (path: string) => void,
+  parentWindowId: string,
+  route: string,
+  entityId: string,
+  entityIdParamName: string,
+  updateWindowState: (id: string, updates: Partial<WindowState>) => void,
+  findWindowByPathAndInstanceId: (
+    path: string,
+    instanceId: string
+  ) => WindowState | undefined
+) {
+  const windowId = `view-${Date.now()}`
+
+  // Store the parent window ID in sessionStorage for the new window to access
+  sessionStorage.setItem(`parent-window-${windowId}`, parentWindowId)
+
+  // Navigate to the route with the entity ID parameter
+  navigate(`${route}?${entityIdParamName}=${entityId}&instanceId=${windowId}`)
+
+  // Update the window with parent reference after a delay
+  setTimeout(() => {
+    const createdWindow = findWindowByPathAndInstanceId(route, windowId)
+
+    if (createdWindow) {
+      updateWindowState(createdWindow.id, {
+        parentWindowId: parentWindowId,
+      })
+    }
+  }, 500)
+}
+
+/**
+ * Helper function to create custom view window functions for different entities.
+ * This makes it very easy to create specific functions for viewing different entity types.
+ */
+export function createEntityViewWindow(
+  route: string,
+  entityIdParamName: string
+) {
+  return function openEntityViewWindow(
+    navigate: (path: string) => void,
+    parentWindowId: string,
+    entityId: string,
+    updateWindowState: (id: string, updates: Partial<WindowState>) => void,
+    findWindowByPathAndInstanceId: (
+      path: string,
+      instanceId: string
+    ) => WindowState | undefined
+  ) {
+    return openViewWindow(
+      navigate,
+      parentWindowId,
+      route,
+      entityId,
+      entityIdParamName,
+      updateWindowState,
+      findWindowByPathAndInstanceId
+    )
+  }
+}
+
+// Pre-defined view window functions for common entities
+
+// Utilitários - Entidades
+export const openEntidadeViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/entidades/update',
+  'entidadeId'
+)
+
+// Utilitários - Geografia
+export const openPaisViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/geograficas/paises/update',
+  'paisId'
+)
+
+export const openDistritoViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/geograficas/distritos/update',
+  'distritoId'
+)
+
+export const openConcelhoViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/geograficas/concelhos/update',
+  'concelhoId'
+)
+
+export const openFreguesiaViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/geograficas/freguesias/update',
+  'freguesiaId'
+)
+
+export const openCodigoPostalViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/geograficas/codigospostais/update',
+  'codigoPostalId'
+)
+
+export const openRuaViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/geograficas/ruas/update',
+  'ruaId'
+)
+
+// Frotas - Configurações
+export const openMarcaViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/marcas/update',
+  'marcaId'
+)
+
+// ============================================================================
+// WINDOW RETURN DATA MANAGEMENT
+// ============================================================================
+
+/**
+ * Sets entity-specific return data with toast suppression to prevent duplicate toasts.
+ * Uses entity-specific sessionStorage keys to prevent conflicts between different entity types.
+ */
+export function setEntityReturnDataWithToastSuppression(
+  windowId: string,
+  data: any,
+  entityType: string,
+  setWindowReturnData: (id: string, data: any) => void,
+  parentWindowIdFromStorage?: string,
+  instanceId?: string
+) {
+  // Primary mechanism: set return data for the current window
+  setWindowReturnData(windowId, data)
+
+  // Fallback mechanism: set return data with parent window ID from storage
+  if (parentWindowIdFromStorage) {
+    setWindowReturnData(parentWindowIdFromStorage, data)
+
+    // Store in sessionStorage with entity-specific key for longer persistence
+    const sessionKey = `return-data-${parentWindowIdFromStorage}-${entityType.toLowerCase()}`
+    sessionStorage.setItem(sessionKey, JSON.stringify(data))
+
+    // Set flag to suppress auto-selection toast to prevent duplicate toasts
+    const suppressionKey = `suppress-auto-selection-toast-${parentWindowIdFromStorage}`
+    sessionStorage.setItem(suppressionKey, 'true')
+  }
+
+  // Clean up sessionStorage after a delay to ensure parent window has time to read it
+  if (parentWindowIdFromStorage && instanceId) {
+    setTimeout(() => {
+      sessionStorage.removeItem(`parent-window-${instanceId}`)
+    }, 2000)
+  }
+}
+
+/**
+ * Gets the return data from a child window and clears it.
+ */
+export function getAndClearWindowReturnData(
+  windowId: string,
+  getWindowReturnData: (id: string) => any,
+  clearWindowReturnData: (id: string) => void
+) {
+  const data = getWindowReturnData(windowId)
+  if (data) {
+    clearWindowReturnData(windowId)
+  }
+  return data
+}
+
+/**
+ * Checks if there are any child windows with return data for the given parent window.
+ */
+export function checkForChildWindowReturnData(
+  parentWindowId: string,
+  findChildWindows: (parentWindowId: string) => WindowState[],
+  getWindowReturnData: (id: string) => any
+) {
+  const childWindows = findChildWindows(parentWindowId)
+
+  for (const childWindow of childWindows) {
+    const returnData = getWindowReturnData(childWindow.id)
+    if (returnData) {
+      return { childWindowId: childWindow.id, returnData }
+    }
+  }
+  return null
 }

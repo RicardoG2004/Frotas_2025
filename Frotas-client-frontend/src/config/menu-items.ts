@@ -315,6 +315,22 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '', // Removed permission check temporarily
           },
+          {
+            label: 'Combustíveis',
+            href: '/frotas/configuracoes/combustiveis',
+            description: 'Faça a gestão de combustíveis',
+            icon: 'droplets',
+            colors: {
+              colorful: 'bg-green-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-green-300',
+              vibrant: 'bg-green-600',
+              neon: 'bg-green-400',
+              'neon-cyberpunk':
+                'bg-green-500 shadow-[0_0_40px_rgba(59,130,246,0.9)]',
+            },
+            funcionalidadeId: '', // Removed permission check temporarily
+          },
         ],
       },
     ],

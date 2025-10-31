@@ -347,7 +347,7 @@ export const ModeloUpdateForm = ({
           className='w-full'
           contextKey={`modelo-${instanceId}`}
         >
-          <PersistentTabsList className='grid w-full grid-cols-2'>
+          <PersistentTabsList>
             <PersistentTabsTrigger value='identificacao'>
               <Layers className='mr-2 h-4 w-4' />
               Identificação
@@ -358,47 +358,81 @@ export const ModeloUpdateForm = ({
             </PersistentTabsTrigger>
           </PersistentTabsList>
 
-          <PersistentTabsContent value='identificacao' className='space-y-4'>
-            <Card>
-              <CardHeader>
-                <CardTitle className='flex items-center gap-2'>
-                  <Layers className='h-5 w-5' />
-                  Informações do Modelo
-                  <Badge variant='default' className='ml-auto'>
-                    Obrigatório
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <FormField
-                  control={form.control}
-                  name='nome'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome</FormLabel>
-                      <FormControl>
-                        <Input placeholder='Nome do modelo' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
+          <PersistentTabsContent value='identificacao'>
+            <div className='space-y-6'>
+              <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
+                <CardHeader className='pb-4'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary'>
+                      <Layers className='h-4 w-4' />
+                    </div>
+                    <div>
+                      <CardTitle className='text-base flex items-center gap-2'>
+                        Identificação do Modelo
+                        <Badge variant='secondary' className='text-xs'>
+                          Obrigatório
+                        </Badge>
+                      </CardTitle>
+                      <p className='text-sm text-muted-foreground mt-1'>
+                        Informações básicas do modelo
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  <div className='grid grid-cols-1 gap-4'>
+                    <FormField
+                      control={form.control}
+                      name='nome'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='flex items-center gap-2'>
+                            <Layers className='h-4 w-4' />
+                            Nome
+                            <Badge variant='secondary' className='text-xs'>
+                              Obrigatório
+                            </Badge>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder='Digite o nome do modelo'
+                              {...field}
+                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </PersistentTabsContent>
 
-          <PersistentTabsContent value='marca' className='space-y-4'>
-            <Card>
-              <CardHeader>
-                <CardTitle className='flex items-center gap-2'>
-                  <Shield className='h-5 w-5' />
-                  Marca
-                  <Badge variant='default' className='ml-auto'>
-                    Obrigatório
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
+          <PersistentTabsContent value='marca'>
+            <div className='space-y-6'>
+              <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
+                <CardHeader className='pb-4'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary'>
+                      <Shield className='h-4 w-4' />
+                    </div>
+                    <div>
+                      <CardTitle className='text-base flex items-center gap-2'>
+                        Marca do Modelo
+                        <Badge variant='secondary' className='text-xs'>
+                          Obrigatório
+                        </Badge>
+                      </CardTitle>
+                      <p className='text-sm text-muted-foreground mt-1'>
+                        Selecione a marca associada ao modelo
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  <div className='grid grid-cols-1 gap-4'>
                 <FormField
                   control={form.control}
                   name='marcaId'
@@ -455,20 +489,31 @@ export const ModeloUpdateForm = ({
                         </div>
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
+                  </FormItem>
+                )}
+              />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </PersistentTabsContent>
         </PersistentTabs>
 
-        <div className='flex justify-end gap-2'>
-          <Button type='button' variant='outline' onClick={handleClose}>
+        <div className='flex flex-col justify-end space-y-2 pt-4 md:flex-row md:space-x-4 md:space-y-0'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={handleClose}
+            className='w-full md:w-auto'
+          >
             Cancelar
           </Button>
-          <Button type='submit' disabled={updateModeloMutation.isPending}>
-            {updateModeloMutation.isPending ? 'Atualizando...' : 'Atualizar Modelo'}
+          <Button
+            type='submit'
+            disabled={updateModeloMutation.isPending}
+            className='w-full md:w-auto'
+          >
+            {updateModeloMutation.isPending ? 'A atualizar...' : 'Atualizar'}
           </Button>
         </div>
         </form>

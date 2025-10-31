@@ -14,6 +14,7 @@ using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
+using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
 
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
@@ -154,6 +155,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Categoria, CategoriaDTO>();
       _ = CreateMap<CreateCategoriaRequest, Categoria>();
       _ = CreateMap<UpdateCategoriaRequest, Categoria>();
+
+      // Combustiveis mappings
+      _ = CreateMap<Combustivel, CombustivelDTO>();
+      _ = CreateMap<CreateCombustivelRequest, Combustivel>();
+      _ = CreateMap<UpdateCombustivelRequest, Combustivel>();
 
       // add new entity mappings here...
     }

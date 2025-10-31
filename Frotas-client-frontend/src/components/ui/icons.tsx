@@ -18,11 +18,15 @@ import {
   CircuitBoardIcon,
   Clock,
   Command,
+  Container,
   CreditCard,
+  Droplet,
+  Droplets,
   ExternalLink,
   File,
   FileText,
   Folder,
+  Fuel,
   HelpCircle,
   History,
   Image,
@@ -101,6 +105,10 @@ export const Icons = {
   layers: Layers,
   truck: Truck,
   tag: IconTag,
+  fuel: Fuel,
+  droplet: Droplet,
+  droplets: Droplets,
+  container: Container,
 } as const
 
 export type IconKey = keyof typeof Icons

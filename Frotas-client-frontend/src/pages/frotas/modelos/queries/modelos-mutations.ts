@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   CreateModeloDTO,
   UpdateModeloDTO,
-} from '@/types/dtos/frotas/coveiros.dtos'
+} from '@/types/dtos/frotas/modelos.dtos'
 import { ModelosService } from '@/lib/services/frotas/modelos-service'
 
 export const useDeleteModelo = () => {

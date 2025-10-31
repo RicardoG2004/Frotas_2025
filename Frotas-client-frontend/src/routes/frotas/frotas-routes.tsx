@@ -16,6 +16,9 @@ import { ModelosUpdatePage } from '@/pages/frotas/modelos/components/modelos-upd
 import { CategoriasPage } from '@/pages/frotas/categorias/categorias-page'
 import { CategoriasCreatePage } from '@/pages/frotas/categorias/components/categorias-create-page/categorias-create-page'
 import { CategoriasUpdatePage } from '@/pages/frotas/categorias/components/categorias-update-page/categorias-update-page'
+import { CombustiveisPage } from '@/pages/frotas/combustiveis/combustiveis-page'
+import { CombustiveisCreatePage } from '@/pages/frotas/combustiveis/components/combustiveis-create-page/combustiveis-create-page'
+import { CombustiveisUpdatePage } from '@/pages/frotas/combustiveis/components/combustiveis-update-page/combustiveis-update-page'
 
 import { LicenseGuard } from '@/components/auth/license-guard'
 
@@ -221,5 +224,35 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Categoria',
+  },
+  {
+    path: 'frotas/configuracoes/combustiveis',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CombustiveisPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Combustíveis',
+  },
+  {
+    path: 'frotas/configuracoes/combustiveis/create',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CombustiveisCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Combustível',
+  },
+  {
+    path: 'frotas/configuracoes/combustiveis/update',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CombustiveisUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Combustível',
   },
 ]
