@@ -29,6 +29,9 @@ import { RubricasUpdatePage } from '@/pages/base/rubricas/components/rubricas-up
 import { RubricasPage } from '@/pages/base/rubricas/rubricas-page'
 import { UtilitariosDashboardPage } from '@/pages/base/utilitarios-dashboard'
 import { LicenseGuard } from '@/components/auth/license-guard'
+import { TaxasIvaPage } from '@/pages/base/taxasIva/taxasIva-page'
+import { TaxasIvaCreatePage } from '@/pages/base/taxasIva/components/taxasIva-create-page/taxasIva-create-page'
+import { TaxasIvaUpdatePage } from '@/pages/base/taxasIva/components/taxasIva-update-page/taxasIva-update-page'
 
 export const utilitariosRoutes = [
   {
@@ -436,5 +439,47 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.entidades.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/taxas-iva',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.taxasIva.id}
+        actionType={actionTypes.AuthVer}
+      >
+        <TaxasIvaPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: utilitarios.permissions.taxasIva.name,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/taxas-iva/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.taxasIva.id}
+        actionType={actionTypes.AuthAdd}
+      >
+        <TaxasIvaCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Criar ${utilitarios.permissions.taxasIva.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/taxas-iva/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.taxasIva.id}
+        actionType='AuthChg'
+      >
+        <TaxasIvaUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Atualizar ${utilitarios.permissions.taxasIva.name}`,
   },
 ]

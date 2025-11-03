@@ -230,3 +230,15 @@
 .fade-in {
   animation: fadeIn 0.2s ease-in-out;
 }
+
+/* Number input styling - remove default spinners and add custom ones */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

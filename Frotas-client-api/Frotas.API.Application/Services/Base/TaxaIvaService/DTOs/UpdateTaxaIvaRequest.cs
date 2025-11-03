@@ -17,7 +17,6 @@ namespace Frotas.API.Application.Services.Base.TaxaIvaService.DTOs
         {
             _ = RuleFor(x => x.Descricao).NotEmpty();
             _ = RuleFor(x => x.Valor).NotEmpty();
-            _ = RuleFor(x => x.Ativo).NotEmpty();
         }
     }
 }

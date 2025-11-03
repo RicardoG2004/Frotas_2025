@@ -161,6 +161,9 @@ export const getPageTitleFromPath = (path: string): string => {
     '/utilitarios/tabelas/configuracoes/entidades': 'Entidades',
     '/utilitarios/tabelas/configuracoes/entidades/create': 'Criar Entidade',
     '/utilitarios/tabelas/configuracoes/entidades/update': 'Editar Entidade',
+    '/utilitarios/tabelas/configuracoes/taxas-iva': 'Taxas de IVA',
+    '/utilitarios/tabelas/configuracoes/taxas-iva/create': 'Criar Taxa de IVA',
+    '/utilitarios/tabelas/configuracoes/taxas-iva/update': 'Editar Taxa de IVA',
   }
 
   // Check for exact match first

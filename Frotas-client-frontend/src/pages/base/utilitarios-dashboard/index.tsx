@@ -85,6 +85,14 @@ export function UtilitariosDashboardPage() {
       color: useIconThemeColor('/utilitarios/tabelas/configuracoes/entidades'),
       openInNewWindow: true,
     },
+    {
+      title: 'Taxas de IVA',
+      description: 'Gestão de taxas de IVA',
+      icon: Icons.tablerMap,
+      path: '/utilitarios/tabelas/configuracoes/taxas-iva',
+      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/taxas-iva'),
+      openInNewWindow: true,
+    },
   ]
 
   return (
