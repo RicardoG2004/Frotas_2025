@@ -67,10 +67,7 @@ namespace Frotas.API.WebApi.Controllers.Frotas
     // update
     [Authorize(Roles = "client")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCategoriaAsync(
-      UpdateCategoriaRequest request,
-      Guid id
-    )
+    public async Task<IActionResult> UpdateCategoriaAsync(UpdateCategoriaRequest request, Guid id)
     {
       try
       {

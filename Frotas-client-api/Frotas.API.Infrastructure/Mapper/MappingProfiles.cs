@@ -16,6 +16,7 @@ using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
 using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
 using Frotas.API.Application.Services.Frotas.FornecedorService.DTOs;
+using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
@@ -123,6 +124,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<CreateRubricaRequest, Rubrica>();
       _ = CreateMap<UpdateRubricaRequest, Rubrica>();
 
+      // TaxasIva mappings
+      _ = CreateMap<TaxaIva, TaxaIvaDTO>();
+      _ = CreateMap<CreateTaxaIvaRequest, TaxaIva>();
+      _ = CreateMap<UpdateTaxaIvaRequest, TaxaIva>();
+
 
       // AgenciaFuneraria mappings
       _ = CreateMap<AgenciaFuneraria, AgenciaFunerariaDTO>();
@@ -174,7 +180,7 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.PaisEscritorio, opt => opt.Ignore())
         .ForMember(dest => dest.CodigoPostalCarga, opt => opt.Ignore())
         .ForMember(dest => dest.PaisCarga, opt => opt.Ignore());
-
+        
       // add new entity mappings here...
     }
   }
