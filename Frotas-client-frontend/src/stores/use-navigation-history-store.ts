@@ -125,6 +125,9 @@ export const getPageTitleFromPath = (path: string): string => {
     '/frotas/configuracoes/categorias': 'Categorias',
     '/frotas/configuracoes/categorias/create': 'Criar Categoria',
     '/frotas/configuracoes/categorias/update': 'Editar Categoria',
+    '/frotas/configuracoes/fornecedores': 'Fornecedores',
+    '/frotas/configuracoes/fornecedores/create': 'Criar Fornecedor',
+    '/frotas/configuracoes/fornecedores/update': 'Editar Fornecedor',
 
     // Utilitários - Tabelas Geográficas
     '/utilitarios/tabelas/geograficas/paises': 'Países',

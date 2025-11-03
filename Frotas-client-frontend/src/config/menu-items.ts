@@ -315,6 +315,22 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '', // Removed permission check temporarily
           },
+          {
+            label: 'Fornecedores',
+            href: '/frotas/configuracoes/fornecedores',
+            description: 'Faça a gestão de fornecedores',
+            icon: 'IconBuilding',
+            colors: {
+              colorful: 'bg-amber-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-amber-300',
+              vibrant: 'bg-amber-600',
+              neon: 'bg-amber-400',
+              'neon-cyberpunk':
+                'bg-amber-500 shadow-[0_0_40px_rgba(251,191,36,0.9)]',
+            },
+            funcionalidadeId: '', // Removed permission check temporarily
+          },
         ],
       },
     ],

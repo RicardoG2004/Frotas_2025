@@ -37,15 +37,8 @@ namespace Frotas.API.Application.Services.Frotas.FornecedorService.DTOs
       _ = RuleFor(x => x.MoradaCarga).NotEmpty();
       _ = RuleFor(x => x.CodigoPostalCargaId).NotEmpty();
       _ = RuleFor(x => x.PaisCargaId).NotEmpty();
-      _ = RuleFor(x => x.MesmoEndereco).NotEmpty();
-      _ = RuleFor(x => x.Ativo).NotEmpty();
       _ = RuleFor(x => x.Origem).NotEmpty();
-      _ = RuleFor(x => x.Contacto).NotEmpty();
-      _ = RuleFor(x => x.Telefone).NotEmpty();
-      _ = RuleFor(x => x.Telemovel).NotEmpty();
-      _ = RuleFor(x => x.Fax).NotEmpty();
-      _ = RuleFor(x => x.Email).NotEmpty();
-      _ = RuleFor(x => x.Url).NotEmpty();
+      // Contacto, Telefone, Telemovel, Fax, Email, Url are optional
     }
   }
 }

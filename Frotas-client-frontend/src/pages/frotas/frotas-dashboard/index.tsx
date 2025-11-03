@@ -53,6 +53,14 @@ export function FrotasDashboardPage() {
       color: useIconThemeColor('/frotas/configuracoes/categorias'),
       openInNewWindow: true,
     },
+    {
+      title: 'Fornecedores',
+      description: 'Gestão de fornecedores',
+      icon: Icons.IconBuilding,
+      path: '/frotas/configuracoes/fornecedores',
+      color: useIconThemeColor('/frotas/configuracoes/fornecedores'),
+      openInNewWindow: true,
+    },
   ]
 
   return (
