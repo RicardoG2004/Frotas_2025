@@ -40,7 +40,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Epoca> Epocas { get; set; }
     public DbSet<Rubrica> Rubricas { get; set; }
     public DbSet<TaxaIva> TaxasIva { get; set; }
-    public DbSet<AgenciaFuneraria> AgenciasFunerarias { get; set; }
+    public DbSet<Peca> Pecas { get; set; }
     public DbSet<Coveiro> Coveiros { get; set; }
     public DbSet<Marca> Marcas { get; set; }
     public DbSet<Modelo> Modelos { get; set; }

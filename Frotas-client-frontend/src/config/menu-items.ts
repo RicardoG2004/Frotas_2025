@@ -258,10 +258,10 @@ export const roleHeaderMenus = {
             funcionalidadeId: modules.frotas.permissions.coveiros.id,
           },
           {
-            label: 'Agências Funerárias',
-            href: '/frotas/configuracoes/agencias-funerarias',
-            description: 'Faça a gestão de agências funerárias',
-            icon: 'IconBuilding',
+            label: 'Peças',
+            href: '/frotas/configuracoes/pecas',
+            description: 'Faça a gestão de peças',
+            icon: 'container',
             colors: {
               colorful: 'bg-purple-600',
               'theme-color': 'bg-primary',
@@ -271,8 +271,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-purple-600 shadow-[0_0_35px_rgba(147,51,234,0.85)]',
             },
-            funcionalidadeId:
-              modules.frotas.permissions.agenciasFunerarias.id,
+            funcionalidadeId: '',
           },
           {
             label: 'Marcas',

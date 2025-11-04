@@ -20,13 +20,11 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
-      title: 'Agências Funerárias',
-      description: 'Gestão de agências funerárias',
-      icon: Icons.IconBuilding,
-      path: '/frotas/configuracoes/agencias-funerarias',
-      color: useIconThemeColor(
-        '/frotas/configuracoes/agencias-funerarias'
-      ),
+      title: 'Peças',
+      description: 'Gestão de peças',
+      icon: Icons.container,
+      path: '/frotas/configuracoes/pecas',
+      color: useIconThemeColor('/frotas/configuracoes/pecas'),
       openInNewWindow: true,
     },
     {

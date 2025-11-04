@@ -1,8 +1,8 @@
 import { actionTypes } from '@/config/modules'
 import { frotas } from '@/config/modules/frotas/frotas-module'
-import { AgenciasFunerariasPage } from '@/pages/frotas/agencias-funerarias/agencias-funerarias-page'
-import { AgenciasFunerariasCreatePage } from '@/pages/frotas/agencias-funerarias/components/agencias-funerarias-create-page/agencias-funerarias-create-page'
-import { AgenciasFunerariasUpdatePage } from '@/pages/frotas/agencias-funerarias/components/agencias-funerarias-update-page/agencias-funerarias-update-page'
+import { PecasPage } from '@/pages/frotas/pecas/pecas-page'
+import { PecasCreatePage } from '@/pages/frotas/pecas/components/pecas-create-page/pecas-create-page'
+import { PecasUpdatePage } from '@/pages/frotas/pecas/components/pecas-update-page/pecas-update-page'
 import { CoveirosCreatePage } from '@/pages/frotas/coveiros/components/coveiros-create-page/coveiros-create-page'
 import { CoveirosUpdatePage } from '@/pages/frotas/coveiros/components/coveiros-update-page/coveiros-update-page'
 import { CoveirosPage } from '@/pages/frotas/coveiros/coveiros-page'
@@ -95,45 +95,42 @@ export const frotasRoutes = [
     windowName: 'Atualizar Coveiro',
   },
   {
-    path: 'frotas/configuracoes/agencias-funerarias',
+    path: 'frotas/configuracoes/pecas',
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
-        requiredPermission={frotas.permissions.agenciasFunerarias.id}
       >
-        <AgenciasFunerariasPage />
+        <PecasPage />
       </LicenseGuard>
     ),
     manageWindow: true,
-    windowName: 'Agências Funerárias',
+    windowName: 'Peças',
   },
   {
-    path: 'frotas/configuracoes/agencias-funerarias/create',
+    path: 'frotas/configuracoes/pecas/create',
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
-        requiredPermission={frotas.permissions.agenciasFunerarias.id}
         actionType={actionTypes.AuthAdd}
       >
-        <AgenciasFunerariasCreatePage />
+        <PecasCreatePage />
       </LicenseGuard>
     ),
     manageWindow: true,
-    windowName: 'Criar Agência Funerária',
+    windowName: 'Criar Peça',
   },
   {
-    path: 'frotas/configuracoes/agencias-funerarias/update',
+    path: 'frotas/configuracoes/pecas/update',
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
-        requiredPermission={frotas.permissions.agenciasFunerarias.id}
         actionType={actionTypes.AuthChg}
       >
-        <AgenciasFunerariasUpdatePage />
+        <PecasUpdatePage />
       </LicenseGuard>
     ),
     manageWindow: true,
-    windowName: 'Atualizar Agência Funerária',
+    windowName: 'Atualizar Peça',
   },
   {
     path: 'frotas/configuracoes/marcas',

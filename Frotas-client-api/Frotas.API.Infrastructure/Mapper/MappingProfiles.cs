@@ -9,13 +9,14 @@ using Frotas.API.Application.Services.Base.FreguesiaService.DTOs;
 using Frotas.API.Application.Services.Base.PaisService.DTOs;
 using Frotas.API.Application.Services.Base.RuaService.DTOs;
 using Frotas.API.Application.Services.Base.RubricaService.DTOs;
-using Frotas.API.Application.Services.Frotas.AgenciaFunerariaService.DTOs;
+
 using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
 using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
 using Frotas.API.Application.Services.Frotas.FornecedorService.DTOs;
+using Frotas.API.Application.Services.Frotas.PecaService.DTOs;
 using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 
 using Frotas.API.Domain.Entities.Base;
@@ -127,17 +128,7 @@ namespace Frotas.API.Infrastructure.Mapper
       // TaxasIva mappings
       _ = CreateMap<TaxaIva, TaxaIvaDTO>();
       _ = CreateMap<CreateTaxaIvaRequest, TaxaIva>();
-      _ = CreateMap<UpdateTaxaIvaRequest, TaxaIva>();
-
-
-      // AgenciaFuneraria mappings
-      _ = CreateMap<AgenciaFuneraria, AgenciaFunerariaDTO>();
-      _ = CreateMap<CreateAgenciaFunerariaRequest, AgenciaFuneraria>()
-        .ForMember(dest => dest.Entidade, opt => opt.Ignore());
-      _ = CreateMap<UpdateAgenciaFunerariaRequest, AgenciaFuneraria>()
-        .ForMember(dest => dest.Entidade, opt => opt.Ignore());
-
-      // Coveiros mappings
+      _ = CreateMap<UpdateTaxaIvaRequest, TaxaIva>();      // Coveiros mappings
       _ = CreateMap<Coveiro, CoveiroDTO>();
       _ = CreateMap<CreateCoveiroRequest, Coveiro>()
         .ForMember(dest => dest.Rua, opt => opt.Ignore())
@@ -180,6 +171,15 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.PaisEscritorio, opt => opt.Ignore())
         .ForMember(dest => dest.CodigoPostalCarga, opt => opt.Ignore())
         .ForMember(dest => dest.PaisCarga, opt => opt.Ignore());
+
+      // Pecas mappings
+      _ = CreateMap<Peca, PecaDTO>();
+      _ = CreateMap<CreatePecaRequest, Peca>()
+        .ForMember(dest => dest.TaxaIva, opt => opt.Ignore())
+        .ForMember(dest => dest.CustoTotal, opt => opt.Ignore());
+      _ = CreateMap<UpdatePecaRequest, Peca>()
+        .ForMember(dest => dest.TaxaIva, opt => opt.Ignore())
+        .ForMember(dest => dest.CustoTotal, opt => opt.Ignore());
         
       // add new entity mappings here...
     }

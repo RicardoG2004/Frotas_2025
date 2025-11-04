@@ -111,11 +111,9 @@ export const getPageTitleFromPath = (path: string): string => {
     '/frotas/configuracoes/coveiros': 'Coveiros',
     '/frotas/configuracoes/coveiros/create': 'Criar Coveiro',
     '/frotas/configuracoes/coveiros/update': 'Editar Coveiro',
-    '/frotas/configuracoes/agencias-funerarias': 'Agências Funerárias',
-    '/frotas/configuracoes/agencias-funerarias/create':
-      'Criar Agência Funerária',
-    '/frotas/configuracoes/agencias-funerarias/update':
-      'Editar Agência Funerária',
+    '/frotas/configuracoes/pecas': 'Peças',
+    '/frotas/configuracoes/pecas/create': 'Criar Peça',
+    '/frotas/configuracoes/pecas/update': 'Editar Peça',
     '/frotas/configuracoes/marcas': 'Marcas',
     '/frotas/configuracoes/marcas/create': 'Criar Marca',
     '/frotas/configuracoes/marcas/update': 'Editar Marca',

@@ -48,9 +48,9 @@ export const frotas: Module = {
       id: '00000003-0002-0000-0011-000000000002',
       name: 'Coveiros',
     },
-    agenciasFunerarias: {
+    pecas: {
       id: '00000003-0002-0000-0012-000000000002',
-      name: 'Agências Funerárias',
+      name: 'Peças',
     },
     marcas: {
       id: '00000003-0002-0000-0015-000000000002',
