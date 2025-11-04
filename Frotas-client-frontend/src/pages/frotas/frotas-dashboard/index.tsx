@@ -75,14 +75,6 @@ export function FrotasDashboardPage() {
       color: useIconThemeColor('/frotas/configuracoes/equipamentos'),
       openInNewWindow: true,
     },
-    {
-      title: 'Setores',
-      description: 'Gestão de setores',
-      icon: Icons.IconBuilding,
-      path: '/utilitarios/tabelas/configuracoes/setores',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/setores'),
-      openInNewWindow: true,
-    },
   ]
 
   return (
