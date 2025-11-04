@@ -510,12 +510,15 @@ const FornecedorUpdateForm = ({
           >
             <PersistentTabsList>
               <PersistentTabsTrigger value='identificacao'>
+                <Building className='h-4 w-4 mr-2' />
                 Identificação
               </PersistentTabsTrigger>
               <PersistentTabsTrigger value='dados'>
+                <Phone className='h-4 w-4 mr-2' />
                 Dados Fornecedor
               </PersistentTabsTrigger>
               <PersistentTabsTrigger value='moradas'>
+                <MapPin className='h-4 w-4 mr-2' />
                 Moradas
               </PersistentTabsTrigger>
             </PersistentTabsList>
@@ -809,46 +812,44 @@ const FornecedorUpdateForm = ({
             {/* TAB 3: MORADAS - SAME AS CREATE FORM */}
             <PersistentTabsContent value='moradas'>
               <div className='space-y-3'>
-                {/* Morada Escritório */}
-                <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
-                  <CardHeader className='pb-2 pt-3'>
-                    <div className='flex items-center gap-2'>
-                      <div className='flex items-center justify-center w-6 h-6 rounded-md bg-primary/10 text-primary'>
-                        <Building className='h-3 w-3' />
+                {/* Grid com as duas moradas lado a lado */}
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-3 pt-4'>
+                  {/* Morada Escritório */}
+                  <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
+                    <CardHeader className='pb-3 pt-3'>
+                      <div className='flex items-center gap-2'>
+                        <div className='flex items-center justify-center w-6 h-6 rounded-md bg-primary/10 text-primary'>
+                          <Building className='h-3 w-3' />
+                        </div>
+                        <CardTitle className='text-sm flex items-center gap-2'>
+                          Morada do Escritório
+                          <Badge variant='secondary' className='text-xs'>
+                            Obrigatório
+                          </Badge>
+                        </CardTitle>
                       </div>
-                      <CardTitle className='text-sm flex items-center gap-2'>
-                        Morada do Escritório
-                        <Badge variant='secondary' className='text-xs'>
-                          Obrigatório
-                        </Badge>
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className='space-y-3 pb-4'>
-                    <FormField
-                      control={form.control}
-                      name='moradaEscritorio'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className='flex items-center gap-2'>
-                            <MapPin className='h-4 w-4' />
-                            Morada
-                            <Badge variant='secondary' className='text-xs'>
-                              Obrigatório
-                            </Badge>
-                          </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder='Digite a morada do escritório'
-                                {...field}
-                                className='px-4 py-5 shadow-inner drop-shadow-xl'
-                              />
-                            </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                    </CardHeader>
+                    <CardContent className='space-y-3 pb-4 pt-3'>
+                      <FormField
+                        control={form.control}
+                        name='moradaEscritorio'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='flex items-center gap-2'>
+                              <MapPin className='h-4 w-4' />
+                              Morada
+                            </FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder='Digite a morada do escritório'
+                                  {...field}
+                                  className='px-4 py-5 shadow-inner drop-shadow-xl'
+                                />
+                              </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <FormField
                         control={form.control}
                         name='codigoPostalEscritorioId'
@@ -857,9 +858,6 @@ const FornecedorUpdateForm = ({
                             <FormLabel className='flex items-center gap-2'>
                               <MapPin className='h-4 w-4' />
                               Código Postal
-                              <Badge variant='secondary' className='text-xs'>
-                                Obrigatório
-                              </Badge>
                             </FormLabel>
                             <FormControl>
                               <div className='relative'>
@@ -916,9 +914,6 @@ const FornecedorUpdateForm = ({
                             <FormLabel className='flex items-center gap-2'>
                               <MapPin className='h-4 w-4' />
                               País
-                              <Badge variant='secondary' className='text-xs'>
-                                Obrigatório
-                              </Badge>
                             </FormLabel>
                             <FormControl>
                               <div className='relative'>
@@ -967,78 +962,72 @@ const FornecedorUpdateForm = ({
                           </FormItem>
                         )}
                       />
-                    </div>
-                  </CardContent>
-                </Card>
 
-                {/* Checkbox Mesmo Endereço */}
-                <FormField
-                  control={form.control}
-                  name='mesmoEndereco'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className='flex items-center gap-2'>
-                        <Settings className='h-4 w-4' />
-                        Mesmo Endereço
-                      </FormLabel>
-                      <FormControl>
-                        <div className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                          <div className='space-y-0.5'>
-                            <div className='text-sm text-muted-foreground'>
-                              A morada de carga é igual à morada do escritório
-                            </div>
-                          </div>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                {/* Morada Carga */}
-                <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
-                  <CardHeader className='pb-2 pt-3'>
-                    <div className='flex items-center gap-2'>
-                      <div className='flex items-center justify-center w-6 h-6 rounded-md bg-primary/10 text-primary'>
-                        <MapPin className='h-3 w-3' />
+                      {/* Checkbox Mesmo Endereço - Compacto */}
+                      <div className='pt-2 border-t border-dashed'>
+                        <FormField
+                          control={form.control}
+                          name='mesmoEndereco'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <div className='flex flex-row items-center justify-between rounded-md border p-2.5'>
+                                  <div className='flex items-center gap-2'>
+                                    <Settings className='h-3.5 w-3.5 text-muted-foreground' />
+                                    <div className='text-xs text-muted-foreground'>
+                                      Usar esta morada também para carga
+                                    </div>
+                                  </div>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                      <CardTitle className='text-sm flex items-center gap-2'>
-                        Morada de Carga
-                        <Badge variant='secondary' className='text-xs'>
-                          Obrigatório
-                        </Badge>
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className='space-y-3 pb-4'>
-                    <FormField
-                      control={form.control}
-                      name='moradaCarga'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className='flex items-center gap-2'>
-                            <MapPin className='h-4 w-4' />
-                            Morada
-                            <Badge variant='secondary' className='text-xs'>
-                              Obrigatório
-                            </Badge>
-                          </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder='Digite a morada de carga'
-                                {...field}
-                                className='px-4 py-5 shadow-inner drop-shadow-xl'
-                                disabled={form.watch('mesmoEndereco')}
-                              />
-                            </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                    </CardContent>
+                  </Card>
+
+                  {/* Morada Carga */}
+                  <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
+                    <CardHeader className='pb-3 pt-3'>
+                      <div className='flex items-center gap-2'>
+                        <div className='flex items-center justify-center w-6 h-6 rounded-md bg-primary/10 text-primary'>
+                          <MapPin className='h-3 w-3' />
+                        </div>
+                        <CardTitle className='text-sm flex items-center gap-2'>
+                          Morada de Carga
+                          <Badge variant='secondary' className='text-xs'>
+                            Obrigatório
+                          </Badge>
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className='space-y-3 pb-4 pt-3'>
+                      <FormField
+                        control={form.control}
+                        name='moradaCarga'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='flex items-center gap-2'>
+                              <MapPin className='h-4 w-4' />
+                              Morada
+                            </FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder='Digite a morada de carga'
+                                  {...field}
+                                  className='px-4 py-5 shadow-inner drop-shadow-xl'
+                                  disabled={form.watch('mesmoEndereco')}
+                                />
+                              </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <FormField
                         control={form.control}
                         name='codigoPostalCargaId'
@@ -1047,9 +1036,6 @@ const FornecedorUpdateForm = ({
                             <FormLabel className='flex items-center gap-2'>
                               <MapPin className='h-4 w-4' />
                               Código Postal
-                              <Badge variant='secondary' className='text-xs'>
-                                Obrigatório
-                              </Badge>
                             </FormLabel>
                             <FormControl>
                               <div className='relative'>
@@ -1107,9 +1093,6 @@ const FornecedorUpdateForm = ({
                             <FormLabel className='flex items-center gap-2'>
                               <MapPin className='h-4 w-4' />
                               País
-                              <Badge variant='secondary' className='text-xs'>
-                                Obrigatório
-                              </Badge>
                             </FormLabel>
                             <FormControl>
                               <div className='relative'>
@@ -1159,9 +1142,9 @@ const FornecedorUpdateForm = ({
                           </FormItem>
                         )}
                       />
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </PersistentTabsContent>
           </PersistentTabs>

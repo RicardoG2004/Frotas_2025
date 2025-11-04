@@ -353,6 +353,22 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '', // Removed permission check temporarily
           },
+          {
+            label: 'Equipamentos',
+            href: '/frotas/configuracoes/equipamentos',
+            description: 'Faça a gestão de equipamentos',
+            icon: 'wrench',
+            colors: {
+              colorful: 'bg-emerald-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-emerald-300',
+              vibrant: 'bg-emerald-600',
+              neon: 'bg-emerald-400',
+              'neon-cyberpunk':
+                'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.9)]',
+            },
+            funcionalidadeId: '', // Removed permission check temporarily
+          },
         ],
       },
     ],

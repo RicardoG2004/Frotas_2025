@@ -67,6 +67,14 @@ export function FrotasDashboardPage() {
       color: useIconThemeColor('/frotas/configuracoes/fornecedores'),
       openInNewWindow: true,
     },
+    {
+      title: 'Equipamentos',
+      description: 'Gestão de equipamentos',
+      icon: Icons.wrench,
+      path: '/frotas/configuracoes/equipamentos',
+      color: useIconThemeColor('/frotas/configuracoes/equipamentos'),
+      openInNewWindow: true,
+    },
   ]
 
   return (

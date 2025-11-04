@@ -50,6 +50,7 @@ import {
   Truck,
   User,
   User2,
+  Wrench,
   X,
 } from 'lucide-react'
 
@@ -109,6 +110,7 @@ export const Icons = {
   droplet: Droplet,
   droplets: Droplets,
   container: Container,
+  wrench: Wrench,
 } as const
 
 export type IconKey = keyof typeof Icons

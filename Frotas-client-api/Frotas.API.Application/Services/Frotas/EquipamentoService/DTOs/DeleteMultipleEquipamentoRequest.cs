@@ -1,17 +1,16 @@
 using FluentValidation;
 using Frotas.API.Application.Common.Marker;
 
-namespace Frotas.API.Application.Services.Frotas.PecaService.DTOs
+namespace Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs
 {
-  public class DeleteMultiplePecaRequest : IDto
+  public class DeleteMultipleEquipamentoRequest : IDto
   {
     public required IEnumerable<Guid> Ids { get; set; }
   }
 
-  public class DeleteMultiplePecaValidator
-    : AbstractValidator<DeleteMultiplePecaRequest>
+  public class DeleteMultipleEquipamentoValidator : AbstractValidator<DeleteMultipleEquipamentoRequest>
   {
-    public DeleteMultiplePecaValidator()
+    public DeleteMultipleEquipamentoValidator()
     {
       _ = RuleFor(x => x.Ids)
         .NotEmpty()
@@ -21,4 +20,3 @@ namespace Frotas.API.Application.Services.Frotas.PecaService.DTOs
     }
   }
 }
-
