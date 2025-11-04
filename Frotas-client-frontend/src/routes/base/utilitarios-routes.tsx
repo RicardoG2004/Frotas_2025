@@ -32,6 +32,7 @@ import { LicenseGuard } from '@/components/auth/license-guard'
 import { TaxasIvaPage } from '@/pages/base/taxasIva/taxasIva-page'
 import { TaxasIvaCreatePage } from '@/pages/base/taxasIva/components/taxasIva-create-page/taxasIva-create-page'
 import { TaxasIvaUpdatePage } from '@/pages/base/taxasIva/components/taxasIva-update-page/taxasIva-update-page'
+import { SetoresPage, SetoresCreatePage, SetoresUpdatePage } from '@/pages/base/setores'
 
 export const utilitariosRoutes = [
   {
@@ -481,5 +482,47 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.taxasIva.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/setores',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthVer}
+      >
+        <SetoresPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Setores',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/setores/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthAdd}
+      >
+        <SetoresCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Setor',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/setores/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType='AuthChg'
+      >
+        <SetoresUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Setor',
   },
 ]

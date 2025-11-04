@@ -44,5 +44,9 @@ export const utilitarios: Module = {
       id: '00000003-0002-0000-0010-000000000001',
       name: 'Taxas de IVA',
     },
+    setores: {
+      id: '00000003-0002-0000-0011-000000000001',
+      name: 'Setores',
+    },
   },
 }

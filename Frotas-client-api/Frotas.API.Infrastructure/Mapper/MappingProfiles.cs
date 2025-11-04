@@ -10,7 +10,7 @@ using Frotas.API.Application.Services.Base.PaisService.DTOs;
 using Frotas.API.Application.Services.Base.RuaService.DTOs;
 using Frotas.API.Application.Services.Base.RubricaService.DTOs;
 using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
-
+using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
@@ -130,7 +130,14 @@ namespace Frotas.API.Infrastructure.Mapper
       // TaxasIva mappings
       _ = CreateMap<TaxaIva, TaxaIvaDTO>();
       _ = CreateMap<CreateTaxaIvaRequest, TaxaIva>();
-      _ = CreateMap<UpdateTaxaIvaRequest, TaxaIva>();      // Coveiros mappings
+      _ = CreateMap<UpdateTaxaIvaRequest, TaxaIva>(); 
+      
+      // Setores mappings
+      _ = CreateMap<Setor, SetorDTO>();
+      _ = CreateMap<CreateSetorRequest, Setor>();
+      _ = CreateMap<UpdateSetorRequest, Setor>();
+
+       // Coveiros mappings
       _ = CreateMap<Coveiro, CoveiroDTO>();
       _ = CreateMap<CreateCoveiroRequest, Coveiro>()
         .ForMember(dest => dest.Rua, opt => opt.Ignore())

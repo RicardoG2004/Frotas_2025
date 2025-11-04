@@ -93,6 +93,14 @@ export function UtilitariosDashboardPage() {
       color: useIconThemeColor('/utilitarios/tabelas/configuracoes/taxas-iva'),
       openInNewWindow: true,
     },
+    {
+      title: 'Setores',
+      description: 'Gestão de setores',
+      icon: Icons.tablerMap,
+      path: '/utilitarios/tabelas/configuracoes/setores',
+      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/setores'),
+      openInNewWindow: true,
+    },
   ]
 
   return (
