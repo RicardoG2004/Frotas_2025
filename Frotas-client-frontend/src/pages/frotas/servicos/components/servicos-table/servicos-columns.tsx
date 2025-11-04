@@ -1,9 +1,9 @@
-import { PecaDTO } from '@/types/dtos/frotas/pecas.dtos'
+﻿import { ServicoDTO } from '@/types/dtos/frotas/servicos.dtos'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnDef } from '@/components/shared/data-table-types'
-import { CellAction } from './pecas-cell-actions'
+import { CellAction } from './servicos-cell-actions.tsx'
 
-export const columns: DataTableColumnDef<PecaDTO>[] = [
+export const columns: DataTableColumnDef<ServicoDTO>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -77,4 +77,5 @@ export const columns: DataTableColumnDef<PecaDTO>[] = [
     enableHiding: false,
   },
 ]
+
 

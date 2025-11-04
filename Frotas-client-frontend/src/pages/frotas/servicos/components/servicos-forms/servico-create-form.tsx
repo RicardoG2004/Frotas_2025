@@ -1,12 +1,10 @@
-import { useEffect, useRef, useMemo } from 'react'
+﻿import { useEffect, useRef, useMemo } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { useGetTaxasIvaSelect } from '@/pages/base/taxasIva/queries/taxasIva-queries'
-import { useUpdatePeca } from '@/pages/frotas/pecas/queries/pecas-mutations'
-import { useGetPeca } from '@/pages/frotas/pecas/queries/pecas-queries'
-import { UpdatePecaDTO } from '@/types/dtos/frotas/pecas.dtos'
-import { Package, AlertCircle, DollarSign, Eye, Plus, ChevronUp, ChevronDown } from 'lucide-react'
+import { CreateServicoDTO } from '@/types/dtos/frotas/servicos.dtos'
+import { Package, Eye, Plus, AlertCircle, DollarSign, ChevronUp, ChevronDown } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
@@ -16,10 +14,11 @@ import { toast } from '@/utils/toast-utils'
 import {
   useCurrentWindowId,
   handleWindowClose,
-  updateWindowFormData,
+  updateCreateFormData,
   cleanupWindowForms,
-  updateUpdateWindowTitle,
-  detectUpdateFormChanges,
+  updateCreateWindowTitle,
+  setEntityReturnDataWithToastSuppression,
+  detectFormChanges,
 } from '@/utils/window-utils'
 import { useAutoSelectionWithReturnData } from '@/hooks/use-auto-selection-with-return-data'
 import { useSubmitErrorTab } from '@/hooks/use-submit-error-tab'
@@ -43,8 +42,9 @@ import {
   TabsTrigger as PersistentTabsTrigger,
   TabsContent as PersistentTabsContent,
 } from '@/components/ui/persistent-tabs'
+import { useCreateServico } from '../../queries/servicos-mutations'
 
-const pecaFormSchema = z.object({
+const ServicoFormSchema = z.object({
   designacao: z
     .string({ message: 'A Designação é obrigatória' })
     .min(1, { message: 'A Designação é obrigatória' }),
@@ -63,25 +63,36 @@ const pecaFormSchema = z.object({
     .min(0, { message: 'O Custo deve ser maior ou igual a 0' }),
 })
 
-type PecaFormSchemaType = z.infer<typeof pecaFormSchema>
+type ServicoFormSchemaType = z.infer<typeof ServicoFormSchema>
 
-interface PecaUpdateFormProps {
+interface ServicoCreateFormProps {
   modalClose: () => void
-  pecaId: string
-  initialData: PecaFormSchemaType
+  preSelectedTaxaIvaId?: string
+  onSuccess?: (newServico: {
+    id: string
+    designacao: string
+  }) => void
+  shouldCloseWindow?: boolean
 }
 
-const PecaUpdateForm = ({
+const ServicoCreateForm = ({
   modalClose,
-  pecaId,
-  initialData,
-}: PecaUpdateFormProps) => {
+  preSelectedTaxaIvaId,
+  onSuccess,
+  shouldCloseWindow = true,
+}: ServicoCreateFormProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const windowId = useCurrentWindowId()
   const searchParams = new URLSearchParams(location.search)
   const instanceId = searchParams.get('instanceId') || 'default'
-  const formId = instanceId
+  const formId = `servico-${instanceId}`
+
+  // Get parent window ID from sessionStorage as fallback
+  const parentWindowIdFromStorage = sessionStorage.getItem(
+    `parent-window-${instanceId}`
+  )
+  const effectiveWindowId = windowId || instanceId
 
   // Use a ref to track if this is the first render
   const isFirstRender = useRef(true)
@@ -89,17 +100,20 @@ const PecaUpdateForm = ({
   const { formData, isInitialized, hasBeenVisited } = useFormState(formId)
   const { setFormState, updateFormState, resetFormState, hasFormData } =
     useFormsStore()
-  const { removeWindow } = useWindowsStore()
+  const {
+    removeWindow,
+    updateWindowState,
+    setWindowReturnData,
+  } = useWindowsStore()
   const setWindowHasFormData = useWindowsStore(
     (state) => state.setWindowHasFormData
   )
-  const updateWindowState = useWindowsStore((state) => state.updateWindowState)
 
   const { setActiveTab } = useTabManager({
     defaultTab: 'identificacao',
-    tabKey: `peca-${instanceId}`,
+    tabKey: `servico-${instanceId}`,
   })
-  const { handleError } = useSubmitErrorTab<PecaFormSchemaType>({
+  const { handleError } = useSubmitErrorTab<ServicoFormSchemaType>({
     setActiveTab,
     fieldToTabMap: {
       default: 'identificacao',
@@ -112,18 +126,26 @@ const PecaUpdateForm = ({
     },
   })
 
-  const updatePecaMutation = useUpdatePeca()
-  const { data: pecaData } = useGetPeca(pecaId)
+  const createServicoMutation = useCreateServico()
+
   const {
     data: taxasIvaData = [],
     isLoading: isLoadingTaxasIva,
     refetch: refetchTaxasIva,
   } = useGetTaxasIvaSelect()
 
-  const effectiveWindowId = windowId || instanceId
+  // Define default values for proper change detection
+  const defaultValues = {
+    designacao: '',
+    anos: 0,
+    kms: 0,
+    tipo: '',
+    taxaIvaId: '',
+    custo: 0,
+  }
 
-  const pecaResolver: Resolver<PecaFormSchemaType> = async (values) => {
-    const result = pecaFormSchema.safeParse(values)
+  const ServicoResolver: Resolver<ServicoFormSchemaType> = async (values) => {
+    const result = ServicoFormSchema.safeParse(values)
     if (result.success) {
       return { values: result.data, errors: {} }
     }
@@ -141,9 +163,9 @@ const PecaUpdateForm = ({
     }
   }
 
-  const form = useForm<PecaFormSchemaType>({
-    resolver: pecaResolver,
-    defaultValues: initialData,
+  const form = useForm<ServicoFormSchemaType>({
+    resolver: ServicoResolver,
+    defaultValues,
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     criteriaMode: 'all',
@@ -163,9 +185,6 @@ const PecaUpdateForm = ({
     return custo + valorIva
   }, [form.watch('custo'), form.watch('taxaIvaId'), taxasIvaData])
 
-  // Ref to store normalized API data for change detection
-  const normalizedApiDataRef = useRef<any>(null)
-
   // Initialize form state on first render
   useEffect(() => {
     if (isFirstRender.current) {
@@ -184,82 +203,62 @@ const PecaUpdateForm = ({
       }
       isFirstRender.current = false
     }
-  }, [formId, hasBeenVisited, resetFormState, hasFormData, initialData])
+  }, [formId, hasBeenVisited, resetFormState, hasFormData])
 
   // Load saved form data if available and the form has been initialized
   useEffect(() => {
     if (isInitialized && hasFormData(formId)) {
-      form.reset(formData as PecaFormSchemaType)
-    } else if (pecaData?.info?.data) {
-      // If no saved data, use the data from the API
-      const apiData = pecaData.info.data
-
-      // Create normalized data for change detection (matching form structure)
-      const normalizedApiData = {
-        designacao: apiData.designacao,
-        anos: apiData.anos,
-        kms: apiData.kms,
-        tipo: apiData.tipo,
-        taxaIvaId: apiData.taxaIvaId,
-        custo: apiData.custo,
-      }
-
-      // Store the normalized data in a ref or state for change detection
-      if (!normalizedApiDataRef.current) {
-        normalizedApiDataRef.current = {}
-      }
-      normalizedApiDataRef.current[pecaId] = normalizedApiData
-
-      form.reset(normalizedApiData)
+      form.reset(formData as ServicoFormSchemaType)
+    } else if (preSelectedTaxaIvaId) {
+      // If no saved data, use the pre-selected values
+      form.reset({
+        ...defaultValues,
+        taxaIvaId: preSelectedTaxaIvaId || '',
+      })
     }
-  }, [formData, isInitialized, formId, hasFormData, pecaData, pecaId])
+  }, [formData, isInitialized, formId, hasFormData, preSelectedTaxaIvaId])
 
   // Save form data when it changes
   useEffect(() => {
     const subscription = form.watch((value) => {
-      if (value) {
-        // Use proper change detection by comparing with normalized original values
-        const normalizedOriginalData =
-          normalizedApiDataRef.current?.[pecaId] ||
-          pecaData?.info?.data ||
-          {}
-        const hasChanges = detectUpdateFormChanges(
-          value,
-          normalizedOriginalData
-        )
+      // Use proper change detection by comparing with default values
+      const hasChanges = detectFormChanges(value, defaultValues)
 
+      // Only update the form state if the values are different from the current state
+      if (JSON.stringify(value) !== JSON.stringify(formData)) {
         setFormState(formId, {
-          formData: value as PecaFormSchemaType,
+          formData: value as ServicoFormSchemaType,
           isDirty: hasChanges,
           isValid: form.formState.isValid,
           isSubmitting: form.formState.isSubmitting,
           hasBeenModified: hasChanges,
+          windowId: effectiveWindowId,
         })
 
-        // Update window hasFormData flag
-        updateWindowFormData(
-          effectiveWindowId,
-          hasChanges,
-          setWindowHasFormData
-        )
-        // Update window title based on designacao
-        const newTitle = value.designacao || 'Peça'
+        // Update window hasFormData flag using the utility function
+        if (effectiveWindowId) {
+          updateCreateFormData(
+            effectiveWindowId,
+            value,
+            setWindowHasFormData,
+            defaultValues
+          )
+          // Update window title based on designacao
+          const newTitle = value.designacao || 'Criar Serviço'
 
-        // Always update the window title to ensure it reflects the current state
-        updateUpdateWindowTitle(effectiveWindowId, newTitle, updateWindowState)
+          // Always update the window title to ensure it reflects the current state
+          updateCreateWindowTitle(
+            effectiveWindowId,
+            newTitle,
+            updateWindowState
+          )
+        }
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, effectiveWindowId, pecaData, formId, formData])
+  }, [form, effectiveWindowId, formId, formData, defaultValues])
 
-  const handleClose = () => {
-    // Clean up all form instances for the current window
-    cleanupWindowForms(effectiveWindowId)
-
-    handleWindowClose(effectiveWindowId, navigate, removeWindow)
-  }
-
-  // Use the combined auto-selection and return data hook for taxas IVA
+  // Use the combined auto-selection hook for taxas IVA
   useAutoSelectionWithReturnData({
     windowId: effectiveWindowId,
     instanceId,
@@ -280,7 +279,18 @@ const PecaUpdateForm = ({
     returnDataKey: `return-data-${effectiveWindowId}-taxaIva`,
   })
 
-  const onSubmit = async (values: PecaFormSchemaType) => {
+  const handleClose = () => {
+    // Clean up all form instances for the current window
+    cleanupWindowForms(effectiveWindowId)
+
+    if (shouldCloseWindow) {
+      handleWindowClose(effectiveWindowId, navigate, removeWindow)
+    } else {
+      modalClose()
+    }
+  }
+
+  const onSubmit = async (values: ServicoFormSchemaType) => {
     try {
       updateFormState(formId, (state) => ({
         ...state,
@@ -288,7 +298,7 @@ const PecaUpdateForm = ({
       }))
 
       // Transform the form data to match the API structure
-      const requestData: UpdatePecaDTO = {
+      const requestData: CreateServicoDTO = {
         designacao: values.designacao,
         anos: values.anos,
         kms: values.kms,
@@ -297,26 +307,49 @@ const PecaUpdateForm = ({
         custo: values.custo,
       }
 
-      const response = await updatePecaMutation.mutateAsync({
-        id: pecaId,
-        data: requestData,
-      })
+      const response = await createServicoMutation.mutateAsync(requestData)
       const result = handleApiResponse(
         response,
-        'Peça atualizada com sucesso',
-        'Erro ao atualizar peça',
-        'Peça atualizada com avisos'
+        'Serviço criado com sucesso',
+        'Erro ao criar Serviço',
+        'Serviço criado com avisos'
       )
 
       if (result.success) {
-        // Close the window
+        // Set return data for parent window if this window was opened from another window
         if (effectiveWindowId) {
+          setEntityReturnDataWithToastSuppression(
+            effectiveWindowId,
+            { id: result.data as string, designacao: values.designacao },
+            'servico',
+            setWindowReturnData,
+            parentWindowIdFromStorage || undefined,
+            instanceId
+          )
+
+          // Clean up sessionStorage after a delay to ensure parent window has time to read it
+          setTimeout(() => {
+            if (parentWindowIdFromStorage) {
+              sessionStorage.removeItem(`parent-window-${instanceId}`)
+            }
+          }, 2000) // 2 second delay
+        }
+
+        if (onSuccess) {
+          onSuccess({
+            id: result.data as string,
+            designacao: values.designacao,
+          })
+        }
+        // Only close the window if shouldCloseWindow is true
+        if (effectiveWindowId && shouldCloseWindow) {
           removeWindow(effectiveWindowId)
         }
+        // Always call modalClose to close the modal
         modalClose()
       }
     } catch (error) {
-      toast.error(handleApiError(error, 'Erro ao atualizar peça'))
+      toast.error(handleApiError(error, 'Erro ao criar Serviço'))
     } finally {
       updateFormState(formId, (state) => ({
         ...state,
@@ -329,7 +362,7 @@ const PecaUpdateForm = ({
     <div className='space-y-4'>
       <Form {...form}>
         <form
-          id='pecaUpdateForm'
+          id='servicoCreateForm'
           onSubmit={form.handleSubmit(onSubmit, handleError)}
           className='space-y-4'
           autoComplete='off'
@@ -337,7 +370,7 @@ const PecaUpdateForm = ({
           <PersistentTabs
             defaultValue='identificacao'
             className='w-full'
-            tabKey={`peca-${instanceId}`}
+            tabKey={`servico-${instanceId}`}
           >
             <PersistentTabsList>
               <PersistentTabsTrigger value='identificacao'>
@@ -363,13 +396,13 @@ const PecaUpdateForm = ({
                       </div>
                       <div>
                         <CardTitle className='text-base flex items-center gap-2'>
-                          Identificação da Peça
+                          Identificação do Serviço
                           <Badge variant='secondary' className='text-xs'>
                             Obrigatório
                           </Badge>
                         </CardTitle>
                         <p className='text-sm text-muted-foreground mt-1'>
-                          Informações básicas da peça
+                          Informações básicas do Serviço
                         </p>
                       </div>
                     </div>
@@ -392,7 +425,6 @@ const PecaUpdateForm = ({
                               <Input
                                 placeholder='Digite a designação'
                                 {...field}
-                                value={String(field.value ?? '')}
                                 className='px-4 py-6 shadow-inner'
                               />
                             </FormControl>
@@ -416,7 +448,6 @@ const PecaUpdateForm = ({
                               <Input
                                 placeholder='Digite o tipo'
                                 {...field}
-                                value={String(field.value ?? '')}
                                 className='px-4 py-6 shadow-inner'
                               />
                             </FormControl>
@@ -439,7 +470,7 @@ const PecaUpdateForm = ({
                       </div>
                       <div>
                         <CardTitle className='text-base flex items-center gap-2'>
-                          Detalhes da Peça
+                          Detalhes do Serviço
                           <Badge variant='secondary' className='text-xs'>
                             Obrigatório
                           </Badge>
@@ -611,7 +642,7 @@ const PecaUpdateForm = ({
                           </Badge>
                         </CardTitle>
                         <p className='text-sm text-muted-foreground mt-1'>
-                          Custos e impostos da peça
+                          Custos e impostos do Serviço
                         </p>
                       </div>
                     </div>
@@ -634,7 +665,7 @@ const PecaUpdateForm = ({
                                     value: taxaIva.id || '',
                                     label: `${taxaIva.descricao} (${taxaIva.valor}%)`,
                                   }))}
-                                  value={String(field.value ?? '')}
+                                  value={field.value || ''}
                                   onValueChange={field.onChange}
                                   placeholder={
                                     isLoadingTaxasIva
@@ -796,10 +827,10 @@ const PecaUpdateForm = ({
             </Button>
             <Button
               type='submit'
-              disabled={updatePecaMutation.isPending}
+              disabled={createServicoMutation.isPending}
               className='w-full md:w-auto'
             >
-              {updatePecaMutation.isPending ? 'A atualizar...' : 'Atualizar'}
+              {createServicoMutation.isPending ? 'A criar...' : 'Criar'}
             </Button>
           </div>
         </form>
@@ -808,5 +839,6 @@ const PecaUpdateForm = ({
   )
 }
 
-export { PecaUpdateForm }
+export { ServicoCreateForm }
+
 

@@ -3,6 +3,9 @@ import { frotas } from '@/config/modules/frotas/frotas-module'
 import { PecasPage } from '@/pages/frotas/pecas/pecas-page'
 import { PecasCreatePage } from '@/pages/frotas/pecas/components/pecas-create-page/pecas-create-page'
 import { PecasUpdatePage } from '@/pages/frotas/pecas/components/pecas-update-page/pecas-update-page'
+import { ServicosPage } from '@/pages/frotas/servicos/servicos-page'
+import { ServicosCreatePage } from '@/pages/frotas/servicos/components/servicos-create-page/servicos-create-page'
+import { ServicosUpdatePage } from '@/pages/frotas/servicos/components/servicos-update-page/servicos-update-page'
 import { CoveirosCreatePage } from '@/pages/frotas/coveiros/components/coveiros-create-page/coveiros-create-page'
 import { CoveirosUpdatePage } from '@/pages/frotas/coveiros/components/coveiros-update-page/coveiros-update-page'
 import { CoveirosPage } from '@/pages/frotas/coveiros/coveiros-page'
@@ -131,6 +134,44 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Peça',
+  },
+  {
+    path: 'frotas/configuracoes/servicos',
+    element: (
+      <LicenseGuard
+        requiredModule={frotas.id}
+      >
+        <ServicosPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Serviços',
+  },
+  {
+    path: 'frotas/configuracoes/servicos/create',
+    element: (
+      <LicenseGuard
+        requiredModule={frotas.id}
+        actionType={actionTypes.AuthAdd}
+      >
+        <ServicosCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Serviço',
+  },
+  {
+    path: 'frotas/configuracoes/servicos/update',
+    element: (
+      <LicenseGuard
+        requiredModule={frotas.id}
+        actionType={actionTypes.AuthChg}
+      >
+        <ServicosUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Serviço',
   },
   {
     path: 'frotas/configuracoes/marcas',

@@ -1,11 +1,11 @@
-import { useEffect, useRef, useMemo } from 'react'
+﻿import { useEffect, useRef, useMemo } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { useGetTaxasIvaSelect } from '@/pages/base/taxasIva/queries/taxasIva-queries'
-import { useUpdatePeca } from '@/pages/frotas/pecas/queries/pecas-mutations'
-import { useGetPeca } from '@/pages/frotas/pecas/queries/pecas-queries'
-import { UpdatePecaDTO } from '@/types/dtos/frotas/pecas.dtos'
+import { useUpdateServico } from '@/pages/frotas/servicos/queries/servicos-mutations'
+import { useGetServico } from '@/pages/frotas/servicos/queries/servicos-queries'
+import { UpdateServicoDTO } from '@/types/dtos/frotas/servicos.dtos'
 import { Package, AlertCircle, DollarSign, Eye, Plus, ChevronUp, ChevronDown } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
@@ -44,7 +44,7 @@ import {
   TabsContent as PersistentTabsContent,
 } from '@/components/ui/persistent-tabs'
 
-const pecaFormSchema = z.object({
+const ServicoFormSchema = z.object({
   designacao: z
     .string({ message: 'A Designação é obrigatória' })
     .min(1, { message: 'A Designação é obrigatória' }),
@@ -63,19 +63,19 @@ const pecaFormSchema = z.object({
     .min(0, { message: 'O Custo deve ser maior ou igual a 0' }),
 })
 
-type PecaFormSchemaType = z.infer<typeof pecaFormSchema>
+type ServicoFormSchemaType = z.infer<typeof ServicoFormSchema>
 
-interface PecaUpdateFormProps {
+interface servicoUpdateFormProps {
   modalClose: () => void
-  pecaId: string
-  initialData: PecaFormSchemaType
+  servicoId: string
+  initialData: ServicoFormSchemaType
 }
 
-const PecaUpdateForm = ({
+const ServicoUpdateForm = ({
   modalClose,
-  pecaId,
+  servicoId,
   initialData,
-}: PecaUpdateFormProps) => {
+}: ServicoUpdateFormProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const windowId = useCurrentWindowId()
@@ -97,9 +97,9 @@ const PecaUpdateForm = ({
 
   const { setActiveTab } = useTabManager({
     defaultTab: 'identificacao',
-    tabKey: `peca-${instanceId}`,
+    tabKey: `servico-${instanceId}`,
   })
-  const { handleError } = useSubmitErrorTab<PecaFormSchemaType>({
+  const { handleError } = useSubmitErrorTab<ServicoFormSchemaType>({
     setActiveTab,
     fieldToTabMap: {
       default: 'identificacao',
@@ -112,8 +112,8 @@ const PecaUpdateForm = ({
     },
   })
 
-  const updatePecaMutation = useUpdatePeca()
-  const { data: pecaData } = useGetPeca(pecaId)
+  const updateServicoMutation = useUpdateServico()
+  const { data: servicoData } = useGetServico(servicoId)
   const {
     data: taxasIvaData = [],
     isLoading: isLoadingTaxasIva,
@@ -122,8 +122,8 @@ const PecaUpdateForm = ({
 
   const effectiveWindowId = windowId || instanceId
 
-  const pecaResolver: Resolver<PecaFormSchemaType> = async (values) => {
-    const result = pecaFormSchema.safeParse(values)
+  const servicoResolver: Resolver<ServicoFormSchemaType> = async (values) => {
+    const result = ServicoFormSchema.safeParse(values)
     if (result.success) {
       return { values: result.data, errors: {} }
     }
@@ -141,8 +141,8 @@ const PecaUpdateForm = ({
     }
   }
 
-  const form = useForm<PecaFormSchemaType>({
-    resolver: pecaResolver,
+  const form = useForm<ServicoFormSchemaType>({
+    resolver: servicoResolver,
     defaultValues: initialData,
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
@@ -189,10 +189,10 @@ const PecaUpdateForm = ({
   // Load saved form data if available and the form has been initialized
   useEffect(() => {
     if (isInitialized && hasFormData(formId)) {
-      form.reset(formData as PecaFormSchemaType)
-    } else if (pecaData?.info?.data) {
+      form.reset(formData as ServicoFormSchemaType)
+    } else if (servicoData?.info?.data) {
       // If no saved data, use the data from the API
-      const apiData = pecaData.info.data
+      const apiData = servicoData.info.data
 
       // Create normalized data for change detection (matching form structure)
       const normalizedApiData = {
@@ -208,11 +208,11 @@ const PecaUpdateForm = ({
       if (!normalizedApiDataRef.current) {
         normalizedApiDataRef.current = {}
       }
-      normalizedApiDataRef.current[pecaId] = normalizedApiData
+      normalizedApiDataRef.current[servicoId] = normalizedApiData
 
       form.reset(normalizedApiData)
     }
-  }, [formData, isInitialized, formId, hasFormData, pecaData, pecaId])
+  }, [formData, isInitialized, formId, hasFormData, servicoData, servicoId])
 
   // Save form data when it changes
   useEffect(() => {
@@ -220,8 +220,8 @@ const PecaUpdateForm = ({
       if (value) {
         // Use proper change detection by comparing with normalized original values
         const normalizedOriginalData =
-          normalizedApiDataRef.current?.[pecaId] ||
-          pecaData?.info?.data ||
+          normalizedApiDataRef.current?.[servicoId] ||
+          servicoData?.info?.data ||
           {}
         const hasChanges = detectUpdateFormChanges(
           value,
@@ -229,7 +229,7 @@ const PecaUpdateForm = ({
         )
 
         setFormState(formId, {
-          formData: value as PecaFormSchemaType,
+          formData: value as ServicoFormSchemaType,
           isDirty: hasChanges,
           isValid: form.formState.isValid,
           isSubmitting: form.formState.isSubmitting,
@@ -243,14 +243,14 @@ const PecaUpdateForm = ({
           setWindowHasFormData
         )
         // Update window title based on designacao
-        const newTitle = value.designacao || 'Peça'
+        const newTitle = value.designacao || 'Serviço'
 
         // Always update the window title to ensure it reflects the current state
         updateUpdateWindowTitle(effectiveWindowId, newTitle, updateWindowState)
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, effectiveWindowId, pecaData, formId, formData])
+  }, [form, effectiveWindowId, servicoData, formId, formData])
 
   const handleClose = () => {
     // Clean up all form instances for the current window
@@ -280,7 +280,7 @@ const PecaUpdateForm = ({
     returnDataKey: `return-data-${effectiveWindowId}-taxaIva`,
   })
 
-  const onSubmit = async (values: PecaFormSchemaType) => {
+  const onSubmit = async (values: ServicoFormSchemaType) => {
     try {
       updateFormState(formId, (state) => ({
         ...state,
@@ -288,7 +288,7 @@ const PecaUpdateForm = ({
       }))
 
       // Transform the form data to match the API structure
-      const requestData: UpdatePecaDTO = {
+      const requestData: UpdateServicoDTO = {
         designacao: values.designacao,
         anos: values.anos,
         kms: values.kms,
@@ -297,15 +297,15 @@ const PecaUpdateForm = ({
         custo: values.custo,
       }
 
-      const response = await updatePecaMutation.mutateAsync({
-        id: pecaId,
+      const response = await updateServicoMutation.mutateAsync({
+        id: servicoId,
         data: requestData,
       })
       const result = handleApiResponse(
         response,
-        'Peça atualizada com sucesso',
-        'Erro ao atualizar peça',
-        'Peça atualizada com avisos'
+        'Serviço atualizado com sucesso',
+        'Erro ao atualizar Serviço',
+        'Serviço atualizado com avisos'
       )
 
       if (result.success) {
@@ -316,7 +316,7 @@ const PecaUpdateForm = ({
         modalClose()
       }
     } catch (error) {
-      toast.error(handleApiError(error, 'Erro ao atualizar peça'))
+      toast.error(handleApiError(error, 'Erro ao atualizar Serviço'))
     } finally {
       updateFormState(formId, (state) => ({
         ...state,
@@ -329,7 +329,7 @@ const PecaUpdateForm = ({
     <div className='space-y-4'>
       <Form {...form}>
         <form
-          id='pecaUpdateForm'
+          id='servicoUpdateForm'
           onSubmit={form.handleSubmit(onSubmit, handleError)}
           className='space-y-4'
           autoComplete='off'
@@ -337,7 +337,7 @@ const PecaUpdateForm = ({
           <PersistentTabs
             defaultValue='identificacao'
             className='w-full'
-            tabKey={`peca-${instanceId}`}
+            tabKey={`servico-${instanceId}`}
           >
             <PersistentTabsList>
               <PersistentTabsTrigger value='identificacao'>
@@ -363,13 +363,13 @@ const PecaUpdateForm = ({
                       </div>
                       <div>
                         <CardTitle className='text-base flex items-center gap-2'>
-                          Identificação da Peça
+                          Identificação do Serviço
                           <Badge variant='secondary' className='text-xs'>
                             Obrigatório
                           </Badge>
                         </CardTitle>
                         <p className='text-sm text-muted-foreground mt-1'>
-                          Informações básicas da peça
+                          Informações básicas do Serviço
                         </p>
                       </div>
                     </div>
@@ -439,7 +439,7 @@ const PecaUpdateForm = ({
                       </div>
                       <div>
                         <CardTitle className='text-base flex items-center gap-2'>
-                          Detalhes da Peça
+                          Detalhes do Serviço
                           <Badge variant='secondary' className='text-xs'>
                             Obrigatório
                           </Badge>
@@ -611,7 +611,7 @@ const PecaUpdateForm = ({
                           </Badge>
                         </CardTitle>
                         <p className='text-sm text-muted-foreground mt-1'>
-                          Custos e impostos da peça
+                          Custos e impostos do Serviço
                         </p>
                       </div>
                     </div>
@@ -796,10 +796,10 @@ const PecaUpdateForm = ({
             </Button>
             <Button
               type='submit'
-              disabled={updatePecaMutation.isPending}
+              disabled={updateServicoMutation.isPending}
               className='w-full md:w-auto'
             >
-              {updatePecaMutation.isPending ? 'A atualizar...' : 'Atualizar'}
+              {updateServicoMutation.isPending ? 'A atualizar...' : 'Atualizar'}
             </Button>
           </div>
         </form>
@@ -808,5 +808,6 @@ const PecaUpdateForm = ({
   )
 }
 
-export { PecaUpdateForm }
+export { ServicoUpdateForm }
+
 

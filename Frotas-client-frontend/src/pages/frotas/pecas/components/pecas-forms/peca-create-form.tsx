@@ -374,12 +374,15 @@ const PecaCreateForm = ({
           >
             <PersistentTabsList>
               <PersistentTabsTrigger value='identificacao'>
+                <Package className='mr-2 h-4 w-4' />
                 Identificação
               </PersistentTabsTrigger>
               <PersistentTabsTrigger value='detalhes'>
+                <AlertCircle className='mr-2 h-4 w-4' />
                 Detalhes
               </PersistentTabsTrigger>
               <PersistentTabsTrigger value='custos'>
+                <DollarSign className='mr-2 h-4 w-4' />
                 Custos
               </PersistentTabsTrigger>
             </PersistentTabsList>
@@ -645,13 +648,13 @@ const PecaCreateForm = ({
                     </div>
                   </CardHeader>
                   <CardContent className='space-y-6'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
                       <FormField
                         control={form.control}
                         name='taxaIvaId'
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className='flex items-center gap-2'>
+                          <FormItem className='flex flex-col'>
+                            <FormLabel className='flex items-center gap-2 min-h-[28px]'>
                               <DollarSign className='h-4 w-4' />
                               Taxa de IVA
                             </FormLabel>
@@ -728,8 +731,8 @@ const PecaCreateForm = ({
                         control={form.control}
                         name='custo'
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className='flex items-center gap-2'>
+                          <FormItem className='flex flex-col'>
+                            <FormLabel className='flex items-center gap-2 min-h-[28px]'>
                               <DollarSign className='h-4 w-4' />
                               Custo
                               <Badge variant='secondary' className='text-xs'>

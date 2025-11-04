@@ -28,6 +28,14 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Serviços',
+      description: 'Gestão de serviços',
+      icon: Icons.settings,
+      path: '/frotas/configuracoes/servicos',
+      color: useIconThemeColor('/frotas/configuracoes/servicos'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Marcas',
       description: 'Gestão de marcas de carros',
       icon: Icons.shield,

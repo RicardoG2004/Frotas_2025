@@ -17,6 +17,7 @@ using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
 using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
 using Frotas.API.Application.Services.Frotas.FornecedorService.DTOs;
 using Frotas.API.Application.Services.Frotas.PecaService.DTOs;
+using Frotas.API.Application.Services.Frotas.ServicoService.DTOs;
 using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 
 using Frotas.API.Domain.Entities.Base;
@@ -178,6 +179,15 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.TaxaIva, opt => opt.Ignore())
         .ForMember(dest => dest.CustoTotal, opt => opt.Ignore());
       _ = CreateMap<UpdatePecaRequest, Peca>()
+        .ForMember(dest => dest.TaxaIva, opt => opt.Ignore())
+        .ForMember(dest => dest.CustoTotal, opt => opt.Ignore());
+
+      // Servicos mappings
+      _ = CreateMap<Servico, ServicoDTO>();
+      _ = CreateMap<CreateServicoRequest, Servico>()
+        .ForMember(dest => dest.TaxaIva, opt => opt.Ignore())
+        .ForMember(dest => dest.CustoTotal, opt => opt.Ignore());
+      _ = CreateMap<UpdateServicoRequest, Servico>()
         .ForMember(dest => dest.TaxaIva, opt => opt.Ignore())
         .ForMember(dest => dest.CustoTotal, opt => opt.Ignore());
         

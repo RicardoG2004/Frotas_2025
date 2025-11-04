@@ -274,6 +274,22 @@ export const roleHeaderMenus = {
             funcionalidadeId: '',
           },
           {
+            label: 'Serviços',
+            href: '/frotas/configuracoes/servicos',
+            description: 'Faça a gestão de serviços',
+            icon: 'settings',
+            colors: {
+              colorful: 'bg-purple-700',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-purple-500',
+              vibrant: 'bg-purple-800',
+              neon: 'bg-purple-600',
+              'neon-cyberpunk':
+                'bg-purple-700 shadow-[0_0_40px_rgba(126,34,206,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
+          {
             label: 'Marcas',
             href: '/frotas/configuracoes/marcas',
             description: 'Faça a gestão de marcas de carros',
