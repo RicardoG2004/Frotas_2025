@@ -39,6 +39,9 @@ import { ConservatoriasUpdatePage } from '@/pages/base/conservatorias/components
 import { DelegacoesPage } from '@/pages/base/delegacoes/delegacoes-page'
 import { DelegacoesCreatePage } from '@/pages/base/delegacoes/components/delegacoes-create-page/delegacoes-create-page'
 import { DelegacoesUpdatePage } from '@/pages/base/delegacoes/components/delegacoes-update-page/delegacoes-update-page'
+import { CoresPage } from '@/pages/base/cores/cores-page'
+import { CoresCreatePage } from '@/pages/base/cores/components/cores-create-page/cores-create-page'
+import { CoresUpdatePage } from '@/pages/base/cores/components/cores-update-page/cores-update-page'
 
 
 export const utilitariosRoutes = [
@@ -531,6 +534,48 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Delegacao',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/cores',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthVer}
+      >
+        <CoresPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Cores',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/cores/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthAdd}
+      >
+        <CoresCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Cor',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/cores/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType='AuthChg'
+      >
+        <CoresUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Cor',
   },
   {
     path: 'utilitarios/tabelas/configuracoes/taxas-iva',

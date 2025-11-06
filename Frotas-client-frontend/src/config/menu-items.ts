@@ -242,6 +242,7 @@ export const roleHeaderMenus = {
                 },
                 funcionalidadeId: '',
               },
+
               {
                 label: 'Taxas de IVA',
                 href: '/utilitarios/tabelas/configuracoes/taxas-iva',
@@ -265,6 +266,19 @@ export const roleHeaderMenus = {
                   pastel: 'bg-green-600',
                   vibrant: 'bg-green-900',
                   neon: 'bg-orange-400',
+                },
+                funcionalidadeId: '',
+              },
+              {
+                label: 'Cores',
+                href: '/utilitarios/tabelas/configuracoes/cores',
+                icon: 'tablerMap',
+                colors: {
+                  colorful: 'bg-green-700',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-green-500',
+                  vibrant: 'bg-green-800',
+                  neon: 'bg-yellow-400',
                 },
                 funcionalidadeId: '',
               },

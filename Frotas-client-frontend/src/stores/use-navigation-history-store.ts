@@ -177,6 +177,9 @@ export const getPageTitleFromPath = (path: string): string => {
     '/utilitarios/tabelas/configuracoes/setores': 'Setores',
     '/utilitarios/tabelas/configuracoes/setores/create': 'Criar Setor',
     '/utilitarios/tabelas/configuracoes/setores/update': 'Editar Setor',
+    '/utilitarios/tabelas/configuracoes/cores': 'Cores',
+    '/utilitarios/tabelas/configuracoes/cores/create': 'Criar Cor',
+    '/utilitarios/tabelas/configuracoes/cores/update': 'Editar Cor',
   }
 
   // Check for exact match first
