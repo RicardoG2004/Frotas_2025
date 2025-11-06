@@ -12,6 +12,7 @@ using Frotas.API.Application.Services.Base.RubricaService.DTOs;
 using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
+using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
 using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
@@ -142,6 +143,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Conservatoria, ConservatoriaDTO>();
       _ = CreateMap<CreateConservatoriaRequest, Conservatoria>();
       _ = CreateMap<UpdateConservatoriaRequest, Conservatoria>();
+
+      // Delegacoes mappings
+      _ = CreateMap<Delegacao, DelegacaoDTO>();
+      _ = CreateMap<CreateDelegacaoRequest, Delegacao>();
+      _ = CreateMap<UpdateDelegacaoRequest, Delegacao>();
 
        // Coveiros mappings
       _ = CreateMap<Coveiro, CoveiroDTO>();

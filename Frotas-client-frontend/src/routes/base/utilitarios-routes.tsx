@@ -36,6 +36,9 @@ import { SetoresPage, SetoresCreatePage, SetoresUpdatePage } from '@/pages/base/
 import { ConservatoriasPage } from '@/pages/base/conservatorias/conservatorias-page'
 import { ConservatoriasCreatePage } from '@/pages/base/conservatorias/components/conservatorias-create-page/conservatorias-create-page'
 import { ConservatoriasUpdatePage } from '@/pages/base/conservatorias/components/conservatorias-update-page/conservatorias-update-page'
+import { DelegacoesPage } from '@/pages/base/delegacoes/delegacoes-page'
+import { DelegacoesCreatePage } from '@/pages/base/delegacoes/components/delegacoes-create-page/delegacoes-create-page'
+import { DelegacoesUpdatePage } from '@/pages/base/delegacoes/components/delegacoes-update-page/delegacoes-update-page'
 
 
 export const utilitariosRoutes = [
@@ -486,6 +489,48 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Conservatória',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/delegacoes',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthVer}
+      >
+        <DelegacoesPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Delegacoes',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/delegacoes/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthAdd}
+      >
+        <DelegacoesCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Delegacao',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/delegacoes/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType='AuthChg'
+      >
+        <DelegacoesUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Delegacao',
   },
   {
     path: 'utilitarios/tabelas/configuracoes/taxas-iva',

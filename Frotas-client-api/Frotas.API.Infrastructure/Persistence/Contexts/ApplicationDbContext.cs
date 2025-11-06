@@ -42,6 +42,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<TaxaIva> TaxasIva { get; set; }
     public DbSet<Setor> Setores { get; set; }
     public DbSet<Conservatoria> Conservatorias { get; set; }
+    public DbSet<Delegacao> Delegacoes { get; set; }
     public DbSet<Peca> Pecas { get; set; }
     public DbSet<Servico> Servicos { get; set; }
     public DbSet<Coveiro> Coveiros { get; set; }

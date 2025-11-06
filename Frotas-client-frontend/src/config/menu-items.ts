@@ -230,6 +230,19 @@ export const roleHeaderMenus = {
                 funcionalidadeId: '',
               },
               {
+                label: 'Delegacoes',
+                href: '/utilitarios/tabelas/configuracoes/delegacoes',
+                icon: 'tablerMap',
+                colors: {
+                  colorful: 'bg-green-700',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-green-500',
+                  vibrant: 'bg-green-800',
+                  neon: 'bg-yellow-400',
+                },
+                funcionalidadeId: '',
+              },
+              {
                 label: 'Taxas de IVA',
                 href: '/utilitarios/tabelas/configuracoes/taxas-iva',
                 icon: 'tablerMap',

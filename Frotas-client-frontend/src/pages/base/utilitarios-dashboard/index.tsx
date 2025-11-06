@@ -109,6 +109,14 @@ export function UtilitariosDashboardPage() {
       color: useIconThemeColor('/utilitarios/tabelas/configuracoes/conservatorias'),
       openInNewWindow: true,
     },
+    {
+      title: 'Delegações',
+      description: 'Gestão de delegações',
+      icon: Icons.tablerMap,
+      path: '/utilitarios/tabelas/configuracoes/delegacoes',
+      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/delegacoes'),
+      openInNewWindow: true,
+    },
   ]
 
   return (

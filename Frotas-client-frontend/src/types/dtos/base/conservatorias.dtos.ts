@@ -7,13 +7,8 @@ export interface CreateConservatoriaDTO {
     Telefone: string
 }
 
-export interface UpdateConservatoriaDTO {
-    Nome: string
-    Morada: string
-    CodigoPostalId: string
-    FreguesiaId: string
-    ConcelhoId: string
-    Telefone: string
+export interface UpdateConservatoriaDTO extends Omit<CreateConservatoriaDTO, 'id'> {
+    id?: string;
 }
 
 export interface ConservatoriaDTO {
