@@ -19,7 +19,7 @@ namespace Frotas.API.Application.Services.Base.CorService.Specifications
             case "designacao":
               if (!string.IsNullOrWhiteSpace(filter.Value))
               {
-                _ = Query.Where(x => x.Nome.Contains(filter.Value));
+                _ = Query.Where(x => x.Designacao.Contains(filter.Value));
               }
               break;
             default:

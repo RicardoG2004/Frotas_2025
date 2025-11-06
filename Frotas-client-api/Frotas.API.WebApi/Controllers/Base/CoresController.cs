@@ -27,7 +27,7 @@ namespace Frotas.API.WebApi.Controllers.Base
     [HttpPost("paginated")]
     public async Task<IActionResult> GetCorsPaginatedAsync(CorTableFilter filter)
     {
-      PaginatedResponse<CorDTO> result = await _CorService.GetCorsPaginatedAsync(
+      PaginatedResponse<CorDTO> result = await _CorService.GetCoresPaginatedAsync(
         filter
       );
       return Ok(result);
@@ -78,7 +78,7 @@ namespace Frotas.API.WebApi.Controllers.Base
     {
       try
       {
-        Response<IEnumerable<Guid>> response = await _CorService.DeleteMultipleCorsAsync(
+        Response<IEnumerable<Guid>> response = await _CorService.DeleteMultipleCoresAsync(
           request.Ids
         );
         

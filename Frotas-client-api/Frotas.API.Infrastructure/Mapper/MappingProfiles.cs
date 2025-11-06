@@ -150,6 +150,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<CreateDelegacaoRequest, Delegacao>();
       _ = CreateMap<UpdateDelegacaoRequest, Delegacao>();
 
+      // Cors mappings
+      _ = CreateMap<Cor, CorDTO>();
+      _ = CreateMap<CreateCorRequest, Cor>();
+      _ = CreateMap<UpdateCorRequest, Cor>();
+
        // Coveiros mappings
       _ = CreateMap<Coveiro, CoveiroDTO>();
       _ = CreateMap<CreateCoveiroRequest, Coveiro>()

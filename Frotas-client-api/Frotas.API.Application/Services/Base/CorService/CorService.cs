@@ -16,7 +16,7 @@ namespace Frotas.API.Application.Services.Base.CorService
     private readonly IMapper _mapper = mapper;
 
     // get full List
-    public async Task<Response<IEnumerable<CorDTO>>> GetCorsAsync(string keyword = "")
+    public async Task<Response<IEnumerable<CorDTO>>> GetCoresAsync(string keyword = "")
     {
       CorSearchList specification = new(keyword); // ardalis specification
       IEnumerable<CorDTO> list = await _repository.GetListAsync<Cor, CorDTO, Guid>(
@@ -26,7 +26,7 @@ namespace Frotas.API.Application.Services.Base.CorService
     }
 
     // get Tanstack Table paginated list (as seen in the React and Vue project tables)
-    public async Task<PaginatedResponse<CorDTO>> GetCorsPaginatedAsync(
+    public async Task<PaginatedResponse<CorDTO>> GetCoresPaginatedAsync(
       CorTableFilter filter
     )
     {
@@ -40,7 +40,7 @@ namespace Frotas.API.Application.Services.Base.CorService
       return pagedResponse;
     }
 
-    // get single Distrito by Id
+    // get single Cor by Id
     public async Task<Response<CorDTO>> GetCorAsync(Guid id)
     {
       try
@@ -78,7 +78,7 @@ namespace Frotas.API.Application.Services.Base.CorService
       }
     }
 
-    // update Distrito
+    // update Cor
     public async Task<Response<Guid>> UpdateCorAsync(UpdateCorRequest request, Guid id)
     {
       Cor CorInDb = await _repository.GetByIdAsync<Cor, Guid>(id); // get existing entity
@@ -117,8 +117,8 @@ namespace Frotas.API.Application.Services.Base.CorService
       }
     }
 
-    // delete multiple Cors
-    public async Task<Response<IEnumerable<Guid>>> DeleteMultipleCorsAsync(
+    // delete multiple Cores
+    public async Task<Response<IEnumerable<Guid>>> DeleteMultipleCoresAsync(
       IEnumerable<Guid> ids
     )
     {

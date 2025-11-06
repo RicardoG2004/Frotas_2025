@@ -7,12 +7,12 @@ namespace Frotas.API.Application.Services.Base.CorService
 {
   public interface ICorService : ITransientService
   {
-    Task<Response<IEnumerable<CorDTO>>> GetCorsAsync(string keyword = "");
-    Task<PaginatedResponse<CorDTO>> GetCorsPaginatedAsync(CorTableFilter filter);
+    Task<Response<IEnumerable<CorDTO>>> GetCoresAsync(string keyword = "");
+    Task<PaginatedResponse<CorDTO>> GetCoresPaginatedAsync(CorTableFilter filter);
     Task<Response<CorDTO>> GetCorAsync(Guid id);
     Task<Response<Guid>> CreateCorAsync(CreateCorRequest request);
     Task<Response<Guid>> UpdateCorAsync(UpdateCorRequest request, Guid id);
     Task<Response<Guid>> DeleteCorAsync(Guid id);
-    Task<Response<IEnumerable<Guid>>> DeleteMultipleCorsAsync(IEnumerable<Guid> ids);
+    Task<Response<IEnumerable<Guid>>> DeleteMultipleCoresAsync(IEnumerable<Guid> ids);
   }
 }
