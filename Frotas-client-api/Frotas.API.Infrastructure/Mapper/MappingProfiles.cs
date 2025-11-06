@@ -13,6 +13,7 @@ using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
+using Frotas.API.Application.Services.Base.CorService.DTOs;
 using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
