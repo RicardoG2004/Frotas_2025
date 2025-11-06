@@ -8,6 +8,7 @@ using Frotas.API.Application.Services.Base.EpocaService.DTOs;
 using Frotas.API.Application.Services.Base.FreguesiaService.DTOs;
 using Frotas.API.Application.Services.Base.PaisService.DTOs;
 using Frotas.API.Application.Services.Base.RuaService.DTOs;
+using Frotas.API.Application.Services.Base.LocalizacaoService.DTOs;
 using Frotas.API.Application.Services.Base.RubricaService.DTOs;
 using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 using Frotas.API.Application.Services.Base.SetorService.DTOs;
@@ -72,6 +73,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<UpdateRuaRequest, Rua>()
         .ForMember(dest => dest.Freguesia, opt => opt.Ignore())
         .ForMember(dest => dest.CodigoPostal, opt => opt.Ignore());
+
+      // localizacao mappings
+      _ = CreateMap<Localizacao, LocalizacaoDTO>();
+      _ = CreateMap<CreateLocalizacaoRequest, Localizacao>();
+      _ = CreateMap<UpdateLocalizacaoRequest, Localizacao>();
 
       // entidade mappings
       _ = CreateMap<Entidade, EntidadeDTO>()
