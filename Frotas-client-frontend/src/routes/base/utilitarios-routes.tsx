@@ -33,6 +33,10 @@ import { TaxasIvaPage } from '@/pages/base/taxasIva/taxasIva-page'
 import { TaxasIvaCreatePage } from '@/pages/base/taxasIva/components/taxasIva-create-page/taxasIva-create-page'
 import { TaxasIvaUpdatePage } from '@/pages/base/taxasIva/components/taxasIva-update-page/taxasIva-update-page'
 import { SetoresPage, SetoresCreatePage, SetoresUpdatePage } from '@/pages/base/setores'
+import { ConservatoriasPage } from '@/pages/base/conservatorias/conservatorias-page'
+import { ConservatoriasCreatePage } from '@/pages/base/conservatorias/components/conservatorias-create-page/conservatorias-create-page'
+import { ConservatoriasUpdatePage } from '@/pages/base/conservatorias/components/conservatorias-update-page/conservatorias-update-page'
+
 
 export const utilitariosRoutes = [
   {
@@ -440,6 +444,48 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.entidades.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/conservatorias',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthVer}
+      >
+        <ConservatoriasPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Conservatorias',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/conservatorias/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthAdd}
+      >
+        <ConservatoriasCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Conservatória',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/conservatorias/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType='AuthChg'
+      >
+        <ConservatoriasUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Conservatória',
   },
   {
     path: 'utilitarios/tabelas/configuracoes/taxas-iva',

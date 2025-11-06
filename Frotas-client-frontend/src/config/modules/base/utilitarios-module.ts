@@ -48,5 +48,9 @@ export const utilitarios: Module = {
       id: '00000003-0002-0000-0011-000000000001',
       name: 'Setores',
     },
+    conservatorias: {
+      id: '00000003-0002-0000-0012-000000000001',
+      name: 'Conservatorias',
+    },
   },
 }

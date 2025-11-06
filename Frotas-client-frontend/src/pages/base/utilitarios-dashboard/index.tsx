@@ -101,6 +101,14 @@ export function UtilitariosDashboardPage() {
       color: useIconThemeColor('/utilitarios/tabelas/configuracoes/setores'),
       openInNewWindow: true,
     },
+    {
+      title: 'Conservatórias',
+      description: 'Gestão de conservatórias',
+      icon: Icons.tablerMap,
+      path: '/utilitarios/tabelas/configuracoes/conservatorias',
+      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/conservatorias'),
+      openInNewWindow: true,
+    },
   ]
 
   return (
