@@ -60,5 +60,9 @@ export const utilitarios: Module = {
       id: '00000003-0002-0000-0013-000000000001',
       name: 'Delegacoes',
     },
+    garantias: {
+      id: '00000003-0002-0000-0015-000000000001',
+      name: 'Garantias',
+    },
   },
 }

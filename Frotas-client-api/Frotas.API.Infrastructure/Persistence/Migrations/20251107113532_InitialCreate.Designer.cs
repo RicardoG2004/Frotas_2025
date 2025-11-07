@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Frotas.API.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251106173349_AddLocalizacaoTable")]
-    partial class AddLocalizacaoTable
+    [Migration("20251107113532_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -416,6 +416,38 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.HasIndex("ConcelhoId");
 
                     b.ToTable("Freguesia", "Base");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Garantia", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Anos")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Designacao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Kms")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Garantia", "Base");
                 });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Localizacao", b =>

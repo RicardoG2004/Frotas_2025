@@ -128,6 +128,14 @@ export function UtilitariosDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Garantias',
+      description: 'Gestão de garantias',
+      icon: Icons.shield,
+      path: '/utilitarios/tabelas/configuracoes/garantias',
+      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/garantias'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Cores',
       description: 'Gestão de cores',
       icon: Icons.droplet,

@@ -255,6 +255,19 @@ export const roleHeaderMenus = {
                 },
                 funcionalidadeId: '',
               },
+              {
+                label: 'Garantias',
+                href: '/utilitarios/tabelas/configuracoes/garantias',
+                icon: 'tablerMap',
+                colors: {
+                  colorful: 'bg-green-700',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-green-500',
+                  vibrant: 'bg-green-800',
+                  neon: 'bg-yellow-400',
+                },
+                funcionalidadeId: '',
+              },
 
               {
                 label: 'Taxas de IVA',

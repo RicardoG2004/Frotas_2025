@@ -415,6 +415,38 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Freguesia", "Base");
                 });
 
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Garantia", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Anos")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Designacao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Kms")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Garantia", "Base");
+                });
+
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Localizacao", b =>
                 {
                     b.Property<Guid>("Id")

@@ -45,6 +45,11 @@ import { CoresUpdatePage } from '@/pages/base/cores/components/cores-update-page
 import { LocalizacoesPage } from '@/pages/base/localizacoes/localizacoes-page'
 import { LocalizacoesCreatePage } from '@/pages/base/localizacoes/components/localizacoes-create-page/localizacoes-create-page'
 import { LocalizacoesUpdatePage } from '@/pages/base/localizacoes/components/localizacoes-update-page/localizacoes-update-page'
+import {
+  GarantiasPage,
+  GarantiasCreatePage,
+  GarantiasUpdatePage,
+} from '@/pages/base/garantias'
 
 
 export const utilitariosRoutes = [
@@ -618,6 +623,48 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Cor',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/garantias',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthVer}
+      >
+        <GarantiasPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: utilitarios.permissions.garantias.name,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/garantias/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthAdd}
+      >
+        <GarantiasCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Criar ${utilitarios.permissions.garantias.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/garantias/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthChg}
+      >
+        <GarantiasUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Atualizar ${utilitarios.permissions.garantias.name}`,
   },
   {
     path: 'utilitarios/tabelas/configuracoes/taxas-iva',

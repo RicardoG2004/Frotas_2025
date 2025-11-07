@@ -15,6 +15,7 @@ using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
 using Frotas.API.Application.Services.Base.CorService.DTOs;
+using Frotas.API.Application.Services.Base.GarantiaService.DTOs;
 using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
@@ -160,6 +161,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Cor, CorDTO>();
       _ = CreateMap<CreateCorRequest, Cor>();
       _ = CreateMap<UpdateCorRequest, Cor>();
+      
+      // Garantias mappings
+      _ = CreateMap<Garantia, GarantiaDTO>();
+      _ = CreateMap<CreateGarantiaRequest, Garantia>();
+      _ = CreateMap<UpdateGarantiaRequest, Garantia>();
 
        // Coveiros mappings
       _ = CreateMap<Coveiro, CoveiroDTO>();
