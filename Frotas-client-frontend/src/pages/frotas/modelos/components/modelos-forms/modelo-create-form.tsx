@@ -104,7 +104,7 @@ export const ModeloCreateForm = ({
     fieldToTabMap: {
       default: 'identificacao',
       nome: 'identificacao',
-      marcaId: 'marca',
+      marcaId: 'identificacao',
     },
   })
 
@@ -356,10 +356,6 @@ export const ModeloCreateForm = ({
               <Layers className='mr-2 h-4 w-4' />
               Identificação
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='marca'>
-              <Shield className='mr-2 h-4 w-4' />
-              Marca
-            </PersistentTabsTrigger>
           </PersistentTabsList>
 
           <PersistentTabsContent value='identificacao'>
@@ -384,7 +380,7 @@ export const ModeloCreateForm = ({
                   </div>
                 </CardHeader>
                 <CardContent className='space-y-6'>
-                  <div className='grid grid-cols-1 gap-4'>
+                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                     <FormField
                       control={form.control}
                       name='nome'
@@ -408,94 +404,66 @@ export const ModeloCreateForm = ({
                         </FormItem>
                       )}
                     />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </PersistentTabsContent>
 
-          <PersistentTabsContent value='marca'>
-            <div className='space-y-6'>
-              <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
-                <CardHeader className='pb-4'>
-                  <div className='flex items-center gap-3'>
-                    <div className='flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary'>
-                      <Shield className='h-4 w-4' />
-                    </div>
-                    <div>
-                      <CardTitle className='text-base flex items-center gap-2'>
-                        Marca do Modelo
-                        <Badge variant='secondary' className='text-xs'>
-                          Obrigatório
-                        </Badge>
-                      </CardTitle>
-                      <p className='text-sm text-muted-foreground mt-1'>
-                        Selecione a marca associada ao modelo
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className='space-y-6'>
-                  <div className='grid grid-cols-1 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='marcaId'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className='flex items-center gap-2'>
-                        <Shield className='h-4 w-4' />
-                        Marca
-                        <Badge variant='secondary' className='text-xs'>
-                          Obrigatório
-                        </Badge>
-                      </FormLabel>
-                      <FormControl>
-                        <div className='relative'>
-                          <Autocomplete
-                            options={marcasData.map((marca) => ({
-                              value: marca.id || '',
-                              label: marca.nome,
-                            }))}
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder={
-                              isLoadingMarcas
-                                ? 'A carregar...'
-                                : 'Selecione uma marca'
-                            }
-                            emptyText='Nenhuma marca encontrada.'
-                            disabled={isLoadingMarcas}
-                            className='px-4 py-6 pr-32 shadow-inner drop-shadow-xl'
-                          />
-                          <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='sm'
-                              onClick={handleViewMarca}
-                              className='h-8 w-8 p-0'
-                              title='Ver Marca'
-                              disabled={!field.value}
-                            >
-                              <Eye className='h-4 w-4' />
-                            </Button>
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='sm'
-                              onClick={handleCreateMarca}
-                              className='h-8 w-8 p-0'
-                              title='Criar Nova Marca'
-                            >
-                              <Plus className='h-4 w-4' />
-                            </Button>
-                          </div>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <FormField
+                      control={form.control}
+                      name='marcaId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='flex items-center gap-2'>
+                            <Shield className='h-4 w-4' />
+                            Marca
+                            <Badge variant='secondary' className='text-xs'>
+                              Obrigatório
+                            </Badge>
+                          </FormLabel>
+                          <FormControl>
+                            <div className='relative'>
+                              <Autocomplete
+                                options={marcasData.map((marca) => ({
+                                  value: marca.id || '',
+                                  label: marca.nome,
+                                }))}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder={
+                                  isLoadingMarcas
+                                    ? 'A carregar...'
+                                    : 'Selecione uma marca'
+                                }
+                                emptyText='Nenhuma marca encontrada.'
+                                disabled={isLoadingMarcas}
+                                className='px-4 py-6 pr-32 shadow-inner drop-shadow-xl'
+                              />
+                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleViewMarca}
+                                  className='h-8 w-8 p-0'
+                                  title='Ver Marca'
+                                  disabled={!field.value}
+                                >
+                                  <Eye className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleCreateMarca}
+                                  className='h-8 w-8 p-0'
+                                  title='Criar Nova Marca'
+                                >
+                                  <Plus className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </CardContent>
               </Card>

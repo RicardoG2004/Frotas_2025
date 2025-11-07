@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { UpdateMarcaDTO } from '@/types/dtos/frotas/marcas.dtos'
-import { Shield, Layers } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
@@ -291,10 +291,6 @@ const MarcaUpdateForm = ({
                 <Shield className='mr-2 h-4 w-4' />
                 Identificação
               </PersistentTabsTrigger>
-              <PersistentTabsTrigger value='modelo'>
-                <Layers className='mr-2 h-4 w-4' />
-                Modelo
-              </PersistentTabsTrigger>
             </PersistentTabsList>
             <PersistentTabsContent value='identificacao'>
               <div className='space-y-6'>
@@ -342,37 +338,6 @@ const MarcaUpdateForm = ({
                           </FormItem>
                         )}
                       />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </PersistentTabsContent>
-            <PersistentTabsContent value='modelo'>
-              <div className='space-y-6'>
-                <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
-                  <CardHeader className='pb-4'>
-                    <div className='flex items-center gap-3'>
-                      <div className='flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 text-primary'>
-                        <Layers className='h-4 w-4' />
-                      </div>
-                      <div>
-                        <CardTitle className='text-base flex items-center gap-2'>
-                          Modelos da Marca
-                          <Badge variant='outline' className='text-xs'>
-                            Opcional
-                          </Badge>
-                        </CardTitle>
-                        <p className='text-sm text-muted-foreground mt-1'>
-                          Gerir modelos associados a esta marca
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className='space-y-6'>
-                    <div className='flex items-center justify-center py-12 text-muted-foreground'>
-                      <p className='text-sm'>
-                        A funcionalidade de gestão de modelos será adicionada em breve.
-                      </p>
                     </div>
                   </CardContent>
                 </Card>
