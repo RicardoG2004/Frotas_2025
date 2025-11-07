@@ -170,6 +170,19 @@ export const roleHeaderMenus = {
                 },
                 funcionalidadeId: modules.utilitarios.permissions.ruas.id,
               },
+              {
+                label: 'Localizações',
+                href: '/utilitarios/tabelas/geograficas/localizacoes',
+                icon: 'tablerMap',
+                colors: {
+                  colorful: 'bg-indigo-500',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-indigo-300',
+                  vibrant: 'bg-indigo-600',
+                  neon: 'bg-orange-400',
+                },
+                funcionalidadeId: '',
+              },
             ],
           },
           {

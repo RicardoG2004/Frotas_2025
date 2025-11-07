@@ -149,6 +149,9 @@ export const getPageTitleFromPath = (path: string): string => {
     '/utilitarios/tabelas/geograficas/ruas': 'Ruas',
     '/utilitarios/tabelas/geograficas/ruas/create': 'Criar Rua',
     '/utilitarios/tabelas/geograficas/ruas/update': 'Editar Rua',
+    '/utilitarios/tabelas/geograficas/localizacoes': 'Localizações',
+    '/utilitarios/tabelas/geograficas/localizacoes/create': 'Criar Localização',
+    '/utilitarios/tabelas/geograficas/localizacoes/update': 'Editar Localização',
     '/utilitarios/tabelas/geograficas/codigospostais': 'Códigos Postais',
     '/utilitarios/tabelas/geograficas/codigospostais/create':
       'Criar Código Postal',

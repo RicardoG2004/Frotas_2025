@@ -2,7 +2,7 @@ import { useEffect, useRef, useMemo } from 'react'
 import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { useCreateTaxaIva } from '@/pages/base/taxasIva/queries/taxasIva-mutations'
-import { Percent, Tag, ChevronUp, ChevronDown } from 'lucide-react'
+import { Percent, Tag, ChevronUp, ChevronDown, Settings } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
@@ -38,6 +38,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from '@/components/ui/persistent-tabs'
+import { Switch } from '@/components/ui/switch'
 
 const taxaIvaFormSchema = z.object({
   descricao: z
@@ -388,6 +389,42 @@ const TaxaIvaCreateForm = ({
                                   <ChevronDown className='h-3 w-3' />
                                 </Button>
                               </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className='space-y-3'>
+                    <div className='flex items-center gap-2 text-sm font-medium text-muted-foreground'>
+                      <Settings className='h-4 w-4 text-primary' />
+                      Configurações da Taxa
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name='ativo'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='flex items-center gap-2'>
+                            Estado
+                            <Badge variant='secondary' className='text-xs opacity-0 pointer-events-none'>
+                              Obrigatório
+                            </Badge>
+                          </FormLabel>
+                          <FormControl>
+                            <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                              <div className='flex items-center gap-2'>
+                                <div
+                                  className={`w-2 h-2 rounded-full ${field.value ? 'bg-green-500' : 'bg-red-500'}`}
+                                />
+                                <span className='text-sm text-muted-foreground'>Ativo</span>
+                              </div>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={createTaxaIvaMutation.isPending}
+                              />
                             </div>
                           </FormControl>
                           <FormMessage />

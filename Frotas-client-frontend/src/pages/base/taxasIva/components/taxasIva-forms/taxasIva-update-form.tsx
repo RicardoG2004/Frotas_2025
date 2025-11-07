@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { useUpdateTaxaIva } from '@/pages/base/taxasIva/queries/taxasIva-mutations'
 import { useGetTaxaIva } from '@/pages/base/taxasIva/queries/taxasIva-queries'
-import { Percent, Tag, ToggleLeft, ChevronUp, ChevronDown } from 'lucide-react'
+import { Percent, Tag, Settings, ChevronUp, ChevronDown } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
@@ -381,29 +381,38 @@ const TaxaIvaUpdateForm = ({
                     />
                   </div>
 
-                  <div className='grid grid-cols-1 gap-4'>
+                  <div className='space-y-3'>
+                    <div className='flex items-center gap-2 text-sm font-medium text-muted-foreground'>
+                      <Settings className='h-4 w-4 text-primary' />
+                      Configurações da Taxa
+                    </div>
                     <FormField
                       control={form.control}
                       name='ativo'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className='flex items-center gap-2'>
-                            <ToggleLeft className='h-4 w-4' />
-                            Ativo
+                            Estado
+                            <Badge variant='secondary' className='text-xs opacity-0 pointer-events-none'>
+                              Obrigatório
+                            </Badge>
                           </FormLabel>
                           <FormControl>
-                          <div className='flex items-center justify-between rounded-lg border p-4'>
-                              <div className='space-y-0.5'>
-                                <div className='text-sm text-muted-foreground'>
-                                  Taxa de IVA está ativa
-                                </div>
+                            <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                              <div className='flex items-center gap-2'>
+                                <div
+                                  className={`w-2 h-2 rounded-full ${field.value ? 'bg-green-500' : 'bg-red-500'}`}
+                                />
+                                <span className='text-sm text-muted-foreground'>Ativo</span>
                               </div>
                               <Switch
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
+                                disabled={updateTaxaIvaMutation.isPending}
                               />
                             </div>
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />

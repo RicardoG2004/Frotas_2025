@@ -62,6 +62,16 @@ export function UtilitariosDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Localizações',
+      description: 'Gestão de localizações',
+      icon: Icons.tablerMap,
+      path: '/utilitarios/tabelas/geograficas/localizacoes',
+      color: useIconThemeColor(
+        '/utilitarios/tabelas/geograficas/localizacoes'
+      ),
+      openInNewWindow: true,
+    },
+    {
       title: 'Épocas',
       description: 'Gestão de épocas',
       icon: Icons.tablerMap,

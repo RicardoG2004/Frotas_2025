@@ -42,6 +42,9 @@ import { DelegacoesUpdatePage } from '@/pages/base/delegacoes/components/delegac
 import { CoresPage } from '@/pages/base/cores/cores-page'
 import { CoresCreatePage } from '@/pages/base/cores/components/cores-create-page/cores-create-page'
 import { CoresUpdatePage } from '@/pages/base/cores/components/cores-update-page/cores-update-page'
+import { LocalizacoesPage } from '@/pages/base/localizacoes/localizacoes-page'
+import { LocalizacoesCreatePage } from '@/pages/base/localizacoes/components/localizacoes-create-page/localizacoes-create-page'
+import { LocalizacoesUpdatePage } from '@/pages/base/localizacoes/components/localizacoes-update-page/localizacoes-update-page'
 
 
 export const utilitariosRoutes = [
@@ -282,6 +285,45 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.ruas.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/geograficas/localizacoes',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        actionType={actionTypes.AuthVer}
+      >
+        <LocalizacoesPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: utilitarios.permissions.localizacoes.name,
+  },
+  {
+    path: 'utilitarios/tabelas/geograficas/localizacoes/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        actionType={actionTypes.AuthAdd}
+      >
+        <LocalizacoesCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Criar ${utilitarios.permissions.localizacoes.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/geograficas/localizacoes/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        actionType={actionTypes.AuthChg}
+      >
+        <LocalizacoesUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Atualizar ${utilitarios.permissions.localizacoes.name}`,
   },
   {
     path: 'utilitarios/tabelas/geograficas/codigospostais',

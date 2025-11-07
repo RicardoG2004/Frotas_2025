@@ -28,6 +28,10 @@ export const utilitarios: Module = {
       id: '00000003-0002-0000-0006-000000000001',
       name: 'Ruas',
     },
+    localizacoes: {
+      id: '00000003-0002-0000-0014-000000000001',
+      name: 'Localizações',
+    },
     epocas: {
       id: '00000003-0002-0000-0007-000000000001',
       name: 'Épocas',

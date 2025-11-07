@@ -632,22 +632,27 @@ const FornecedorUpdateForm = ({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className='flex items-center gap-2'>
-                              <Settings className='h-4 w-4' />
-                              Ativo
+                              Estado
+                              <Badge variant='secondary' className='text-xs opacity-0 pointer-events-none'>
+                                Obrigatório
+                              </Badge>
                             </FormLabel>
                             <FormControl>
-                              <div className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                                <div className='space-y-0.5'>
-                                  <div className='text-sm text-muted-foreground'>
-                                    Fornecedor está ativo
-                                  </div>
+                              <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                                <div className='flex items-center gap-2'>
+                                  <div
+                                    className={`w-2 h-2 rounded-full ${field.value ? 'bg-green-500' : 'bg-red-500'}`}
+                                  />
+                                  <span className='text-sm text-muted-foreground'>Ativo</span>
                                 </div>
                                 <Switch
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
+                                  disabled={updateFornecedorMutation.isPending}
                                 />
                               </div>
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
