@@ -54,6 +54,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Combustivel> Combustiveis { get; set; }
     public DbSet<Fornecedor> Fornecedores { get; set; }
     public DbSet<Equipamento> Equipamentos { get; set; }
+    public DbSet<TipoViatura> TipoViaturas { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

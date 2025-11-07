@@ -24,6 +24,7 @@ using Frotas.API.Application.Services.Frotas.FornecedorService.DTOs;
 using Frotas.API.Application.Services.Frotas.PecaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ServicoService.DTOs;
 using Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs;
+using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
 
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
@@ -223,6 +224,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Equipamento, EquipamentoDTO>();
       _ = CreateMap<CreateEquipamentoRequest, Equipamento>();
       _ = CreateMap<UpdateEquipamentoRequest, Equipamento>();
+
+      // TipoViaturas mappings
+      _ = CreateMap<TipoViatura, TipoViaturaDTO>();
+      _ = CreateMap<CreateTipoViaturaRequest, TipoViatura>();
+      _ = CreateMap<UpdateTipoViaturaRequest, TipoViatura>();
 
       // add new entity mappings here...
     }
