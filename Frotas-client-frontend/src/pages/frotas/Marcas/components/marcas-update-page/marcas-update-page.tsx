@@ -42,7 +42,7 @@ export function MarcasUpdatePage() {
 
   const { data: marcaData, isLoading } = useGetMarca(marcaId)
 
-  // Update window state with coveiroId if it's not already set
+  // Update window state with marcaId if it's not already set
   useEffect(() => {
     const currentWindow = windows.find(
       (w) => w.path === location.pathname && w.instanceId === instanceId

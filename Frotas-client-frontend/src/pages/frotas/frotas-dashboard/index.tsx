@@ -12,14 +12,6 @@ export function FrotasDashboardPage() {
 
   const quickActions = [
     {
-      title: 'Coveiros',
-      description: 'Gestão de coveiros de cemitérios',
-      icon: Icons.user,
-      path: '/frotas/configuracoes/coveiros',
-      color: useIconThemeColor('/frotas/configuracoes/coveiros'),
-      openInNewWindow: true,
-    },
-    {
       title: 'Peças',
       description: 'Gestão de peças',
       icon: Icons.container,

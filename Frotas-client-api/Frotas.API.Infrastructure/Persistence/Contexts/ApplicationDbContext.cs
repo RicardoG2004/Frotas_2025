@@ -48,7 +48,6 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Garantia> Garantias { get; set; }
     public DbSet<Peca> Pecas { get; set; }
     public DbSet<Servico> Servicos { get; set; }
-    public DbSet<Coveiro> Coveiros { get; set; }
     public DbSet<Marca> Marcas { get; set; }
     public DbSet<Modelo> Modelos { get; set; }
     public DbSet<Categoria> Categorias { get; set; }

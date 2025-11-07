@@ -44,10 +44,6 @@ export const frotas: Module = {
       id: '00000003-0002-0000-0010-000000000002',
       name: 'Mapas',
     },
-    coveiros: {
-      id: '00000003-0002-0000-0011-000000000002',
-      name: 'Coveiros',
-    },
     pecas: {
       id: '00000003-0002-0000-0012-000000000002',
       name: 'Peças',

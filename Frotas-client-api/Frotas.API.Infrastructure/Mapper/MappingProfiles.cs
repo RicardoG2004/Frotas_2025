@@ -16,7 +16,6 @@ using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
 using Frotas.API.Application.Services.Base.CorService.DTOs;
 using Frotas.API.Application.Services.Base.GarantiaService.DTOs;
-using Frotas.API.Application.Services.Frotas.CoveiroService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
@@ -167,16 +166,7 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<CreateGarantiaRequest, Garantia>();
       _ = CreateMap<UpdateGarantiaRequest, Garantia>();
 
-       // Coveiros mappings
-      _ = CreateMap<Coveiro, CoveiroDTO>();
-      _ = CreateMap<CreateCoveiroRequest, Coveiro>()
-        .ForMember(dest => dest.Rua, opt => opt.Ignore())
-        .ForMember(dest => dest.CodigoPostal, opt => opt.Ignore());
-      _ = CreateMap<UpdateCoveiroRequest, Coveiro>()
-        .ForMember(dest => dest.Rua, opt => opt.Ignore())
-        .ForMember(dest => dest.CodigoPostal, opt => opt.Ignore());
-
-        // Marcas mappings
+      // Marcas mappings
       _ = CreateMap<Marca, MarcaDTO>();
       _ = CreateMap<CreateMarcaRequest, Marca>();
       _ = CreateMap<UpdateMarcaRequest, Marca>();

@@ -6,9 +6,6 @@ import { PecasUpdatePage } from '@/pages/frotas/pecas/components/pecas-update-pa
 import { ServicosPage } from '@/pages/frotas/servicos/servicos-page'
 import { ServicosCreatePage } from '@/pages/frotas/servicos/components/servicos-create-page/servicos-create-page'
 import { ServicosUpdatePage } from '@/pages/frotas/servicos/components/servicos-update-page/servicos-update-page'
-import { CoveirosCreatePage } from '@/pages/frotas/coveiros/components/coveiros-create-page/coveiros-create-page'
-import { CoveirosUpdatePage } from '@/pages/frotas/coveiros/components/coveiros-update-page/coveiros-update-page'
-import { CoveirosPage } from '@/pages/frotas/coveiros/coveiros-page'
 import { FrotasDashboardPage } from '@/pages/frotas/frotas-dashboard'
 import { MarcasPage } from '@/pages/frotas/Marcas/marcas-page'
 import { MarcasCreatePage } from '@/pages/frotas/Marcas/components/marcas-create.page/marcas-create-page'
@@ -58,47 +55,6 @@ export const frotasRoutes = [
     ),
     manageWindow: false,
     windowName: 'Outros',
-  },
-  {
-    path: 'frotas/configuracoes/coveiros',
-    element: (
-      <LicenseGuard
-        requiredModule={frotas.id}
-        requiredPermission={frotas.permissions.coveiros.id}
-      >
-        <CoveirosPage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: 'Coveiros',
-  },
-  {
-    path: 'frotas/configuracoes/coveiros/create',
-    element: (
-      <LicenseGuard
-        requiredModule={frotas.id}
-        requiredPermission={frotas.permissions.coveiros.id}
-        actionType={actionTypes.AuthAdd}
-      >
-        <CoveirosCreatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: 'Criar Coveiro',
-  },
-  {
-    path: 'frotas/configuracoes/coveiros/update',
-    element: (
-      <LicenseGuard
-        requiredModule={frotas.id}
-        requiredPermission={frotas.permissions.coveiros.id}
-        actionType={actionTypes.AuthChg}
-      >
-        <CoveirosUpdatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: 'Atualizar Coveiro',
   },
   {
     path: 'frotas/configuracoes/pecas',

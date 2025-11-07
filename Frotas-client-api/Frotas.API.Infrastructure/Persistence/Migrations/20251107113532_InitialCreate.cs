@@ -607,39 +607,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Coveiro",
-                schema: "Frotas",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NIF = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RuaId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CodigoPostalId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Historico = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Coveiro", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Coveiro_CodigoPostal_CodigoPostalId",
-                        column: x => x.CodigoPostalId,
-                        principalSchema: "Base",
-                        principalTable: "CodigoPostal",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Coveiro_Rua_RuaId",
-                        column: x => x.RuaId,
-                        principalSchema: "Base",
-                        principalTable: "Rua",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Entidade",
                 schema: "Base",
                 columns: table => new
@@ -742,18 +709,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                 schema: "Base",
                 table: "Conservatoria",
                 column: "FreguesiaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Coveiro_CodigoPostalId",
-                schema: "Frotas",
-                table: "Coveiro",
-                column: "CodigoPostalId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Coveiro_RuaId",
-                schema: "Frotas",
-                table: "Coveiro",
-                column: "RuaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Delegacao_CodigoPostalId",
@@ -888,10 +843,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "Cor",
                 schema: "Base");
-
-            migrationBuilder.DropTable(
-                name: "Coveiro",
-                schema: "Frotas");
 
             migrationBuilder.DropTable(
                 name: "Delegacao",

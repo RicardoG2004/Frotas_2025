@@ -42,7 +42,7 @@ export function CategoriasUpdatePage() {
 
   const { data: categoriaData, isLoading } = useGetCategoria(categoriaId)
 
-  // Update window state with coveiroId if it's not already set
+  // Update window state with categoriaId if it's not already set
   useEffect(() => {
     const currentWindow = windows.find(
       (w) => w.path === location.pathname && w.instanceId === instanceId

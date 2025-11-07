@@ -46,7 +46,7 @@ namespace Frotas.API.Application.Services.Frotas.ModeloService
       return pagedResponse;
     }
 
-    // get single Coveiro by Id
+    // get single Modelo by Id
     public async Task<Response<ModeloDTO>> GetModeloAsync(Guid id)
     {
       try

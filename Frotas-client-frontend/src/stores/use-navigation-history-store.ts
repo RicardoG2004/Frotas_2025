@@ -108,9 +108,6 @@ export const getPageTitleFromPath = (path: string): string => {
   // Map common paths to user-friendly titles
   const pathTitleMap: Record<string, string> = {
     // Frotas - Configurações
-    '/frotas/configuracoes/coveiros': 'Coveiros',
-    '/frotas/configuracoes/coveiros/create': 'Criar Coveiro',
-    '/frotas/configuracoes/coveiros/update': 'Editar Coveiro',
     '/frotas/configuracoes/pecas': 'Peças',
     '/frotas/configuracoes/pecas/create': 'Criar Peça',
     '/frotas/configuracoes/pecas/update': 'Editar Peça',

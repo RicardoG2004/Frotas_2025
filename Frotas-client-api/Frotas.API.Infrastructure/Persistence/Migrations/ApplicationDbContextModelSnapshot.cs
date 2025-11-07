@@ -785,48 +785,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Coveiro", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CodigoPostalId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Historico")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NIF")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("RuaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CodigoPostalId");
-
-                    b.HasIndex("RuaId");
-
-                    b.ToTable("Coveiro", "Frotas");
-                });
-
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Equipamento", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1248,23 +1206,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Epoca");
-                });
-
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Coveiro", b =>
-                {
-                    b.HasOne("Frotas.API.Domain.Entities.Base.CodigoPostal", "CodigoPostal")
-                        .WithMany()
-                        .HasForeignKey("CodigoPostalId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Frotas.API.Domain.Entities.Base.Rua", "Rua")
-                        .WithMany()
-                        .HasForeignKey("RuaId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("CodigoPostal");
-
-                    b.Navigation("Rua");
                 });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Fornecedor", b =>

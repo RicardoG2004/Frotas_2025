@@ -321,22 +321,6 @@ export const roleHeaderMenus = {
         funcionalidadeId: '',
         items: [
           {
-            label: 'Coveiros',
-            href: '/frotas/configuracoes/coveiros',
-            description: 'Faça a gestão de coveiros de cemitérios',
-            icon: 'user',
-            colors: {
-              colorful: 'bg-purple-500',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-purple-300',
-              vibrant: 'bg-purple-600',
-              neon: 'bg-purple-400',
-              'neon-cyberpunk':
-                'bg-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.8)]',
-            },
-            funcionalidadeId: modules.frotas.permissions.coveiros.id,
-          },
-          {
             label: 'Peças',
             href: '/frotas/configuracoes/pecas',
             description: 'Faça a gestão de peças',
