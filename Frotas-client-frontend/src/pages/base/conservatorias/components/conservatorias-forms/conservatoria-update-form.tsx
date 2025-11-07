@@ -52,7 +52,7 @@ import {
 } from '@/components/ui/persistent-tabs'
 
 const conservatoriaFormSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome é obrigatório' }),
+  designacao: z.string().min(1, { message: 'A designação é obrigatória' }),
   telefone: z.string().min(1, { message: 'O telefone é obrigatório' }),
   morada: z.string().min(1, { message: 'A morada é obrigatória' }),
   codigoPostalId: z.string().min(1, { message: 'O código postal é obrigatório' }),
@@ -66,7 +66,7 @@ interface ConservatoriaUpdateFormProps {
   modalClose: () => void
   conservatoriaId: string
   initialData: {
-    nome: string
+    designacao: string
     telefone: string
     morada: string
     codigoPostalId: string
@@ -133,7 +133,7 @@ export const ConservatoriaUpdateForm = ({
   const form = useForm<ConservatoriaFormValues>({
     resolver: conservatoriaResolver,
     defaultValues: {
-      nome: '',
+      designacao: '',
       telefone: '',
       morada: '',
       codigoPostalId: '',
@@ -153,7 +153,7 @@ export const ConservatoriaUpdateForm = ({
     setActiveTab,
     fieldToTabMap: {
       default: 'identificacao',
-      nome: 'identificacao',
+      designacao: 'identificacao',
       telefone: 'identificacao',
       morada: 'detalhes',
       codigoPostalId: 'detalhes',
@@ -187,14 +187,15 @@ export const ConservatoriaUpdateForm = ({
     if (isInitialized && hasFormData(formId)) {
       form.reset(formData as ConservatoriaFormValues)
       // Update window title with initial form data
-      if (formData?.nome && windowId) {
-        updateUpdateWindowTitle(windowId, formData.nome, updateWindowState)
+      if (formData?.designacao && windowId) {
+        updateUpdateWindowTitle(windowId, formData.designacao, updateWindowState)
       }
     } else if (conservatoriaData) {
       // If no saved data, use the data from the API
       const conservatoria = conservatoriaData
+      const designacaoFromApi = conservatoria.designacao ?? conservatoria.nome ?? ''
       form.reset({
-        nome: conservatoria.nome,
+        designacao: designacaoFromApi,
         telefone: conservatoria.telefone,
         morada: conservatoria.morada,
         codigoPostalId: conservatoria.codigoPostalId,
@@ -202,8 +203,8 @@ export const ConservatoriaUpdateForm = ({
         concelhoId: conservatoria.concelhoId,
       })
       // Update window title with API data
-      if (conservatoria.nome && windowId) {
-        updateUpdateWindowTitle(windowId, conservatoria.nome, updateWindowState)
+      if (designacaoFromApi && windowId) {
+        updateUpdateWindowTitle(windowId, designacaoFromApi, updateWindowState)
       }
     }
   }, [formData, isInitialized, formId, hasFormData, conservatoriaData, windowId])
@@ -225,8 +226,8 @@ export const ConservatoriaUpdateForm = ({
 
         // Update window hasFormData flag
         updateWindowFormData(windowId, hasChanges, setWindowHasFormData)
-        if (value.nome && value.nome !== formData?.nome) {
-          updateUpdateWindowTitle(windowId, value.nome, updateWindowState)
+        if (value.designacao && value.designacao !== formData?.designacao) {
+          updateUpdateWindowTitle(windowId, value.designacao, updateWindowState)
         }
       }
     })
@@ -336,7 +337,7 @@ export const ConservatoriaUpdateForm = ({
       const response = (await updateConservatoriaMutation.mutateAsync({
         id: conservatoriaId,
         data: {
-          Nome: values.nome,
+          Nome: values.designacao,
           Telefone: values.telefone,
           Morada: values.morada,
           CodigoPostalId: values.codigoPostalId,
@@ -412,16 +413,16 @@ export const ConservatoriaUpdateForm = ({
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name='nome'
+                      name='designacao'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className='flex items-center gap-2'>
                             <FileText className='h-4 w-4' />
-                            Nome
+                            Designação
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder='Introduza o nome'
+                              placeholder='Introduza a designação'
                               {...field}
                               className='px-4 py-6 shadow-inner drop-shadow-xl'
                             />

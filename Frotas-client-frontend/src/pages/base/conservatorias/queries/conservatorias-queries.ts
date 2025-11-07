@@ -87,7 +87,11 @@ export const useGetConservatoriasSelect = () => {
     queryFn: async () => {
       const response = await ConservatoriasService('conservatorias').getConservatorias()
       const data = response.info.data || []
-      return data.sort((a, b) => a.nome.localeCompare(b.nome))
+      return data.sort((a, b) => {
+        const aLabel = a.designacao ?? a.nome ?? ''
+        const bLabel = b.designacao ?? b.nome ?? ''
+        return aLabel.localeCompare(bLabel)
+      })
     },
     staleTime: 30000,
   })

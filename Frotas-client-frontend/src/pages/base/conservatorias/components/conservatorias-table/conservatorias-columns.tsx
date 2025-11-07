@@ -30,7 +30,7 @@ export const columns: DataTableColumnDef<ConservatoriaDTO>[] = [
   },
   {
     accessorKey: 'nome',
-    header: 'Nome',
+    header: 'Designação',
     sortKey: 'nome',
     enableSorting: true,
     enableHiding: true,
@@ -49,11 +49,21 @@ export const columns: DataTableColumnDef<ConservatoriaDTO>[] = [
     },
   },
   {
-    accessorKey: 'codigoPostal.nome',
+    accessorKey: 'codigoPostal.codigo',
     header: 'Código Postal',
-    sortKey: 'codigoPostal.nome',
+    sortKey: 'codigoPostal.codigo',
     enableSorting: true,
     enableHiding: true,
+    cell: ({ row }) => {
+      const codigoPostal = row.original.codigoPostal
+      if (!codigoPostal) return '-'
+
+      const codigo = codigoPostal.codigo ?? ''
+      const localidade = codigoPostal.localidade ?? ''
+      const combined = [codigo, localidade].filter(Boolean).join(' - ')
+
+      return combined || '-'
+    },
     meta: {
       align: 'left',
     },

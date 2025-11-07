@@ -42,7 +42,7 @@ export function ConservatoriasUpdatePage() {
 
     const { data: conservatoriaData, isLoading } = useGetConservatoria(conservatoriaId)
 
-  // Update window state with setorId if it's not already set
+  // Update window state with conservatoriaId if it's not already set
   useEffect(() => {
     const currentWindow = windows.find(
       (w) => w.path === location.pathname && w.instanceId === instanceId
@@ -51,7 +51,7 @@ export function ConservatoriasUpdatePage() {
     if (
       conservatoriaId &&
       currentWindow &&
-      !currentWindow.searchParams?.setorId
+      !currentWindow.searchParams?.conservatoriaId
     ) {
       useWindowsStore.getState().updateWindowState(currentWindow.id, {
         searchParams: {
@@ -106,7 +106,8 @@ export function ConservatoriasUpdatePage() {
             modalClose={handleClose}
             conservatoriaId={conservatoriaId}
             initialData={{
-              nome: conservatoriaData?.nome || '',
+              designacao:
+                conservatoriaData?.designacao ?? conservatoriaData?.nome ?? '',
               morada: conservatoriaData?.morada || '',
               codigoPostalId: conservatoriaData?.codigoPostalId || '',
               freguesiaId: conservatoriaData?.freguesiaId || '',

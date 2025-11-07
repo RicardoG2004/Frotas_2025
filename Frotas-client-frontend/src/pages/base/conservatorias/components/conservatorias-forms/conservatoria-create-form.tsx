@@ -50,7 +50,7 @@ import {
 } from '@/components/ui/persistent-tabs'
 
 const conservatoriaFormSchema = z.object({
-  nome: z.string().min(1, { message: 'O nome é obrigatório' }),
+  designacao: z.string().min(1, { message: 'A designação é obrigatória' }),
   telefone: z.string().min(1, { message: 'O telefone é obrigatório' }),
   morada: z.string().min(1, { message: 'A morada é obrigatória' }),
   codigoPostalId: z.string().min(1, { message: 'O código postal é obrigatório' }),
@@ -62,7 +62,11 @@ type ConservatoriaFormValues = z.infer<typeof conservatoriaFormSchema>
 
 interface ConservatoriaCreateFormProps {
   modalClose: () => void
-  onSuccess?: (newConservatoria: { id: string; nome: string }) => void
+  onSuccess?: (newConservatoria: {
+    id: string
+    designacao: string
+    nome: string
+  }) => void
   shouldCloseWindow?: boolean
 }
 
@@ -109,7 +113,7 @@ export const ConservatoriaCreateForm = ({
   // Define default values for proper change detection
   const defaultValues = useMemo(
     () => ({
-      nome: '',
+      designacao: '',
       telefone: '',
       morada: '',
       codigoPostalId: '',
@@ -156,7 +160,7 @@ export const ConservatoriaCreateForm = ({
     setActiveTab,
     fieldToTabMap: {
       default: 'identificacao',
-      nome: 'identificacao',
+      designacao: 'identificacao',
       telefone: 'identificacao',
       morada: 'detalhes',
       codigoPostalId: 'detalhes',
@@ -217,7 +221,7 @@ export const ConservatoriaCreateForm = ({
         // Update window title based on nome field
         updateCreateWindowTitle(
           effectiveWindowId,
-          value.nome,
+          value.designacao,
           updateWindowState
         )
       }
@@ -323,7 +327,7 @@ export const ConservatoriaCreateForm = ({
       }))
 
       const response = await createConservatoriaMutation.mutateAsync({
-        Nome: values.nome,
+        Nome: values.designacao,
         Telefone: values.telefone,
         Morada: values.morada,
         CodigoPostalId: values.codigoPostalId,
@@ -344,7 +348,11 @@ export const ConservatoriaCreateForm = ({
         if (effectiveWindowId) {
           setEntityReturnDataWithToastSuppression(
             effectiveWindowId,
-            { id: response.info.data, nome: values.nome },
+            {
+              id: response.info.data,
+              designacao: values.designacao,
+              nome: values.designacao,
+            },
             'conservatoria',
             setWindowReturnData,
             parentWindowIdFromStorage || undefined,
@@ -355,11 +363,13 @@ export const ConservatoriaCreateForm = ({
         if (onSuccess) {
           console.log('Calling onSuccess with:', {
             id: response.info.data,
-            nome: values.nome,
+            designacao: values.designacao,
+            nome: values.designacao,
           })
           onSuccess({
             id: response.info.data,
-            nome: values.nome,
+            designacao: values.designacao,
+            nome: values.designacao,
           })
         }
         // Only close the window if shouldCloseWindow is true
@@ -423,16 +433,16 @@ export const ConservatoriaCreateForm = ({
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name='nome'
+                      name='designacao'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className='flex items-center gap-2'>
                             <FileText className='h-4 w-4' />
-                            Nome
+                            Designação
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder='Introduza o nome'
+                              placeholder='Introduza a designação'
                               {...field}
                               className='px-4 py-6 shadow-inner drop-shadow-xl'
                             />

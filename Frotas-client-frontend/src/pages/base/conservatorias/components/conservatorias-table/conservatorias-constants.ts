@@ -3,7 +3,7 @@ import { DataTableFilterField } from '@/components/shared/data-table-types'
 
 export const filterFields: DataTableFilterField<ConservatoriaDTO>[] = [
   {
-    label: 'Nome',
+    label: 'Designação',
     value: 'nome',
     order: 1,
   },
@@ -14,7 +14,7 @@ export const filterFields: DataTableFilterField<ConservatoriaDTO>[] = [
   },
   {
     label: 'Código Postal',
-    value: 'codigoPostal.nome',
+    value: 'codigoPostal.codigo',
     order: 3,
   },
   {
