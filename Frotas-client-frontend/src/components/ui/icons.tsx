@@ -101,6 +101,7 @@ export const Icons = {
   IconReportMoney: IconReportMoney,
   IconBuilding: IconBuilding,
   IconTag: IconTag,
+  briefcase: IconBuilding,
   shield: Shield,
   car: Car,
   layers: Layers,
