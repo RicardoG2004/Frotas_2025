@@ -1,0 +1,117 @@
+import { useEffect } from 'react'
+import { ArrowLeft } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useFormsStore } from '@/stores/use-forms-store'
+import { useWindowsStore } from '@/stores/use-windows-store'
+import { handleWindowClose } from '@/utils/window-utils'
+import { Button } from '@/components/ui/button'
+import { Breadcrumbs } from '@/components/shared/breadcrumbs'
+import { PageHead } from '@/components/shared/page-head'
+import { useGetTerceiro } from '../../queries/terceiros-queries'
+import { TerceiroUpdateForm } from '../terceiros-forms/terceiros-update-form'
+
+export function TerceirosUpdatePage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { removeFormState } = useFormsStore()
+  const { windows, removeWindow } = useWindowsStore()
+  const searchParams = new URLSearchParams(location.search)
+  const terceiroId = searchParams.get('terceiroId')
+  const instanceId = searchParams.get('instanceId') || 'default'
+  const formId = instanceId
+
+  const handleClose = () => {
+    removeFormState(formId)
+
+    const currentWindow = windows.find(
+      (w) => w.path === location.pathname && w.instanceId === instanceId
+    )
+
+    if (currentWindow) {
+      handleWindowClose(currentWindow.id, navigate, removeWindow)
+    }
+  }
+
+  if (!terceiroId) {
+    navigate('/utilitarios/tabelas/configuracoes/terceiros')
+    return null
+  }
+
+  const { data: terceiroData, isLoading } = useGetTerceiro(terceiroId)
+
+  useEffect(() => {
+    const currentWindow = windows.find(
+      (w) => w.path === location.pathname && w.instanceId === instanceId
+    )
+
+    if (
+      terceiroId &&
+      currentWindow &&
+      !currentWindow.searchParams?.terceiroId
+    ) {
+      useWindowsStore.getState().updateWindowState(currentWindow.id, {
+        searchParams: {
+          ...currentWindow.searchParams,
+          terceiroId,
+        },
+      })
+    }
+  }, [terceiroId, instanceId, windows, location.pathname])
+
+  if (isLoading) {
+    return <div>A carregar...</div>
+  }
+
+  return (
+    <div className='flex h-full flex-col gap-8 px-4 md:px-8 md:pb-8 md:pt-28 pt-14 md:mx-0 md:my-4 md:mr-4 md:rounded-xl pb-24'>
+      <PageHead title='Atualizar Outros Devedores/Credores | Frotas' />
+
+      <div className='flex items-center gap-4'>
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={handleClose}
+          className='h-8 w-8'
+        >
+          <ArrowLeft className='h-4 w-4' />
+        </Button>
+        <Breadcrumbs
+          items={[
+            {
+              title: 'Configurações',
+              link: '/utilitarios/tabelas/configuracoes',
+            },
+            {
+              title: 'Outros Devedores/Credores',
+              link: '/utilitarios/tabelas/configuracoes/terceiros',
+            },
+            {
+              title: 'Atualizar',
+              link: `/utilitarios/tabelas/configuracoes/terceiros/update?terceiroId=${terceiroId}&instanceId=${instanceId}`,
+            },
+          ]}
+        />
+      </div>
+
+      <div className='rounded-lg border bg-card'>
+        <div className='border-b px-6 py-4'>
+          <h2 className='text-base font-medium'>Atualizar Outros Devedores/Credores</h2>
+        </div>
+        <div className='p-6'>
+          <TerceiroUpdateForm
+            modalClose={handleClose}
+            terceiroId={terceiroId}
+            initialData={{
+              nome: terceiroData?.nome || '',
+              nif: terceiroData?.nif || '',
+              morada: terceiroData?.morada || '',
+              codigoPostalId: terceiroData?.codigoPostalId || '',
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+

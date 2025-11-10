@@ -12,14 +12,25 @@ interface HeaderNavContextType {
   setActiveMenuItem: (item: MenuItem | null) => void
 }
 
-export const HeaderNavContext = createContext<HeaderNavContextType | undefined>(
-  undefined
-)
+const defaultHeaderNavContext: HeaderNavContextType = {
+  currentMenu: 'dashboard',
+  setCurrentMenu: () => undefined,
+  activeMenuItem: null,
+  setActiveMenuItem: () => undefined,
+}
+
+export const HeaderNavContext =
+  createContext<HeaderNavContextType | undefined>(undefined)
 
 export function useHeaderNav() {
   const context = useContext(HeaderNavContext)
   if (!context) {
-    throw new Error('useHeaderNav must be used within a HeaderNavProvider')
+    if (import.meta.env.DEV) {
+      console.warn(
+        'useHeaderNav accessed outside of HeaderNavProvider. Returning default context.'
+      )
+    }
+    return defaultHeaderNavContext
   }
   return context
 }

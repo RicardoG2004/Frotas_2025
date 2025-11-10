@@ -14,6 +14,7 @@ using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
+using Frotas.API.Application.Services.Base.TerceiroService.DTOs;
 using Frotas.API.Application.Services.Base.CorService.DTOs;
 using Frotas.API.Application.Services.Base.GarantiaService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
@@ -157,7 +158,12 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<CreateDelegacaoRequest, Delegacao>();
       _ = CreateMap<UpdateDelegacaoRequest, Delegacao>();
 
-      // Cors mappings
+      // Terceiros mappings
+      _ = CreateMap<Terceiro, TerceiroDTO>();
+      _ = CreateMap<CreateTerceiroRequest, Terceiro>();
+      _ = CreateMap<UpdateTerceiroRequest, Terceiro>();
+
+      // Cores mappings
       _ = CreateMap<Cor, CorDTO>();
       _ = CreateMap<CreateCorRequest, Cor>();
       _ = CreateMap<UpdateCorRequest, Cor>();

@@ -296,6 +296,20 @@ export const roleHeaderMenus = {
                 funcionalidadeId: '',
               },
               {
+                label: 'Outros Devedores/Credores',
+                href: '/utilitarios/tabelas/configuracoes/terceiros',
+                icon: 'tablerMap',
+                colors: {
+                  colorful: 'bg-green-700',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-green-500',
+                  vibrant: 'bg-green-800',
+                  neon: 'bg-lime-400',
+                },
+                funcionalidadeId:
+                  modules.utilitarios.permissions.terceiros.id,
+              },
+              {
                 label: 'Cores',
                 href: '/utilitarios/tabelas/configuracoes/cores',
                 icon: 'tablerMap',

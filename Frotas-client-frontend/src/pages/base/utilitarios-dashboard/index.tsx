@@ -112,6 +112,14 @@ export function UtilitariosDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Outros Devedores/Credores',
+      description: 'Gestão de outros devedores/credores',
+      icon: Icons.tablerMap,
+      path: '/utilitarios/tabelas/configuracoes/terceiros',
+      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/terceiros'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Conservatórias',
       description: 'Gestão de conservatórias',
       icon: Icons.tablerMap,

@@ -33,6 +33,7 @@ import { TaxasIvaPage } from '@/pages/base/taxasIva/taxasIva-page'
 import { TaxasIvaCreatePage } from '@/pages/base/taxasIva/components/taxasIva-create-page/taxasIva-create-page'
 import { TaxasIvaUpdatePage } from '@/pages/base/taxasIva/components/taxasIva-update-page/taxasIva-update-page'
 import { SetoresPage, SetoresCreatePage, SetoresUpdatePage } from '@/pages/base/setores'
+import { TerceirosPage, TerceirosCreatePage, TerceirosUpdatePage } from '@/pages/base/terceiros'
 import { ConservatoriasPage } from '@/pages/base/conservatorias/conservatorias-page'
 import { ConservatoriasCreatePage } from '@/pages/base/conservatorias/components/conservatorias-create-page/conservatorias-create-page'
 import { ConservatoriasUpdatePage } from '@/pages/base/conservatorias/components/conservatorias-update-page/conservatorias-update-page'
@@ -749,5 +750,47 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Setor',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/terceiros',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthVer}
+      >
+        <TerceirosPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Outros Devedores/Credores',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/terceiros/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType={actionTypes.AuthAdd}
+      >
+        <TerceirosCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Outros Devedores/Credores',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/terceiros/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={''}
+        actionType='AuthChg'
+      >
+        <TerceirosUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Outros Devedores/Credores',
   },
 ]

@@ -183,6 +183,11 @@ export const getPageTitleFromPath = (path: string): string => {
     '/utilitarios/tabelas/configuracoes/setores': 'Setores',
     '/utilitarios/tabelas/configuracoes/setores/create': 'Criar Setor',
     '/utilitarios/tabelas/configuracoes/setores/update': 'Editar Setor',
+    '/utilitarios/tabelas/configuracoes/terceiros': 'Outros Devedores/Credores',
+    '/utilitarios/tabelas/configuracoes/terceiros/create':
+      'Criar Outros Devedores/Credores',
+    '/utilitarios/tabelas/configuracoes/terceiros/update':
+      'Editar Outros Devedores/Credores',
     '/utilitarios/tabelas/configuracoes/cores': 'Cores',
     '/utilitarios/tabelas/configuracoes/cores/create': 'Criar Cor',
     '/utilitarios/tabelas/configuracoes/cores/update': 'Editar Cor',
