@@ -27,7 +27,7 @@ using Frotas.API.Application.Services.Frotas.ServicoService.DTOs;
 using Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs;
 using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.SeguradoraService.DTOs;
-
+using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
 
@@ -236,6 +236,16 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<TipoViatura, TipoViaturaDTO>();
       _ = CreateMap<CreateTipoViaturaRequest, TipoViatura>();
       _ = CreateMap<UpdateTipoViaturaRequest, TipoViatura>();
+
+      // Seguradoras mappings
+      _ = CreateMap<Seguradora, SeguradoraDTO>();
+      _ = CreateMap<CreateSeguradoraRequest, Seguradora>();
+      _ = CreateMap<UpdateSeguradoraRequest, Seguradora>();
+
+      // Seguros mappings
+      _ = CreateMap<Seguro, SeguroDTO>();
+      _ = CreateMap<CreateSeguroRequest, Seguro>();
+      _ = CreateMap<UpdateSeguroRequest, Seguro>();
 
       // add new entity mappings here...
     }
