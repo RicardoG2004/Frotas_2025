@@ -447,6 +447,22 @@ export const roleHeaderMenus = {
             funcionalidadeId: '', // Removed permission check temporarily
           },
           {
+            label: 'Seguradoras',
+            href: '/frotas/configuracoes/seguradoras',
+            description: 'Faça a gestão de seguradoras',
+            icon: 'shield',
+            colors: {
+              colorful: 'bg-sky-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-sky-300',
+              vibrant: 'bg-sky-600',
+              neon: 'bg-sky-400',
+              'neon-cyberpunk':
+                'bg-sky-500 shadow-[0_0_40px_rgba(56,189,248,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
+          {
             label: 'Equipamentos',
             href: '/frotas/configuracoes/equipamentos',
             description: 'Faça a gestão de equipamentos',

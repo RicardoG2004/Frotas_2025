@@ -68,6 +68,14 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Seguradoras',
+      description: 'Gestão de seguradoras',
+      icon: Icons.shield,
+      path: '/frotas/configuracoes/seguradoras',
+      color: useIconThemeColor('/frotas/configuracoes/seguradoras'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Equipamentos',
       description: 'Gestão de equipamentos',
       icon: Icons.wrench,

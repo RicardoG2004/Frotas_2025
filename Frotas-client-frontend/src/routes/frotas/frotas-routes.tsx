@@ -19,6 +19,9 @@ import { CategoriasUpdatePage } from '@/pages/frotas/categorias/components/categ
 import { FornecedoresPage } from '@/pages/frotas/fornecedores/fornecedores-page'
 import { FornecedoresCreatePage } from '@/pages/frotas/fornecedores/components/fornecedores-create-page/fornecedores-create-page'
 import { FornecedoresUpdatePage } from '@/pages/frotas/fornecedores/components/fornecedores-update-page/fornecedores-update-page'
+import { SeguradorasPage } from '@/pages/frotas/seguradoras/seguradoras-page'
+import { SeguradorasCreatePage } from '@/pages/frotas/seguradoras/components/seguradoras-create-page/seguradoras-create-page'
+import { SeguradorasUpdatePage } from '@/pages/frotas/seguradoras/components/seguradoras-update-page/seguradoras-update-page'
 import { EquipamentosPage } from '@/pages/frotas/equipamentos/equipamentos-page'
 import EquipamentosCreatePage from '@/pages/frotas/equipamentos/components/equipamentos-create-page/equipamentos-create-page'
 import EquipamentosUpdatePage from '@/pages/frotas/equipamentos/components/equipamentos-update-page/equipamentos-update-page'
@@ -290,6 +293,36 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Fornecedor',
+  },
+  {
+    path: 'frotas/configuracoes/seguradoras',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <SeguradorasPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Seguradoras',
+  },
+  {
+    path: 'frotas/configuracoes/seguradoras/create',
+    element: (
+      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthAdd}>
+        <SeguradorasCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Seguradora',
+  },
+  {
+    path: 'frotas/configuracoes/seguradoras/update',
+    element: (
+      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthChg}>
+        <SeguradorasUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Seguradora',
   },
   {
     path: 'frotas/configuracoes/equipamentos',
