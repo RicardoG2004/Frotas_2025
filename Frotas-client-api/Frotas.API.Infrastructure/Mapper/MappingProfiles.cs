@@ -26,6 +26,7 @@ using Frotas.API.Application.Services.Frotas.PecaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ServicoService.DTOs;
 using Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs;
 using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
+using Frotas.API.Application.Services.Frotas.SeguradoraService.DTOs;
 
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
