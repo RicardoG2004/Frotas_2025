@@ -52,6 +52,14 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Tipos de Viatura',
+      description: 'Gestão de tipos de viatura',
+      icon: Icons.car,
+      path: '/frotas/configuracoes/tipo-viaturas',
+      color: useIconThemeColor('/frotas/configuracoes/tipo-viaturas'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Fornecedores',
       description: 'Gestão de fornecedores',
       icon: Icons.IconBuilding,

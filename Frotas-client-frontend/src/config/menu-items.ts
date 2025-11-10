@@ -401,6 +401,22 @@ export const roleHeaderMenus = {
             funcionalidadeId: '', // Removed permission check temporarily
           },
           {
+            label: 'Tipos de Viatura',
+            href: '/frotas/configuracoes/tipo-viaturas',
+            description: 'Faça a gestão de tipos de viatura',
+            icon: 'car',
+            colors: {
+              colorful: 'bg-cyan-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-cyan-300',
+              vibrant: 'bg-cyan-600',
+              neon: 'bg-cyan-400',
+              'neon-cyberpunk':
+                'bg-cyan-500 shadow-[0_0_40px_rgba(34,211,238,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
+          {
             label: 'Fornecedores',
             href: '/frotas/configuracoes/fornecedores',
             description: 'Faça a gestão de fornecedores',
