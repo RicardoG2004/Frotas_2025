@@ -76,6 +76,14 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Seguros',
+      description: 'Gestão de seguros',
+      icon: Icons.fileText,
+      path: '/frotas/configuracoes/seguros',
+      color: useIconThemeColor('/frotas/configuracoes/seguros'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Equipamentos',
       description: 'Gestão de equipamentos',
       icon: Icons.wrench,

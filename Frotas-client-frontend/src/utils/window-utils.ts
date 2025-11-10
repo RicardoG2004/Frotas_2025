@@ -569,6 +569,10 @@ export const openMarcaCreationWindow = createEntityCreationWindow(
   '/frotas/configuracoes/marcas/create'
 )
 
+export const openSeguradoraCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/seguradoras/create'
+)
+
 // ============================================================================
 // WINDOW VIEW FUNCTIONS
 // ============================================================================
@@ -682,6 +686,11 @@ export const openRuaViewWindow = createEntityViewWindow(
 export const openMarcaViewWindow = createEntityViewWindow(
   '/frotas/configuracoes/marcas/update',
   'marcaId'
+)
+
+export const openSeguradoraViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/seguradoras/update',
+  'seguradoraId'
 )
 
 // ============================================================================

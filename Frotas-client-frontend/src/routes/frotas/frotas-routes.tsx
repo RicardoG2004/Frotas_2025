@@ -22,6 +22,9 @@ import { FornecedoresUpdatePage } from '@/pages/frotas/fornecedores/components/f
 import { SeguradorasPage } from '@/pages/frotas/seguradoras/seguradoras-page'
 import { SeguradorasCreatePage } from '@/pages/frotas/seguradoras/components/seguradoras-create-page/seguradoras-create-page'
 import { SeguradorasUpdatePage } from '@/pages/frotas/seguradoras/components/seguradoras-update-page/seguradoras-update-page'
+import { SegurosPage } from '@/pages/frotas/seguros/seguros-page'
+import { SegurosCreatePage } from '@/pages/frotas/seguros/components/seguros-create-page/seguros-create-page'
+import { SegurosUpdatePage } from '@/pages/frotas/seguros/components/seguros-update-page/seguros-update-page'
 import { EquipamentosPage } from '@/pages/frotas/equipamentos/equipamentos-page'
 import EquipamentosCreatePage from '@/pages/frotas/equipamentos/components/equipamentos-create-page/equipamentos-create-page'
 import EquipamentosUpdatePage from '@/pages/frotas/equipamentos/components/equipamentos-update-page/equipamentos-update-page'
@@ -323,6 +326,36 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Seguradora',
+  },
+  {
+    path: 'frotas/configuracoes/seguros',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <SegurosPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Seguros',
+  },
+  {
+    path: 'frotas/configuracoes/seguros/create',
+    element: (
+      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthAdd}>
+        <SegurosCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Seguro',
+  },
+  {
+    path: 'frotas/configuracoes/seguros/update',
+    element: (
+      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthChg}>
+        <SegurosUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Seguro',
   },
   {
     path: 'frotas/configuracoes/equipamentos',

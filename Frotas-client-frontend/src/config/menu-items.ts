@@ -463,6 +463,22 @@ export const roleHeaderMenus = {
             funcionalidadeId: '',
           },
           {
+            label: 'Seguros',
+            href: '/frotas/configuracoes/seguros',
+            description: 'Faça a gestão de seguros',
+            icon: 'fileText',
+            colors: {
+              colorful: 'bg-teal-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-teal-300',
+              vibrant: 'bg-teal-600',
+              neon: 'bg-teal-400',
+              'neon-cyberpunk':
+                'bg-teal-500 shadow-[0_0_40px_rgba(45,212,191,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
+          {
             label: 'Equipamentos',
             href: '/frotas/configuracoes/equipamentos',
             description: 'Faça a gestão de equipamentos',
