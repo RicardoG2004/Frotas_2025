@@ -191,32 +191,6 @@ export const roleHeaderMenus = {
             icon: '',
             dropdown: [
               {
-                label: 'Épocas',
-                href: '/utilitarios/tabelas/configuracoes/epocas',
-                icon: 'tablerMap',
-                colors: {
-                  colorful: 'bg-green-400',
-                  'theme-color': 'bg-primary',
-                  pastel: 'bg-green-200',
-                  vibrant: 'bg-green-500',
-                  neon: 'bg-cyan-300',
-                },
-                funcionalidadeId: modules.utilitarios.permissions.epocas.id,
-              },
-              {
-                label: 'Rubricas',
-                href: '/utilitarios/tabelas/configuracoes/rubricas',
-                icon: 'tablerMap',
-                colors: {
-                  colorful: 'bg-green-500',
-                  'theme-color': 'bg-primary',
-                  pastel: 'bg-green-300',
-                  vibrant: 'bg-green-600',
-                  neon: 'bg-cyan-400',
-                },
-                funcionalidadeId: modules.utilitarios.permissions.rubricas.id,
-              },
-              {
                 label: 'Conservatorias',
                 href: '/utilitarios/tabelas/configuracoes/conservatorias',
                 icon: 'tablerMap',

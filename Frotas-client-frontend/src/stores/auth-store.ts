@@ -19,13 +19,7 @@ interface AuthState {
   modules: string[]
   isLoaded: boolean
   isAuthenticated: boolean
-  predefinedEpocaAno: string
   predefinedCemiterioId: string
-  selectedEpoca: {
-    id: string
-    ano: string
-    descricao: string
-  } | null
   selectedCemiterio: {
     id: string
     nome: string
@@ -39,9 +33,6 @@ interface AuthActions {
   decodeToken: () => void
   clearAuth: () => void
   setExpiryTime: (expiryTime: string) => void
-  setSelectedEpoca: (
-    epoca: { id: string; ano: string; descricao: string } | null
-  ) => void
   setSelectedCemiterio: (cemiterio: { id: string; nome: string } | null) => void
 }
 
@@ -59,9 +50,7 @@ const initialState: AuthState = {
   modules: [],
   isLoaded: false,
   isAuthenticated: false,
-  predefinedEpocaAno: '',
   predefinedCemiterioId: '',
-  selectedEpoca: null,
   selectedCemiterio: null,
 }
 
@@ -125,9 +114,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         }
       },
 
-      setSelectedEpoca: (
-        epoca: { id: string; ano: string; descricao: string } | null
-      ) => set({ selectedEpoca: epoca }),
       setSelectedCemiterio: (cemiterio: { id: string; nome: string } | null) =>
         set({ selectedCemiterio: cemiterio }),
     }),

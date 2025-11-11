@@ -1,14 +1,4 @@
 export type SessionVars = {
-  'epoca-selected': {
-    id: string
-    ano: string
-    descricao: string
-  } | null
-  'epoca-predefined': {
-    id: string
-    ano: string
-    descricao: string
-  } | null
   'data-trabalho': Date | null
   'cemiterio-selected': {
     id: string

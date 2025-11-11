@@ -7,11 +7,6 @@ interface GreetingCardProps {
     id: string
     nome: string
   } | null
-  selectedEpoca?: {
-    id: string
-    ano: string | number
-    descricao: string
-  } | null
   showStatus?: boolean
   className?: string
 }
@@ -19,7 +14,6 @@ interface GreetingCardProps {
 export function GreetingCard({
   userName,
   selectedCemiterio,
-  selectedEpoca,
   showStatus = true,
   className = '',
 }: GreetingCardProps) {
@@ -114,53 +108,33 @@ export function GreetingCard({
             </div>
           </div>
 
-          {(selectedCemiterio || selectedEpoca) && (
+          {selectedCemiterio && (
             <div className='flex flex-col sm:flex-row xl:flex-col gap-3'>
-              {selectedCemiterio && (
-                <div className='relative overflow-hidden bg-gradient-to-br from-card/80 via-card/70 to-card/60 rounded-xl p-3 border border-border/50 shadow-md shadow-primary/5 min-w-0'>
-                  <div className='relative flex items-start gap-3'>
-                    <div className='w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-md flex items-center justify-center shadow-sm border border-primary/20 flex-shrink-0'>
-                      <Icons.IconGrave className='h-4 w-4 text-primary' />
+              <div className='relative overflow-hidden bg-gradient-to-br from-card/80 via-card/70 to-card/60 rounded-xl p-3 border border-border/50 shadow-md shadow-primary/5 min-w-0'>
+                <div className='relative flex items-start gap-3'>
+                  <div className='w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-md flex items-center justify-center shadow-sm border border-primary/20 flex-shrink-0'>
+                    <Icons.IconGrave className='h-4 w-4 text-primary' />
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <div className='text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-0.5'>
+                      Cemitério
                     </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-0.5'>
-                        Cemitério
-                      </div>
-                      <div
-                        className='font-bold text-foreground text-sm leading-tight break-words hyphens-auto'
-                        title={selectedCemiterio.nome || 'Nenhum selecionado'}
-                      >
-                        {(() => {
-                          const nome =
-                            selectedCemiterio.nome || 'Nenhum selecionado'
-                          const maxLength = 30 // Character limit
-                          return nome.length > maxLength
-                            ? nome.substring(0, maxLength) + '...'
-                            : nome
-                        })()}
-                      </div>
+                    <div
+                      className='font-bold text-foreground text-sm leading-tight break-words hyphens-auto'
+                      title={selectedCemiterio.nome || 'Nenhum selecionado'}
+                    >
+                      {(() => {
+                        const nome =
+                          selectedCemiterio.nome || 'Nenhum selecionado'
+                        const maxLength = 30 // Character limit
+                        return nome.length > maxLength
+                          ? nome.substring(0, maxLength) + '...'
+                          : nome
+                      })()}
                     </div>
                   </div>
                 </div>
-              )}
-
-              {selectedEpoca && (
-                <div className='relative overflow-hidden bg-gradient-to-br from-card/80 via-card/70 to-card/60 rounded-xl p-3 border border-border/50 shadow-md shadow-primary/5 min-w-0'>
-                  <div className='relative flex items-start gap-3'>
-                    <div className='w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-md flex items-center justify-center shadow-sm border border-primary/20 flex-shrink-0'>
-                      <Icons.dashboard className='h-4 w-4 text-primary' />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-0.5'>
-                        Época
-                      </div>
-                      <div className='font-bold text-foreground text-sm leading-tight break-words hyphens-auto'>
-                        {selectedEpoca.ano || 'N/A'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>

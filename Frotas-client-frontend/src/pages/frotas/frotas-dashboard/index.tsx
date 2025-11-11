@@ -7,7 +7,7 @@ import { PageHead } from '@/components/shared/page-head.jsx'
 import { RecentPagesGrid } from '@/components/shared/recent-pages-grid'
 
 export function FrotasDashboardPage() {
-  const { name, selectedCemiterio, selectedEpoca } = useAuthStore()
+  const { name, selectedCemiterio } = useAuthStore()
   const navigate = useNavigate()
 
   const quickActions = [
@@ -102,7 +102,6 @@ export function FrotasDashboardPage() {
           <GreetingCard
             userName={name}
             selectedCemiterio={selectedCemiterio}
-            selectedEpoca={selectedEpoca}
             showStatus={true}
           />
         </div>

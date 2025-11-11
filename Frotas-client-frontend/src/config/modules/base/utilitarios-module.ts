@@ -32,14 +32,6 @@ export const utilitarios: Module = {
       id: '00000003-0002-0000-0014-000000000001',
       name: 'Localizações',
     },
-    epocas: {
-      id: '00000003-0002-0000-0007-000000000001',
-      name: 'Épocas',
-    },
-    rubricas: {
-      id: '00000003-0002-0000-0008-000000000001',
-      name: 'Rubricas',
-    },
     taxasIva: {
       id: '00000003-0002-0000-0010-000000000001',
       name: 'Taxas de IVA',

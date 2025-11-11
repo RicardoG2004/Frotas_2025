@@ -2,12 +2,10 @@ using AutoMapper;
 using Frotas.API.Application.Services.Base.CodigoPostalService.DTOs;
 using Frotas.API.Application.Services.Base.ConcelhoService.DTOs;
 using Frotas.API.Application.Services.Base.DistritoService.DTOs;
-using Frotas.API.Application.Services.Base.EpocaService.DTOs;
 using Frotas.API.Application.Services.Base.FreguesiaService.DTOs;
 using Frotas.API.Application.Services.Base.PaisService.DTOs;
 using Frotas.API.Application.Services.Base.RuaService.DTOs;
 using Frotas.API.Application.Services.Base.LocalizacaoService.DTOs;
-using Frotas.API.Application.Services.Base.RubricaService.DTOs;
 using Frotas.API.Application.Services.Base.TaxaIvaService.DTOs;
 using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
@@ -81,46 +79,6 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<CreateLocalizacaoRequest, Localizacao>();
       _ = CreateMap<UpdateLocalizacaoRequest, Localizacao>();
 
-      // epoca mappings
-      _ = CreateMap<Epoca, EpocaDTO>()
-        .ForMember(
-          dest => dest.EpocaAnterior,
-          opt =>
-            opt.MapFrom(src =>
-              src.EpocaAnterior != null
-                ? new EpocaDTO
-                {
-                  Id = src.EpocaAnterior.Id,
-                  Ano = src.EpocaAnterior.Ano,
-                  Descricao = src.EpocaAnterior.Descricao,
-                  Predefinida = src.EpocaAnterior.Predefinida,
-                  Bloqueada = src.EpocaAnterior.Bloqueada,
-                  EpocaAnteriorId = src.EpocaAnterior.EpocaAnteriorId,
-                  CreatedOn = src.EpocaAnterior.CreatedOn,
-                }
-                : null
-            )
-        );
-      _ = CreateMap<CreateEpocaRequest, Epoca>()
-        .ForMember(dest => dest.Ano, opt => opt.MapFrom(src => src.Ano))
-        .ForMember(dest => dest.Descricao, opt => opt.MapFrom(src => src.Descricao))
-        .ForMember(dest => dest.Predefinida, opt => opt.MapFrom(src => src.Predefinida))
-        .ForMember(dest => dest.Bloqueada, opt => opt.MapFrom(src => src.Bloqueada))
-        .ForMember(
-          dest => dest.EpocaAnteriorId,
-          opt =>
-            opt.MapFrom(src =>
-              string.IsNullOrEmpty(src.EpocaAnteriorId)
-                ? (Guid?)null
-                : Guid.Parse(src.EpocaAnteriorId)
-            )
-        );
-      _ = CreateMap<UpdateEpocaRequest, Epoca>();
-
-      // rubrica mappings
-      _ = CreateMap<Rubrica, RubricaDTO>();
-      _ = CreateMap<CreateRubricaRequest, Rubrica>();
-      _ = CreateMap<UpdateRubricaRequest, Rubrica>();
 
       // TaxasIva mappings
       _ = CreateMap<TaxaIva, TaxaIvaDTO>();

@@ -9,7 +9,7 @@ import { PageHead } from '@/components/shared/page-head.jsx'
 import { RecentPagesGrid } from '@/components/shared/recent-pages-grid'
 
 export function DashboardPage() {
-  const { name, selectedCemiterio, selectedEpoca } = useAuthStore()
+  const { name, selectedCemiterio } = useAuthStore()
   const { hasModuleAccess } = usePermissionsStore()
   const navigate = useNavigate()
 
@@ -91,7 +91,6 @@ export function DashboardPage() {
           <GreetingCard
             userName={name}
             selectedCemiterio={selectedCemiterio}
-            selectedEpoca={selectedEpoca}
             showStatus={true}
           />
         </div>

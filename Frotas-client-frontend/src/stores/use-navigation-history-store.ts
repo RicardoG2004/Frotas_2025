@@ -168,12 +168,6 @@ export const getPageTitleFromPath = (path: string): string => {
       'Editar Código Postal',
 
     // Utilitários - Tabelas de Configurações
-    '/utilitarios/tabelas/configuracoes/epocas': 'Épocas',
-    '/utilitarios/tabelas/configuracoes/epocas/create': 'Criar Época',
-    '/utilitarios/tabelas/configuracoes/epocas/update': 'Editar Época',
-    '/utilitarios/tabelas/configuracoes/rubricas': 'Rubricas',
-    '/utilitarios/tabelas/configuracoes/rubricas/create': 'Criar Rubrica',
-    '/utilitarios/tabelas/configuracoes/rubricas/update': 'Editar Rubrica',
     '/utilitarios/tabelas/configuracoes/conservatorias': 'Conservatorias',
     '/utilitarios/tabelas/configuracoes/conservatorias/create': 'Criar Conservatória',
     '/utilitarios/tabelas/configuracoes/conservatorias/update': 'Editar Conservatória',

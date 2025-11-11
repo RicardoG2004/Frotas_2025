@@ -7,7 +7,7 @@ import { RecentPagesGrid } from '@/components/shared/recent-pages-grid'
 import { getWindowMetadata } from '@/utils/window-utils'
 
 export function UtilitariosDashboardPage() {
-  const { name, selectedCemiterio, selectedEpoca } = useAuthStore()
+  const { name, selectedCemiterio } = useAuthStore()
   const navigate = useNavigate()
 
   const quickActionPaths = [
@@ -18,8 +18,6 @@ export function UtilitariosDashboardPage() {
     '/utilitarios/tabelas/geograficas/codigospostais',
     '/utilitarios/tabelas/geograficas/ruas',
     '/utilitarios/tabelas/geograficas/localizacoes',
-    '/utilitarios/tabelas/configuracoes/epocas',
-    '/utilitarios/tabelas/configuracoes/rubricas',
     '/utilitarios/tabelas/configuracoes/taxas-iva',
     '/utilitarios/tabelas/configuracoes/setores',
     '/utilitarios/tabelas/configuracoes/terceiros',
@@ -70,7 +68,6 @@ export function UtilitariosDashboardPage() {
           <GreetingCard
             userName={name}
             selectedCemiterio={selectedCemiterio}
-            selectedEpoca={selectedEpoca}
             showStatus={true}
           />
         </div>

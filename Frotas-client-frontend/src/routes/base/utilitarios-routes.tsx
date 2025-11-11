@@ -9,9 +9,6 @@ import { ConcelhosPage } from '@/pages/base/concelhos/concelhos-page'
 import { DistritosCreatePage } from '@/pages/base/distritos/components/distritos-create-page/distritos-create-page'
 import { DistritosUpdatePage } from '@/pages/base/distritos/components/distritos-update-page/distritos-update-page'
 import { DistritosPage } from '@/pages/base/distritos/distritos-page'
-import { EpocasCreatePage } from '@/pages/base/epocas/components/epocas-create-page/epocas-create-page'
-import { EpocasUpdatePage } from '@/pages/base/epocas/components/epocas-update-page/epocas-update-page'
-import { EpocasPage } from '@/pages/base/epocas/epocas-page'
 import { FreguesiasCreatePage } from '@/pages/base/freguesias/components/freguesias-create-page/freguesias-create-page'
 import { FreguesiasUpdatePage } from '@/pages/base/freguesias/components/freguesias-update-page/freguesias-update-page'
 import { FreguesiasPage } from '@/pages/base/freguesias/freguesias-page'
@@ -21,9 +18,6 @@ import { PaisesPage } from '@/pages/base/paises/paises-page'
 import { RuasCreatePage } from '@/pages/base/ruas/components/ruas-create-page/ruas-create-page'
 import { RuasUpdatePage } from '@/pages/base/ruas/components/ruas-update-page/ruas-update-page'
 import { RuasPage } from '@/pages/base/ruas/ruas-page'
-import { RubricasCreatePage } from '@/pages/base/rubricas/components/rubricas-create-page/rubricas-create-page'
-import { RubricasUpdatePage } from '@/pages/base/rubricas/components/rubricas-update-page/rubricas-update-page'
-import { RubricasPage } from '@/pages/base/rubricas/rubricas-page'
 import { UtilitariosDashboardPage } from '@/pages/base/utilitarios-dashboard'
 import { LicenseGuard } from '@/components/auth/license-guard'
 import { TaxasIvaPage } from '@/pages/base/taxasIva/taxasIva-page'
@@ -376,90 +370,6 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.codigospostais.name}`,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/epocas',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.epocas.id}
-        actionType={actionTypes.AuthVer}
-      >
-        <EpocasPage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: utilitarios.permissions.epocas.name,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/epocas/create',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.epocas.id}
-        actionType={actionTypes.AuthAdd}
-      >
-        <EpocasCreatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: `Criar ${utilitarios.permissions.epocas.name}`,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/epocas/update',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.epocas.id}
-        actionType='AuthChg'
-      >
-        <EpocasUpdatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: `Atualizar ${utilitarios.permissions.epocas.name}`,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/rubricas',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.rubricas.id}
-        actionType={actionTypes.AuthVer}
-      >
-        <RubricasPage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: utilitarios.permissions.rubricas.name,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/rubricas/create',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.rubricas.id}
-        actionType={actionTypes.AuthAdd}
-      >
-        <RubricasCreatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: `Criar ${utilitarios.permissions.rubricas.name}`,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/rubricas/update',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.rubricas.id}
-        actionType='AuthChg'
-      >
-        <RubricasUpdatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: `Atualizar ${utilitarios.permissions.rubricas.name}`,
   },
   {
     path: 'utilitarios/tabelas/configuracoes/conservatorias',

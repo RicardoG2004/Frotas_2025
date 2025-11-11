@@ -5,15 +5,10 @@ import { usePermissionsStore } from '@/stores/permissions-store'
 import { initializeAppData } from '@/lib/config/app-initialization'
 import { authService } from '@/lib/services/auth/auth.service'
 import { toast } from '@/utils/toast-utils'
-import { useEpocaPredefined } from '@/hooks/use-epoca-predefined'
-import { useEpocaSelection } from '@/hooks/use-epoca-selection'
 
 export function useLogin() {
   const navigate = useNavigate()
   const { setToken, setRefreshToken, setExpiryTime } = useAuthStore()
-  const { updatePredefinedEpoca } = useEpocaPredefined()
-  const { getSelectedEpoca } = useEpocaSelection()
-
   return useMutation({
     mutationFn: authService.login,
     onSuccess: async (response) => {
@@ -45,10 +40,7 @@ export function useLogin() {
         }
 
         // Initialize app data using the new centralized configuration
-        await initializeAppData.initialize(
-          getSelectedEpoca,
-          updatePredefinedEpoca
-        )
+        await initializeAppData.initialize()
 
         navigate('/')
       }
