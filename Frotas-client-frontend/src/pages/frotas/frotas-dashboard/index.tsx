@@ -60,6 +60,14 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Cores',
+      description: 'Gestão de cores',
+      icon: Icons.droplet,
+      path: '/frotas/configuracoes/cores',
+      color: useIconThemeColor('/frotas/configuracoes/cores'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Seguradoras',
       description: 'Gestão de seguradoras',
       icon: Icons.shield,

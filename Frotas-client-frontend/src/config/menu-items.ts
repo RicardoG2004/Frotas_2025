@@ -324,19 +324,6 @@ export const roleHeaderMenus = {
                 funcionalidadeId:
                   modules.utilitarios.permissions.terceiros.id,
               },
-              {
-                label: 'Cores',
-                href: '/utilitarios/tabelas/configuracoes/cores',
-                icon: 'tablerMap',
-                colors: {
-                  colorful: 'bg-green-700',
-                  'theme-color': 'bg-primary',
-                  pastel: 'bg-green-500',
-                  vibrant: 'bg-green-800',
-                  neon: 'bg-yellow-400',
-                },
-                funcionalidadeId: '',
-              },
             ],
           },
         ],
@@ -442,6 +429,22 @@ export const roleHeaderMenus = {
               neon: 'bg-sky-400',
               'neon-cyberpunk':
                 'bg-sky-500 shadow-[0_0_40px_rgba(56,189,248,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
+          {
+            label: 'Cores',
+            href: '/frotas/configuracoes/cores',
+            description: 'Faça a gestão de cores',
+            icon: 'droplet',
+            colors: {
+              colorful: 'bg-emerald-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-emerald-200',
+              vibrant: 'bg-emerald-600',
+              neon: 'bg-emerald-400',
+              'neon-cyberpunk':
+                'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.9)]',
             },
             funcionalidadeId: '',
           },

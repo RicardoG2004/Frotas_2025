@@ -52,6 +52,10 @@ export const frotas: Module = {
       id: '00000003-0002-0000-0015-000000000002',
       name: 'Marcas',
     },
+    cores: {
+      id: '',
+      name: 'Cores',
+    },
     defuntosTipos: {
       id: '00000003-0002-0000-0013-000000000002',
       name: 'Tipos de Defunto',

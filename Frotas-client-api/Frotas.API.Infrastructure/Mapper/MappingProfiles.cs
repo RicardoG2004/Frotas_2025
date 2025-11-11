@@ -15,7 +15,7 @@ using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
 using Frotas.API.Application.Services.Base.TerceiroService.DTOs;
-using Frotas.API.Application.Services.Base.CorService.DTOs;
+using Frotas.API.Application.Services.Frotas.CorService.DTOs;
 using Frotas.API.Application.Services.Base.GarantiaService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;

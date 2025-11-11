@@ -151,14 +151,6 @@ export function UtilitariosDashboardPage() {
       color: useIconThemeColor('/utilitarios/tabelas/configuracoes/fornecedores'),
       openInNewWindow: true,
     },
-    {
-      title: 'Cores',
-      description: 'Gestão de cores',
-      icon: Icons.droplet,
-      path: '/utilitarios/tabelas/configuracoes/cores',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/cores'),
-      openInNewWindow: true,
-    },
   ]
 
   return (

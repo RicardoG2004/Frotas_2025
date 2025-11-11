@@ -194,9 +194,9 @@ export const getPageTitleFromPath = (path: string): string => {
       'Criar Outros Devedores/Credores',
     '/utilitarios/tabelas/configuracoes/terceiros/update':
       'Editar Outros Devedores/Credores',
-    '/utilitarios/tabelas/configuracoes/cores': 'Cores',
-    '/utilitarios/tabelas/configuracoes/cores/create': 'Criar Cor',
-    '/utilitarios/tabelas/configuracoes/cores/update': 'Editar Cor',
+    '/frotas/configuracoes/cores': 'Cores',
+    '/frotas/configuracoes/cores/create': 'Criar Cor',
+    '/frotas/configuracoes/cores/update': 'Editar Cor',
   }
 
   // Check for exact match first

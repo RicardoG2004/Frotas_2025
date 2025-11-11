@@ -16,6 +16,7 @@ import { ModelosUpdatePage } from '@/pages/frotas/modelos/components/modelos-upd
 import { CategoriasPage } from '@/pages/frotas/categorias/categorias-page'
 import { CategoriasCreatePage } from '@/pages/frotas/categorias/components/categorias-create-page/categorias-create-page'
 import { CategoriasUpdatePage } from '@/pages/frotas/categorias/components/categorias-update-page/categorias-update-page'
+import { CoresPage, CoresCreatePage, CoresUpdatePage } from '@/pages/frotas/cores'
 import { SeguradorasPage } from '@/pages/frotas/seguradoras/seguradoras-page'
 import { SeguradorasCreatePage } from '@/pages/frotas/seguradoras/components/seguradoras-create-page/seguradoras-create-page'
 import { SeguradorasUpdatePage } from '@/pages/frotas/seguradoras/components/seguradoras-update-page/seguradoras-update-page'
@@ -179,6 +180,16 @@ export const frotasRoutes = [
     windowName: 'Tipos de Viatura',
   },
   {
+    path: 'frotas/configuracoes/cores',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CoresPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Cores',
+  },
+  {
     path: 'frotas/configuracoes/tipo-viaturas/create',
     element: (
       <LicenseGuard
@@ -192,6 +203,16 @@ export const frotasRoutes = [
     windowName: 'Criar Tipo de Viatura',
   },
   {
+    path: 'frotas/configuracoes/cores/create',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CoresCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Cor',
+  },
+  {
     path: 'frotas/configuracoes/tipo-viaturas/update',
     element: (
       <LicenseGuard
@@ -203,6 +224,16 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Tipo de Viatura',
+  },
+  {
+    path: 'frotas/configuracoes/cores/update',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <CoresUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Cor',
   },
   {
     path: 'frotas/configuracoes/modelos',
