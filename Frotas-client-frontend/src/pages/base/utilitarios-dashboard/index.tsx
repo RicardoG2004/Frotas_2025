@@ -88,14 +88,6 @@ export function UtilitariosDashboardPage() {
       openInNewWindow: true,
     },
     {
-      title: 'Entidades',
-      description: 'Gestão de entidades',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/entidades',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/entidades'),
-      openInNewWindow: true,
-    },
-    {
       title: 'Taxas de IVA',
       description: 'Gestão de taxas de IVA',
       icon: Icons.tablerMap,

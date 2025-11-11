@@ -217,109 +217,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Distrito", "Base");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Entidade", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("CartaoIdentificacaoDataEmissao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CartaoIdentificacaoDataValidade")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CartaoIdentificacaoNumero")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CartaoIdentificacaoTipoId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EstadoCivilId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Historico")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NIF")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("NIFEstrangeiro")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RuaAndar")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("RuaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("RuaNumeroPorta")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Sexo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RuaId");
-
-                    b.ToTable("Entidade", "Base");
-                });
-
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.EntidadeContacto", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EntidadeContactoTipoId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("EntidadeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Principal")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Valor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EntidadeId");
-
-                    b.ToTable("EntidadeContacto", "Base");
-                });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Epoca", b =>
                 {
@@ -1263,27 +1160,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Pais");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Entidade", b =>
-                {
-                    b.HasOne("Frotas.API.Domain.Entities.Base.Rua", "Rua")
-                        .WithMany("Entidades")
-                        .HasForeignKey("RuaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Rua");
-                });
-
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.EntidadeContacto", b =>
-                {
-                    b.HasOne("Frotas.API.Domain.Entities.Base.Entidade", "Entidade")
-                        .WithMany("Contactos")
-                        .HasForeignKey("EntidadeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Entidade");
-                });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Epoca", b =>
                 {
@@ -1458,11 +1334,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Concelhos");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Entidade", b =>
-                {
-                    b.Navigation("Contactos");
-                });
-
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Freguesia", b =>
                 {
                     b.Navigation("Ruas");
@@ -1473,10 +1344,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.Navigation("Distritos");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Rua", b =>
-                {
-                    b.Navigation("Entidades");
-                });
 #pragma warning restore 612, 618
         }
     }

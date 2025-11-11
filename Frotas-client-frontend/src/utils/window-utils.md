@@ -4,7 +4,7 @@ This document explains how to implement automatic selection of newly created ite
 
 ## Overview
 
-The window communication mechanism allows a parent window to automatically select a newly created item from a child window. This is useful for forms where users need to create related entities (like creating an "entidade" from a "proprietario" form).
+The window communication mechanism allows a parent window to automatically select a newly created item from a child window. This is useful for forms where users need to create related entities (like creating a "rua" from a "localização" form).
 
 ## How it Works
 
@@ -17,7 +17,7 @@ The window communication mechanism allows a parent window to automatically selec
 ### 1. In the Parent Window (e.g., Any Form)
 
 ```typescript
-import { openEntidadeCreationWindow } from '@/utils/window-utils'
+import { openRuaCreationWindow } from '@/utils/window-utils'
 // Or use the generic function for custom routes
 import { openCreationWindow } from '@/utils/window-utils'
 import { useAutoSelection } from '@/hooks/use-auto-selection'
@@ -28,18 +28,18 @@ import { useAutoSelection } from '@/hooks/use-auto-selection'
 useAutoSelection({
   windowId,
   instanceId,
-  data: yourEntityData, // e.g., entidadesData, sepulturasData, etc.
+  data: yourEntityData, // e.g., ruasData, sepulturasData, etc.
   setValue: (value: string) => form.setValue('yourFieldId', value),
   refetch: refetchYourData,
-  itemName: 'Your Entity Name', // e.g., 'Entidade', 'Sepultura', etc.
-  successMessage: 'Your entity selected automatically',
+  itemName: 'Your Entity Name', // e.g., 'Rua', 'Sepultura', etc.
+  successMessage: 'Your record was selected automatically',
   manualSelectionMessage:
-    'Your entity created successfully. Please select it manually.',
+    'Your record was created successfully. Please select it manually.',
 })
 
 // Function to open any creation window (simplified)
 const handleCreateEntity = () => {
-  openEntidadeCreationWindow(
+  openRuaCreationWindow(
     // Pre-defined function
     navigate,
     windowId,
@@ -67,7 +67,7 @@ For common entities, you can use these pre-defined functions:
 
 ```typescript
 import {
-  openEntidadeCreationWindow,
+  openPaisCreationWindow,
   openSepulturaCreationWindow,
   openDistritoCreationWindow,
   openConcelhoCreationWindow,
@@ -76,7 +76,7 @@ import {
 } from '@/utils/window-utils'
 
 // Usage is always the same
-openEntidadeCreationWindow(
+openRuaCreationWindow(
   navigate,
   windowId,
   addWindow,
@@ -95,21 +95,21 @@ openSepulturaCreationWindow(
 
 ## Examples for Different Entity Types
 
-### Example 1: Creating Entidades from Proprietario Form
+### Example 1: Creating Ruas from Localização Form
 
 ```typescript
-// In proprietario form
+// In localizacao form
 useAutoSelection({
   windowId,
   instanceId,
-  data: entidadesData,
-  setValue: (value: string) => form.setValue('entidadeId', value),
-  refetch: refetchEntidades,
-  itemName: 'Entidade',
+  data: ruasData,
+  setValue: (value: string) => form.setValue('ruaId', value),
+  refetch: refetchRuas,
+  itemName: 'Rua',
 })
 
-const handleCreateEntidade = () => {
-  openEntidadeCreationWindow(
+const handleCreateRua = () => {
+  openRuaCreationWindow(
     // Pre-defined function
     navigate,
     windowId,
@@ -145,10 +145,10 @@ const handleCreateSepultura = () => {
 }
 ```
 
-### Example 3: Creating Distritos from Entidade Form
+### Example 3: Creating Distritos from Localização Form
 
 ```typescript
-// In entidade form
+// In localizacao form
 useAutoSelection({
   windowId,
   instanceId,
@@ -208,7 +208,7 @@ export function openCustomCreationWindow(
 
 ## Benefits
 
-- **Generic**: Works with any entity type, not just entidades
+- **Generic**: Works with any entity type, not just a single category
 - **Automatic Selection**: No manual selection required
 - **Multiple Fallbacks**: Reliable communication even if primary mechanism fails
 - **Reusable**: Easy to implement in other forms

@@ -217,19 +217,6 @@ export const roleHeaderMenus = {
                 funcionalidadeId: modules.utilitarios.permissions.rubricas.id,
               },
               {
-                label: 'Entidades',
-                href: '/utilitarios/tabelas/configuracoes/entidades',
-                icon: 'tablerMap',
-                colors: {
-                  colorful: 'bg-green-600',
-                  'theme-color': 'bg-primary',
-                  pastel: 'bg-green-400',
-                  vibrant: 'bg-green-700',
-                  neon: 'bg-pink-400',
-                },
-                funcionalidadeId: modules.utilitarios.permissions.entidades.id,
-              },
-              {
                 label: 'Conservatorias',
                 href: '/utilitarios/tabelas/configuracoes/conservatorias',
                 icon: 'tablerMap',

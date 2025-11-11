@@ -36,8 +36,6 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Freguesia> Freguesias { get; set; }
     public DbSet<Rua> Ruas { get; set; }
     public DbSet<Localizacao> Localizacoes { get; set; }
-    public DbSet<Entidade> Entidades { get; set; }
-    public DbSet<EntidadeContacto> EntidadeContactos { get; set; }
     public DbSet<Epoca> Epocas { get; set; }
     public DbSet<Rubrica> Rubricas { get; set; }
     public DbSet<TaxaIva> TaxasIva { get; set; }

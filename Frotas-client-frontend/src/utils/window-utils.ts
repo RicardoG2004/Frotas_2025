@@ -534,10 +534,6 @@ export function createEntityCreationWindow(route: string) {
 
 // Pre-defined creation window functions for common entities
 
-// Utilitários - Entidades
-export const openEntidadeCreationWindow = createEntityCreationWindow(
-  '/utilitarios/tabelas/configuracoes/entidades/create'
-)
 
 // Utilitários - Geografia
 export const openPaisCreationWindow = createEntityCreationWindow(
@@ -645,11 +641,6 @@ export function createEntityViewWindow(
 
 // Pre-defined view window functions for common entities
 
-// Utilitários - Entidades
-export const openEntidadeViewWindow = createEntityViewWindow(
-  '/utilitarios/tabelas/configuracoes/entidades/update',
-  'entidadeId'
-)
 
 // Utilitários - Geografia
 export const openPaisViewWindow = createEntityViewWindow(

@@ -2,8 +2,6 @@ using AutoMapper;
 using Frotas.API.Application.Services.Base.CodigoPostalService.DTOs;
 using Frotas.API.Application.Services.Base.ConcelhoService.DTOs;
 using Frotas.API.Application.Services.Base.DistritoService.DTOs;
-using Frotas.API.Application.Services.Base.EntidadeContactoService.DTOs;
-using Frotas.API.Application.Services.Base.EntidadeService.DTOs;
 using Frotas.API.Application.Services.Base.EpocaService.DTOs;
 using Frotas.API.Application.Services.Base.FreguesiaService.DTOs;
 using Frotas.API.Application.Services.Base.PaisService.DTOs;
@@ -81,22 +79,6 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Localizacao, LocalizacaoDTO>();
       _ = CreateMap<CreateLocalizacaoRequest, Localizacao>();
       _ = CreateMap<UpdateLocalizacaoRequest, Localizacao>();
-
-      // entidade mappings
-      _ = CreateMap<Entidade, EntidadeDTO>()
-        .ForMember(dest => dest.Contactos, opt => opt.MapFrom(src => src.Contactos)); // Explicitly map Contactos (safe - no circular ref in DTO)
-      _ = CreateMap<CreateEntidadeRequest, Entidade>()
-        .ForMember(dest => dest.Contactos, opt => opt.Ignore());
-      _ = CreateMap<UpdateEntidadeRequest, Entidade>()
-        .ForMember(dest => dest.Contactos, opt => opt.Ignore());
-
-
-      // entidade contacto mappings
-      _ = CreateMap<EntidadeContacto, EntidadeContactoDTO>(); // Note: Does not map back to Entidade (safe)
-      _ = CreateMap<CreateEntidadeContactoRequest, EntidadeContacto>()
-        .ForMember(dest => dest.Entidade, opt => opt.Ignore());
-      _ = CreateMap<UpdateEntidadeContactoRequest, EntidadeContacto>()
-        .ForMember(dest => dest.Entidade, opt => opt.Ignore());
 
       // epoca mappings
       _ = CreateMap<Epoca, EpocaDTO>()

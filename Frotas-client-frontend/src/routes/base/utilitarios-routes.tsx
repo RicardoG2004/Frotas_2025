@@ -9,9 +9,6 @@ import { ConcelhosPage } from '@/pages/base/concelhos/concelhos-page'
 import { DistritosCreatePage } from '@/pages/base/distritos/components/distritos-create-page/distritos-create-page'
 import { DistritosUpdatePage } from '@/pages/base/distritos/components/distritos-update-page/distritos-update-page'
 import { DistritosPage } from '@/pages/base/distritos/distritos-page'
-import { EntidadesCreatePage } from '@/pages/base/entidades/components/entidades-create-page/entidades-create-page'
-import { EntidadesUpdatePage } from '@/pages/base/entidades/components/entidades-update-page/entidades-update-page'
-import { EntidadesPage } from '@/pages/base/entidades/entidades-page'
 import { EpocasCreatePage } from '@/pages/base/epocas/components/epocas-create-page/epocas-create-page'
 import { EpocasUpdatePage } from '@/pages/base/epocas/components/epocas-update-page/epocas-update-page'
 import { EpocasPage } from '@/pages/base/epocas/epocas-page'
@@ -458,48 +455,6 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.rubricas.name}`,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/entidades',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.entidades.id}
-        actionType={actionTypes.AuthVer}
-      >
-        <EntidadesPage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: utilitarios.permissions.entidades.name,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/entidades/create',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.entidades.id}
-        actionType={actionTypes.AuthAdd}
-      >
-        <EntidadesCreatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: `Criar ${utilitarios.permissions.entidades.name}`,
-  },
-  {
-    path: 'utilitarios/tabelas/configuracoes/entidades/update',
-    element: (
-      <LicenseGuard
-        requiredModule={utilitarios.id}
-        requiredPermission={utilitarios.permissions.entidades.id}
-        actionType='AuthChg'
-      >
-        <EntidadesUpdatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: `Atualizar ${utilitarios.permissions.entidades.name}`,
   },
   {
     path: 'utilitarios/tabelas/configuracoes/conservatorias',

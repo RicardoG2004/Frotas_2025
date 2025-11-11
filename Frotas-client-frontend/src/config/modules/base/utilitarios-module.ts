@@ -40,10 +40,6 @@ export const utilitarios: Module = {
       id: '00000003-0002-0000-0008-000000000001',
       name: 'Rubricas',
     },
-    entidades: {
-      id: '00000003-0002-0000-0009-000000000001',
-      name: 'Entidades',
-    },
     taxasIva: {
       id: '00000003-0002-0000-0010-000000000001',
       name: 'Taxas de IVA',
