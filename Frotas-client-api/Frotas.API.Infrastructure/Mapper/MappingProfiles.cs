@@ -13,6 +13,7 @@ using Frotas.API.Application.Services.Base.SetorService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
 using Frotas.API.Application.Services.Base.TerceiroService.DTOs;
+using Frotas.API.Application.Services.Base.EntidadeService.DTOs;
 using Frotas.API.Application.Services.Frotas.CorService.DTOs;
 using Frotas.API.Application.Services.Base.GarantiaService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
@@ -145,6 +146,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Terceiro, TerceiroDTO>();
       _ = CreateMap<CreateTerceiroRequest, Terceiro>();
       _ = CreateMap<UpdateTerceiroRequest, Terceiro>();
+      
+      // Entidades mappings
+      _ = CreateMap<Entidade, EntidadeDTO>();
+      _ = CreateMap<CreateEntidadeRequest, Entidade>();
+      _ = CreateMap<UpdateEntidadeRequest, Entidade>();
 
       // Cores mappings
       _ = CreateMap<Cor, CorDTO>();

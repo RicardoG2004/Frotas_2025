@@ -256,6 +256,19 @@ export const roleHeaderMenus = {
                 funcionalidadeId: '',
               },
               {
+                label: 'Entidades',
+                href: '/utilitarios/tabelas/configuracoes/entidades',
+                icon: 'IconBuilding',
+                colors: {
+                  colorful: 'bg-indigo-500',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-indigo-200',
+                  vibrant: 'bg-indigo-700',
+                  neon: 'bg-indigo-400',
+                },
+                funcionalidadeId: modules.utilitarios.permissions.entidades.id,
+              },
+              {
                 label: 'Fornecedores',
                 href: '/utilitarios/tabelas/configuracoes/fornecedores',
                 icon: 'briefcase',

@@ -1,149 +1,65 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth-store'
-import { useIconThemeColor } from '@/hooks/use-icon-theme'
 import { Icons } from '@/components/ui/icons'
 import { GreetingCard } from '@/components/shared/greeting-card'
 import { PageHead } from '@/components/shared/page-head.jsx'
 import { RecentPagesGrid } from '@/components/shared/recent-pages-grid'
+import { getWindowMetadata } from '@/utils/window-utils'
 
 export function UtilitariosDashboardPage() {
   const { name, selectedCemiterio, selectedEpoca } = useAuthStore()
   const navigate = useNavigate()
 
-  const quickActions = [
-    {
-      title: 'Países',
-      description: 'Gestão de países',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/geograficas/paises',
-      color: useIconThemeColor('/utilitarios/tabelas/geograficas/paises'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Distritos',
-      description: 'Gestão de distritos',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/geograficas/distritos',
-      color: useIconThemeColor('/utilitarios/tabelas/geograficas/distritos'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Concelhos',
-      description: 'Gestão de concelhos',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/geograficas/concelhos',
-      color: useIconThemeColor('/utilitarios/tabelas/geograficas/concelhos'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Freguesias',
-      description: 'Gestão de freguesias',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/geograficas/freguesias',
-      color: useIconThemeColor('/utilitarios/tabelas/geograficas/freguesias'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Códigos Postais',
-      description: 'Gestão de códigos postais',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/geograficas/codigospostais',
-      color: useIconThemeColor(
-        '/utilitarios/tabelas/geograficas/codigospostais'
-      ),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Ruas',
-      description: 'Gestão de ruas',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/geograficas/ruas',
-      color: useIconThemeColor('/utilitarios/tabelas/geograficas/ruas'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Localizações',
-      description: 'Gestão de localizações',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/geograficas/localizacoes',
-      color: useIconThemeColor(
-        '/utilitarios/tabelas/geograficas/localizacoes'
-      ),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Épocas',
-      description: 'Gestão de épocas',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/epocas',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/epocas'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Rubricas',
-      description: 'Gestão de rubricas',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/rubricas',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/rubricas'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Taxas de IVA',
-      description: 'Gestão de taxas de IVA',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/taxas-iva',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/taxas-iva'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Setores',
-      description: 'Gestão de setores',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/setores',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/setores'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Outros Devedores/Credores',
-      description: 'Gestão de outros devedores/credores',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/terceiros',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/terceiros'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Conservatórias',
-      description: 'Gestão de conservatórias',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/conservatorias',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/conservatorias'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Delegações',
-      description: 'Gestão de delegações',
-      icon: Icons.tablerMap,
-      path: '/utilitarios/tabelas/configuracoes/delegacoes',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/delegacoes'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Garantias',
-      description: 'Gestão de garantias',
-      icon: Icons.shield,
-      path: '/utilitarios/tabelas/configuracoes/garantias',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/garantias'),
-      openInNewWindow: true,
-    },
-    {
-      title: 'Fornecedores',
-      description: 'Gestão de fornecedores',
-      icon: Icons.briefcase,
-      path: '/utilitarios/tabelas/configuracoes/fornecedores',
-      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/fornecedores'),
-      openInNewWindow: true,
-    },
+  const quickActionPaths = [
+    '/utilitarios/tabelas/geograficas/paises',
+    '/utilitarios/tabelas/geograficas/distritos',
+    '/utilitarios/tabelas/geograficas/concelhos',
+    '/utilitarios/tabelas/geograficas/freguesias',
+    '/utilitarios/tabelas/geograficas/codigospostais',
+    '/utilitarios/tabelas/geograficas/ruas',
+    '/utilitarios/tabelas/geograficas/localizacoes',
+    '/utilitarios/tabelas/configuracoes/epocas',
+    '/utilitarios/tabelas/configuracoes/rubricas',
+    '/utilitarios/tabelas/configuracoes/taxas-iva',
+    '/utilitarios/tabelas/configuracoes/setores',
+    '/utilitarios/tabelas/configuracoes/terceiros',
+    '/utilitarios/tabelas/configuracoes/conservatorias',
+    '/utilitarios/tabelas/configuracoes/delegacoes',
+    '/utilitarios/tabelas/configuracoes/garantias',
+    '/utilitarios/tabelas/configuracoes/entidades',
+    '/utilitarios/tabelas/configuracoes/fornecedores',
+  ] as const
+
+  const colorPalette = [
+    'from-blue-500/90 via-blue-500/90 to-blue-400/90',
+    'from-sky-500/90 via-sky-500/90 to-sky-400/90',
+    'from-cyan-500/90 via-cyan-500/90 to-cyan-400/90',
+    'from-teal-500/90 via-teal-500/90 to-teal-400/90',
+    'from-emerald-500/90 via-emerald-500/90 to-emerald-400/90',
+    'from-green-500/90 via-green-500/90 to-green-400/90',
+    'from-lime-500/90 via-lime-500/90 to-lime-400/90',
+    'from-yellow-500/90 via-yellow-500/90 to-amber-400/90',
+    'from-orange-500/90 via-orange-500/90 to-orange-400/90',
+    'from-red-500/90 via-red-500/90 to-rose-500/90',
+    'from-rose-500/90 via-pink-500/90 to-pink-400/90',
+    'from-fuchsia-500/90 via-fuchsia-500/90 to-purple-400/90',
+    'from-purple-500/90 via-purple-500/90 to-violet-400/90',
+    'from-violet-500/90 via-violet-500/90 to-indigo-400/90',
+    'from-indigo-500/90 via-indigo-500/90 to-blue-400/90',
   ]
+
+  const quickActions = quickActionPaths.map((path, index) => {
+    const config = getWindowMetadata(path)
+    const gradient = colorPalette[index % colorPalette.length]
+    return {
+      title: config.title,
+    description: `Gestão de ${config.title.toLowerCase()}`,
+      icon: config.icon ? Icons[config.icon] : Icons.fileText,
+      path,
+      openInNewWindow: true,
+      gradient,
+    }
+  })
 
   return (
     <>
@@ -208,7 +124,7 @@ export function UtilitariosDashboardPage() {
                   <div className='flex items-center gap-3'>
                     {/* Modern icon container with glow */}
                     <div
-                      className={`relative p-2.5 ${action.color} shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300`}
+                      className={`relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300 bg-gradient-to-br ${action.gradient}`}
                       style={{ borderRadius: 'var(--radius)' }}
                     >
                       <div

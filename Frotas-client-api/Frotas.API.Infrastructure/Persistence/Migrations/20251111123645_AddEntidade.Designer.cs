@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Frotas.API.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251111114248_RemoveEntidadeTables")]
-    partial class RemoveEntidadeTables
+    [Migration("20251111123645_AddEntidade")]
+    partial class AddEntidade
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -215,6 +215,60 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.HasIndex("PaisId");
 
                     b.ToTable("Distrito", "Base");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Entidade", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CodigoPostalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Designacao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EnderecoHttp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Fax")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Localidade")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Morada")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PaisId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Telefone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodigoPostalId");
+
+                    b.HasIndex("PaisId");
+
+                    b.ToTable("Entidade", "Base");
                 });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Epoca", b =>
@@ -1155,6 +1209,25 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                         .HasForeignKey("PaisId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("Pais");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Entidade", b =>
+                {
+                    b.HasOne("Frotas.API.Domain.Entities.Base.CodigoPostal", "CodigoPostal")
+                        .WithMany()
+                        .HasForeignKey("CodigoPostalId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Frotas.API.Domain.Entities.Base.Pais", "Pais")
+                        .WithMany()
+                        .HasForeignKey("PaisId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CodigoPostal");
 
                     b.Navigation("Pais");
                 });

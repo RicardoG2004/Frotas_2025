@@ -64,6 +64,10 @@ export const utilitarios: Module = {
       id: '',
       name: 'Fornecedores',
     },
+    entidades: {
+      id: '',
+      name: 'Entidades',
+    },
     terceiros: {
       id: '',
       name: 'Outros Devedores/Credores',

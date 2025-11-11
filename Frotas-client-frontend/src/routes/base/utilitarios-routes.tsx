@@ -50,6 +50,11 @@ import {
   FornecedoresCreatePage,
   FornecedoresUpdatePage,
 } from '@/pages/base/fornecedores'
+import {
+  EntidadesPage,
+  EntidadesCreatePage,
+  EntidadesUpdatePage,
+} from '@/pages/base/entidades'
 
 
 export const utilitariosRoutes = [
@@ -581,6 +586,36 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.garantias.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/entidades',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <EntidadesPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Entidades',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/entidades/create',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <EntidadesCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Entidade',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/entidades/update',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <EntidadesUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Entidade',
   },
   {
     path: 'utilitarios/tabelas/configuracoes/fornecedores',
