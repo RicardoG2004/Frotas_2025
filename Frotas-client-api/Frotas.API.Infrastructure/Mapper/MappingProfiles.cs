@@ -25,6 +25,7 @@ using Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs;
 using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.SeguradoraService.DTOs;
 using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
+using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
 
@@ -192,6 +193,39 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Seguro, SeguroDTO>();
       _ = CreateMap<CreateSeguroRequest, Seguro>();
       _ = CreateMap<UpdateSeguroRequest, Seguro>();
+
+      // Viaturas mappings
+      _ = CreateMap<Viatura, ViaturaDTO>();
+      _ = CreateMap<CreateViaturaRequest, Viatura>()
+        .ForMember(dest => dest.Marca, opt => opt.Ignore())
+        .ForMember(dest => dest.Modelo, opt => opt.Ignore())
+        .ForMember(dest => dest.TipoViatura, opt => opt.Ignore())
+        .ForMember(dest => dest.Cor, opt => opt.Ignore())
+        .ForMember(dest => dest.Combustivel, opt => opt.Ignore())
+        .ForMember(dest => dest.Conservatoria, opt => opt.Ignore())
+        .ForMember(dest => dest.Categoria, opt => opt.Ignore())
+        .ForMember(dest => dest.Localizacao, opt => opt.Ignore())
+        .ForMember(dest => dest.Setor, opt => opt.Ignore())
+        .ForMember(dest => dest.Delegacao, opt => opt.Ignore())
+        .ForMember(dest => dest.Terceiro, opt => opt.Ignore())
+        .ForMember(dest => dest.Fornecedor, opt => opt.Ignore())
+        .ForMember(dest => dest.Seguro, opt => opt.Ignore())
+        .ForMember(dest => dest.Equipamento, opt => opt.Ignore());
+      _ = CreateMap<UpdateViaturaRequest, Viatura>()
+        .ForMember(dest => dest.Marca, opt => opt.Ignore())
+        .ForMember(dest => dest.Modelo, opt => opt.Ignore())
+        .ForMember(dest => dest.TipoViatura, opt => opt.Ignore())
+        .ForMember(dest => dest.Cor, opt => opt.Ignore())
+        .ForMember(dest => dest.Combustivel, opt => opt.Ignore())
+        .ForMember(dest => dest.Conservatoria, opt => opt.Ignore())
+        .ForMember(dest => dest.Categoria, opt => opt.Ignore())
+        .ForMember(dest => dest.Localizacao, opt => opt.Ignore())
+        .ForMember(dest => dest.Setor, opt => opt.Ignore())
+        .ForMember(dest => dest.Delegacao, opt => opt.Ignore())
+        .ForMember(dest => dest.Terceiro, opt => opt.Ignore())
+        .ForMember(dest => dest.Fornecedor, opt => opt.Ignore())
+        .ForMember(dest => dest.Seguro, opt => opt.Ignore())
+        .ForMember(dest => dest.Equipamento, opt => opt.Ignore());
 
       // add new entity mappings here...
     }

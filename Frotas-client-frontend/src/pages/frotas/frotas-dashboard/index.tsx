@@ -12,6 +12,14 @@ export function FrotasDashboardPage() {
 
   const quickActions = [
     {
+      title: 'Viaturas',
+      description: 'Gestão de viaturas da frota',
+      icon: Icons.car,
+      path: '/frotas/viaturas',
+      color: useIconThemeColor('/frotas/viaturas'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Peças',
       description: 'Gestão de peças',
       icon: Icons.container,

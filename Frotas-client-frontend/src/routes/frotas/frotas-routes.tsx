@@ -29,6 +29,9 @@ import EquipamentosUpdatePage from '@/pages/frotas/equipamentos/components/equip
 import { TipoViaturasPage } from '@/pages/frotas/tipo-viaturas/tipo-viaturas-page'
 import { TipoViaturasCreatePage } from '@/pages/frotas/tipo-viaturas/components/tipo-viaturas-create-page/tipo-viaturas-create-page'
 import { TipoViaturasUpdatePage } from '@/pages/frotas/tipo-viaturas/components/tipo-viaturas-update-page/tipo-viaturas-update-page'
+import { ViaturasPage } from '@/pages/frotas/viaturas/viaturas-page'
+import { ViaturasCreatePage } from '@/pages/frotas/viaturas/components/viaturas-create-page/viaturas-create-page'
+import { ViaturasUpdatePage } from '@/pages/frotas/viaturas/components/viaturas-update-page/viaturas-update-page'
 
 import { LicenseGuard } from '@/components/auth/license-guard'
 
@@ -42,6 +45,43 @@ export const frotasRoutes = [
     ),
     manageWindow: false,
     windowName: frotas.name,
+  },
+
+  {
+    path: 'frotas/viaturas',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <ViaturasPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Viaturas',
+  },
+  {
+    path: 'frotas/viaturas/create',
+    element: (
+      <LicenseGuard
+        requiredModule={frotas.id}
+        actionType={actionTypes.AuthAdd}
+      >
+        <ViaturasCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Viatura',
+  },
+  {
+    path: 'frotas/viaturas/update',
+    element: (
+      <LicenseGuard
+        requiredModule={frotas.id}
+        actionType={actionTypes.AuthChg}
+      >
+        <ViaturasUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Viatura',
   },
  
   {

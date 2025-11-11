@@ -122,4 +122,16 @@ export const useGetTerceiro = (id: string) => {
   })
 }
 
+export const useGetTerceirosSelect = () => {
+  return useQuery({
+    queryKey: ['terceiros-select'],
+    queryFn: async () => {
+      const response = await TerceirosService('terceiros').getTerceiros()
+      const data = response.info.data || []
+      return data.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''))
+    },
+    staleTime: 30000,
+  })
+}
+
 
