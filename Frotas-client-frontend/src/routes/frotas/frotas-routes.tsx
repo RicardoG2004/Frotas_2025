@@ -16,9 +16,6 @@ import { ModelosUpdatePage } from '@/pages/frotas/modelos/components/modelos-upd
 import { CategoriasPage } from '@/pages/frotas/categorias/categorias-page'
 import { CategoriasCreatePage } from '@/pages/frotas/categorias/components/categorias-create-page/categorias-create-page'
 import { CategoriasUpdatePage } from '@/pages/frotas/categorias/components/categorias-update-page/categorias-update-page'
-import { FornecedoresPage } from '@/pages/frotas/fornecedores/fornecedores-page'
-import { FornecedoresCreatePage } from '@/pages/frotas/fornecedores/components/fornecedores-create-page/fornecedores-create-page'
-import { FornecedoresUpdatePage } from '@/pages/frotas/fornecedores/components/fornecedores-update-page/fornecedores-update-page'
 import { SeguradorasPage } from '@/pages/frotas/seguradoras/seguradoras-page'
 import { SeguradorasCreatePage } from '@/pages/frotas/seguradoras/components/seguradoras-create-page/seguradoras-create-page'
 import { SeguradorasUpdatePage } from '@/pages/frotas/seguradoras/components/seguradoras-update-page/seguradoras-update-page'
@@ -266,36 +263,6 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Categoria',
-  },
-  {
-    path: 'frotas/configuracoes/fornecedores',
-    element: (
-      <LicenseGuard requiredModule={frotas.id}>
-        <FornecedoresPage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: 'Fornecedores',
-  },
-  {
-    path: 'frotas/configuracoes/fornecedores/create',
-    element: (
-      <LicenseGuard requiredModule={frotas.id}>
-        <FornecedoresCreatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: 'Criar Fornecedor',
-  },
-  {
-    path: 'frotas/configuracoes/fornecedores/update',
-    element: (
-      <LicenseGuard requiredModule={frotas.id}>
-        <FornecedoresUpdatePage />
-      </LicenseGuard>
-    ),
-    manageWindow: true,
-    windowName: 'Atualizar Fornecedor',
   },
   {
     path: 'frotas/configuracoes/seguradoras',

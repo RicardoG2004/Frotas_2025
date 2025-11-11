@@ -51,6 +51,11 @@ import {
   GarantiasCreatePage,
   GarantiasUpdatePage,
 } from '@/pages/base/garantias'
+import {
+  FornecedoresPage,
+  FornecedoresCreatePage,
+  FornecedoresUpdatePage,
+} from '@/pages/base/fornecedores'
 
 
 export const utilitariosRoutes = [
@@ -666,6 +671,36 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: `Atualizar ${utilitarios.permissions.garantias.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/fornecedores',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <FornecedoresPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Fornecedores',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/fornecedores/create',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <FornecedoresCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Fornecedor',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/fornecedores/update',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <FornecedoresUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Fornecedor',
   },
   {
     path: 'utilitarios/tabelas/configuracoes/taxas-iva',

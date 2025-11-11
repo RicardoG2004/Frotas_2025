@@ -144,6 +144,14 @@ export function UtilitariosDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Fornecedores',
+      description: 'Gestão de fornecedores',
+      icon: Icons.briefcase,
+      path: '/utilitarios/tabelas/configuracoes/fornecedores',
+      color: useIconThemeColor('/utilitarios/tabelas/configuracoes/fornecedores'),
+      openInNewWindow: true,
+    },
+    {
       title: 'Cores',
       description: 'Gestão de cores',
       icon: Icons.droplet,

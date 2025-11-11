@@ -268,6 +268,21 @@ export const roleHeaderMenus = {
                 },
                 funcionalidadeId: '',
               },
+              {
+                label: 'Fornecedores',
+                href: '/utilitarios/tabelas/configuracoes/fornecedores',
+                icon: 'briefcase',
+                colors: {
+                  colorful: 'bg-emerald-500',
+                  'theme-color': 'bg-emerald-600',
+                  pastel: 'bg-emerald-200',
+                  vibrant: 'bg-emerald-700',
+                  neon: 'bg-emerald-400',
+                  'neon-cyberpunk':
+                    'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.9)]',
+                },
+                funcionalidadeId: modules.utilitarios.permissions.fornecedores.id,
+              },
 
               {
                 label: 'Taxas de IVA',
@@ -429,22 +444,6 @@ export const roleHeaderMenus = {
                 'bg-sky-500 shadow-[0_0_40px_rgba(56,189,248,0.9)]',
             },
             funcionalidadeId: '',
-          },
-          {
-            label: 'Fornecedores',
-            href: '/frotas/configuracoes/fornecedores',
-            description: 'Faça a gestão de fornecedores',
-            icon: 'briefcase',
-            colors: {
-              colorful: 'bg-sky-500',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-sky-300',
-              vibrant: 'bg-sky-600',
-              neon: 'bg-sky-400',
-              'neon-cyberpunk':
-                'bg-sky-500 shadow-[0_0_40px_rgba(56,189,248,0.9)]',
-            },
-            funcionalidadeId: '', // Removed permission check temporarily
           },
           {
             label: 'Seguradoras',

@@ -857,7 +857,7 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Equipamento", "Frotas");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Fornecedor", b =>
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Fornecedor", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1366,7 +1366,7 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.Navigation("CodigoPostal");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Fornecedor", b =>
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Fornecedor", b =>
                 {
                     b.HasOne("Frotas.API.Domain.Entities.Base.CodigoPostal", "CodigoPostalCarga")
                         .WithMany()

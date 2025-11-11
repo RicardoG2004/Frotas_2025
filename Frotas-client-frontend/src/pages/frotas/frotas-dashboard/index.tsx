@@ -60,14 +60,6 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
-      title: 'Fornecedores',
-      description: 'Gestão de fornecedores',
-      icon: Icons.briefcase,
-      path: '/frotas/configuracoes/fornecedores',
-      color: useIconThemeColor('/frotas/configuracoes/fornecedores'),
-      openInNewWindow: true,
-    },
-    {
       title: 'Seguradoras',
       description: 'Gestão de seguradoras',
       icon: Icons.shield,

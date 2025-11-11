@@ -21,7 +21,7 @@ using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
 using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
-using Frotas.API.Application.Services.Frotas.FornecedorService.DTOs;
+using Frotas.API.Application.Services.Base.FornecedorService.DTOs;
 using Frotas.API.Application.Services.Frotas.PecaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ServicoService.DTOs;
 using Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs;

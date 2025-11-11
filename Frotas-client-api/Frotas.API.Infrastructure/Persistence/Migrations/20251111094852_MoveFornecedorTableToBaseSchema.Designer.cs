@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Frotas.API.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251110110427_AddTerceiro")]
-    partial class AddTerceiro
+    [Migration("20251111094852_MoveFornecedorTableToBaseSchema")]
+    partial class MoveFornecedorTableToBaseSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -385,6 +385,88 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.HasIndex("EpocaAnteriorId");
 
                     b.ToTable("Epoca", "Base");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Fornecedor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("CodigoPostalCargaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CodigoPostalEscritorioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Contacto")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Fax")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("MesmoEndereco")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MoradaCarga")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MoradaEscritorio")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NumContribuinte")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Origem")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PaisCargaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PaisEscritorioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Telefone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Telemovel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodigoPostalCargaId");
+
+                    b.HasIndex("CodigoPostalEscritorioId");
+
+                    b.HasIndex("PaisCargaId");
+
+                    b.HasIndex("PaisEscritorioId");
+
+                    b.ToTable("Fornecedor", "Base");
                 });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Freguesia", b =>
@@ -857,88 +939,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Equipamento", "Frotas");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Fornecedor", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("CodigoPostalCargaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CodigoPostalEscritorioId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Contacto")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Fax")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("MesmoEndereco")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MoradaCarga")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MoradaEscritorio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumContribuinte")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Origem")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PaisCargaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PaisEscritorioId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Telefone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Telemovel")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CodigoPostalCargaId");
-
-                    b.HasIndex("CodigoPostalEscritorioId");
-
-                    b.HasIndex("PaisCargaId");
-
-                    b.HasIndex("PaisEscritorioId");
-
-                    b.ToTable("Fornecedor", "Frotas");
-                });
-
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Marca", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1040,6 +1040,87 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.HasIndex("TaxaIvaId");
 
                     b.ToTable("Peca", "Frotas");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Seguradora", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Seguradora", "Frotas");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Seguro", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Apolice")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("AssistenciaViagem")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CartaVerde")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("CustoAnual")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("DataFinal")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DataInicial")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Designacao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RiscosCobertos")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SeguradoraId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("ValorCobertura")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SeguradoraId");
+
+                    b.ToTable("Seguro", "Frotas");
                 });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Servico", b =>
@@ -1214,6 +1295,41 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.Navigation("EpocaAnterior");
                 });
 
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Fornecedor", b =>
+                {
+                    b.HasOne("Frotas.API.Domain.Entities.Base.CodigoPostal", "CodigoPostalCarga")
+                        .WithMany()
+                        .HasForeignKey("CodigoPostalCargaId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Frotas.API.Domain.Entities.Base.CodigoPostal", "CodigoPostalEscritorio")
+                        .WithMany()
+                        .HasForeignKey("CodigoPostalEscritorioId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Frotas.API.Domain.Entities.Base.Pais", "PaisCarga")
+                        .WithMany()
+                        .HasForeignKey("PaisCargaId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Frotas.API.Domain.Entities.Base.Pais", "PaisEscritorio")
+                        .WithMany()
+                        .HasForeignKey("PaisEscritorioId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CodigoPostalCarga");
+
+                    b.Navigation("CodigoPostalEscritorio");
+
+                    b.Navigation("PaisCarga");
+
+                    b.Navigation("PaisEscritorio");
+                });
+
             modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Freguesia", b =>
                 {
                     b.HasOne("Frotas.API.Domain.Entities.Base.Concelho", "Concelho")
@@ -1285,41 +1401,6 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.Navigation("CodigoPostal");
                 });
 
-            modelBuilder.Entity("Frotas.API.Domain.Entities.Base.Fornecedor", b =>
-                {
-                    b.HasOne("Frotas.API.Domain.Entities.Base.CodigoPostal", "CodigoPostalCarga")
-                        .WithMany()
-                        .HasForeignKey("CodigoPostalCargaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Frotas.API.Domain.Entities.Base.CodigoPostal", "CodigoPostalEscritorio")
-                        .WithMany()
-                        .HasForeignKey("CodigoPostalEscritorioId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Frotas.API.Domain.Entities.Base.Pais", "PaisCarga")
-                        .WithMany()
-                        .HasForeignKey("PaisCargaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Frotas.API.Domain.Entities.Base.Pais", "PaisEscritorio")
-                        .WithMany()
-                        .HasForeignKey("PaisEscritorioId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("CodigoPostalCarga");
-
-                    b.Navigation("CodigoPostalEscritorio");
-
-                    b.Navigation("PaisCarga");
-
-                    b.Navigation("PaisEscritorio");
-                });
-
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Modelo", b =>
                 {
                     b.HasOne("Frotas.API.Domain.Entities.Frotas.Marca", "Marca")
@@ -1339,6 +1420,17 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("TaxaIva");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Seguro", b =>
+                {
+                    b.HasOne("Frotas.API.Domain.Entities.Frotas.Seguradora", "Seguradora")
+                        .WithMany()
+                        .HasForeignKey("SeguradoraId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Seguradora");
                 });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Servico", b =>
