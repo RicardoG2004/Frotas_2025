@@ -43,7 +43,7 @@ const DatePickerButton = React.forwardRef<
     type='button'
     variant='outline'
     className={cn(
-      'w-full justify-start px-4 py-6 text-left font-normal shadow-inner',
+      'h-12 w-full justify-start px-4 text-left font-normal shadow-inner',
       !value && 'text-muted-foreground',
       className
     )}

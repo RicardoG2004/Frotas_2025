@@ -62,6 +62,7 @@ import { useGetFornecedoresSelect } from '@/pages/base/fornecedores/queries/forn
 import { useGetSegurosSelect } from '@/pages/frotas/seguros/queries/seguros-queries'
 import { useGetEquipamentosSelect } from '@/pages/frotas/equipamentos/queries/equipamentos-queries'
 import { useWindowsStore } from '@/stores/use-windows-store'
+import { cn } from '@/lib/utils'
 import {
   useCurrentWindowId,
   openMarcaCreationWindow,
@@ -131,10 +132,22 @@ type FormSectionProps = {
   title: string
   description: string
   children: ReactNode
+  className?: string
 }
 
-const FormSection = ({ icon: Icon, title, description, children }: FormSectionProps) => (
-  <div className='rounded-xl border border-border bg-card p-5 shadow-sm'>
+const FormSection = ({
+  icon: Icon,
+  title,
+  description,
+  children,
+  className,
+}: FormSectionProps) => (
+  <div
+    className={cn(
+      'flex h-full flex-col rounded-xl border border-border bg-card p-4 shadow-sm md:p-5',
+      className
+    )}
+  >
     <div className='flex items-start gap-3'>
       <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
         <Icon className='h-4 w-4' />
@@ -144,9 +157,13 @@ const FormSection = ({ icon: Icon, title, description, children }: FormSectionPr
         <p className='text-sm text-muted-foreground'>{description}</p>
       </div>
     </div>
-    <div className='mt-4 space-y-4'>{children}</div>
+    <div className='mt-4 flex-1 space-y-4'>{children}</div>
   </div>
 )
+
+const FIELD_HEIGHT_CLASS = 'h-12'
+const SELECT_WITH_ACTIONS_CLASS = `${FIELD_HEIGHT_CLASS} px-4 pr-32 shadow-inner drop-shadow-xl`
+const TEXT_INPUT_CLASS = `${FIELD_HEIGHT_CLASS} px-4 shadow-inner drop-shadow-xl`
 
 const buildOptions = (
   items: Array<{ id?: string; designacao?: string; descricao?: string; nome?: string }>
@@ -801,7 +818,7 @@ const ViaturaFormContainer = ({
                               <Input
                                 placeholder='Introduza a matrícula'
                                 {...field}
-                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                               />
                             </FormControl>
                             <FormMessage />
@@ -819,7 +836,7 @@ const ViaturaFormContainer = ({
                                 type='number'
                                 placeholder='Número interno da viatura'
                                 {...field}
-                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                               />
                             </FormControl>
                             <FormMessage />
@@ -837,7 +854,7 @@ const ViaturaFormContainer = ({
                                 type='number'
                                 placeholder='Ano'
                                 {...field}
-                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                               />
                             </FormControl>
                             <FormMessage />
@@ -855,7 +872,7 @@ const ViaturaFormContainer = ({
                                 type='number'
                                 placeholder='Mês (1-12)'
                                 {...field}
-                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                               />
                             </FormControl>
                             <FormMessage />
@@ -873,6 +890,7 @@ const ViaturaFormContainer = ({
                                 value={field.value}
                                 onChange={field.onChange}
                                 placeholder='Selecione a data de registo'
+                                className={FIELD_HEIGHT_CLASS}
                               />
                             </FormControl>
                             <FormMessage />
@@ -882,342 +900,342 @@ const ViaturaFormContainer = ({
                     </div>
                   </FormSection>
 
-                  <FormSection
-                    icon={CalendarDays}
-                    title='Registos e documentação'
-                    description='Datas oficiais e enquadramento legal da viatura'
-                  >
-                    <div className='grid gap-4 md:grid-cols-2'>
-                      <FormField
-                        control={form.control}
-                        name='dataAquisicao'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data de Aquisição</FormLabel>
-                            <FormControl>
-                              <DatePicker
-                                value={field.value}
-                                onChange={field.onChange}
-                                placeholder='Selecione a data de aquisição'
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='dataLivrete'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data do Livrete</FormLabel>
-                            <FormControl>
-                              <DatePicker
-                                value={field.value}
-                                onChange={field.onChange}
-                                placeholder='Selecione a data do livrete'
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='conservatoriaId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Conservatória</FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.conservatorias}
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={CalendarDays}
+                      title='Registos e documentação'
+                      description='Datas oficiais e enquadramento legal da viatura'
+                      className='h-full'
+                    >
+                      <div className='grid gap-4 md:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='dataAquisicao'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Data de Aquisição</FormLabel>
+                              <FormControl>
+                                <DatePicker
                                   value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.conservatorias,
-                                    'a conservatória'
-                                  )}
-                                  disabled={selectLoading.conservatorias}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                  onChange={field.onChange}
+                                  placeholder='Selecione a data de aquisição'
+                                  className={FIELD_HEIGHT_CLASS}
                                 />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewConservatoria}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Conservatória'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateConservatoria}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Conservatória'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
-                                </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='categoriaId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Categoria</FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.categorias}
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='dataLivrete'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Data do Livrete</FormLabel>
+                              <FormControl>
+                                <DatePicker
                                   value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.categorias,
-                                    'a categoria'
-                                  )}
-                                  disabled={selectLoading.categorias}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                  onChange={field.onChange}
+                                  placeholder='Selecione a data do livrete'
+                                  className={FIELD_HEIGHT_CLASS}
                                 />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewCategoria}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Categoria'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateCategoria}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Categoria'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='conservatoriaId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Conservatória</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.conservatorias}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(
+                                      selectLoading.conservatorias,
+                                      'a conservatória'
+                                    )}
+                                    disabled={selectLoading.conservatorias}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewConservatoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Conservatória'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateConservatoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Conservatória'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </FormSection>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='categoriaId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Categoria</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.categorias}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(
+                                      selectLoading.categorias,
+                                      'a categoria'
+                                    )}
+                                    disabled={selectLoading.categorias}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewCategoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Categoria'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateCategoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Categoria'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
 
-                  <FormSection
-                    icon={Car}
-                    title='Classificação da viatura'
-                    description='Selecione marca, modelo e caraterísticas principais'
-                  >
-                    <div className='grid gap-4 md:grid-cols-2'>
-                      <FormField
-                        control={form.control}
-                        name='marcaId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Marca</FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.marcas}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.marcas,
-                                    'a marca'
-                                  )}
-                                  disabled={selectLoading.marcas}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewMarca}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Marca'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateMarca}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Marca'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
+                    <FormSection
+                      icon={Car}
+                      title='Classificação da viatura'
+                      description='Selecione marca, modelo e caraterísticas principais'
+                      className='h-full'
+                    >
+                      <div className='grid gap-4 md:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='marcaId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Marca</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.marcas}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(selectLoading.marcas, 'a marca')}
+                                    disabled={selectLoading.marcas}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewMarca}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Marca'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateMarca}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Marca'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='modeloId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Modelo</FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.modelos}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.modelos,
-                                    'o modelo'
-                                  )}
-                                  disabled={selectLoading.modelos}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewModelo}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Modelo'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateModelo}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Modelo'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='modeloId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Modelo</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.modelos}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(selectLoading.modelos, 'o modelo')}
+                                    disabled={selectLoading.modelos}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewModelo}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Modelo'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateModelo}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Modelo'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='tipoViaturaId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tipo de Viatura</FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.tipoViaturas}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.tipoViaturas,
-                                    'o tipo de viatura'
-                                  )}
-                                  disabled={selectLoading.tipoViaturas}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewTipoViatura}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Tipo de Viatura'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateTipoViatura}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Tipo de Viatura'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='tipoViaturaId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tipo de Viatura</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.tipoViaturas}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(
+                                      selectLoading.tipoViaturas,
+                                      'o tipo de viatura'
+                                    )}
+                                    disabled={selectLoading.tipoViaturas}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewTipoViatura}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Tipo de Viatura'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateTipoViatura}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Tipo de Viatura'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='corId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Cor</FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.cores}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder={placeholder(selectLoading.cores, 'a cor')}
-                                  disabled={selectLoading.cores}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewCor}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Cor'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateCor}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Cor'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='corId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Cor</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.cores}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(selectLoading.cores, 'a cor')}
+                                    disabled={selectLoading.cores}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewCor}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Cor'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateCor}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Cor'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </FormSection>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
+                  </div>
 
                   <FormSection
                     icon={MapPin}
@@ -1225,24 +1243,24 @@ const ViaturaFormContainer = ({
                     description='Defina a afetação da viatura dentro da organização'
                   >
                     <div className='grid gap-4 md:grid-cols-3'>
-                      <FormField
-                        control={form.control}
-                        name='localizacaoId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Localização</FormLabel>
-                            <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='localizacaoId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Localização</FormLabel>
+                          <FormControl>
                               <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.localizacoes}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.localizacoes}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.localizacoes,
                                     'a localização'
                                   )}
-                                  disabled={selectLoading.localizacoes}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              disabled={selectLoading.localizacoes}
+                                  className={SELECT_WITH_ACTIONS_CLASS}
                                 />
                                 <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                                   <Button
@@ -1268,29 +1286,29 @@ const ViaturaFormContainer = ({
                                   </Button>
                                 </div>
                               </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='setorId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Setor</FormLabel>
-                            <FormControl>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='setorId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Setor</FormLabel>
+                          <FormControl>
                               <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.setores}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.setores}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.setores,
                                     'o setor'
                                   )}
-                                  disabled={selectLoading.setores}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              disabled={selectLoading.setores}
+                                  className={SELECT_WITH_ACTIONS_CLASS}
                                 />
                                 <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                                   <Button
@@ -1316,29 +1334,29 @@ const ViaturaFormContainer = ({
                                   </Button>
                                 </div>
                               </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='delegacaoId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Delegação</FormLabel>
-                            <FormControl>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='delegacaoId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Delegação</FormLabel>
+                          <FormControl>
                               <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.delegacoes}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.delegacoes}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.delegacoes,
                                     'a delegação'
                                   )}
-                                  disabled={selectLoading.delegacoes}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              disabled={selectLoading.delegacoes}
+                                  className={SELECT_WITH_ACTIONS_CLASS}
                                 />
                                 <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                                   <Button
@@ -1364,12 +1382,12 @@ const ViaturaFormContainer = ({
                                   </Button>
                                 </div>
                               </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   </FormSection>
                 </CardContent>
               </Card>
@@ -1412,7 +1430,7 @@ const ViaturaFormContainer = ({
                               step='0.01'
                               placeholder='Custo da viatura'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1430,7 +1448,7 @@ const ViaturaFormContainer = ({
                               type='number'
                               step='0.01'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1447,16 +1465,16 @@ const ViaturaFormContainer = ({
                           <FormLabel>Entidade fornecedora</FormLabel>
                           <FormControl>
                             <div className='relative'>
-                              <Autocomplete
-                                options={selectOptions.fornecedores}
-                                value={field.value}
-                                onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.fornecedores}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                 placeholder={placeholder(
                                   selectLoading.fornecedores,
                                   'o fornecedor'
                                 )}
-                                disabled={selectLoading.fornecedores}
-                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              disabled={selectLoading.fornecedores}
+                                className={SELECT_WITH_ACTIONS_CLASS}
                               />
                               <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                                 <Button
@@ -1495,16 +1513,16 @@ const ViaturaFormContainer = ({
                           <FormLabel>Combustível</FormLabel>
                           <FormControl>
                             <div className='relative'>
-                              <Autocomplete
-                                options={selectOptions.combustiveis}
-                                value={field.value}
-                                onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.combustiveis}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                 placeholder={placeholder(
                                   selectLoading.combustiveis,
                                   'o combustível'
                                 )}
-                                disabled={selectLoading.combustiveis}
-                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              disabled={selectLoading.combustiveis}
+                                className={SELECT_WITH_ACTIONS_CLASS}
                               />
                               <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                                 <Button
@@ -1547,7 +1565,7 @@ const ViaturaFormContainer = ({
                               step='0.1'
                               placeholder='Consumo médio'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1566,7 +1584,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1583,7 +1601,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1601,7 +1619,7 @@ const ViaturaFormContainer = ({
                               type='number'
                               step='0.1'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1620,7 +1638,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1637,7 +1655,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1654,7 +1672,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1670,7 +1688,7 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Carga Útil (kg)</FormLabel>
                           <FormControl>
-                            <Input type='number' {...field} className='px-4 py-6 shadow-inner drop-shadow-xl' />
+                            <Input type='number' {...field} className={TEXT_INPUT_CLASS} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1683,7 +1701,7 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Comprimento (mm)</FormLabel>
                           <FormControl>
-                            <Input type='number' {...field} className='px-4 py-6 shadow-inner drop-shadow-xl' />
+                            <Input type='number' {...field} className={TEXT_INPUT_CLASS} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1696,7 +1714,7 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Largura (mm)</FormLabel>
                           <FormControl>
-                            <Input type='number' {...field} className='px-4 py-6 shadow-inner drop-shadow-xl' />
+                            <Input type='number' {...field} className={TEXT_INPUT_CLASS} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1714,7 +1732,7 @@ const ViaturaFormContainer = ({
                             <Input
                               placeholder='Referência dos pneus dianteiros'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1731,7 +1749,7 @@ const ViaturaFormContainer = ({
                             <Input
                               placeholder='Referência dos pneus traseiros'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1811,16 +1829,16 @@ const ViaturaFormContainer = ({
                           <FormLabel>Conservatória</FormLabel>
                           <FormControl>
                             <div className='relative'>
-                              <Autocomplete
-                                options={selectOptions.conservatorias}
-                                value={field.value}
-                                onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.conservatorias}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                 placeholder={placeholder(
                                   selectLoading.conservatorias,
                                   'a conservatória'
                                 )}
-                                disabled={selectLoading.conservatorias}
-                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              disabled={selectLoading.conservatorias}
+                                className={SELECT_WITH_ACTIONS_CLASS}
                               />
                               <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                                 <Button
@@ -1859,16 +1877,16 @@ const ViaturaFormContainer = ({
                           <FormLabel>Categoria</FormLabel>
                           <FormControl>
                             <div className='relative'>
-                              <Autocomplete
-                                options={selectOptions.categorias}
-                                value={field.value}
-                                onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.categorias}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                 placeholder={placeholder(
                                   selectLoading.categorias,
                                   'a categoria'
                                 )}
-                                disabled={selectLoading.categorias}
-                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              disabled={selectLoading.categorias}
+                                className={SELECT_WITH_ACTIONS_CLASS}
                               />
                               <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                                 <Button
@@ -1908,13 +1926,13 @@ const ViaturaFormContainer = ({
                         <FormLabel>Terceiro</FormLabel>
                         <FormControl>
                           <div className='relative'>
-                            <Autocomplete
-                              options={selectOptions.terceiros}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
-                              disabled={selectLoading.terceiros}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                          <Autocomplete
+                            options={selectOptions.terceiros}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
+                            disabled={selectLoading.terceiros}
+                              className={SELECT_WITH_ACTIONS_CLASS}
                             />
                             <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                               <Button
@@ -1956,7 +1974,7 @@ const ViaturaFormContainer = ({
                             <Input
                               placeholder='Referência do contrato'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1974,7 +1992,7 @@ const ViaturaFormContainer = ({
                               type='number'
                               step='0.01'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1994,6 +2012,7 @@ const ViaturaFormContainer = ({
                               value={field.value}
                               onChange={field.onChange}
                               placeholder='Selecione a data final'
+                              className={FIELD_HEIGHT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2030,7 +2049,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2048,7 +2067,7 @@ const ViaturaFormContainer = ({
                               type='number'
                               step='0.01'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2067,7 +2086,7 @@ const ViaturaFormContainer = ({
                             type='number'
                             step='0.01'
                             {...field}
-                            className='px-4 py-6 shadow-inner drop-shadow-xl'
+                            className={TEXT_INPUT_CLASS}
                           />
                         </FormControl>
                         <FormMessage />
@@ -2107,13 +2126,13 @@ const ViaturaFormContainer = ({
                         <FormLabel>Seguro</FormLabel>
                         <FormControl>
                           <div className='relative'>
-                            <Autocomplete
-                              options={selectOptions.seguros}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.seguros, 'o seguro')}
-                              disabled={selectLoading.seguros}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                          <Autocomplete
+                            options={selectOptions.seguros}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={placeholder(selectLoading.seguros, 'o seguro')}
+                            disabled={selectLoading.seguros}
+                              className={SELECT_WITH_ACTIONS_CLASS}
                             />
                             <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                               <Button
@@ -2155,7 +2174,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2172,7 +2191,7 @@ const ViaturaFormContainer = ({
                             <Input
                               type='number'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2190,6 +2209,7 @@ const ViaturaFormContainer = ({
                               value={field.value}
                               onChange={field.onChange}
                               placeholder='Selecione a validade do selo'
+                              className={FIELD_HEIGHT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2251,7 +2271,7 @@ const ViaturaFormContainer = ({
                             <Input
                               placeholder='https://exemplo.com/imagem1.jpg'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2268,7 +2288,7 @@ const ViaturaFormContainer = ({
                             <Input
                               placeholder='https://exemplo.com/imagem2.jpg'
                               {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
+                                className={TEXT_INPUT_CLASS}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2318,7 +2338,7 @@ const ViaturaFormContainer = ({
                               'o equipamento'
                             )}
                             disabled={selectLoading.equipamentos}
-                            className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                            className={SELECT_WITH_ACTIONS_CLASS}
                           />
                           <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
                             <Button
