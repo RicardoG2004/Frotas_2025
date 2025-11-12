@@ -569,6 +569,54 @@ export const openSeguradoraCreationWindow = createEntityCreationWindow(
   '/frotas/configuracoes/seguradoras/create'
 )
 
+export const openModeloCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/modelos/create'
+)
+
+export const openTipoViaturaCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/tipo-viaturas/create'
+)
+
+export const openCorCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/cores/create'
+)
+
+export const openCategoriaCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/categorias/create'
+)
+
+export const openLocalizacaoCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/geograficas/localizacoes/create'
+)
+
+export const openSetorCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/setores/create'
+)
+
+export const openDelegacaoCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/delegacoes/create'
+)
+
+export const openConservatoriaCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/conservatorias/create'
+)
+
+export const openTerceiroCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/terceiros/create'
+)
+
+export const openFornecedorCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/fornecedores/create'
+)
+
+export const openSeguroCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/seguros/create'
+)
+
+export const openEquipamentoCreationWindow = createEntityCreationWindow(
+  '/frotas/configuracoes/equipamentos/create'
+)
+
 // ============================================================================
 // WINDOW VIEW FUNCTIONS
 // ============================================================================
@@ -682,6 +730,66 @@ export const openMarcaViewWindow = createEntityViewWindow(
 export const openSeguradoraViewWindow = createEntityViewWindow(
   '/frotas/configuracoes/seguradoras/update',
   'seguradoraId'
+)
+
+export const openModeloViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/modelos/update',
+  'modeloId'
+)
+
+export const openTipoViaturaViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/tipo-viaturas/update',
+  'tipoViaturaId'
+)
+
+export const openCorViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/cores/update',
+  'corId'
+)
+
+export const openCategoriaViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/categorias/update',
+  'categoriaId'
+)
+
+export const openLocalizacaoViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/geograficas/localizacoes/update',
+  'localizacaoId'
+)
+
+export const openSetorViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/setores/update',
+  'setorId'
+)
+
+export const openDelegacaoViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/delegacoes/update',
+  'delegacaoId'
+)
+
+export const openConservatoriaViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/conservatorias/update',
+  'conservatoriaId'
+)
+
+export const openTerceiroViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/terceiros/update',
+  'terceiroId'
+)
+
+export const openFornecedorViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/fornecedores/update',
+  'fornecedorId'
+)
+
+export const openSeguroViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/seguros/update',
+  'seguroId'
+)
+
+export const openEquipamentoViewWindow = createEntityViewWindow(
+  '/frotas/configuracoes/equipamentos/update',
+  'equipamentoId'
 )
 
 // ============================================================================

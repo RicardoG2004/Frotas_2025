@@ -1,4 +1,5 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, type ReactNode } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Badge } from '@/components/ui/badge'
@@ -25,6 +26,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import {
   Building2,
+  CalendarDays,
   Car,
   ClipboardList,
   FileText,
@@ -32,9 +34,14 @@ import {
   Settings,
   ShieldCheck,
   Wrench,
+  Eye,
+  Plus,
+  type LucideIcon,
 } from 'lucide-react'
+import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
 import { useSubmitErrorTab } from '@/hooks/use-submit-error-tab'
+import { useAutoSelectionWithReturnData } from '@/hooks/use-auto-selection-with-return-data'
 import {
   defaultViaturaFormValues,
   viaturaFormSchema,
@@ -54,6 +61,36 @@ import { useGetTerceirosSelect } from '@/pages/base/terceiros/queries/terceiros-
 import { useGetFornecedoresSelect } from '@/pages/base/fornecedores/queries/fornecedores-queries'
 import { useGetSegurosSelect } from '@/pages/frotas/seguros/queries/seguros-queries'
 import { useGetEquipamentosSelect } from '@/pages/frotas/equipamentos/queries/equipamentos-queries'
+import { useWindowsStore } from '@/stores/use-windows-store'
+import {
+  useCurrentWindowId,
+  openMarcaCreationWindow,
+  openMarcaViewWindow,
+  openModeloCreationWindow,
+  openModeloViewWindow,
+  openTipoViaturaCreationWindow,
+  openTipoViaturaViewWindow,
+  openCorCreationWindow,
+  openCorViewWindow,
+  openCategoriaCreationWindow,
+  openCategoriaViewWindow,
+  openLocalizacaoCreationWindow,
+  openLocalizacaoViewWindow,
+  openSetorCreationWindow,
+  openSetorViewWindow,
+  openDelegacaoCreationWindow,
+  openDelegacaoViewWindow,
+  openConservatoriaCreationWindow,
+  openConservatoriaViewWindow,
+  openTerceiroCreationWindow,
+  openTerceiroViewWindow,
+  openFornecedorCreationWindow,
+  openFornecedorViewWindow,
+  openSeguroCreationWindow,
+  openSeguroViewWindow,
+  openEquipamentoCreationWindow,
+  openEquipamentoViewWindow,
+} from '@/utils/window-utils'
 
 type ViaturaSelectOptions = {
   marcas: AutocompleteOption[]
@@ -88,6 +125,28 @@ type ViaturaSelectLoading = {
   seguros: boolean
   equipamentos: boolean
 }
+
+type FormSectionProps = {
+  icon: LucideIcon
+  title: string
+  description: string
+  children: ReactNode
+}
+
+const FormSection = ({ icon: Icon, title, description, children }: FormSectionProps) => (
+  <div className='rounded-xl border border-border bg-card p-5 shadow-sm'>
+    <div className='flex items-start gap-3'>
+      <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+        <Icon className='h-4 w-4' />
+      </div>
+      <div>
+        <h3 className='text-base font-semibold leading-tight text-foreground'>{title}</h3>
+        <p className='text-sm text-muted-foreground'>{description}</p>
+      </div>
+    </div>
+    <div className='mt-4 space-y-4'>{children}</div>
+  </div>
+)
 
 const buildOptions = (
   items: Array<{ id?: string; designacao?: string; descricao?: string; nome?: string }>
@@ -131,6 +190,17 @@ const ViaturaFormContainer = ({
     mode: 'onSubmit',
   })
 
+  const navigate = useNavigate()
+  const location = useLocation()
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search])
+  const instanceId = searchParams.get('instanceId') || 'default'
+  const currentWindowId = useCurrentWindowId()
+  const parentWindowId = currentWindowId || instanceId || 'viaturas-root'
+  const updateWindowState = useWindowsStore((state) => state.updateWindowState)
+  const findWindowByPathAndInstanceId = useWindowsStore(
+    (state) => state.findWindowByPathAndInstanceId
+  )
+
   useEffect(() => {
     if (initialValues) {
       form.reset({
@@ -140,20 +210,75 @@ const ViaturaFormContainer = ({
     }
   }, [initialValues, form])
 
-  const { data: marcas = [], isLoading: isLoadingMarcas } = useGetMarcasSelect()
-  const { data: modelos = [], isLoading: isLoadingModelos } = useGetModelosSelect()
-  const { data: tipoViaturas = [], isLoading: isLoadingTipoViaturas } = useGetTipoViaturasSelect()
-  const { data: cores = [], isLoading: isLoadingCores } = useGetCoresSelect()
-  const { data: combustiveis = [], isLoading: isLoadingCombustiveis } = useGetCombustiveisSelect()
-  const { data: conservatorias = [], isLoading: isLoadingConservatorias } = useGetConservatoriasSelect()
-  const { data: categorias = [], isLoading: isLoadingCategorias } = useGetCategoriasSelect()
-  const { data: localizacoes = [], isLoading: isLoadingLocalizacoes } = useGetLocalizacoesSelect()
-  const { data: setores = [], isLoading: isLoadingSetores } = useGetSetoresSelect()
-  const { data: delegacoes = [], isLoading: isLoadingDelegacoes } = useGetDelegacoesSelect()
-  const { data: terceiros = [], isLoading: isLoadingTerceiros } = useGetTerceirosSelect()
-  const { data: fornecedores = [], isLoading: isLoadingFornecedores } = useGetFornecedoresSelect()
-  const { data: seguros = [], isLoading: isLoadingSeguros } = useGetSegurosSelect()
-  const { data: equipamentos = [], isLoading: isLoadingEquipamentos } = useGetEquipamentosSelect()
+  const {
+    data: marcas = [],
+    isLoading: isLoadingMarcas,
+    refetch: refetchMarcas,
+  } = useGetMarcasSelect()
+  const {
+    data: modelos = [],
+    isLoading: isLoadingModelos,
+    refetch: refetchModelos,
+  } = useGetModelosSelect()
+  const {
+    data: tipoViaturas = [],
+    isLoading: isLoadingTipoViaturas,
+    refetch: refetchTipoViaturas,
+  } = useGetTipoViaturasSelect()
+  const {
+    data: cores = [],
+    isLoading: isLoadingCores,
+    refetch: refetchCores,
+  } = useGetCoresSelect()
+  const {
+    data: combustiveis = [],
+    isLoading: isLoadingCombustiveis,
+  } = useGetCombustiveisSelect()
+  const {
+    data: conservatorias = [],
+    isLoading: isLoadingConservatorias,
+    refetch: refetchConservatorias,
+  } = useGetConservatoriasSelect()
+  const {
+    data: categorias = [],
+    isLoading: isLoadingCategorias,
+    refetch: refetchCategorias,
+  } = useGetCategoriasSelect()
+  const {
+    data: localizacoes = [],
+    isLoading: isLoadingLocalizacoes,
+    refetch: refetchLocalizacoes,
+  } = useGetLocalizacoesSelect()
+  const {
+    data: setores = [],
+    isLoading: isLoadingSetores,
+    refetch: refetchSetores,
+  } = useGetSetoresSelect()
+  const {
+    data: delegacoes = [],
+    isLoading: isLoadingDelegacoes,
+    refetch: refetchDelegacoes,
+  } = useGetDelegacoesSelect()
+  const {
+    data: terceiros = [],
+    isLoading: isLoadingTerceiros,
+    refetch: refetchTerceiros,
+  } = useGetTerceirosSelect()
+  const {
+    data: fornecedores = [],
+    isLoading: isLoadingFornecedores,
+    refetch: refetchFornecedores,
+  } = useGetFornecedoresSelect()
+  const {
+    data: seguros = [],
+    isLoading: isLoadingSeguros,
+    refetch: refetchSeguros,
+  } = useGetSegurosSelect()
+  const {
+    data: equipamentos = [],
+    isLoading: isLoadingEquipamentos,
+    refetch: refetchEquipamentos,
+  } = useGetEquipamentosSelect()
 
   const selectOptions: ViaturaSelectOptions = useMemo(
     () => ({
@@ -267,6 +392,326 @@ const ViaturaFormContainer = ({
     },
   })
 
+  const openCreation = (createFn: typeof openMarcaCreationWindow) => {
+    createFn(
+      navigate,
+      parentWindowId,
+      updateWindowState,
+      findWindowByPathAndInstanceId
+    )
+  }
+
+  const openView = (
+    viewFn: typeof openMarcaViewWindow,
+    value: string | null | undefined,
+    emptyMessage: string
+  ) => {
+    if (!value) {
+      toast.error(emptyMessage)
+      return
+    }
+
+    viewFn(
+      navigate,
+      parentWindowId,
+      value,
+      updateWindowState,
+      findWindowByPathAndInstanceId
+    )
+  }
+
+  const handleCreateMarca = () => openCreation(openMarcaCreationWindow)
+  const handleViewMarca = () =>
+    openView(openMarcaViewWindow, form.getValues('marcaId'), 'Por favor, selecione uma marca primeiro')
+
+  const handleCreateModelo = () => openCreation(openModeloCreationWindow)
+  const handleViewModelo = () =>
+    openView(openModeloViewWindow, form.getValues('modeloId'), 'Por favor, selecione um modelo primeiro')
+
+  const handleCreateTipoViatura = () => openCreation(openTipoViaturaCreationWindow)
+  const handleViewTipoViatura = () =>
+    openView(
+      openTipoViaturaViewWindow,
+      form.getValues('tipoViaturaId'),
+      'Por favor, selecione um tipo de viatura primeiro'
+    )
+
+  const handleCreateCor = () => openCreation(openCorCreationWindow)
+  const handleViewCor = () =>
+    openView(openCorViewWindow, form.getValues('corId'), 'Por favor, selecione uma cor primeiro')
+
+  const handleCreateCombustivel = () => {
+    toast.warning(
+      'A criação de combustíveis ainda não está disponível a partir deste formulário.',
+      'Funcionalidade indisponível'
+    )
+  }
+
+  const handleViewCombustivel = () => {
+    const combustivelId = form.getValues('combustivelId')
+    if (!combustivelId) {
+      toast.error('Por favor, selecione um combustível primeiro')
+      return
+    }
+
+    toast.warning(
+      'A visualização de combustíveis ainda não está disponível a partir deste formulário.',
+      'Funcionalidade indisponível'
+    )
+  }
+
+  const handleCreateConservatoria = () => openCreation(openConservatoriaCreationWindow)
+  const handleViewConservatoria = () =>
+    openView(
+      openConservatoriaViewWindow,
+      form.getValues('conservatoriaId'),
+      'Por favor, selecione uma conservatória primeiro'
+    )
+
+  const handleCreateCategoria = () => openCreation(openCategoriaCreationWindow)
+  const handleViewCategoria = () =>
+    openView(
+      openCategoriaViewWindow,
+      form.getValues('categoriaId'),
+      'Por favor, selecione uma categoria primeiro'
+    )
+
+  const handleCreateLocalizacao = () => openCreation(openLocalizacaoCreationWindow)
+  const handleViewLocalizacao = () =>
+    openView(
+      openLocalizacaoViewWindow,
+      form.getValues('localizacaoId'),
+      'Por favor, selecione uma localização primeiro'
+    )
+
+  const handleCreateSetor = () => openCreation(openSetorCreationWindow)
+  const handleViewSetor = () =>
+    openView(openSetorViewWindow, form.getValues('setorId'), 'Por favor, selecione um setor primeiro')
+
+  const handleCreateDelegacao = () => openCreation(openDelegacaoCreationWindow)
+  const handleViewDelegacao = () =>
+    openView(
+      openDelegacaoViewWindow,
+      form.getValues('delegacaoId'),
+      'Por favor, selecione uma delegação primeiro'
+    )
+
+  const handleCreateTerceiro = () => openCreation(openTerceiroCreationWindow)
+  const handleViewTerceiro = () =>
+    openView(
+      openTerceiroViewWindow,
+      form.getValues('terceiroId'),
+      'Por favor, selecione um terceiro primeiro'
+    )
+
+  const handleCreateFornecedor = () => openCreation(openFornecedorCreationWindow)
+  const handleViewFornecedor = () =>
+    openView(
+      openFornecedorViewWindow,
+      form.getValues('fornecedorId'),
+      'Por favor, selecione um fornecedor primeiro'
+    )
+
+  const handleCreateSeguro = () => openCreation(openSeguroCreationWindow)
+  const handleViewSeguro = () =>
+    openView(openSeguroViewWindow, form.getValues('seguroId'), 'Por favor, selecione um seguro primeiro')
+
+  const handleCreateEquipamento = () => openCreation(openEquipamentoCreationWindow)
+  const handleViewEquipamento = () =>
+    openView(
+      openEquipamentoViewWindow,
+      form.getValues('equipamentoId'),
+      'Por favor, selecione um equipamento primeiro'
+    )
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: marcas,
+    setValue: (value: string) =>
+      form.setValue('marcaId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchMarcas,
+    itemName: 'Marca',
+    successMessage: 'Marca selecionada automaticamente',
+    manualSelectionMessage: 'Marca criada com sucesso. Por favor, selecione-a manualmente.',
+    queryKey: ['marcas-select'],
+    returnDataKey: `return-data-${parentWindowId}-marca`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: modelos,
+    setValue: (value: string) =>
+      form.setValue('modeloId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchModelos,
+    itemName: 'Modelo',
+    successMessage: 'Modelo selecionado automaticamente',
+    manualSelectionMessage: 'Modelo criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['modelos-select'],
+    returnDataKey: `return-data-${parentWindowId}-modelo`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: tipoViaturas,
+    setValue: (value: string) =>
+      form.setValue('tipoViaturaId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchTipoViaturas,
+    itemName: 'Tipo de Viatura',
+    successMessage: 'Tipo de viatura selecionado automaticamente',
+    manualSelectionMessage:
+      'Tipo de viatura criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['tipo-viaturas-select'],
+    returnDataKey: `return-data-${parentWindowId}-tipo-viatura`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: cores,
+    setValue: (value: string) =>
+      form.setValue('corId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchCores,
+    itemName: 'Cor',
+    successMessage: 'Cor selecionada automaticamente',
+    manualSelectionMessage: 'Cor criada com sucesso. Por favor, selecione-a manualmente.',
+    queryKey: ['cores-select'],
+    returnDataKey: `return-data-${parentWindowId}-cor`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: conservatorias,
+    setValue: (value: string) =>
+      form.setValue('conservatoriaId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchConservatorias,
+    itemName: 'Conservatória',
+    successMessage: 'Conservatória selecionada automaticamente',
+    manualSelectionMessage:
+      'Conservatória criada com sucesso. Por favor, selecione-a manualmente.',
+    queryKey: ['conservatorias-select'],
+    returnDataKey: `return-data-${parentWindowId}-conservatoria`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: categorias,
+    setValue: (value: string) =>
+      form.setValue('categoriaId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchCategorias,
+    itemName: 'Categoria',
+    successMessage: 'Categoria selecionada automaticamente',
+    manualSelectionMessage: 'Categoria criada com sucesso. Por favor, selecione-a manualmente.',
+    queryKey: ['categorias-select'],
+    returnDataKey: `return-data-${parentWindowId}-categoria`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: localizacoes,
+    setValue: (value: string) =>
+      form.setValue('localizacaoId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchLocalizacoes,
+    itemName: 'Localização',
+    successMessage: 'Localização selecionada automaticamente',
+    manualSelectionMessage:
+      'Localização criada com sucesso. Por favor, selecione-a manualmente.',
+    queryKey: ['localizacoes-select'],
+    returnDataKey: `return-data-${parentWindowId}-localizacao`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: setores,
+    setValue: (value: string) =>
+      form.setValue('setorId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchSetores,
+    itemName: 'Setor',
+    successMessage: 'Setor selecionado automaticamente',
+    manualSelectionMessage: 'Setor criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['setores-select'],
+    returnDataKey: `return-data-${parentWindowId}-setor`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: delegacoes,
+    setValue: (value: string) =>
+      form.setValue('delegacaoId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchDelegacoes,
+    itemName: 'Delegação',
+    successMessage: 'Delegação selecionada automaticamente',
+    manualSelectionMessage:
+      'Delegação criada com sucesso. Por favor, selecione-a manualmente.',
+    queryKey: ['delegacoes-select'],
+    returnDataKey: `return-data-${parentWindowId}-delegacao`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: terceiros,
+    setValue: (value: string) =>
+      form.setValue('terceiroId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchTerceiros,
+    itemName: 'Terceiro',
+    successMessage: 'Terceiro selecionado automaticamente',
+    manualSelectionMessage: 'Terceiro criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['terceiros-select'],
+    returnDataKey: `return-data-${parentWindowId}-terceiro`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: fornecedores,
+    setValue: (value: string) =>
+      form.setValue('fornecedorId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchFornecedores,
+    itemName: 'Fornecedor',
+    successMessage: 'Fornecedor selecionado automaticamente',
+    manualSelectionMessage:
+      'Fornecedor criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['fornecedores-select'],
+    returnDataKey: `return-data-${parentWindowId}-fornecedor`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: seguros,
+    setValue: (value: string) =>
+      form.setValue('seguroId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchSeguros,
+    itemName: 'Seguro',
+    successMessage: 'Seguro selecionado automaticamente',
+    manualSelectionMessage: 'Seguro criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['seguros-select'],
+    returnDataKey: `return-data-${parentWindowId}-seguro`,
+  })
+
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: equipamentos,
+    setValue: (value: string) =>
+      form.setValue('equipamentoId', value, { shouldDirty: true, shouldValidate: true }),
+    refetch: refetchEquipamentos,
+    itemName: 'Equipamento',
+    successMessage: 'Equipamento selecionado automaticamente',
+    manualSelectionMessage:
+      'Equipamento criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['equipamentos-select'],
+    returnDataKey: `return-data-${parentWindowId}-equipamento`,
+  })
+
   const placeholder = (loading: boolean, label: string) =>
     loading ? `A carregar ${label}...` : `Selecione ${label}`
 
@@ -339,325 +784,593 @@ const ViaturaFormContainer = ({
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className='space-y-6'>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='matricula'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Matrícula</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder='Introduza a matrícula'
-                              {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='numero'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Número Interno</FormLabel>
-                          <FormControl>
-                            <Input
-                              type='number'
-                              placeholder='Número interno da viatura'
-                              {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <FormField
-                      control={form.control}
-                      name='anoFabrico'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ano de Fabrico</FormLabel>
-                          <FormControl>
-                            <Input
-                              type='number'
-                              placeholder='Ano'
-                              {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='mesFabrico'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mês de Fabrico</FormLabel>
-                          <FormControl>
-                            <Input
-                              type='number'
-                              placeholder='Mês (1-12)'
-                              {...field}
-                              className='px-4 py-6 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='dataInicial'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data de Registo</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder='Selecione a data de registo'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='dataAquisicao'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data de Aquisição</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder='Selecione a data de aquisição'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='dataLivrete'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data do Livrete</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder='Selecione a data do livrete'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='marcaId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Marca</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.marcas}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.marcas, 'a marca')}
-                              disabled={selectLoading.marcas}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='modeloId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Modelo</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.modelos}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.modelos, 'o modelo')}
-                              disabled={selectLoading.modelos}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='tipoViaturaId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tipo de Viatura</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.tipoViaturas}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.tipoViaturas, 'o tipo de viatura')}
-                              disabled={selectLoading.tipoViaturas}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='corId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cor</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.cores}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.cores, 'a cor')}
-                              disabled={selectLoading.cores}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='conservatoriaId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Conservatória</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.conservatorias}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.conservatorias, 'a conservatória')}
-                              disabled={selectLoading.conservatorias}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='categoriaId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Categoria</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.categorias}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.categorias, 'a categoria')}
-                              disabled={selectLoading.categorias}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='localizacaoId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Localização</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.localizacoes}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.localizacoes, 'a localização')}
-                              disabled={selectLoading.localizacoes}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='setorId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Setor</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.setores}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.setores, 'o setor')}
-                              disabled={selectLoading.setores}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='delegacaoId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Delegação</FormLabel>
-                          <FormControl>
-                            <Autocomplete
-                              options={selectOptions.delegacoes}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.delegacoes, 'a delegação')}
-                              disabled={selectLoading.delegacoes}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                <CardContent className='space-y-8'>
+                  <FormSection
+                    icon={ClipboardList}
+                    title='Dados principais'
+                    description='Informações base de identificação e registo'
+                  >
+                    <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-3'>
+                      <FormField
+                        control={form.control}
+                        name='matricula'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Matrícula</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder='Introduza a matrícula'
+                                {...field}
+                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='numero'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Número Interno</FormLabel>
+                            <FormControl>
+                              <Input
+                                type='number'
+                                placeholder='Número interno da viatura'
+                                {...field}
+                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='anoFabrico'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Ano de Fabrico</FormLabel>
+                            <FormControl>
+                              <Input
+                                type='number'
+                                placeholder='Ano'
+                                {...field}
+                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='mesFabrico'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mês de Fabrico</FormLabel>
+                            <FormControl>
+                              <Input
+                                type='number'
+                                placeholder='Mês (1-12)'
+                                {...field}
+                                className='px-4 py-6 shadow-inner drop-shadow-xl'
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='dataInicial'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Data de Registo</FormLabel>
+                            <FormControl>
+                              <DatePicker
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder='Selecione a data de registo'
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </FormSection>
+
+                  <FormSection
+                    icon={CalendarDays}
+                    title='Registos e documentação'
+                    description='Datas oficiais e enquadramento legal da viatura'
+                  >
+                    <div className='grid gap-4 md:grid-cols-2'>
+                      <FormField
+                        control={form.control}
+                        name='dataAquisicao'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Data de Aquisição</FormLabel>
+                            <FormControl>
+                              <DatePicker
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder='Selecione a data de aquisição'
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='dataLivrete'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Data do Livrete</FormLabel>
+                            <FormControl>
+                              <DatePicker
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder='Selecione a data do livrete'
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='conservatoriaId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Conservatória</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.conservatorias}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.conservatorias,
+                                    'a conservatória'
+                                  )}
+                                  disabled={selectLoading.conservatorias}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewConservatoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Conservatória'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateConservatoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Conservatória'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='categoriaId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Categoria</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.categorias}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.categorias,
+                                    'a categoria'
+                                  )}
+                                  disabled={selectLoading.categorias}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewCategoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Categoria'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateCategoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Categoria'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </FormSection>
+
+                  <FormSection
+                    icon={Car}
+                    title='Classificação da viatura'
+                    description='Selecione marca, modelo e caraterísticas principais'
+                  >
+                    <div className='grid gap-4 md:grid-cols-2'>
+                      <FormField
+                        control={form.control}
+                        name='marcaId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Marca</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.marcas}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.marcas,
+                                    'a marca'
+                                  )}
+                                  disabled={selectLoading.marcas}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewMarca}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Marca'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateMarca}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Marca'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='modeloId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Modelo</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.modelos}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.modelos,
+                                    'o modelo'
+                                  )}
+                                  disabled={selectLoading.modelos}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewModelo}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Modelo'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateModelo}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Modelo'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='tipoViaturaId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tipo de Viatura</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.tipoViaturas}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.tipoViaturas,
+                                    'o tipo de viatura'
+                                  )}
+                                  disabled={selectLoading.tipoViaturas}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewTipoViatura}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Tipo de Viatura'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateTipoViatura}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Tipo de Viatura'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='corId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Cor</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.cores}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(selectLoading.cores, 'a cor')}
+                                  disabled={selectLoading.cores}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewCor}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Cor'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateCor}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Cor'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </FormSection>
+
+                  <FormSection
+                    icon={MapPin}
+                    title='Atribuição interna'
+                    description='Defina a afetação da viatura dentro da organização'
+                  >
+                    <div className='grid gap-4 md:grid-cols-3'>
+                      <FormField
+                        control={form.control}
+                        name='localizacaoId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Localização</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.localizacoes}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.localizacoes,
+                                    'a localização'
+                                  )}
+                                  disabled={selectLoading.localizacoes}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewLocalizacao}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Localização'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateLocalizacao}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Localização'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='setorId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Setor</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.setores}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.setores,
+                                    'o setor'
+                                  )}
+                                  disabled={selectLoading.setores}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewSetor}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Setor'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateSetor}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Setor'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='delegacaoId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Delegação</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.delegacoes}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.delegacoes,
+                                    'a delegação'
+                                  )}
+                                  disabled={selectLoading.delegacoes}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewDelegacao}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Delegação'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateDelegacao}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Delegação'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </FormSection>
                 </CardContent>
               </Card>
             </div>
@@ -733,14 +1446,42 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Entidade fornecedora</FormLabel>
                           <FormControl>
-                            <Autocomplete
-                              options={selectOptions.fornecedores}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.fornecedores, 'o fornecedor')}
-                              disabled={selectLoading.fornecedores}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
+                            <div className='relative'>
+                              <Autocomplete
+                                options={selectOptions.fornecedores}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder={placeholder(
+                                  selectLoading.fornecedores,
+                                  'o fornecedor'
+                                )}
+                                disabled={selectLoading.fornecedores}
+                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              />
+                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleViewFornecedor}
+                                  className='h-8 w-8 p-0'
+                                  title='Ver Fornecedor'
+                                  disabled={!field.value}
+                                >
+                                  <Eye className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleCreateFornecedor}
+                                  className='h-8 w-8 p-0'
+                                  title='Criar Fornecedor'
+                                >
+                                  <Plus className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -753,14 +1494,42 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Combustível</FormLabel>
                           <FormControl>
-                            <Autocomplete
-                              options={selectOptions.combustiveis}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.combustiveis, 'o combustível')}
-                              disabled={selectLoading.combustiveis}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
+                            <div className='relative'>
+                              <Autocomplete
+                                options={selectOptions.combustiveis}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder={placeholder(
+                                  selectLoading.combustiveis,
+                                  'o combustível'
+                                )}
+                                disabled={selectLoading.combustiveis}
+                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              />
+                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleViewCombustivel}
+                                  className='h-8 w-8 p-0'
+                                  title='Ver Combustível'
+                                  disabled={!field.value}
+                                >
+                                  <Eye className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleCreateCombustivel}
+                                  className='h-8 w-8 p-0'
+                                  title='Criar Combustível'
+                                >
+                                  <Plus className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1041,14 +1810,42 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Conservatória</FormLabel>
                           <FormControl>
-                            <Autocomplete
-                              options={selectOptions.conservatorias}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.conservatorias, 'a conservatória')}
-                              disabled={selectLoading.conservatorias}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
+                            <div className='relative'>
+                              <Autocomplete
+                                options={selectOptions.conservatorias}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder={placeholder(
+                                  selectLoading.conservatorias,
+                                  'a conservatória'
+                                )}
+                                disabled={selectLoading.conservatorias}
+                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              />
+                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleViewConservatoria}
+                                  className='h-8 w-8 p-0'
+                                  title='Ver Conservatória'
+                                  disabled={!field.value}
+                                >
+                                  <Eye className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleCreateConservatoria}
+                                  className='h-8 w-8 p-0'
+                                  title='Criar Conservatória'
+                                >
+                                  <Plus className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1061,14 +1858,42 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Categoria</FormLabel>
                           <FormControl>
-                            <Autocomplete
-                              options={selectOptions.categorias}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder={placeholder(selectLoading.categorias, 'a categoria')}
-                              disabled={selectLoading.categorias}
-                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                            />
+                            <div className='relative'>
+                              <Autocomplete
+                                options={selectOptions.categorias}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder={placeholder(
+                                  selectLoading.categorias,
+                                  'a categoria'
+                                )}
+                                disabled={selectLoading.categorias}
+                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              />
+                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleViewCategoria}
+                                  className='h-8 w-8 p-0'
+                                  title='Ver Categoria'
+                                  disabled={!field.value}
+                                >
+                                  <Eye className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleCreateCategoria}
+                                  className='h-8 w-8 p-0'
+                                  title='Criar Categoria'
+                                >
+                                  <Plus className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1082,14 +1907,39 @@ const ViaturaFormContainer = ({
                       <FormItem>
                         <FormLabel>Terceiro</FormLabel>
                         <FormControl>
-                          <Autocomplete
-                            options={selectOptions.terceiros}
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
-                            disabled={selectLoading.terceiros}
-                            className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                          />
+                          <div className='relative'>
+                            <Autocomplete
+                              options={selectOptions.terceiros}
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
+                              disabled={selectLoading.terceiros}
+                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                            />
+                            <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='sm'
+                                onClick={handleViewTerceiro}
+                                className='h-8 w-8 p-0'
+                                title='Ver Terceiro'
+                                disabled={!field.value}
+                              >
+                                <Eye className='h-4 w-4' />
+                              </Button>
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='sm'
+                                onClick={handleCreateTerceiro}
+                                className='h-8 w-8 p-0'
+                                title='Criar Terceiro'
+                              >
+                                <Plus className='h-4 w-4' />
+                              </Button>
+                            </div>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1256,14 +2106,39 @@ const ViaturaFormContainer = ({
                       <FormItem>
                         <FormLabel>Seguro</FormLabel>
                         <FormControl>
-                          <Autocomplete
-                            options={selectOptions.seguros}
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder={placeholder(selectLoading.seguros, 'o seguro')}
-                            disabled={selectLoading.seguros}
-                            className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                          />
+                          <div className='relative'>
+                            <Autocomplete
+                              options={selectOptions.seguros}
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder={placeholder(selectLoading.seguros, 'o seguro')}
+                              disabled={selectLoading.seguros}
+                              className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                            />
+                            <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='sm'
+                                onClick={handleViewSeguro}
+                                className='h-8 w-8 p-0'
+                                title='Ver Seguro'
+                                disabled={!field.value}
+                              >
+                                <Eye className='h-4 w-4' />
+                              </Button>
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='sm'
+                                onClick={handleCreateSeguro}
+                                className='h-8 w-8 p-0'
+                                title='Criar Seguro'
+                              >
+                                <Plus className='h-4 w-4' />
+                              </Button>
+                            </div>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1433,14 +2308,42 @@ const ViaturaFormContainer = ({
                       <FormItem>
                         <FormLabel>Equipamento</FormLabel>
                         <FormControl>
+                        <div className='relative'>
                           <Autocomplete
                             options={selectOptions.equipamentos}
                             value={field.value}
                             onValueChange={field.onChange}
-                            placeholder={placeholder(selectLoading.equipamentos, 'o equipamento')}
+                            placeholder={placeholder(
+                              selectLoading.equipamentos,
+                              'o equipamento'
+                            )}
                             disabled={selectLoading.equipamentos}
                             className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
                           />
+                          <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              onClick={handleViewEquipamento}
+                              className='h-8 w-8 p-0'
+                              title='Ver Equipamento'
+                              disabled={!field.value}
+                            >
+                              <Eye className='h-4 w-4' />
+                            </Button>
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              onClick={handleCreateEquipamento}
+                              className='h-8 w-8 p-0'
+                              title='Criar Equipamento'
+                            >
+                              <Plus className='h-4 w-4' />
+                            </Button>
+                          </div>
+                        </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
