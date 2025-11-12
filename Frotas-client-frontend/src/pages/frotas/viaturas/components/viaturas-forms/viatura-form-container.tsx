@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -48,6 +48,9 @@ import {
   Plus,
   Trash2,
   type LucideIcon,
+  FolderOpen,
+  Stamp,
+  StickyNote,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
@@ -103,6 +106,8 @@ import {
   openEquipamentoCreationWindow,
   openEquipamentoViewWindow,
 } from '@/utils/window-utils'
+import { useDropzone } from 'react-dropzone'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 type ViaturaSelectOptions = {
   marcas: AutocompleteOption[]
@@ -178,6 +183,96 @@ const TEXT_INPUT_CLASS = `${FIELD_HEIGHT_CLASS} px-4 shadow-inner drop-shadow-xl
 
 const toNumberValue = (value: unknown) =>
   typeof value === 'number' && !Number.isNaN(value) ? value : undefined
+
+type ImageUploaderProps = {
+  value?: string
+  onChange: (value: string) => void
+  label: string
+}
+
+const ImageUploader = ({ value, onChange, label }: ImageUploaderProps) => {
+  const [previewOpen, setPreviewOpen] = useState(false)
+
+  const handleDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles?.[0]
+      if (!file) {
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = reader.result
+        if (typeof result === 'string') {
+          onChange(result)
+        }
+      }
+      reader.readAsDataURL(file)
+    },
+    [onChange]
+  )
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { 'image/*': [] },
+    multiple: false,
+    onDrop: handleDrop,
+  })
+
+  return (
+    <div className='space-y-3'>
+      <div
+        {...getRootProps({
+          className: cn(
+            'relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/30 transition hover:border-primary/50 hover:bg-muted/40',
+            isDragActive && 'border-primary bg-primary/10'
+          ),
+        })}
+      >
+        <input {...getInputProps()} aria-label={`Carregar ${label}`} />
+        {value ? (
+          <img src={value} alt={label} className='h-full w-full object-cover' />
+        ) : (
+          <div className='flex flex-col items-center gap-2 text-center text-sm text-muted-foreground'>
+            <FolderOpen className='h-6 w-6' />
+            <span>Arraste ou selecione uma imagem</span>
+          </div>
+        )}
+      </div>
+      {value ? (
+        <div className='flex flex-col gap-2 sm:flex-row'>
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            className='inline-flex items-center gap-2'
+            onClick={() => setPreviewOpen(true)}
+          >
+            <Eye className='h-4 w-4' /> Ver imagem
+          </Button>
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            className='inline-flex items-center gap-2'
+            onClick={() => onChange('')}
+          >
+            <Trash2 className='h-4 w-4' /> Remover imagem
+          </Button>
+        </div>
+      ) : null}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className='max-w-3xl'>
+          <DialogHeader>
+            <DialogTitle>{label}</DialogTitle>
+          </DialogHeader>
+          {value ? (
+            <img src={value} alt={label} className='max-h-[70vh] w-full object-contain' />
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
 
 const buildOptions = (
   items: Array<{ id?: string; designacao?: string; descricao?: string; nome?: string }>
@@ -466,9 +561,10 @@ const ViaturaFormContainer = ({
       valorRenda: 'locacao',
       valorResidual: 'locacao',
       seguroId: 'seguros',
-      anoImpostoSelo: 'seguros',
-      anoImpostoCirculacao: 'seguros',
-      dataValidadeSelo: 'seguros',
+      anoImpostoSelo: 'notas',
+      anoImpostoCirculacao: 'notas',
+      dataValidadeSelo: 'notas',
+      cartaoCombustivel: 'notas',
       notasAdicionais: 'notas',
       urlImagem1: 'notas',
       urlImagem2: 'notas',
@@ -876,13 +972,13 @@ const ViaturaFormContainer = ({
                     description='Informações base de identificação e registo'
                   >
                     <div className='grid gap-4 md:grid-cols-[1.35fr_1.65fr] xl:grid-cols-[1.35fr_1.65fr_1.3fr] items-start'>
-                      <FormField
-                        control={form.control}
-                        name='matricula'
-                        render={({ field }) => (
-                          <FormItem>
+                    <FormField
+                      control={form.control}
+                      name='matricula'
+                      render={({ field }) => (
+                        <FormItem>
                             <FormLabel className='sr-only'>Matrícula</FormLabel>
-                            <FormControl>
+                          <FormControl>
                               <LicensePlateInput
                                 name={field.name}
                                 value={field.value ?? ''}
@@ -890,62 +986,62 @@ const ViaturaFormContainer = ({
                                 onBlur={field.onBlur}
                                 ref={field.ref}
                                 className='shadow-inner drop-shadow-xl'
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       <div className='flex flex-col gap-4 md:pr-0'>
-                        <FormField
-                          control={form.control}
-                          name='numero'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Número Interno</FormLabel>
-                              <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='numero'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Número Interno</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
                                   onBlur={field.onBlur}
                                   name={field.name}
                                   ref={field.ref}
-                                  placeholder='Número interno da viatura'
+                              placeholder='Número interno da viatura'
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                           name='dataInicial'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Data de Registo</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <DatePicker
                                   value={field.value}
                                   onChange={field.onChange}
                                   placeholder='Selecione a data de registo'
                                   className={FIELD_HEIGHT_CLASS}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       </div>
                       <div className='md:col-start-2 xl:col-start-3 flex flex-col gap-4 md:pl-0'>
-                        <FormField
-                          control={form.control}
+                    <FormField
+                      control={form.control}
                           name='anoFabrico'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Ano de Fabrico</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -955,19 +1051,19 @@ const ViaturaFormContainer = ({
                                   placeholder='Ano'
                                   className={TEXT_INPUT_CLASS}
                                   min={1900}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                           name='mesFabrico'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Mês de Fabrico</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -978,13 +1074,13 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   min={1}
                                   max={12}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                     </div>
                   </FormSection>
 
@@ -996,54 +1092,54 @@ const ViaturaFormContainer = ({
                       className='h-full'
                     >
                       <div className='grid gap-4 md:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='dataAquisicao'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Data de Aquisição</FormLabel>
-                              <FormControl>
-                                <DatePicker
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  placeholder='Selecione a data de aquisição'
+                    <FormField
+                      control={form.control}
+                      name='dataAquisicao'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Data de Aquisição</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder='Selecione a data de aquisição'
                                   className={FIELD_HEIGHT_CLASS}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='dataLivrete'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Data do Livrete</FormLabel>
-                              <FormControl>
-                                <DatePicker
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  placeholder='Selecione a data do livrete'
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='dataLivrete'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Data do Livrete</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder='Selecione a data do livrete'
                                   className={FIELD_HEIGHT_CLASS}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                           name='conservatoriaId'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Conservatória</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <div className='relative'>
-                                  <Autocomplete
+                            <Autocomplete
                                     options={selectOptions.conservatorias}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                     placeholder={placeholder(
                                       selectLoading.conservatorias,
                                       'a conservatória'
@@ -1075,23 +1171,23 @@ const ViaturaFormContainer = ({
                                     </Button>
                                   </div>
                                 </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                           name='categoriaId'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Categoria</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <div className='relative'>
-                                  <Autocomplete
+                            <Autocomplete
                                     options={selectOptions.categorias}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                     placeholder={placeholder(
                                       selectLoading.categorias,
                                       'a categoria'
@@ -1123,12 +1219,12 @@ const ViaturaFormContainer = ({
                                     </Button>
                                   </div>
                                 </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                     </FormSection>
 
                     <FormSection
@@ -1138,18 +1234,18 @@ const ViaturaFormContainer = ({
                       className='h-full'
                     >
                       <div className='grid gap-4 md:grid-cols-2'>
-                        <FormField
-                          control={form.control}
+                    <FormField
+                      control={form.control}
                           name='marcaId'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Marca</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <div className='relative'>
-                                  <Autocomplete
+                            <Autocomplete
                                     options={selectOptions.marcas}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                     placeholder={placeholder(selectLoading.marcas, 'a marca')}
                                     disabled={selectLoading.marcas}
                                     className={SELECT_WITH_ACTIONS_CLASS}
@@ -1178,23 +1274,23 @@ const ViaturaFormContainer = ({
                                     </Button>
                                   </div>
                                 </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                           name='modeloId'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Modelo</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <div className='relative'>
-                                  <Autocomplete
+                            <Autocomplete
                                     options={selectOptions.modelos}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                     placeholder={placeholder(selectLoading.modelos, 'o modelo')}
                                     disabled={selectLoading.modelos}
                                     className={SELECT_WITH_ACTIONS_CLASS}
@@ -1223,23 +1319,23 @@ const ViaturaFormContainer = ({
                                     </Button>
                                   </div>
                                 </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                           name='tipoViaturaId'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Tipo de Viatura</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <div className='relative'>
-                                  <Autocomplete
+                            <Autocomplete
                                     options={selectOptions.tipoViaturas}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                     placeholder={placeholder(
                                       selectLoading.tipoViaturas,
                                       'o tipo de viatura'
@@ -1271,23 +1367,23 @@ const ViaturaFormContainer = ({
                                     </Button>
                                   </div>
                                 </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                           name='corId'
-                          render={({ field }) => (
-                            <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                               <FormLabel>Cor</FormLabel>
-                              <FormControl>
+                          <FormControl>
                                 <div className='relative'>
-                                  <Autocomplete
+                            <Autocomplete
                                     options={selectOptions.cores}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                     placeholder={placeholder(selectLoading.cores, 'a cor')}
                                     disabled={selectLoading.cores}
                                     className={SELECT_WITH_ACTIONS_CLASS}
@@ -1316,12 +1412,12 @@ const ViaturaFormContainer = ({
                                     </Button>
                                   </div>
                                 </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                     </FormSection>
                   </div>
 
@@ -1512,36 +1608,36 @@ const ViaturaFormContainer = ({
                       description='Registe valores financeiros e entidade fornecedora'
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='custo'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Custo (€)</FormLabel>
-                              <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='custo'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Custo (€)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
                                   onBlur={field.onBlur}
                                   name={field.name}
                                   ref={field.ref}
-                                  placeholder='Custo da viatura'
+                              placeholder='Custo da viatura'
                                   className={TEXT_INPUT_CLASS}
                                   step={0.01}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='despesasIncluidas'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Despesas Incluídas (€)</FormLabel>
-                              <FormControl>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='despesasIncluidas'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Despesas Incluídas (€)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1552,30 +1648,30 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   step={0.01}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name='fornecedorId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Entidade fornecedora</FormLabel>
-                            <FormControl>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                    <FormField
+                      control={form.control}
+                      name='fornecedorId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Entidade fornecedora</FormLabel>
+                          <FormControl>
                               <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.fornecedores}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.fornecedores}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.fornecedores,
                                     'o fornecedor'
                                   )}
-                                  disabled={selectLoading.fornecedores}
+                              disabled={selectLoading.fornecedores}
                                   className={SELECT_WITH_ACTIONS_CLASS}
                                 />
                                 <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
@@ -1602,11 +1698,11 @@ const ViaturaFormContainer = ({
                                   </Button>
                                 </div>
                               </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     </FormSection>
 
                     <FormSection
@@ -1615,23 +1711,23 @@ const ViaturaFormContainer = ({
                       description='Defina o combustível e o consumo médio estimado'
                     >
                       <div className='grid gap-4 sm:grid-cols-[2fr_1fr]'>
-                        <FormField
-                          control={form.control}
-                          name='combustivelId'
-                          render={({ field }) => (
+                    <FormField
+                      control={form.control}
+                      name='combustivelId'
+                      render={({ field }) => (
                             <FormItem className='sm:col-span-2'>
-                              <FormLabel>Combustível</FormLabel>
-                              <FormControl>
+                          <FormLabel>Combustível</FormLabel>
+                          <FormControl>
                                 <div className='relative'>
-                                  <Autocomplete
-                                    options={selectOptions.combustiveis}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.combustiveis}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                     placeholder={placeholder(
                                       selectLoading.combustiveis,
                                       'o combustível'
                                     )}
-                                    disabled={selectLoading.combustiveis}
+                              disabled={selectLoading.combustiveis}
                                     className={SELECT_WITH_ACTIONS_CLASS}
                                   />
                                   <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
@@ -1658,35 +1754,35 @@ const ViaturaFormContainer = ({
                                     </Button>
                                   </div>
                                 </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='consumoMedio'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Consumo Médio (L/100km)</FormLabel>
-                              <FormControl>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='consumoMedio'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Consumo Médio (L/100km)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
                                   onBlur={field.onBlur}
                                   name={field.name}
                                   ref={field.ref}
-                                  placeholder='Consumo médio'
+                              placeholder='Consumo médio'
                                   className={TEXT_INPUT_CLASS}
                                   step={0.1}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                     </FormSection>
                   </div>
 
@@ -1697,13 +1793,13 @@ const ViaturaFormContainer = ({
                       description='Identificadores únicos gravados na viatura'
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='nQuadro'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nº de Quadro</FormLabel>
-                              <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='nQuadro'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nº de Quadro</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1712,19 +1808,19 @@ const ViaturaFormContainer = ({
                                   ref={field.ref}
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='nMotor'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nº de Motor</FormLabel>
-                              <FormControl>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='nMotor'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nº de Motor</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1733,12 +1829,12 @@ const ViaturaFormContainer = ({
                                   ref={field.ref}
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       </div>
                     </FormSection>
 
@@ -1748,13 +1844,13 @@ const ViaturaFormContainer = ({
                       description='Especificações de potência do conjunto motor'
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='cilindrada'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Cilindrada (cm³)</FormLabel>
-                              <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='cilindrada'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cilindrada (cm³)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1764,19 +1860,19 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   step={0.1}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='potencia'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Potência (cv)</FormLabel>
-                              <FormControl>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='potencia'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Potência (cv)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1785,12 +1881,12 @@ const ViaturaFormContainer = ({
                                   ref={field.ref}
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       </div>
                     </FormSection>
                   </div>
@@ -1802,13 +1898,55 @@ const ViaturaFormContainer = ({
                       description='Pesos e capacidades máximas autorizadas'
                     >
                       <div className='grid gap-4 sm:grid-cols-3'>
-                        <FormField
-                          control={form.control}
-                          name='tara'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tara (kg)</FormLabel>
-                              <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='tara'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tara (kg)</FormLabel>
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='lotacao'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Lotação</FormLabel>
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='cargaUtil'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Carga Útil (kg)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1818,53 +1956,11 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
                                 />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='lotacao'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Lotação</FormLabel>
-                              <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='cargaUtil'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Carga Útil (kg)</FormLabel>
-                              <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       </div>
                     </FormSection>
 
@@ -1874,13 +1970,13 @@ const ViaturaFormContainer = ({
                       description='Medidas principais do chassis'
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='comprimento'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Comprimento (mm)</FormLabel>
-                              <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='comprimento'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Comprimento (mm)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1890,18 +1986,18 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
                                 />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='largura'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Largura (mm)</FormLabel>
-                              <FormControl>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='largura'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Largura (mm)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1911,12 +2007,12 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
                                 />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                     </FormSection>
                   </div>
 
@@ -1927,41 +2023,41 @@ const ViaturaFormContainer = ({
                       description='Registe as referências dos pneus dianteiros e traseiros'
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='pneusFrente'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Pneus Frente</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder='Referência dos pneus dianteiros'
-                                  {...field}
+                    <FormField
+                      control={form.control}
+                      name='pneusFrente'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pneus Frente</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder='Referência dos pneus dianteiros'
+                              {...field}
                                   className={TEXT_INPUT_CLASS}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='pneusTras'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Pneus Traseiros</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder='Referência dos pneus traseiros'
-                                  {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='pneusTras'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pneus Traseiros</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder='Referência dos pneus traseiros'
+                              {...field}
                                   className={TEXT_INPUT_CLASS}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                     </FormSection>
 
                     <FormSection
@@ -1970,42 +2066,42 @@ const ViaturaFormContainer = ({
                       description='Assinale as utilizações específicas desta viatura'
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='marketing'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Marketing</FormLabel>
-                              <FormControl>
-                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                                  <span className='text-sm text-muted-foreground'>
-                                    {field.value ? 'Sim' : 'Não'}
-                                  </span>
-                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='mercadorias'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mercadorias</FormLabel>
-                              <FormControl>
-                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                                  <span className='text-sm text-muted-foreground'>
-                                    {field.value ? 'Sim' : 'Não'}
-                                  </span>
-                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                    <FormField
+                      control={form.control}
+                      name='marketing'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Marketing</FormLabel>
+                          <FormControl>
+                            <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
+                              <span className='text-sm text-muted-foreground'>
+                                {field.value ? 'Sim' : 'Não'}
+                              </span>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='mercadorias'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Mercadorias</FormLabel>
+                          <FormControl>
+                            <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
+                              <span className='text-sm text-muted-foreground'>
+                                {field.value ? 'Sim' : 'Não'}
+                              </span>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       </div>
                     </FormSection>
                   </div>
@@ -2040,23 +2136,23 @@ const ViaturaFormContainer = ({
                     description='Associe a viatura às entidades responsáveis'
                   >
                     <div className='grid gap-4 md:grid-cols-2'>
-                      <FormField
-                        control={form.control}
-                        name='conservatoriaId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Conservatória</FormLabel>
-                            <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='conservatoriaId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Conservatória</FormLabel>
+                          <FormControl>
                               <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.conservatorias}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.conservatorias}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.conservatorias,
                                     'a conservatória'
                                   )}
-                                  disabled={selectLoading.conservatorias}
+                              disabled={selectLoading.conservatorias}
                                   className={SELECT_WITH_ACTIONS_CLASS}
                                 />
                                 <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
@@ -2083,28 +2179,28 @@ const ViaturaFormContainer = ({
                                   </Button>
                                 </div>
                               </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='categoriaId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Categoria</FormLabel>
-                            <FormControl>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='categoriaId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Categoria</FormLabel>
+                          <FormControl>
                               <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.categorias}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
+                            <Autocomplete
+                              options={selectOptions.categorias}
+                              value={field.value}
+                              onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.categorias,
                                     'a categoria'
                                   )}
-                                  disabled={selectLoading.categorias}
+                              disabled={selectLoading.categorias}
                                   className={SELECT_WITH_ACTIONS_CLASS}
                                 />
                                 <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
@@ -2131,26 +2227,26 @@ const ViaturaFormContainer = ({
                                   </Button>
                                 </div>
                               </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name='terceiroId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Terceiro</FormLabel>
-                          <FormControl>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name='terceiroId'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Terceiro</FormLabel>
+                        <FormControl>
                             <div className='relative'>
-                              <Autocomplete
-                                options={selectOptions.terceiros}
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
-                                disabled={selectLoading.terceiros}
+                          <Autocomplete
+                            options={selectOptions.terceiros}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
+                            disabled={selectLoading.terceiros}
                                 className={SELECT_WITH_ACTIONS_CLASS}
                               />
                               <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
@@ -2177,11 +2273,11 @@ const ViaturaFormContainer = ({
                                 </Button>
                               </div>
                             </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   </FormSection>
 
                   <div className='grid gap-6 lg:grid-cols-2'>
@@ -2191,30 +2287,30 @@ const ViaturaFormContainer = ({
                       description='Referência contratual e data prevista de término'
                     >
                       <div className='grid gap-4 md:grid-cols-2'>
-                        <FormField
-                          control={form.control}
-                          name='contrato'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nº de Contrato</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder='Referência do contrato'
-                                  {...field}
+                    <FormField
+                      control={form.control}
+                      name='contrato'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nº de Contrato</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder='Referência do contrato'
+                              {...field}
                                   className={TEXT_INPUT_CLASS}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='valorTotalContrato'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Valor Total do Contrato (€)</FormLabel>
-                              <FormControl>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='valorTotalContrato'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Valor Total do Contrato (€)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -2224,13 +2320,13 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   step={0.01}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                       <div className='grid gap-4 md:grid-cols-2'>
                         <FormField
                           control={form.control}
@@ -2250,25 +2346,25 @@ const ViaturaFormContainer = ({
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={form.control}
-                          name='dataFinal'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Fim do Contrato</FormLabel>
-                              <FormControl>
-                                <DatePicker
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  placeholder='Selecione a data final'
+                    <FormField
+                      control={form.control}
+                      name='dataFinal'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fim do Contrato</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder='Selecione a data final'
                                   className={FIELD_HEIGHT_CLASS}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                     </FormSection>
 
                     <FormSection
@@ -2277,31 +2373,31 @@ const ViaturaFormContainer = ({
                       description='Detalhes de rendas, opção de compra e valores residuais'
                     >
                       <div className='grid gap-4 md:grid-cols-3'>
-                        <FormField
-                          control={form.control}
-                          name='opcaoCompra'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Opção de Compra</FormLabel>
-                              <FormControl>
-                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                                  <span className='text-sm text-muted-foreground'>
-                                    {field.value ? 'Disponível' : 'Não disponível'}
-                                  </span>
-                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='nRendas'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nº de Rendas</FormLabel>
-                              <FormControl>
+                    <FormField
+                      control={form.control}
+                      name='opcaoCompra'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Opção de Compra</FormLabel>
+                          <FormControl>
+                            <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
+                              <span className='text-sm text-muted-foreground'>
+                                {field.value ? 'Disponível' : 'Não disponível'}
+                              </span>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='nRendas'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nº de Rendas</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -2310,19 +2406,19 @@ const ViaturaFormContainer = ({
                                   ref={field.ref}
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='valorRenda'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Valor por Renda (€)</FormLabel>
-                              <FormControl>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='valorRenda'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Valor por Renda (€)</FormLabel>
+                          <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -2332,20 +2428,20 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   step={0.01}
                                   min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name='valorResidual'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Valor Residual (€)</FormLabel>
-                            <FormControl>
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name='valorResidual'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valor Residual (€)</FormLabel>
+                        <FormControl>
                               <NumberInput
                                 value={toNumberValue(field.value)}
                                 onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -2355,12 +2451,12 @@ const ViaturaFormContainer = ({
                                 className={TEXT_INPUT_CLASS}
                                 step={0.01}
                                 min={0}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                     </FormSection>
                   </div>
                 </CardContent>
@@ -2433,68 +2529,6 @@ const ViaturaFormContainer = ({
                       </FormItem>
                     )}
                   />
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <FormField
-                      control={form.control}
-                      name='anoImpostoSelo'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ano Imposto de Selo</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={1900}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='anoImpostoCirculacao'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ano Imposto Circulação</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={1900}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='dataValidadeSelo'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Validade do Selo</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder='Selecione a validade do selo'
-                              className={FIELD_HEIGHT_CLASS}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -2511,45 +2545,144 @@ const ViaturaFormContainer = ({
                     </div>
                     <div>
                       <CardTitle className='flex items-center gap-2 text-base'>
-                        Notas e Documentação
+                        Notas, Fiscalidade e Documentação
                       </CardTitle>
                       <p className='mt-1 text-sm text-muted-foreground'>
-                        Adicione observações e evidências visuais
+                        Registe observações, dados fiscais e evidências visuais
                       </p>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className='space-y-6'>
+                <CardContent className='space-y-8'>
+                  <FormSection
+                    icon={StickyNote}
+                    title='Notas adicionais'
+                    description='Registe observações relevantes sobre a viatura'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='notasAdicionais'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Notas Adicionais</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder='Registe notas relevantes sobre a viatura'
+                              rows={5}
+                              {...field}
+                              className='shadow-inner drop-shadow-xl'
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </FormSection>
+
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={Stamp}
+                      title='Fiscalidade e cartões'
+                      description='Dados de impostos e cartão de combustível associados'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
+                    <FormField
+                      control={form.control}
+                      name='anoImpostoSelo'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ano Imposto de Selo</FormLabel>
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={1900}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='anoImpostoCirculacao'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ano Imposto Circulação</FormLabel>
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={1900}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                          name='cartaoCombustivel'
+                      render={({ field }) => (
+                        <FormItem>
+                              <FormLabel>Cartão Combustível</FormLabel>
+                          <FormControl>
+                                <Input
+                                  placeholder='Número ou identificação do cartão'
+                                  {...field}
+                                  className={TEXT_INPUT_CLASS}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   <FormField
                     control={form.control}
-                    name='notasAdicionais'
+                          name='dataValidadeSelo'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Notas Adicionais</FormLabel>
+                              <FormLabel>Data Validade</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder='Registe notas relevantes sobre a viatura'
-                            rows={5}
-                            {...field}
-                            className='shadow-inner drop-shadow-xl'
+                                <DatePicker
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  placeholder='Selecione a data de validade'
+                                  className={FIELD_HEIGHT_CLASS}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                      </div>
+                    </FormSection>
+
+                    <FormSection
+                      icon={FolderOpen}
+                      title='Documentação'
+                      description='Referencie imagens e anexos relevantes'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
                     <FormField
                       control={form.control}
                       name='urlImagem1'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>URL Imagem 1</FormLabel>
+                              <FormLabel>Imagem 1</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder='https://exemplo.com/imagem1.jpg'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                                <ImageUploader
+                                  value={field.value}
+                                  onChange={(value: string) => field.onChange(value)}
+                                  label='Imagem 1'
                             />
                           </FormControl>
                           <FormMessage />
@@ -2561,18 +2694,20 @@ const ViaturaFormContainer = ({
                       name='urlImagem2'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>URL Imagem 2</FormLabel>
+                              <FormLabel>Imagem 2</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder='https://exemplo.com/imagem2.jpg'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                                <ImageUploader
+                                  value={field.value}
+                                  onChange={(value: string) => field.onChange(value)}
+                                  label='Imagem 2'
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                      </div>
+                    </FormSection>
                   </div>
                 </CardContent>
               </Card>
@@ -2611,15 +2746,15 @@ const ViaturaFormContainer = ({
                               <div className='flex flex-col gap-2 md:flex-row md:items-center md:gap-2 md:flex-1'>
                                 <div className='w-full md:flex-1'>
                                   <div className='relative'>
-                                    <Autocomplete
-                                      options={selectOptions.equipamentos}
+                          <Autocomplete
+                            options={selectOptions.equipamentos}
                                       value={selectedEquipamentoId}
                                       onValueChange={setSelectedEquipamentoId}
                                       placeholder={placeholder(
                                         selectLoading.equipamentos,
                                         'o equipamento'
                                       )}
-                                      disabled={selectLoading.equipamentos}
+                            disabled={selectLoading.equipamentos}
                                       className={SELECT_WITH_ACTIONS_CLASS}
                                     />
                                     <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>

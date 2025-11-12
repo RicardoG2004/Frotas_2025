@@ -51,6 +51,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   valorResidual: values.valorResidual,
   seguroId: values.seguroId,
   notasAdicionais: values.notasAdicionais || '',
+  cartaoCombustivel: values.cartaoCombustivel || '',
   anoImpostoSelo: values.anoImpostoSelo,
   anoImpostoCirculacao: values.anoImpostoCirculacao,
   dataValidadeSelo: values.dataValidadeSelo.toISOString(),

@@ -101,6 +101,7 @@ export interface ViaturaDTO {
   dataValidadeSelo: string
   urlImagem1: string
   urlImagem2: string
+  cartaoCombustivel?: string
   equipamentoIds: string[]
   equipamentos?: Array<{
     id?: string
@@ -154,6 +155,7 @@ export interface CreateViaturaDTO {
   valorResidual: number
   seguroId: string
   notasAdicionais: string
+  cartaoCombustivel?: string
   anoImpostoSelo: number
   anoImpostoCirculacao: number
   dataValidadeSelo: string
