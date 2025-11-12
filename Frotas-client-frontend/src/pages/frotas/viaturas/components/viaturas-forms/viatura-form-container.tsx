@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LicensePlateInput } from '@/components/ui/license-plate-input'
 import { NumberInput } from '@/components/ui/number-input'
 import { Textarea } from '@/components/ui/textarea'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -811,109 +812,116 @@ const ViaturaFormContainer = ({
                     title='Dados principais'
                     description='Informações base de identificação e registo'
                   >
-                    <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-3'>
+                    <div className='grid gap-4 md:grid-cols-[1.35fr_1.65fr] xl:grid-cols-[1.35fr_1.65fr_1.3fr] items-start'>
                       <FormField
                         control={form.control}
                         name='matricula'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Matrícula</FormLabel>
+                            <FormLabel className='sr-only'>Matrícula</FormLabel>
                             <FormControl>
-                              <Input
-                                placeholder='Introduza a matrícula'
-                                {...field}
-                                className={TEXT_INPUT_CLASS}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='numero'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Número Interno</FormLabel>
-                            <FormControl>
-                              <NumberInput
-                                value={toNumberValue(field.value)}
-                                onValueChange={(nextValue) => field.onChange(nextValue)}
-                                onBlur={field.onBlur}
+                              <LicensePlateInput
                                 name={field.name}
-                                ref={field.ref}
-                                placeholder='Número interno da viatura'
-                                className={TEXT_INPUT_CLASS}
-                                min={0}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='anoFabrico'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Ano de Fabrico</FormLabel>
-                            <FormControl>
-                              <NumberInput
-                                value={toNumberValue(field.value)}
-                                onValueChange={(nextValue) => field.onChange(nextValue)}
-                                onBlur={field.onBlur}
-                                name={field.name}
-                                ref={field.ref}
-                                placeholder='Ano'
-                                className={TEXT_INPUT_CLASS}
-                                min={1900}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='mesFabrico'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mês de Fabrico</FormLabel>
-                            <FormControl>
-                              <NumberInput
-                                value={toNumberValue(field.value)}
-                                onValueChange={(nextValue) => field.onChange(nextValue)}
-                                onBlur={field.onBlur}
-                                name={field.name}
-                                ref={field.ref}
-                                placeholder='Mês (1-12)'
-                                className={TEXT_INPUT_CLASS}
-                                min={1}
-                                max={12}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='dataInicial'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data de Registo</FormLabel>
-                            <FormControl>
-                              <DatePicker
-                                value={field.value}
+                                value={field.value ?? ''}
                                 onChange={field.onChange}
-                                placeholder='Selecione a data de registo'
-                                className={FIELD_HEIGHT_CLASS}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                                className='shadow-inner drop-shadow-xl'
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                      <div className='flex flex-col gap-4 md:pr-0'>
+                        <FormField
+                          control={form.control}
+                          name='numero'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Número Interno</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  placeholder='Número interno da viatura'
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='dataInicial'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Data de Registo</FormLabel>
+                              <FormControl>
+                                <DatePicker
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  placeholder='Selecione a data de registo'
+                                  className={FIELD_HEIGHT_CLASS}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className='md:col-start-2 xl:col-start-3 flex flex-col gap-4 md:pl-0'>
+                        <FormField
+                          control={form.control}
+                          name='anoFabrico'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Ano de Fabrico</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  placeholder='Ano'
+                                  className={TEXT_INPUT_CLASS}
+                                  min={1900}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='mesFabrico'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mês de Fabrico</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  placeholder='Mês (1-12)'
+                                  className={TEXT_INPUT_CLASS}
+                                  min={1}
+                                  max={12}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
                   </FormSection>
 
