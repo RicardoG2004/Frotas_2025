@@ -75,6 +75,15 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => ({
       : viatura.equipamentos
           ?.map((equipamento) => equipamento.id)
           .filter((id): id is string => typeof id === 'string') ?? [],
+  inspecoes:
+    viatura.inspecoes?.map((inspecao) => ({
+      id: inspecao.id,
+      dataInspecao: inspecao.dataInspecao ? new Date(inspecao.dataInspecao) : new Date(),
+      resultado: inspecao.resultado ?? '',
+      dataProximaInspecao: inspecao.dataProximaInspecao
+        ? new Date(inspecao.dataProximaInspecao)
+        : new Date(),
+    })) ?? [],
 })
 
 const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
@@ -129,6 +138,13 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   urlImagem1: values.urlImagem1 || '',
   urlImagem2: values.urlImagem2 || '',
   equipamentoIds: values.equipamentoIds,
+  inspecoes:
+    values.inspecoes?.map((inspecao) => ({
+      id: inspecao.id,
+      dataInspecao: inspecao.dataInspecao.toISOString(),
+      resultado: inspecao.resultado,
+      dataProximaInspecao: inspecao.dataProximaInspecao.toISOString(),
+    })) ?? [],
 })
 
 const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {

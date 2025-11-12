@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentValidation;
 using Frotas.API.Application.Common.Marker;
 
@@ -57,6 +58,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public string URLImagem1 { get; set; }
     public string URLImagem2 { get; set; }
     public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
+    public ICollection<ViaturaInspecaoUpsertDTO> Inspecoes { get; set; } = new List<ViaturaInspecaoUpsertDTO>();
   }
 
   public class CreateViaturaValidator : AbstractValidator<CreateViaturaRequest>
@@ -110,6 +112,45 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
         .NotNull()
         .Must(ids => ids.Count > 0)
         .WithMessage("Selecione pelo menos um equipamento");
+      _ = RuleForEach(x => x.Inspecoes).ChildRules(inspection =>
+      {
+        _ = inspection.RuleFor(i => i.DataInspecao).NotEmpty();
+        _ = inspection.RuleFor(i => i.Resultado).NotEmpty();
+        _ = inspection.RuleFor(i => i.DataProximaInspecao)
+          .NotEmpty()
+          .GreaterThan(i => i.DataInspecao)
+          .WithMessage("A data da próxima inspeção deve ser posterior à data da inspeção.");
+      });
+      _ = RuleFor(x => x.Inspecoes).Custom((inspecoes, context) =>
+      {
+        if (inspecoes == null)
+        {
+          return;
+        }
+
+        List<ViaturaInspecaoUpsertDTO> ordered = inspecoes.ToList();
+        for (int i = 0; i < ordered.Count - 1; i++)
+        {
+          ViaturaInspecaoUpsertDTO current = ordered[i];
+          ViaturaInspecaoUpsertDTO next = ordered[i + 1];
+
+          if (next.DataInspecao <= current.DataInspecao)
+          {
+            context.AddFailure(
+              $"Inspecoes[{i + 1}].DataInspecao",
+              "As inspeções devem ser registadas por ordem cronológica."
+            );
+          }
+
+          if (next.DataInspecao != current.DataProximaInspecao)
+          {
+            context.AddFailure(
+              $"Inspecoes[{i}].DataProximaInspecao",
+              "A data da próxima inspeção deve coincidir com a data da inspeção seguinte."
+            );
+          }
+        }
+      });
     }
   }
 }

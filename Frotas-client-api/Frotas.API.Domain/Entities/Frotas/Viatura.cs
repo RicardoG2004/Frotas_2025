@@ -71,5 +71,7 @@ namespace Frotas.API.Domain.Entities.Frotas
     public string URLImagem2 { get; set; }
     public ICollection<ViaturaEquipamento> ViaturaEquipamentos { get; set; } =
       new List<ViaturaEquipamento>();
+    public ICollection<ViaturaInspecao> ViaturaInspecoes { get; set; } =
+      new List<ViaturaInspecao>();
   }
 }

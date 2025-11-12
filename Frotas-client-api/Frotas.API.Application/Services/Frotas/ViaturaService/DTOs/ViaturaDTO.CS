@@ -85,6 +85,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public string URLImagem2 { get; set; }
     public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
     public ICollection<EquipamentoDTO> Equipamentos { get; set; } = new List<EquipamentoDTO>();
+    public ICollection<ViaturaInspecaoDTO> Inspecoes { get; set; } = new List<ViaturaInspecaoDTO>();
     public DateTime CreatedOn { get; set; }
   }
 }

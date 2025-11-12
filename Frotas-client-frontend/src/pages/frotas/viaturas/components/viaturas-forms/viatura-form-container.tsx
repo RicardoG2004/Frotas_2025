@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,7 @@ import {
   CheckSquare,
   CircleDot,
   ClipboardList,
+  ClipboardCheck as ClipboardCheckIcon,
   FileText,
   Fingerprint,
   Fuel,
@@ -337,6 +338,16 @@ const ViaturaFormContainer = ({
   }, [initialValues, form])
 
   const {
+    fields: inspectionFields,
+    append: appendInspection,
+    remove: removeInspection,
+  } = useFieldArray({
+    control: form.control,
+    name: 'inspecoes',
+    keyName: 'fieldId',
+  })
+
+  const {
     data: marcas = [],
     isLoading: isLoadingMarcas,
     refetch: refetchMarcas,
@@ -541,6 +552,45 @@ const ViaturaFormContainer = ({
     addSeguroToForm(selectedSeguroId)
   }
 
+  const getNextInspectionDate = (date: Date) => {
+    const next = new Date(date.getTime())
+    next.setFullYear(next.getFullYear() + 1)
+    return next
+  }
+
+  const handleAddInspection = () => {
+    const inspections = form.getValues('inspecoes') ?? []
+    const lastInspection = inspections[inspections.length - 1]
+
+    if (lastInspection) {
+      if (!(lastInspection.dataProximaInspecao instanceof Date)) {
+        toast.warning('Defina a data da próxima inspeção antes de adicionar uma nova.')
+        return
+      }
+
+      const dataInspecao = new Date(lastInspection.dataProximaInspecao)
+      appendInspection({
+        id: undefined,
+        dataInspecao,
+        resultado: '',
+        dataProximaInspecao: getNextInspectionDate(dataInspecao),
+      })
+
+      form.setValue(`inspecoes.${inspections.length - 1}.dataProximaInspecao`, dataInspecao, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    } else {
+      const today = new Date()
+      appendInspection({
+        id: undefined,
+        dataInspecao: today,
+        resultado: '',
+        dataProximaInspecao: getNextInspectionDate(today),
+      })
+    }
+  }
+
   const handleRemoveSeguro = (seguroId: string) => {
     const current = form.getValues('seguroIds') ?? []
     form.setValue(
@@ -561,6 +611,26 @@ const ViaturaFormContainer = ({
     )
 
     setSelectedEquipamentoId((prev) => (prev === equipamentoId ? '' : prev))
+  }
+
+  const handleRemoveInspection = (index: number) => {
+    removeInspection(index)
+
+    setTimeout(() => {
+      const inspections = form.getValues('inspecoes') ?? []
+      const previousIndex = index - 1
+      if (
+        previousIndex >= 0 &&
+        previousIndex < inspections.length &&
+        inspections[previousIndex + 1]?.dataInspecao instanceof Date
+      ) {
+        form.setValue(
+          `inspecoes.${previousIndex}.dataProximaInspecao`,
+          inspections[previousIndex + 1].dataInspecao,
+          { shouldDirty: true, shouldValidate: true }
+        )
+      }
+    })
   }
 
   const { setActiveTab } = useTabManager({
@@ -621,6 +691,7 @@ const ViaturaFormContainer = ({
       urlImagem1: 'notas',
       urlImagem2: 'notas',
       equipamentoIds: 'equipamento',
+      inspecoes: 'inspecoes',
     },
   })
 
@@ -985,6 +1056,10 @@ const ViaturaFormContainer = ({
             <PersistentTabsTrigger value='locacao'>
               <MapPin className='mr-2 h-4 w-4' />
               Locação
+            </PersistentTabsTrigger>
+            <PersistentTabsTrigger value='inspecoes'>
+              <ClipboardCheckIcon className='mr-2 h-4 w-4' />
+              Inspeções
             </PersistentTabsTrigger>
             <PersistentTabsTrigger value='seguros'>
               <ShieldCheck className='mr-2 h-4 w-4' />
@@ -2521,6 +2596,126 @@ const ViaturaFormContainer = ({
                   />
                     </FormSection>
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+          </PersistentTabsContent>
+
+          {/* Inspeções */}
+          <PersistentTabsContent value='inspecoes'>
+            <div className='space-y-6'>
+              <Card className='overflow-hidden border-l-4 border-l-primary/20 transition-all duration-200 hover:border-l-primary/40 hover:shadow-md'>
+                <CardHeader className='pb-4'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                      <ClipboardCheckIcon className='h-4 w-4' />
+                    </div>
+                    <div>
+                      <CardTitle className='flex items-center gap-2 text-base'>
+                        Registo de Inspeções
+                      </CardTitle>
+                      <p className='mt-1 text-sm text-muted-foreground'>
+                        Guarde o histórico das inspeções obrigatórias desta viatura.
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
+                    <p className='text-sm text-muted-foreground'>
+                      Adicione cada inspeção com a data realizada, resultado e agende a próxima data.
+                    </p>
+                    <Button
+                      type='button'
+                      variant='secondary'
+                      size='default'
+                      className='md:min-w-[220px]'
+                      onClick={handleAddInspection}
+                    >
+                      Adicionar inspeção
+                    </Button>
+                  </div>
+                  {inspectionFields.length === 0 ? (
+                    <p className='text-sm italic text-muted-foreground'>
+                      Ainda não existem inspeções registadas para esta viatura.
+                    </p>
+                  ) : (
+                    <div className='space-y-4'>
+                      {inspectionFields.map((inspection, index) => (
+                        <div
+                          key={inspection.fieldId}
+                          className='space-y-4 rounded-md border border-border/60 p-4 shadow-sm'
+                        >
+                          <div className='grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))]'>
+                            <FormField
+                              control={form.control}
+                              name={`inspecoes.${index}.dataInspecao`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Data da inspeção</FormLabel>
+                                  <FormControl>
+                                    <DatePicker
+                                      value={field.value || undefined}
+                                      onChange={field.onChange}
+                                      allowClear
+                                      className={FIELD_HEIGHT_CLASS}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`inspecoes.${index}.resultado`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Resultado</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder='Ex.: Aprovado, Reprovado, Com observações'
+                                      className={TEXT_INPUT_CLASS}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`inspecoes.${index}.dataProximaInspecao`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Próxima inspeção</FormLabel>
+                                  <FormControl>
+                                    <DatePicker
+                                      value={field.value || undefined}
+                                      onChange={field.onChange}
+                                      allowClear
+                                      className={FIELD_HEIGHT_CLASS}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className='flex justify-end'>
+                            <Button
+                              type='button'
+                              variant='destructive'
+                              size='sm'
+                              onClick={() => handleRemoveInspection(index)}
+                            >
+                              <Trash2 className='mr-2 h-4 w-4' />
+                              Remover inspeção
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

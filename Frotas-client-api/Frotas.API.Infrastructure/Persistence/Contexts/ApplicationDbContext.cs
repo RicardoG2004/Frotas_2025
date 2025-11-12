@@ -58,6 +58,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Viatura> Viaturas { get; set; }
     public DbSet<ViaturaEquipamento> ViaturaEquipamentos { get; set; }
     public DbSet<ViaturaSeguro> ViaturaSeguros { get; set; }
+    public DbSet<ViaturaInspecao> ViaturaInspecoes { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -98,6 +99,11 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Seguro)
         .WithMany(x => x.ViaturaSeguros)
         .HasForeignKey(x => x.SeguroId);
+
+      modelBuilder.Entity<ViaturaInspecao>()
+        .HasOne(x => x.Viatura)
+        .WithMany(x => x.ViaturaInspecoes)
+        .HasForeignKey(x => x.ViaturaId);
 
       // query filters
       _ = modelBuilder.AppendGlobalQueryFilter<ISoftDelete>(s => s.DeletedOn == null);

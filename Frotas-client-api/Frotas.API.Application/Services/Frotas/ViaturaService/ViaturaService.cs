@@ -76,6 +76,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       Viatura newViatura = _mapper.Map<CreateViaturaRequest, Viatura>(request);
       SyncEquipamentos(newViatura, request.EquipamentoIds);
       SyncSeguros(newViatura, request.SeguroIds);
+      SyncInspecoes(newViatura, request.Inspecoes);
 
       try
       {
@@ -108,6 +109,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       Viatura updatedViatura = _mapper.Map(request, viaturaInDb);
       SyncEquipamentos(updatedViatura, request.EquipamentoIds);
       SyncSeguros(updatedViatura, request.SeguroIds);
+      SyncInspecoes(updatedViatura, request.Inspecoes);
 
       try
       {
@@ -250,6 +252,57 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       {
         viatura.ViaturaSeguros.Add(new ViaturaSeguro { SeguroId = seguroId });
       }
+    }
+  }
+
+  private static void SyncInspecoes(
+    Viatura viatura,
+    ICollection<ViaturaInspecaoUpsertDTO> inspeccoesRequest
+  )
+  {
+    inspeccoesRequest ??= new List<ViaturaInspecaoUpsertDTO>();
+    viatura.ViaturaInspecoes ??= new List<ViaturaInspecao>();
+
+    HashSet<Guid> incomingIds = inspeccoesRequest
+      .Where(i => i.Id.HasValue)
+      .Select(i => i.Id!.Value)
+      .ToHashSet();
+
+    List<ViaturaInspecao> toRemove = viatura.ViaturaInspecoes
+      .Where(inspecao => !incomingIds.Contains(inspecao.Id))
+      .ToList();
+
+    foreach (ViaturaInspecao inspecao in toRemove)
+    {
+      _ = viatura.ViaturaInspecoes.Remove(inspecao);
+    }
+
+    foreach (ViaturaInspecaoUpsertDTO requestInspecao in inspeccoesRequest)
+    {
+      if (requestInspecao.Id.HasValue)
+      {
+        ViaturaInspecao? existing = viatura.ViaturaInspecoes.FirstOrDefault(
+          inspecao => inspecao.Id == requestInspecao.Id.Value
+        );
+
+        if (existing != null)
+        {
+          existing.DataInspecao = requestInspecao.DataInspecao;
+          existing.Resultado = requestInspecao.Resultado;
+          existing.DataProximaInspecao = requestInspecao.DataProximaInspecao;
+          continue;
+        }
+      }
+
+      viatura.ViaturaInspecoes.Add(
+        new ViaturaInspecao
+        {
+          Id = requestInspecao.Id ?? Guid.NewGuid(),
+          DataInspecao = requestInspecao.DataInspecao,
+          Resultado = requestInspecao.Resultado,
+          DataProximaInspecao = requestInspecao.DataProximaInspecao,
+        }
+      );
     }
   }
 }

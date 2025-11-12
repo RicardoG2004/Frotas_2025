@@ -28,6 +28,7 @@ public class ViaturaWithDetalhesSpecification : Specification<Viatura>
     _ = Query
       .Include(x => x.ViaturaSeguros)
       .ThenInclude(x => x.Seguro);
+    _ = Query.Include(x => x.ViaturaInspecoes);
   }
 }
 

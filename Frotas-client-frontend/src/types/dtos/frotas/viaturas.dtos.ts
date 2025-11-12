@@ -107,7 +107,22 @@ export interface ViaturaDTO {
     id?: string
     designacao?: string
   }>
+  inspecoes?: ViaturaInspecaoDTO[]
   createdOn: string
+}
+
+export interface ViaturaInspecaoDTO {
+  id?: string
+  dataInspecao: string
+  resultado: string
+  dataProximaInspecao: string
+}
+
+export interface ViaturaInspecaoUpsertDTO {
+  id?: string
+  dataInspecao: string
+  resultado: string
+  dataProximaInspecao: string
 }
 
 export interface CreateViaturaDTO {
@@ -162,6 +177,7 @@ export interface CreateViaturaDTO {
   urlImagem1: string
   urlImagem2: string
   equipamentoIds: string[]
+  inspecoes: ViaturaInspecaoUpsertDTO[]
 }
 
 export interface UpdateViaturaDTO extends CreateViaturaDTO {}
