@@ -48,12 +48,14 @@ export function Autocomplete({
 
   const selectedOption = options.find((option) => option.value === value)
 
+  const normalizedInput = inputValue.trim().toLowerCase()
+
   // Show all options when opened via click or input is empty, filter when typing and input is not empty
   const filteredOptions =
-    isTyping && inputValue !== ''
+    isTyping && normalizedInput !== ''
       ? options
           .filter((option) =>
-            option.label.toLowerCase().includes(inputValue.toLowerCase())
+            option.label.toLowerCase().startsWith(normalizedInput)
           )
           .slice(0, 3) // Limit to 3 options when typing and input is not empty
       : options.slice(0, defaultVisibleCount) // Show first N options when opened via click or input is empty

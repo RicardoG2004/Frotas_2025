@@ -30,9 +30,17 @@ import {
   Building2,
   CalendarDays,
   Car,
+  CheckSquare,
+  CircleDot,
   ClipboardList,
   FileText,
+  Fingerprint,
+  Fuel,
+  Gauge,
   MapPin,
+  Package,
+  PiggyBank,
+  Ruler,
   Settings,
   ShieldCheck,
   Wrench,
@@ -1441,445 +1449,510 @@ const ViaturaFormContainer = ({
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className='space-y-6'>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='custo'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Custo (€)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              placeholder='Custo da viatura'
-                              className={TEXT_INPUT_CLASS}
-                              step={0.01}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='despesasIncluidas'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Despesas Incluídas (€)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              placeholder='Despesas incluídas'
-                              className={TEXT_INPUT_CLASS}
-                              step={0.01}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <FormField
-                      control={form.control}
-                      name='fornecedorId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Entidade fornecedora</FormLabel>
-                          <FormControl>
-                            <div className='relative'>
-                            <Autocomplete
-                              options={selectOptions.fornecedores}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                                placeholder={placeholder(
-                                  selectLoading.fornecedores,
-                                  'o fornecedor'
-                                )}
-                              disabled={selectLoading.fornecedores}
-                                className={SELECT_WITH_ACTIONS_CLASS}
-                              />
-                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleViewFornecedor}
-                                  className='h-8 w-8 p-0'
-                                  title='Ver Fornecedor'
-                                  disabled={!field.value}
-                                >
-                                  <Eye className='h-4 w-4' />
-                                </Button>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleCreateFornecedor}
-                                  className='h-8 w-8 p-0'
-                                  title='Criar Fornecedor'
-                                >
-                                  <Plus className='h-4 w-4' />
-                                </Button>
+                <CardContent className='space-y-8'>
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={PiggyBank}
+                      title='Aquisição e custos'
+                      description='Registe valores financeiros e entidade fornecedora'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='custo'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Custo (€)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  placeholder='Custo da viatura'
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.01}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='despesasIncluidas'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Despesas Incluídas (€)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  placeholder='Despesas incluídas'
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.01}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name='fornecedorId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Entidade fornecedora</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.fornecedores}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.fornecedores,
+                                    'o fornecedor'
+                                  )}
+                                  disabled={selectLoading.fornecedores}
+                                  className={SELECT_WITH_ACTIONS_CLASS}
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewFornecedor}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Fornecedor'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateFornecedor}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Fornecedor'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='combustivelId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Combustível</FormLabel>
-                          <FormControl>
-                            <div className='relative'>
-                            <Autocomplete
-                              options={selectOptions.combustiveis}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                                placeholder={placeholder(
-                                  selectLoading.combustiveis,
-                                  'o combustível'
-                                )}
-                              disabled={selectLoading.combustiveis}
-                                className={SELECT_WITH_ACTIONS_CLASS}
-                              />
-                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleViewCombustivel}
-                                  className='h-8 w-8 p-0'
-                                  title='Ver Combustível'
-                                  disabled={!field.value}
-                                >
-                                  <Eye className='h-4 w-4' />
-                                </Button>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleCreateCombustivel}
-                                  className='h-8 w-8 p-0'
-                                  title='Criar Combustível'
-                                >
-                                  <Plus className='h-4 w-4' />
-                                </Button>
-                              </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='consumoMedio'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Consumo Médio (L/100km)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              placeholder='Consumo médio'
-                              className={TEXT_INPUT_CLASS}
-                              step={0.1}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </FormSection>
+
+                    <FormSection
+                      icon={Fuel}
+                      title='Combustível e consumo'
+                      description='Defina o combustível e o consumo médio estimado'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-[2fr_1fr]'>
+                        <FormField
+                          control={form.control}
+                          name='combustivelId'
+                          render={({ field }) => (
+                            <FormItem className='sm:col-span-2'>
+                              <FormLabel>Combustível</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.combustiveis}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(
+                                      selectLoading.combustiveis,
+                                      'o combustível'
+                                    )}
+                                    disabled={selectLoading.combustiveis}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewCombustivel}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Combustível'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateCombustivel}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Combustível'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='consumoMedio'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Consumo Médio (L/100km)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  placeholder='Consumo médio'
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.1}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
                   </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <FormField
-                      control={form.control}
-                      name='nQuadro'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nº de Quadro</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='nMotor'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nº de Motor</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='cilindrada'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cilindrada (cm³)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              step={0.1}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={Fingerprint}
+                      title='Identificação mecânica'
+                      description='Identificadores únicos gravados na viatura'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='nQuadro'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nº de Quadro</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='nMotor'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nº de Motor</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
+
+                    <FormSection
+                      icon={Gauge}
+                      title='Motor e performance'
+                      description='Especificações de potência do conjunto motor'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='cilindrada'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Cilindrada (cm³)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.1}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='potencia'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Potência (cv)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
                   </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <FormField
-                      control={form.control}
-                      name='potencia'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Potência (cv)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='tara'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tara (kg)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='lotacao'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Lotação</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={Package}
+                      title='Capacidades operacionais'
+                      description='Pesos e capacidades máximas autorizadas'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-3'>
+                        <FormField
+                          control={form.control}
+                          name='tara'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tara (kg)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='lotacao'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Lotação</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='cargaUtil'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Carga Útil (kg)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
+
+                    <FormSection
+                      icon={Ruler}
+                      title='Dimensões exteriores'
+                      description='Medidas principais do chassis'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='comprimento'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Comprimento (mm)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='largura'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Largura (mm)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
                   </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <FormField
-                      control={form.control}
-                      name='cargaUtil'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Carga Útil (kg)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='comprimento'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Comprimento (mm)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='largura'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Largura (mm)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='pneusFrente'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Pneus Frente</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder='Referência dos pneus dianteiros'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='pneusTras'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Pneus Traseiros</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder='Referência dos pneus traseiros'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='marketing'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Marketing</FormLabel>
-                          <FormControl>
-                            <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                              <span className='text-sm text-muted-foreground'>
-                                {field.value ? 'Sim' : 'Não'}
-                              </span>
-                              <Switch checked={field.value} onCheckedChange={field.onChange} />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='mercadorias'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mercadorias</FormLabel>
-                          <FormControl>
-                            <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                              <span className='text-sm text-muted-foreground'>
-                                {field.value ? 'Sim' : 'Não'}
-                              </span>
-                              <Switch checked={field.value} onCheckedChange={field.onChange} />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={CircleDot}
+                      title='Configuração de pneus'
+                      description='Registe as referências dos pneus dianteiros e traseiros'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='pneusFrente'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Pneus Frente</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder='Referência dos pneus dianteiros'
+                                  {...field}
+                                  className={TEXT_INPUT_CLASS}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='pneusTras'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Pneus Traseiros</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder='Referência dos pneus traseiros'
+                                  {...field}
+                                  className={TEXT_INPUT_CLASS}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
+
+                    <FormSection
+                      icon={CheckSquare}
+                      title='Utilização comercial'
+                      description='Assinale as utilizações específicas desta viatura'
+                    >
+                      <div className='grid gap-4 sm:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='marketing'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Marketing</FormLabel>
+                              <FormControl>
+                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
+                                  <span className='text-sm text-muted-foreground'>
+                                    {field.value ? 'Sim' : 'Não'}
+                                  </span>
+                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='mercadorias'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mercadorias</FormLabel>
+                              <FormControl>
+                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
+                                  <span className='text-sm text-muted-foreground'>
+                                    {field.value ? 'Sim' : 'Não'}
+                                  </span>
+                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
                   </div>
                 </CardContent>
               </Card>
@@ -1905,25 +1978,124 @@ const ViaturaFormContainer = ({
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className='space-y-6'>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                <CardContent className='space-y-8'>
+                  <FormSection
+                    icon={Building2}
+                    title='Entidades e afetação'
+                    description='Associe a viatura às entidades responsáveis'
+                  >
+                    <div className='grid gap-4 md:grid-cols-2'>
+                      <FormField
+                        control={form.control}
+                        name='conservatoriaId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Conservatória</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.conservatorias}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.conservatorias,
+                                    'a conservatória'
+                                  )}
+                                  disabled={selectLoading.conservatorias}
+                                  className={SELECT_WITH_ACTIONS_CLASS}
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewConservatoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Conservatória'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateConservatoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Conservatória'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='categoriaId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Categoria</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={selectOptions.categorias}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={placeholder(
+                                    selectLoading.categorias,
+                                    'a categoria'
+                                  )}
+                                  disabled={selectLoading.categorias}
+                                  className={SELECT_WITH_ACTIONS_CLASS}
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewCategoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Categoria'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateCategoria}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Categoria'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
-                      name='conservatoriaId'
+                      name='terceiroId'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Conservatória</FormLabel>
+                          <FormLabel>Terceiro</FormLabel>
                           <FormControl>
                             <div className='relative'>
-                            <Autocomplete
-                              options={selectOptions.conservatorias}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                                placeholder={placeholder(
-                                  selectLoading.conservatorias,
-                                  'a conservatória'
-                                )}
-                              disabled={selectLoading.conservatorias}
+                              <Autocomplete
+                                options={selectOptions.terceiros}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
+                                disabled={selectLoading.terceiros}
                                 className={SELECT_WITH_ACTIONS_CLASS}
                               />
                               <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
@@ -1931,9 +2103,9 @@ const ViaturaFormContainer = ({
                                   type='button'
                                   variant='outline'
                                   size='sm'
-                                  onClick={handleViewConservatoria}
+                                  onClick={handleViewTerceiro}
                                   className='h-8 w-8 p-0'
-                                  title='Ver Conservatória'
+                                  title='Ver Terceiro'
                                   disabled={!field.value}
                                 >
                                   <Eye className='h-4 w-4' />
@@ -1942,9 +2114,9 @@ const ViaturaFormContainer = ({
                                   type='button'
                                   variant='outline'
                                   size='sm'
-                                  onClick={handleCreateConservatoria}
+                                  onClick={handleCreateTerceiro}
                                   className='h-8 w-8 p-0'
-                                  title='Criar Conservatória'
+                                  title='Criar Terceiro'
                                 >
                                   <Plus className='h-4 w-4' />
                                 </Button>
@@ -1955,246 +2127,187 @@ const ViaturaFormContainer = ({
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name='categoriaId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Categoria</FormLabel>
-                          <FormControl>
-                            <div className='relative'>
-                            <Autocomplete
-                              options={selectOptions.categorias}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                                placeholder={placeholder(
-                                  selectLoading.categorias,
-                                  'a categoria'
-                                )}
-                              disabled={selectLoading.categorias}
-                                className={SELECT_WITH_ACTIONS_CLASS}
-                              />
-                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleViewCategoria}
-                                  className='h-8 w-8 p-0'
-                                  title='Ver Categoria'
-                                  disabled={!field.value}
-                                >
-                                  <Eye className='h-4 w-4' />
-                                </Button>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleCreateCategoria}
-                                  className='h-8 w-8 p-0'
-                                  title='Criar Categoria'
-                                >
-                                  <Plus className='h-4 w-4' />
-                                </Button>
-                              </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name='terceiroId'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Terceiro</FormLabel>
-                        <FormControl>
-                          <div className='relative'>
-                          <Autocomplete
-                            options={selectOptions.terceiros}
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder={placeholder(selectLoading.terceiros, 'o terceiro')}
-                            disabled={selectLoading.terceiros}
-                              className={SELECT_WITH_ACTIONS_CLASS}
-                            />
-                            <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                              <Button
-                                type='button'
-                                variant='outline'
-                                size='sm'
-                                onClick={handleViewTerceiro}
-                                className='h-8 w-8 p-0'
-                                title='Ver Terceiro'
-                                disabled={!field.value}
-                              >
-                                <Eye className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                type='button'
-                                variant='outline'
-                                size='sm'
-                                onClick={handleCreateTerceiro}
-                                className='h-8 w-8 p-0'
-                                title='Criar Terceiro'
-                              >
-                                <Plus className='h-4 w-4' />
-                              </Button>
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='contrato'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nº de Contrato</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder='Referência do contrato'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='valorTotalContrato'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Valor Total do Contrato (€)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              step={0.01}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4'>
-                    <FormField
-                      control={form.control}
-                      name='dataFinal'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Fim do Contrato</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder='Selecione a data final'
-                              className={FIELD_HEIGHT_CLASS}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                    <FormField
-                      control={form.control}
-                      name='opcaoCompra'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Opção de Compra</FormLabel>
-                          <FormControl>
-                            <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                              <span className='text-sm text-muted-foreground'>
-                                {field.value ? 'Disponível' : 'Não disponível'}
-                              </span>
-                              <Switch checked={field.value} onCheckedChange={field.onChange} />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='nRendas'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nº de Rendas</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='valorRenda'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Valor por Renda (€)</FormLabel>
-                          <FormControl>
-                            <NumberInput
-                              value={toNumberValue(field.value)}
-                              onValueChange={(nextValue) => field.onChange(nextValue)}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                              className={TEXT_INPUT_CLASS}
-                              step={0.01}
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name='valorResidual'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Valor Residual (€)</FormLabel>
-                        <FormControl>
-                        <NumberInput
-                          value={toNumberValue(field.value)}
-                          onValueChange={(nextValue) => field.onChange(nextValue)}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
-                          className={TEXT_INPUT_CLASS}
-                          step={0.01}
-                          min={0}
+                  </FormSection>
+
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={FileText}
+                      title='Contrato de locação'
+                      description='Referência contratual e data prevista de término'
+                    >
+                      <div className='grid gap-4 md:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='contrato'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nº de Contrato</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder='Referência do contrato'
+                                  {...field}
+                                  className={TEXT_INPUT_CLASS}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <FormField
+                          control={form.control}
+                          name='valorTotalContrato'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Valor Total do Contrato (€)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.01}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className='grid gap-4 md:grid-cols-2'>
+                        <FormField
+                          control={form.control}
+                          name='dataInicial'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Início do Contrato</FormLabel>
+                              <FormControl>
+                                <DatePicker
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  placeholder='Selecione a data inicial'
+                                  className={FIELD_HEIGHT_CLASS}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='dataFinal'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Fim do Contrato</FormLabel>
+                              <FormControl>
+                                <DatePicker
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  placeholder='Selecione a data final'
+                                  className={FIELD_HEIGHT_CLASS}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
+
+                    <FormSection
+                      icon={PiggyBank}
+                      title='Condições financeiras'
+                      description='Detalhes de rendas, opção de compra e valores residuais'
+                    >
+                      <div className='grid gap-4 md:grid-cols-3'>
+                        <FormField
+                          control={form.control}
+                          name='opcaoCompra'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Opção de Compra</FormLabel>
+                              <FormControl>
+                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
+                                  <span className='text-sm text-muted-foreground'>
+                                    {field.value ? 'Disponível' : 'Não disponível'}
+                                  </span>
+                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='nRendas'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nº de Rendas</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='valorRenda'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Valor por Renda (€)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.01}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name='valorResidual'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Valor Residual (€)</FormLabel>
+                            <FormControl>
+                              <NumberInput
+                                value={toNumberValue(field.value)}
+                                onValueChange={(nextValue) => field.onChange(nextValue)}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                                className={TEXT_INPUT_CLASS}
+                                step={0.01}
+                                min={0}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </FormSection>
+                  </div>
                 </CardContent>
               </Card>
             </div>
