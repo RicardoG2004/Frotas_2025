@@ -185,6 +185,13 @@ const TEXT_INPUT_CLASS = `${FIELD_HEIGHT_CLASS} px-4 shadow-inner drop-shadow-xl
 const toNumberValue = (value: unknown) =>
   typeof value === 'number' && !Number.isNaN(value) ? value : undefined
 
+const formatDateLabel = (value: Date | string | null | undefined) => {
+  if (!value) return null
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  return date.toLocaleDateString('pt-PT')
+}
+
 type ImageUploaderProps = {
   value?: string
   onChange: (value: string) => void
@@ -327,6 +334,8 @@ const ViaturaFormContainer = ({
   const findWindowByPathAndInstanceId = useWindowsStore(
     (state) => state.findWindowByPathAndInstanceId
   )
+
+  const inspecoesValues = form.watch('inspecoes') ?? []
 
   useEffect(() => {
     if (initialValues) {
@@ -2636,84 +2645,141 @@ const ViaturaFormContainer = ({
                     </Button>
                   </div>
                   {inspectionFields.length === 0 ? (
-                    <p className='text-sm italic text-muted-foreground'>
-                      Ainda não existem inspeções registadas para esta viatura.
-                    </p>
+                    <div className='rounded-xl border border-dashed border-border/70 bg-muted/5 p-6 text-center shadow-inner'>
+                      <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                        <ClipboardCheckIcon className='h-6 w-6' />
+                      </div>
+                      <h4 className='mt-4 text-sm font-semibold text-foreground'>Sem inspeções registadas</h4>
+                      <p className='mt-2 text-sm text-muted-foreground'>
+                        Registe cada inspeção obrigatória para manter o histórico completo desta viatura.
+                      </p>
+                    </div>
                   ) : (
-                    <div className='space-y-4'>
-                      {inspectionFields.map((inspection, index) => (
-                        <div
-                          key={inspection.fieldId}
-                          className='space-y-4 rounded-md border border-border/60 p-4 shadow-sm'
-                        >
-                          <div className='grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))]'>
-                            <FormField
-                              control={form.control}
-                              name={`inspecoes.${index}.dataInspecao`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Data da inspeção</FormLabel>
-                                  <FormControl>
-                                    <DatePicker
-                                      value={field.value || undefined}
-                                      onChange={field.onChange}
-                                      allowClear
-                                      className={FIELD_HEIGHT_CLASS}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`inspecoes.${index}.resultado`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Resultado</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      placeholder='Ex.: Aprovado, Reprovado, Com observações'
-                                      className={TEXT_INPUT_CLASS}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`inspecoes.${index}.dataProximaInspecao`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Próxima inspeção</FormLabel>
-                                  <FormControl>
-                                    <DatePicker
-                                      value={field.value || undefined}
-                                      onChange={field.onChange}
-                                      allowClear
-                                      className={FIELD_HEIGHT_CLASS}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <div className='flex justify-end'>
-                            <Button
-                              type='button'
-                              variant='destructive'
-                              size='sm'
-                              onClick={() => handleRemoveInspection(index)}
-                            >
-                              <Trash2 className='mr-2 h-4 w-4' />
-                              Remover inspeção
-                            </Button>
-                          </div>
+                    <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
+                      <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                        <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                          <ClipboardCheckIcon className='h-4 w-4 text-primary' />
+                          Inspeções registadas
+                          <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                            {inspectionFields.length}
+                          </Badge>
                         </div>
-                      ))}
+                        <p className='text-xs text-muted-foreground'>
+                          Edite as informações conforme necessário e remova inspeções que já não sejam relevantes.
+                        </p>
+                      </div>
+
+                      <div className='space-y-4'>
+                        {inspectionFields.map((inspection, index) => {
+                          const inspectionData = inspecoesValues?.[index]
+                          const inspeccaoRealizada = formatDateLabel(inspectionData?.dataInspecao)
+                          const proximaInspecao = formatDateLabel(inspectionData?.dataProximaInspecao)
+
+                          return (
+                            <div
+                              key={inspection.fieldId}
+                              className='group space-y-5 rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md md:p-5'
+                            >
+                              <div className='flex flex-col gap-3 border-b border-border/60 pb-4 sm:flex-row sm:items-center sm:justify-between'>
+                                <div className='flex items-center gap-3'>
+                                  <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                                    <CircleDot className='h-5 w-5' />
+                                  </div>
+                                  <div>
+                                    <p className='text-sm font-semibold text-foreground'>
+                                      Inspeção #{index + 1}
+                                    </p>
+                                    <p className='text-xs text-muted-foreground'>
+                                      {inspeccaoRealizada
+                                        ? `Realizada em ${inspeccaoRealizada}.`
+                                        : 'Data de realização ainda não definida.'}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Badge
+                                  variant='outline'
+                                  className={cn(
+                                    'inline-flex items-center gap-1 rounded-full border-primary/30 bg-primary/5 px-3 py-[3px] text-[11px] font-medium text-primary',
+                                    !proximaInspecao && 'border-destructive/30 bg-destructive/5 text-destructive'
+                                  )}
+                                >
+                                  <CalendarDays className='h-3.5 w-3.5' />
+                                  {proximaInspecao ? `Próxima: ${proximaInspecao}` : 'Próxima inspeção por agendar'}
+                                </Badge>
+                              </div>
+
+                              <div className='grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))]'>
+                                <FormField
+                                  control={form.control}
+                                  name={`inspecoes.${index}.dataInspecao`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Data da inspeção</FormLabel>
+                                      <FormControl>
+                                        <DatePicker
+                                          value={field.value || undefined}
+                                          onChange={field.onChange}
+                                          allowClear
+                                          className={FIELD_HEIGHT_CLASS}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name={`inspecoes.${index}.resultado`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Resultado</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          placeholder='Ex.: Aprovado, Reprovado, Com observações'
+                                          className={TEXT_INPUT_CLASS}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name={`inspecoes.${index}.dataProximaInspecao`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Próxima inspeção</FormLabel>
+                                      <FormControl>
+                                        <DatePicker
+                                          value={field.value || undefined}
+                                          onChange={field.onChange}
+                                          allowClear
+                                          className={FIELD_HEIGHT_CLASS}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className='flex justify-end'>
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='sm'
+                                  onClick={() => handleRemoveInspection(index)}
+                                  className='text-destructive hover:text-destructive'
+                                >
+                                  <Trash2 className='mr-2 h-4 w-4' />
+                                  Remover inspeção
+                                </Button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -2797,51 +2863,96 @@ const ViaturaFormContainer = ({
                               </Button>
                             </div>
                             {segurosSelecionadosDetalhes.length > 0 ? (
-                              <div className='divide-y rounded-md border'>
-                                {segurosSelecionadosDetalhes.map(({ id, label }) => {
-                                  const seguroIndisponivel = label === 'Seguro indisponível'
-                                  return (
-                                    <div
-                                      key={id}
-                                      className='flex flex-col gap-3 p-3 md:flex-row md:items-center md:justify-between'
-                                    >
-                                      <div className='min-w-0'>
-                                        <p className='truncate text-sm font-medium'>{label}</p>
-                                        {seguroIndisponivel && (
-                                          <p className='text-xs text-muted-foreground'>
-                                            Este seguro já não está disponível. Considere removê-lo da lista.
-                                          </p>
-                                        )}
+                              <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
+                                <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                                  <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                                    <ShieldCheck className='h-4 w-4 text-primary' />
+                                    Seguros associados
+                                    <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                                      {segurosSelecionadosDetalhes.length}
+                                    </Badge>
+                                  </div>
+                                  <p className='text-xs text-muted-foreground'>
+                                    Confirme os seguros em vigor e visualize detalhes sempre que necessário.
+                                  </p>
+                                </div>
+
+                                <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
+                                  {segurosSelecionadosDetalhes.map(({ id, label }) => {
+                                    const seguroIndisponivel = label === 'Seguro indisponível'
+                                    return (
+                                      <div
+                                        key={id}
+                                        className='group flex h-full flex-col justify-between gap-4 rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md'
+                                      >
+                                        <div className='flex items-start gap-3'>
+                                          <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                                            <ShieldCheck className='h-5 w-5' />
+                                          </div>
+                                          <div className='min-w-0 space-y-1'>
+                                            <div className='flex items-start justify-between gap-2'>
+                                              <p className='truncate text-sm font-medium text-foreground'>{label}</p>
+                                              <Badge
+                                                variant='outline'
+                                                className={cn(
+                                                  'inline-flex items-center rounded-full border-primary/20 bg-primary/5 px-2 py-[2px] text-[11px] font-medium text-primary',
+                                                  seguroIndisponivel &&
+                                                    'border-destructive/30 bg-destructive/10 text-destructive'
+                                                )}
+                                              >
+                                                {seguroIndisponivel ? 'Indisponível' : 'Ativo'}
+                                              </Badge>
+                                            </div>
+                                            <p className='text-xs text-muted-foreground'>
+                                              {seguroIndisponivel
+                                                ? 'Este seguro já não está disponível. Considere removê-lo da viatura.'
+                                                : 'Seguro associado com sucesso. Utilize Ver para confirmar os detalhes.'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className='flex flex-wrap justify-end gap-2'>
+                                          <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            onClick={() => handleViewSeguro(id)}
+                                            title='Ver Seguro'
+                                            disabled={seguroIndisponivel}
+                                            className={cn(
+                                              'gap-2',
+                                              seguroIndisponivel && 'pointer-events-none opacity-60'
+                                            )}
+                                          >
+                                            <Eye className='h-4 w-4' />
+                                            Ver
+                                          </Button>
+                                          <Button
+                                            type='button'
+                                            variant='ghost'
+                                            size='sm'
+                                            onClick={() => handleRemoveSeguro(id)}
+                                            title='Remover Seguro'
+                                            className='text-destructive hover:text-destructive'
+                                          >
+                                            <Trash2 className='mr-2 h-4 w-4' />
+                                            Remover
+                                          </Button>
+                                        </div>
                                       </div>
-                                      <div className='flex shrink-0 gap-2'>
-                                        <Button
-                                          type='button'
-                                          variant='outline'
-                                          size='icon'
-                                          onClick={() => handleViewSeguro(id)}
-                                          title='Ver Seguro'
-                                          disabled={seguroIndisponivel}
-                                        >
-                                          <Eye className='h-4 w-4' />
-                                        </Button>
-                                        <Button
-                                          type='button'
-                                          variant='destructive'
-                                          size='icon'
-                                          onClick={() => handleRemoveSeguro(id)}
-                                          title='Remover Seguro'
-                                        >
-                                          <Trash2 className='h-4 w-4' />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  )
-                                })}
+                                    )
+                                  })}
+                                </div>
                               </div>
                             ) : (
-                              <p className='text-sm italic text-muted-foreground'>
-                                Ainda não adicionou seguros a esta viatura.
-                              </p>
+                              <div className='rounded-xl border border-dashed border-border/70 bg-muted/5 p-6 text-center shadow-inner'>
+                                <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                                  <ShieldCheck className='h-6 w-6' />
+                                </div>
+                                <h4 className='mt-4 text-sm font-semibold text-foreground'>Sem seguros associados</h4>
+                                <p className='mt-2 text-sm text-muted-foreground'>
+                                  Adicione um seguro à viatura para manter o registo de apólices sempre atualizado.
+                                </p>
+                              </div>
                             )}
                           </div>
                         </FormControl>
@@ -3116,37 +3227,72 @@ const ViaturaFormContainer = ({
                               </div>
                             </div>
                             {equipamentosSelecionadosDetalhes.length > 0 ? (
-                              <div className='divide-y rounded-md border'>
-                                {equipamentosSelecionadosDetalhes.map(({ id, label }) => {
-                                  const equipamentoIndisponivel = label === 'Equipamento indisponível'
-                                  return (
-                                    <div
-                                      key={id}
-                                      className='flex flex-col gap-3 p-3 md:flex-row md:items-center md:justify-between'
-                                    >
-                                      <div className='min-w-0'>
-                                        <p className='truncate text-sm font-medium'>{label}</p>
-                                        {equipamentoIndisponivel && (
-                                          <p className='text-xs text-muted-foreground'>
-                                            Este equipamento já não está disponível. Considere removê-lo
-                                            da lista.
-                                          </p>
-                                        )}
+                              <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
+                                <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                                  <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                                    <CheckSquare className='h-4 w-4 text-primary' />
+                                    Equipamentos selecionados
+                                    <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                                      {equipamentosSelecionadosDetalhes.length}
+                                    </Badge>
+                                  </div>
+                                  <p className='text-xs text-muted-foreground'>
+                                    Revise os equipamentos associados antes de concluir o registo da viatura.
+                                  </p>
+                                </div>
+
+                                <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
+                                  {equipamentosSelecionadosDetalhes.map(({ id, label }) => {
+                                    const equipamentoIndisponivel = label === 'Equipamento indisponível'
+                                    return (
+                                      <div
+                                        key={id}
+                                        className='group flex h-full flex-col justify-between gap-3 rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md'
+                                      >
+                                        <div className='flex items-start gap-3'>
+                                          <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                                            <Package className='h-5 w-5' />
+                                          </div>
+                                          <div className='min-w-0 space-y-1'>
+                                            <div className='flex items-start justify-between gap-2'>
+                                              <p className='truncate text-sm font-medium text-foreground'>
+                                                {label}
+                                              </p>
+                                              <Badge
+                                                variant='outline'
+                                                className={cn(
+                                                  'inline-flex items-center rounded-full border-primary/20 bg-primary/5 px-2 py-[2px] text-[11px] font-medium text-primary',
+                                                  equipamentoIndisponivel &&
+                                                    'border-destructive/30 bg-destructive/10 text-destructive'
+                                                )}
+                                              >
+                                                {equipamentoIndisponivel ? 'Indisponível' : 'Ativo'}
+                                              </Badge>
+                                            </div>
+                                            <p className='text-xs text-muted-foreground'>
+                                              {equipamentoIndisponivel
+                                                ? 'Este equipamento já não está disponível. Considere removê-lo.'
+                                                : 'Equipamento associado à viatura com sucesso.'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className='flex justify-end'>
+                                          <Button
+                                            type='button'
+                                            variant='ghost'
+                                            size='sm'
+                                            onClick={() => handleRemoveEquipamento(id)}
+                                            title='Remover Equipamento'
+                                            className='text-destructive hover:text-destructive'
+                                          >
+                                            <Trash2 className='mr-2 h-4 w-4' />
+                                            Remover
+                                          </Button>
+                                        </div>
                                       </div>
-                                      <div className='flex shrink-0 gap-2'>
-                                        <Button
-                                          type='button'
-                                          variant='destructive'
-                                          size='icon'
-                                          onClick={() => handleRemoveEquipamento(id)}
-                                          title='Remover Equipamento'
-                                        >
-                                          <Trash2 className='h-4 w-4' />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  )
-                                })}
+                                    )
+                                  })}
+                                </div>
                               </div>
                             ) : (
                               <p className='text-sm italic text-muted-foreground'>
