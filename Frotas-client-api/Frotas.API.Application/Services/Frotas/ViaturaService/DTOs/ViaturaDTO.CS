@@ -1,6 +1,18 @@
 using Frotas.API.Application.Common.Marker;
-using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
+using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
+using Frotas.API.Application.Services.Base.FornecedorService.DTOs;
+using Frotas.API.Application.Services.Base.LocalizacaoService.DTOs;
+using Frotas.API.Application.Services.Base.SetorService.DTOs;
+using Frotas.API.Application.Services.Base.TerceiroService.DTOs;
+using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
+using Frotas.API.Application.Services.Frotas.CorService.DTOs;
 using Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs;
+using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
+using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
+using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
+using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
+using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
+using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 
 namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
 {

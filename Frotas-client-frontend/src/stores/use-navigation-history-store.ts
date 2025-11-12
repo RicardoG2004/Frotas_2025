@@ -141,6 +141,15 @@ export const getPageTitleFromPath = (path: string): string => {
     '/frotas/configuracoes/equipamentos': 'Equipamentos',
     '/frotas/configuracoes/equipamentos/create': 'Criar Equipamento',
     '/frotas/configuracoes/equipamentos/update': 'Editar Equipamento',
+    '/frotas/configuracoes/viaturas': 'Viaturas',
+    '/frotas/configuracoes/viaturas/create': 'Criar Viatura',
+    '/frotas/configuracoes/viaturas/update': 'Editar Viatura',
+
+
+    // Frotas - Viaturas
+    '/frotas/viaturas': 'Viaturas',
+    '/frotas/viaturas/create': 'Criar Viatura',
+    '/frotas/viaturas/update': 'Editar Viatura',
 
     // Utilitários - Tabelas Geográficas
     '/utilitarios/tabelas/geograficas/paises': 'Países',

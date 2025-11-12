@@ -49,10 +49,10 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.Specifications
               }
               break;
             case "marca.designacao":
-              _ = Query.Where(x => x.Marca != null && x.Marca.Designacao.Contains(filter.Value));
+              _ = Query.Where(x => x.Marca != null && x.Marca.Nome.Contains(filter.Value));
               break;
             case "modelo.designacao":
-              _ = Query.Where(x => x.Modelo != null && x.Modelo.Designacao.Contains(filter.Value));
+              _ = Query.Where(x => x.Modelo != null && x.Modelo.Nome.Contains(filter.Value));
               break;
             case "tipoviatura.designacao":
               _ = Query.Where(
@@ -64,7 +64,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.Specifications
               break;
             case "combustivel.designacao":
               _ = Query.Where(
-                x => x.Combustivel != null && x.Combustivel.Designacao.Contains(filter.Value)
+                x => x.Combustivel != null && x.Combustivel.Nome.Contains(filter.Value)
               );
               break;
             case "categoria.designacao":

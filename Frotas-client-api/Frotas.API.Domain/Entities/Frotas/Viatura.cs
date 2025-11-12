@@ -1,4 +1,4 @@
-using Frotas.API.Domain.Common;
+using Frotas.API.Domain.Entities.Common;
 using Frotas.API.Domain.Entities.Base;
 using System.ComponentModel.DataAnnotations.Schema;
 

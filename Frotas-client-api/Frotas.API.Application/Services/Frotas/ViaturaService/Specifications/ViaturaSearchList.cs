@@ -31,8 +31,8 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.Specifications
         _ = Query.Where(
           x =>
             x.Matricula.Contains(term)
-            || (x.Marca != null && x.Marca.Designacao.Contains(term))
-            || (x.Modelo != null && x.Modelo.Designacao.Contains(term))
+            || (x.Marca != null && x.Marca.Nome.Contains(term))
+            || (x.Modelo != null && x.Modelo.Nome.Contains(term))
             || (x.TipoViatura != null && x.TipoViatura.Designacao.Contains(term))
         );
       }

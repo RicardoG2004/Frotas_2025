@@ -4,65 +4,53 @@ export const frotas: Module = {
   id: '00000003-0002-0000-0000-000000000002',
   name: 'Frotas',
   permissions: {
-    cemiterios: {
+    categorias: {
       id: '00000003-0002-0000-0001-000000000002',
-      name: 'Cemitérios',
+      name: 'Categorias',
     },
-    zonas: {
+    combustiveis: {
       id: '00000003-0002-0000-0002-000000000002',
-      name: 'Zonas',
+      name: 'Combustíveis',
     },
-    talhoes: {
+    servicos: {
       id: '00000003-0002-0000-0003-000000000002',
-      name: 'Talhões',
+      name: 'Serviços',
     },
-    sepulturas: {
+    equipamentos: {
       id: '00000003-0002-0000-0004-000000000002',
-      name: 'Sepulturas',
+      name: 'Equipamentos',
     },
-    sepulturasTipos: {
+    seguros: {
       id: '00000003-0002-0000-0005-000000000002',
-      name: 'Tipos',
+      name: 'Seguros',
     },
-    sepulturasTiposDescricoes: {
+    modelos: {
       id: '00000003-0002-0000-0006-000000000002',
-      name: 'Descrições',
+      name: 'Modelos',
     },
-    sepulturasSituacoes: {
+    seguradoras: {
       id: '00000003-0002-0000-0007-000000000002',
-      name: 'Situações',
-    },
-    sepulturasEstados: {
-      id: '00000003-0002-0000-0008-000000000002',
-      name: 'Estados',
-    },
-    proprietarios: {
-      id: '00000003-0002-0000-0009-000000000002',
-      name: 'Proprietários',
-    },
-    mapas: {
-      id: '00000003-0002-0000-0010-000000000002',
-      name: 'Mapas',
+      name: 'Seguradoras',
     },
     pecas: {
-      id: '00000003-0002-0000-0012-000000000002',
+      id: '00000003-0002-0000-0008-000000000002',
       name: 'Peças',
     },
     marcas: {
-      id: '00000003-0002-0000-0015-000000000002',
+      id: '00000003-0002-0000-0009-000000000002',
       name: 'Marcas',
     },
     cores: {
-      id: '',
+      id: '00000003-0002-0000-0010-000000000002',
       name: 'Cores',
     },
-    defuntosTipos: {
-      id: '00000003-0002-0000-0013-000000000002',
-      name: 'Tipos de Defunto',
+    tiposViatura: {
+      id: '00000003-0002-0000-0011-000000000002',
+      name: 'Tipos de Viatura',
     },
-    defuntos: {
-      id: '00000003-0002-0000-0014-000000000002',
-      name: 'Defuntos',
+    viaturas: {
+      id: '00000003-0002-0000-0012-000000000002',
+      name: 'Viaturas',
     },
   },
 }
