@@ -64,7 +64,9 @@ export const viaturaFormSchema = z.object({
   nRendas: z.coerce.number().nonnegative(),
   valorRenda: z.coerce.number().min(0),
   valorResidual: z.coerce.number().min(0),
-  seguroId: z.string().uuid({ message: 'Selecione o seguro' }),
+  seguroIds: z
+    .array(z.string().uuid({ message: 'Selecione um seguro válido' }))
+    .min(1, { message: 'Selecione pelo menos um seguro' }),
   notasAdicionais: z.string().optional().default(''),
   cartaoCombustivel: z.string().optional().default(''),
   anoImpostoSelo: z.coerce.number().min(1900),
@@ -126,7 +128,7 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   nRendas: undefined,
   valorRenda: undefined,
   valorResidual: undefined,
-  seguroId: '',
+  seguroIds: [],
   notasAdicionais: '',
   cartaoCombustivel: '',
   anoImpostoSelo: undefined,

@@ -62,8 +62,7 @@ namespace Frotas.API.Domain.Entities.Frotas
     public int NRendas { get; set; }
     public decimal ValorRenda { get; set; }
     public decimal ValorResidual { get; set; }
-    public Guid SeguroId { get; set; }
-    public Seguro Seguro { get; set; }
+    public ICollection<ViaturaSeguro> ViaturaSeguros { get; set; } = new List<ViaturaSeguro>();
     public string NotasAdicionais { get; set; }
     public int AnoImpostoSelo { get; set; }
     public int AnoImpostoCirculacao { get; set; }

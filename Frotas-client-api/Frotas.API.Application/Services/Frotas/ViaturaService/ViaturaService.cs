@@ -75,6 +75,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
       Viatura newViatura = _mapper.Map<CreateViaturaRequest, Viatura>(request);
       SyncEquipamentos(newViatura, request.EquipamentoIds);
+      SyncSeguros(newViatura, request.SeguroIds);
 
       try
       {
@@ -106,6 +107,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
       Viatura updatedViatura = _mapper.Map(request, viaturaInDb);
       SyncEquipamentos(updatedViatura, request.EquipamentoIds);
+      SyncSeguros(updatedViatura, request.SeguroIds);
 
       try
       {
@@ -219,6 +221,34 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         viatura.ViaturaEquipamentos.Add(
           new ViaturaEquipamento { EquipamentoId = equipamentoId }
         );
+      }
+    }
+  }
+
+  private static void SyncSeguros(Viatura viatura, ICollection<Guid> seguroIds)
+  {
+    seguroIds ??= new List<Guid>();
+    viatura.ViaturaSeguros ??= new List<ViaturaSeguro>();
+
+    HashSet<Guid> desiredIds = seguroIds.ToHashSet();
+    List<ViaturaSeguro> toRemove = viatura.ViaturaSeguros
+      .Where(vs => !desiredIds.Contains(vs.SeguroId))
+      .ToList();
+
+    foreach (ViaturaSeguro item in toRemove)
+    {
+      _ = viatura.ViaturaSeguros.Remove(item);
+    }
+
+    HashSet<Guid> existingIds = viatura.ViaturaSeguros
+      .Select(vs => vs.SeguroId)
+      .ToHashSet();
+
+    foreach (Guid seguroId in desiredIds)
+    {
+      if (!existingIds.Contains(seguroId))
+      {
+        viatura.ViaturaSeguros.Add(new ViaturaSeguro { SeguroId = seguroId });
       }
     }
   }

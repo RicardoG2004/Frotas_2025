@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Frotas.API.Domain.Entities.Common;
 
@@ -17,5 +18,6 @@ namespace Frotas.API.Domain.Entities.Frotas
     public string RiscosCobertos { get; set; }
     public DateTime DataInicial { get; set; }
     public DateTime DataFinal { get; set; }
+    public ICollection<ViaturaSeguro> ViaturaSeguros { get; set; } = new List<ViaturaSeguro>();
   }
 }

@@ -29,6 +29,8 @@ interface DatePickerProps {
   className?: string
   minYear?: number
   maxYear?: number
+  allowClear?: boolean
+  clearLabel?: string
 }
 
 const DatePickerButton = React.forwardRef<
@@ -59,7 +61,16 @@ DatePickerButton.displayName = 'DatePickerButton'
 
 export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
   (
-    { value, onChange, placeholder, className, minYear = 1900, maxYear = 2100 },
+    {
+      value,
+      onChange,
+      placeholder,
+      className,
+      minYear = 1900,
+      maxYear = 2100,
+      allowClear = false,
+      clearLabel = 'Limpar',
+    },
     ref
   ) => {
     const [open, setOpen] = React.useState(false)
@@ -85,6 +96,17 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
           : addYears(currentMonth, 1)
       setCurrentMonth(newMonth)
     }
+
+    const handleClear = React.useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault()
+        event.stopPropagation()
+        onChange?.(undefined)
+        setCurrentMonth(new Date())
+        handleClose()
+      },
+      [handleClose, onChange]
+    )
 
     // Generate year options for the dropdown
     const yearOptions = React.useMemo(() => {
@@ -114,40 +136,53 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
             onEscapeKeyDown={handleClose}
           >
             {/* Year Navigation Header */}
-            <div className='flex items-center justify-between p-3 border-b'>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => handleYearNavigation('prev')}
-                className='h-8 w-8 p-0'
-              >
-                <ChevronLeft className='h-4 w-4' />
-              </Button>
+            <div className='flex items-center justify-between gap-2 border-b p-3'>
+              <div className='flex items-center gap-2'>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => handleYearNavigation('prev')}
+                  className='h-8 w-8 p-0'
+                >
+                  <ChevronLeft className='h-4 w-4' />
+                </Button>
 
-              <Select
-                value={getYear(currentMonth).toString()}
-                onValueChange={handleYearChange}
-              >
-                <SelectTrigger className='w-24 h-8'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className='max-h-60'>
-                  {yearOptions.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Select
+                  value={getYear(currentMonth).toString()}
+                  onValueChange={handleYearChange}
+                >
+                  <SelectTrigger className='h-8 w-24'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className='max-h-60'>
+                    {yearOptions.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => handleYearNavigation('next')}
-                className='h-8 w-8 p-0'
-              >
-                <ChevronRight className='h-4 w-4' />
-              </Button>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => handleYearNavigation('next')}
+                  className='h-8 w-8 p-0'
+                >
+                  <ChevronRight className='h-4 w-4' />
+                </Button>
+              </div>
+
+              {allowClear && value ? (
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={handleClear}
+                  className='h-8 px-2 text-xs font-medium'
+                >
+                  {clearLabel}
+                </Button>
+              ) : null}
             </div>
 
             <Calendar

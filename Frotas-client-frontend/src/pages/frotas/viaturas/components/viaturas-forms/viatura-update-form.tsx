@@ -56,7 +56,12 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => ({
   nRendas: viatura.nRendas ?? 0,
   valorRenda: viatura.valorRenda ?? 0,
   valorResidual: viatura.valorResidual ?? 0,
-  seguroId: viatura.seguroId || '',
+  seguroIds:
+    viatura.seguroIds && viatura.seguroIds.length > 0
+      ? [...viatura.seguroIds]
+      : viatura.seguros
+          ?.map((seguro) => seguro.id)
+          .filter((id): id is string => typeof id === 'string') ?? [],
   notasAdicionais: viatura.notasAdicionais || '',
   cartaoCombustivel: viatura.cartaoCombustivel || '',
   anoImpostoSelo: viatura.anoImpostoSelo ?? new Date().getFullYear(),
@@ -115,7 +120,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   nRendas: values.nRendas,
   valorRenda: values.valorRenda,
   valorResidual: values.valorResidual,
-  seguroId: values.seguroId,
+  seguroIds: values.seguroIds,
   notasAdicionais: values.notasAdicionais || '',
   cartaoCombustivel: values.cartaoCombustivel || '',
   anoImpostoSelo: values.anoImpostoSelo,

@@ -49,7 +49,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public int NRendas { get; set; }
     public decimal ValorRenda { get; set; }
     public decimal ValorResidual { get; set; }
-    public Guid SeguroId { get; set; }
+    public ICollection<Guid> SeguroIds { get; set; } = new List<Guid>();
     public string NotasAdicionais { get; set; }
     public int AnoImpostoSelo { get; set; }
     public int AnoImpostoCirculacao { get; set; }
@@ -99,7 +99,10 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
       _ = RuleFor(x => x.NRendas).GreaterThanOrEqualTo(0);
       _ = RuleFor(x => x.ValorRenda).GreaterThanOrEqualTo(0);
       _ = RuleFor(x => x.ValorResidual).GreaterThanOrEqualTo(0);
-      _ = RuleFor(x => x.SeguroId).NotEmpty();
+      _ = RuleFor(x => x.SeguroIds)
+        .NotNull()
+        .Must(ids => ids.Count > 0)
+        .WithMessage("Selecione pelo menos um seguro");
       _ = RuleFor(x => x.AnoImpostoSelo).GreaterThanOrEqualTo(1900);
       _ = RuleFor(x => x.AnoImpostoCirculacao).GreaterThanOrEqualTo(1900);
       _ = RuleFor(x => x.DataValidadeSelo).NotEmpty();

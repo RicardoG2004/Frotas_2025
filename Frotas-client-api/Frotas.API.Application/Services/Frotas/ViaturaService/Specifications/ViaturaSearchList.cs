@@ -22,10 +22,12 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.Specifications
       _ = Query.Include(x => x.Delegacao);
       _ = Query.Include(x => x.Terceiro);
       _ = Query.Include(x => x.Fornecedor);
-      _ = Query.Include(x => x.Seguro);
       _ = Query
         .Include(x => x.ViaturaEquipamentos)
         .ThenInclude(x => x.Equipamento);
+      _ = Query
+        .Include(x => x.ViaturaSeguros)
+        .ThenInclude(x => x.Seguro);
 
       if (!string.IsNullOrWhiteSpace(keyword))
       {

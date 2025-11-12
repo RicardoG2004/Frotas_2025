@@ -75,8 +75,8 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public int NRendas { get; set; }
     public decimal ValorRenda { get; set; }
     public decimal ValorResidual { get; set; }
-    public Guid SeguroId { get; set; }
-    public SeguroDTO Seguro { get; set; }
+    public ICollection<Guid> SeguroIds { get; set; } = new List<Guid>();
+    public ICollection<SeguroDTO> Seguros { get; set; } = new List<SeguroDTO>();
     public string NotasAdicionais { get; set; }
     public int AnoImpostoSelo { get; set; }
     public int AnoImpostoCirculacao { get; set; }

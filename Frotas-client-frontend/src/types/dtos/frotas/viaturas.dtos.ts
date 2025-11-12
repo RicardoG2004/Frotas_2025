@@ -90,11 +90,11 @@ export interface ViaturaDTO {
   nRendas: number
   valorRenda: number
   valorResidual: number
-  seguroId: string
-  seguro?: {
+  seguroIds: string[]
+  seguros?: Array<{
     id?: string
     designacao?: string
-  }
+  }>
   notasAdicionais: string
   anoImpostoSelo: number
   anoImpostoCirculacao: number
@@ -153,7 +153,7 @@ export interface CreateViaturaDTO {
   nRendas: number
   valorRenda: number
   valorResidual: number
-  seguroId: string
+  seguroIds: string[]
   notasAdicionais: string
   cartaoCombustivel?: string
   anoImpostoSelo: number

@@ -458,8 +458,18 @@ const ViaturaFormContainer = ({
     equipamentos: isLoadingEquipamentos,
   }
 
+  const [selectedSeguroId, setSelectedSeguroId] = useState('')
+  const segurosSelecionados = form.watch('seguroIds') ?? []
   const [selectedEquipamentoId, setSelectedEquipamentoId] = useState('')
   const equipamentosSelecionados = form.watch('equipamentoIds') ?? []
+
+  const segurosMap = useMemo(() => {
+    const map = new Map<string, string>()
+    selectOptions.seguros.forEach((option) => {
+      map.set(option.value, option.label)
+    })
+    return map
+  }, [selectOptions.seguros])
 
   const equipamentosMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -469,6 +479,15 @@ const ViaturaFormContainer = ({
     return map
   }, [selectOptions.equipamentos])
 
+  const segurosSelecionadosDetalhes = useMemo(
+    () =>
+      segurosSelecionados.map((id) => ({
+        id,
+        label: segurosMap.get(id) ?? 'Seguro indisponível',
+      })),
+    [segurosSelecionados, segurosMap]
+  )
+
   const equipamentosSelecionadosDetalhes = useMemo(
     () =>
       equipamentosSelecionados.map((id) => ({
@@ -477,6 +496,24 @@ const ViaturaFormContainer = ({
       })),
     [equipamentosSelecionados, equipamentosMap]
   )
+
+  const addSeguroToForm = (seguroId: string) => {
+    if (!seguroId) {
+      return
+    }
+
+    const current = form.getValues('seguroIds') ?? []
+    if (current.includes(seguroId)) {
+      toast.warning('Este seguro já foi adicionado')
+      return
+    }
+
+    form.setValue('seguroIds', [...current, seguroId], {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setSelectedSeguroId('')
+  }
 
   const addEquipamentoToForm = (equipamentoId: string) => {
     if (!equipamentoId) {
@@ -498,6 +535,21 @@ const ViaturaFormContainer = ({
 
   const handleAddEquipamento = () => {
     addEquipamentoToForm(selectedEquipamentoId)
+  }
+
+  const handleAddSeguro = () => {
+    addSeguroToForm(selectedSeguroId)
+  }
+
+  const handleRemoveSeguro = (seguroId: string) => {
+    const current = form.getValues('seguroIds') ?? []
+    form.setValue(
+      'seguroIds',
+      current.filter((id) => id !== seguroId),
+      { shouldDirty: true, shouldValidate: true }
+    )
+
+    setSelectedSeguroId((prev) => (prev === seguroId ? '' : prev))
   }
 
   const handleRemoveEquipamento = (equipamentoId: string) => {
@@ -560,7 +612,7 @@ const ViaturaFormContainer = ({
       nRendas: 'locacao',
       valorRenda: 'locacao',
       valorResidual: 'locacao',
-      seguroId: 'seguros',
+      seguroIds: 'seguros',
       anoImpostoSelo: 'notas',
       anoImpostoCirculacao: 'notas',
       dataValidadeSelo: 'notas',
@@ -693,8 +745,12 @@ const ViaturaFormContainer = ({
     )
 
   const handleCreateSeguro = () => openCreation(openSeguroCreationWindow)
-  const handleViewSeguro = () =>
-    openView(openSeguroViewWindow, form.getValues('seguroId'), 'Por favor, selecione um seguro primeiro')
+  const handleViewSeguro = (seguroId?: string) =>
+    openView(
+      openSeguroViewWindow,
+      seguroId ?? selectedSeguroId,
+      'Por favor, selecione um seguro primeiro'
+    )
 
   const handleCreateEquipamento = () => openCreation(openEquipamentoCreationWindow)
   const handleViewEquipamento = (equipamentoId: string) =>
@@ -867,8 +923,9 @@ const ViaturaFormContainer = ({
     windowId: parentWindowId,
     instanceId,
     data: seguros,
-    setValue: (value: string) =>
-      form.setValue('seguroId', value, { shouldDirty: true, shouldValidate: true }),
+    setValue: (value: string) => {
+      addSeguroToForm(value)
+    },
     refetch: refetchSeguros,
     itemName: 'Seguro',
     successMessage: 'Seguro selecionado automaticamente',
@@ -1022,11 +1079,12 @@ const ViaturaFormContainer = ({
                         <FormItem>
                               <FormLabel>Data de Registo</FormLabel>
                           <FormControl>
-                                <DatePicker
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  placeholder='Selecione a data de registo'
-                                  className={FIELD_HEIGHT_CLASS}
+                            <DatePicker
+                              value={field.value || undefined}
+                              onChange={field.onChange}
+                              placeholder='Selecione a data de registo'
+                              className={FIELD_HEIGHT_CLASS}
+                              allowClear
                             />
                           </FormControl>
                           <FormMessage />
@@ -1100,10 +1158,11 @@ const ViaturaFormContainer = ({
                           <FormLabel>Data de Aquisição</FormLabel>
                           <FormControl>
                             <DatePicker
-                              value={field.value}
+                              value={field.value || undefined}
                               onChange={field.onChange}
                               placeholder='Selecione a data de aquisição'
-                                  className={FIELD_HEIGHT_CLASS}
+                              className={FIELD_HEIGHT_CLASS}
+                              allowClear
                             />
                           </FormControl>
                           <FormMessage />
@@ -1118,10 +1177,11 @@ const ViaturaFormContainer = ({
                           <FormLabel>Data do Livrete</FormLabel>
                           <FormControl>
                             <DatePicker
-                              value={field.value}
+                              value={field.value || undefined}
                               onChange={field.onChange}
                               placeholder='Selecione a data do livrete'
-                                  className={FIELD_HEIGHT_CLASS}
+                              className={FIELD_HEIGHT_CLASS}
+                              allowClear
                             />
                           </FormControl>
                           <FormMessage />
@@ -2336,10 +2396,11 @@ const ViaturaFormContainer = ({
                               <FormLabel>Início do Contrato</FormLabel>
                               <FormControl>
                                 <DatePicker
-                                  value={field.value}
+                                  value={field.value || undefined}
                                   onChange={field.onChange}
                                   placeholder='Selecione a data inicial'
                                   className={FIELD_HEIGHT_CLASS}
+                                  allowClear
                                 />
                               </FormControl>
                               <FormMessage />
@@ -2354,10 +2415,11 @@ const ViaturaFormContainer = ({
                           <FormLabel>Fim do Contrato</FormLabel>
                           <FormControl>
                             <DatePicker
-                              value={field.value}
+                              value={field.value || undefined}
                               onChange={field.onChange}
                               placeholder='Selecione a data final'
-                                  className={FIELD_HEIGHT_CLASS}
+                              className={FIELD_HEIGHT_CLASS}
+                              allowClear
                             />
                           </FormControl>
                           <FormMessage />
@@ -2486,43 +2548,106 @@ const ViaturaFormContainer = ({
                 <CardContent className='space-y-6'>
                   <FormField
                     control={form.control}
-                    name='seguroId'
-                    render={({ field }) => (
+                    name='seguroIds'
+                    render={() => (
                       <FormItem>
-                        <FormLabel>Seguro</FormLabel>
+                        <FormLabel>Seguros</FormLabel>
                         <FormControl>
-                          <div className='relative'>
-                          <Autocomplete
-                            options={selectOptions.seguros}
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder={placeholder(selectLoading.seguros, 'o seguro')}
-                            disabled={selectLoading.seguros}
-                              className={SELECT_WITH_ACTIONS_CLASS}
-                            />
-                            <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                          <div className='space-y-4'>
+                            <div className='flex flex-col gap-3 md:flex-row md:items-center md:gap-4'>
+                              <div className='w-full md:flex-1'>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.seguros}
+                                    value={selectedSeguroId}
+                                    onValueChange={setSelectedSeguroId}
+                                    placeholder={placeholder(selectLoading.seguros, 'o seguro')}
+                                    disabled={selectLoading.seguros}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={() => handleViewSeguro(selectedSeguroId)}
+                                      title='Ver Seguro'
+                                      disabled={!selectedSeguroId}
+                                      className='h-8 w-8 p-0'
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateSeguro}
+                                      title='Criar Seguro'
+                                      className='h-8 w-8 p-0'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
                               <Button
                                 type='button'
-                                variant='outline'
-                                size='sm'
-                                onClick={handleViewSeguro}
-                                className='h-8 w-8 p-0'
-                                title='Ver Seguro'
-                                disabled={!field.value}
+                                variant='secondary'
+                                size='default'
+                                className='w-full md:w-auto md:min-w-[160px] md:flex-shrink-0 h-12'
+                                onClick={handleAddSeguro}
+                                disabled={!selectedSeguroId}
                               >
-                                <Eye className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                type='button'
-                                variant='outline'
-                                size='sm'
-                                onClick={handleCreateSeguro}
-                                className='h-8 w-8 p-0'
-                                title='Criar Seguro'
-                              >
-                                <Plus className='h-4 w-4' />
+                                Adicionar
                               </Button>
                             </div>
+                            {segurosSelecionadosDetalhes.length > 0 ? (
+                              <div className='divide-y rounded-md border'>
+                                {segurosSelecionadosDetalhes.map(({ id, label }) => {
+                                  const seguroIndisponivel = label === 'Seguro indisponível'
+                                  return (
+                                    <div
+                                      key={id}
+                                      className='flex flex-col gap-3 p-3 md:flex-row md:items-center md:justify-between'
+                                    >
+                                      <div className='min-w-0'>
+                                        <p className='truncate text-sm font-medium'>{label}</p>
+                                        {seguroIndisponivel && (
+                                          <p className='text-xs text-muted-foreground'>
+                                            Este seguro já não está disponível. Considere removê-lo da lista.
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div className='flex shrink-0 gap-2'>
+                                        <Button
+                                          type='button'
+                                          variant='outline'
+                                          size='icon'
+                                          onClick={() => handleViewSeguro(id)}
+                                          title='Ver Seguro'
+                                          disabled={seguroIndisponivel}
+                                        >
+                                          <Eye className='h-4 w-4' />
+                                        </Button>
+                                        <Button
+                                          type='button'
+                                          variant='destructive'
+                                          size='icon'
+                                          onClick={() => handleRemoveSeguro(id)}
+                                          title='Remover Seguro'
+                                        >
+                                          <Trash2 className='h-4 w-4' />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            ) : (
+                              <p className='text-sm italic text-muted-foreground'>
+                                Ainda não adicionou seguros a esta viatura.
+                              </p>
+                            )}
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -2652,11 +2777,12 @@ const ViaturaFormContainer = ({
                       <FormItem>
                               <FormLabel>Data Validade</FormLabel>
                         <FormControl>
-                                <DatePicker
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  placeholder='Selecione a data de validade'
-                                  className={FIELD_HEIGHT_CLASS}
+                          <DatePicker
+                            value={field.value || undefined}
+                            onChange={field.onChange}
+                            placeholder='Selecione a data de validade'
+                            className={FIELD_HEIGHT_CLASS}
+                            allowClear
                           />
                         </FormControl>
                         <FormMessage />
@@ -2765,6 +2891,7 @@ const ViaturaFormContainer = ({
                                         onClick={() => handleViewEquipamento(selectedEquipamentoId)}
                                         title='Ver Equipamento'
                                         disabled={!selectedEquipamentoId}
+                                      className='h-8 w-8 p-0'
                                       >
                                         <Eye className='h-4 w-4' />
                                       </Button>
@@ -2774,6 +2901,7 @@ const ViaturaFormContainer = ({
                                         size='sm'
                                         onClick={handleCreateEquipamento}
                                         title='Criar novo equipamento'
+                                      className='h-8 w-8 p-0'
                                       >
                                         <Plus className='h-4 w-4' />
                                       </Button>
