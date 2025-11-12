@@ -97,7 +97,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
 
     return (
       <div ref={ref}>
-        <Popover open={open} onOpenChange={setOpen} modal={true}>
+        <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <DatePickerButton
               value={value as Date | null}
@@ -111,9 +111,6 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
             align='start'
             side='bottom'
             sideOffset={4}
-            onInteractOutside={(e) => {
-              e.preventDefault()
-            }}
             onEscapeKeyDown={handleClose}
           >
             {/* Year Navigation Header */}
