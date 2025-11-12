@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FluentValidation;
 using Frotas.API.Application.Common.Marker;
 
@@ -55,7 +56,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public DateTime DataValidadeSelo { get; set; }
     public string URLImagem1 { get; set; }
     public string URLImagem2 { get; set; }
-    public Guid EquipamentoId { get; set; }
+    public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
   }
 
   public class UpdateViaturaValidator : AbstractValidator<UpdateViaturaRequest>
@@ -102,7 +103,10 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
       _ = RuleFor(x => x.AnoImpostoSelo).GreaterThanOrEqualTo(1900);
       _ = RuleFor(x => x.AnoImpostoCirculacao).GreaterThanOrEqualTo(1900);
       _ = RuleFor(x => x.DataValidadeSelo).NotEmpty();
-      _ = RuleFor(x => x.EquipamentoId).NotEmpty();
+      _ = RuleFor(x => x.EquipamentoIds)
+        .NotNull()
+        .Must(ids => ids.Count > 0)
+        .WithMessage("Selecione pelo menos um equipamento");
     }
   }
 }

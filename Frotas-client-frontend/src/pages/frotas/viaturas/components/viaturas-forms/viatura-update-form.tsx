@@ -63,7 +63,12 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => ({
   dataValidadeSelo: viatura.dataValidadeSelo ? new Date(viatura.dataValidadeSelo) : new Date(),
   urlImagem1: viatura.urlImagem1 || '',
   urlImagem2: viatura.urlImagem2 || '',
-  equipamentoId: viatura.equipamentoId || '',
+  equipamentoIds:
+    viatura.equipamentoIds && viatura.equipamentoIds.length > 0
+      ? [...viatura.equipamentoIds]
+      : viatura.equipamentos
+          ?.map((equipamento) => equipamento.id)
+          .filter((id): id is string => typeof id === 'string') ?? [],
 })
 
 const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
@@ -116,7 +121,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   dataValidadeSelo: values.dataValidadeSelo.toISOString(),
   urlImagem1: values.urlImagem1 || '',
   urlImagem2: values.urlImagem2 || '',
-  equipamentoId: values.equipamentoId,
+  equipamentoIds: values.equipamentoIds,
 })
 
 const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {

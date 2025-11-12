@@ -101,11 +101,11 @@ export interface ViaturaDTO {
   dataValidadeSelo: string
   urlImagem1: string
   urlImagem2: string
-  equipamentoId: string
-  equipamento?: {
+  equipamentoIds: string[]
+  equipamentos?: Array<{
     id?: string
     designacao?: string
-  }
+  }>
   createdOn: string
 }
 
@@ -159,7 +159,7 @@ export interface CreateViaturaDTO {
   dataValidadeSelo: string
   urlImagem1: string
   urlImagem2: string
-  equipamentoId: string
+  equipamentoIds: string[]
 }
 
 export interface UpdateViaturaDTO extends CreateViaturaDTO {}

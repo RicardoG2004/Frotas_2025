@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Frotas.API.Application.Common.Marker;
 using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
 using Frotas.API.Application.Services.Base.FornecedorService.DTOs;
@@ -81,8 +83,8 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public DateTime DataValidadeSelo { get; set; }
     public string URLImagem1 { get; set; }
     public string URLImagem2 { get; set; }
-    public Guid EquipamentoId { get; set; }
-    public EquipamentoDTO Equipamento { get; set; }
+    public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
+    public ICollection<EquipamentoDTO> Equipamentos { get; set; } = new List<EquipamentoDTO>();
     public DateTime CreatedOn { get; set; }
   }
 }

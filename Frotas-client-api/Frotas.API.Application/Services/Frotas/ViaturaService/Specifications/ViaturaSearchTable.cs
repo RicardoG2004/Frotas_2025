@@ -26,7 +26,9 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.Specifications
       _ = Query.Include(x => x.Terceiro);
       _ = Query.Include(x => x.Fornecedor);
       _ = Query.Include(x => x.Seguro);
-      _ = Query.Include(x => x.Equipamento);
+      _ = Query
+        .Include(x => x.ViaturaEquipamentos)
+        .ThenInclude(x => x.Equipamento);
 
       if (filters != null && filters.Count != 0)
       {

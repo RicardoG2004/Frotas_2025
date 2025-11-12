@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Frotas.API.Domain.Entities.Common;
 
@@ -9,5 +10,7 @@ namespace Frotas.API.Domain.Entities.Frotas
     public string Designacao { get; set; }
     public string Garantia { get; set; }
     public string Obs { get; set; }
+    public ICollection<ViaturaEquipamento> ViaturaEquipamentos { get; set; } =
+      new List<ViaturaEquipamento>();
   }
 }

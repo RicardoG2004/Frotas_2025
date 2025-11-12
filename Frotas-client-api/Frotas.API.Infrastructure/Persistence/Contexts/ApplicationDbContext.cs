@@ -56,6 +56,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Seguradora> Seguradoras { get; set; }
     public DbSet<Seguro> Seguros { get; set; }
     public DbSet<Viatura> Viaturas { get; set; }
+    public DbSet<ViaturaEquipamento> ViaturaEquipamentos { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,6 +69,20 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
       {
         relationship.DeleteBehavior = DeleteBehavior.NoAction;
       }
+
+      modelBuilder.Entity<ViaturaEquipamento>()
+        .HasIndex(x => new { x.ViaturaId, x.EquipamentoId })
+        .IsUnique();
+
+      modelBuilder.Entity<ViaturaEquipamento>()
+        .HasOne(x => x.Viatura)
+        .WithMany(x => x.ViaturaEquipamentos)
+        .HasForeignKey(x => x.ViaturaId);
+
+      modelBuilder.Entity<ViaturaEquipamento>()
+        .HasOne(x => x.Equipamento)
+        .WithMany(x => x.ViaturaEquipamentos)
+        .HasForeignKey(x => x.EquipamentoId);
 
       // query filters
       _ = modelBuilder.AppendGlobalQueryFilter<ISoftDelete>(s => s.DeletedOn == null);

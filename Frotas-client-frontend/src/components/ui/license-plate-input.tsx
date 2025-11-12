@@ -52,7 +52,7 @@ export const LicensePlateInput = forwardRef<HTMLInputElement, LicensePlateInputP
                 })
               }
             }}
-            className='relative z-10 h-full w-full bg-transparent pl-[5rem] pr-10 text-center text-[1.95rem] font-semibold uppercase tracking-[0.28em] text-black outline-none placeholder:text-muted-foreground placeholder:opacity-70'
+            className='relative z-10 h-full w-full bg-transparent pl-[4.25rem] pr-10 text-center text-[1.6rem] font-semibold uppercase tracking-[0.24em] text-black outline-none placeholder:text-muted-foreground placeholder:opacity-70'
             placeholder='AA 00 AA'
             inputMode='text'
             autoCapitalize='characters'

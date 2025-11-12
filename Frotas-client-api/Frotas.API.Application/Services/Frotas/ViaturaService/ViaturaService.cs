@@ -51,7 +51,11 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     {
       try
       {
-        ViaturaDTO dto = await _repository.GetByIdAsync<Viatura, ViaturaDTO, Guid>(id);
+        ViaturaWithDetalhesSpecification specification = new(id);
+        ViaturaDTO dto = await _repository.GetByIdAsync<Viatura, ViaturaDTO, Guid>(
+          id,
+          specification
+        );
         return Response<ViaturaDTO>.Success(dto);
       }
       catch (Exception ex)
@@ -70,6 +74,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       }
 
       Viatura newViatura = _mapper.Map<CreateViaturaRequest, Viatura>(request);
+      SyncEquipamentos(newViatura, request.EquipamentoIds);
 
       try
       {
@@ -85,7 +90,8 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
     public async Task<Response<Guid>> UpdateViaturaAsync(UpdateViaturaRequest request, Guid id)
     {
-      Viatura viaturaInDb = await _repository.GetByIdAsync<Viatura, Guid>(id);
+      ViaturaWithDetalhesSpecification specification = new(id);
+      Viatura viaturaInDb = await _repository.GetByIdAsync<Viatura, Guid>(id, specification);
       if (viaturaInDb == null)
       {
         return Response<Guid>.Fail("Não encontrado");
@@ -99,6 +105,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       }
 
       Viatura updatedViatura = _mapper.Map(request, viaturaInDb);
+      SyncEquipamentos(updatedViatura, request.EquipamentoIds);
 
       try
       {
@@ -182,6 +189,36 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       catch (Exception ex)
       {
         return Response<IEnumerable<Guid>>.Fail(ex.Message);
+      }
+    }
+  }
+
+  private static void SyncEquipamentos(Viatura viatura, ICollection<Guid> equipamentoIds)
+  {
+    equipamentoIds ??= new List<Guid>();
+    viatura.ViaturaEquipamentos ??= new List<ViaturaEquipamento>();
+
+    HashSet<Guid> desiredIds = equipamentoIds.ToHashSet();
+    List<ViaturaEquipamento> toRemove = viatura.ViaturaEquipamentos
+      .Where(ve => !desiredIds.Contains(ve.EquipamentoId))
+      .ToList();
+
+    foreach (ViaturaEquipamento item in toRemove)
+    {
+      _ = viatura.ViaturaEquipamentos.Remove(item);
+    }
+
+    HashSet<Guid> existingIds = viatura.ViaturaEquipamentos
+      .Select(ve => ve.EquipamentoId)
+      .ToHashSet();
+
+    foreach (Guid equipamentoId in desiredIds)
+    {
+      if (!existingIds.Contains(equipamentoId))
+      {
+        viatura.ViaturaEquipamentos.Add(
+          new ViaturaEquipamento { EquipamentoId = equipamentoId }
+        );
       }
     }
   }

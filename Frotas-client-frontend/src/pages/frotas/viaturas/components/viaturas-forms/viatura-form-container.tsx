@@ -1,4 +1,4 @@
-import { useEffect, useMemo, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -46,6 +46,7 @@ import {
   Wrench,
   Eye,
   Plus,
+  Trash2,
   type LucideIcon,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
@@ -362,6 +363,59 @@ const ViaturaFormContainer = ({
     equipamentos: isLoadingEquipamentos,
   }
 
+  const [selectedEquipamentoId, setSelectedEquipamentoId] = useState('')
+  const equipamentosSelecionados = form.watch('equipamentoIds') ?? []
+
+  const equipamentosMap = useMemo(() => {
+    const map = new Map<string, string>()
+    selectOptions.equipamentos.forEach((option) => {
+      map.set(option.value, option.label)
+    })
+    return map
+  }, [selectOptions.equipamentos])
+
+  const equipamentosSelecionadosDetalhes = useMemo(
+    () =>
+      equipamentosSelecionados.map((id) => ({
+        id,
+        label: equipamentosMap.get(id) ?? 'Equipamento indisponível',
+      })),
+    [equipamentosSelecionados, equipamentosMap]
+  )
+
+  const addEquipamentoToForm = (equipamentoId: string) => {
+    if (!equipamentoId) {
+      return
+    }
+
+    const current = form.getValues('equipamentoIds') ?? []
+    if (current.includes(equipamentoId)) {
+      toast.warning('Este equipamento já foi adicionado')
+      return
+    }
+
+    form.setValue('equipamentoIds', [...current, equipamentoId], {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setSelectedEquipamentoId('')
+  }
+
+  const handleAddEquipamento = () => {
+    addEquipamentoToForm(selectedEquipamentoId)
+  }
+
+  const handleRemoveEquipamento = (equipamentoId: string) => {
+    const current = form.getValues('equipamentoIds') ?? []
+    form.setValue(
+      'equipamentoIds',
+      current.filter((id) => id !== equipamentoId),
+      { shouldDirty: true, shouldValidate: true }
+    )
+
+    setSelectedEquipamentoId((prev) => (prev === equipamentoId ? '' : prev))
+  }
+
   const { setActiveTab } = useTabManager({
     defaultTab: 'identificacao',
     tabKey,
@@ -418,7 +472,7 @@ const ViaturaFormContainer = ({
       notasAdicionais: 'notas',
       urlImagem1: 'notas',
       urlImagem2: 'notas',
-      equipamentoId: 'equipamento',
+      equipamentoIds: 'equipamento',
     },
   })
 
@@ -547,11 +601,11 @@ const ViaturaFormContainer = ({
     openView(openSeguroViewWindow, form.getValues('seguroId'), 'Por favor, selecione um seguro primeiro')
 
   const handleCreateEquipamento = () => openCreation(openEquipamentoCreationWindow)
-  const handleViewEquipamento = () =>
+  const handleViewEquipamento = (equipamentoId: string) =>
     openView(
       openEquipamentoViewWindow,
-      form.getValues('equipamentoId'),
-      'Por favor, selecione um equipamento primeiro'
+      equipamentoId,
+      'Não foi possível abrir o equipamento selecionado'
     )
 
   useAutoSelectionWithReturnData({
@@ -731,8 +785,9 @@ const ViaturaFormContainer = ({
     windowId: parentWindowId,
     instanceId,
     data: equipamentos,
-    setValue: (value: string) =>
-      form.setValue('equipamentoId', value, { shouldDirty: true, shouldValidate: true }),
+    setValue: (value: string) => {
+      addEquipamentoToForm(value)
+    },
     refetch: refetchEquipamentos,
     itemName: 'Equipamento',
     successMessage: 'Equipamento selecionado automaticamente',
@@ -2546,47 +2601,101 @@ const ViaturaFormContainer = ({
                 <CardContent className='space-y-6'>
                   <FormField
                     control={form.control}
-                    name='equipamentoId'
-                    render={({ field }) => (
+                    name='equipamentoIds'
+                    render={() => (
                       <FormItem>
                         <FormLabel>Equipamento</FormLabel>
                         <FormControl>
-                        <div className='relative'>
-                          <Autocomplete
-                            options={selectOptions.equipamentos}
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder={placeholder(
-                              selectLoading.equipamentos,
-                              'o equipamento'
+                          <div className='space-y-4'>
+                            <div className='flex flex-col gap-3 md:flex-row md:items-center md:gap-4'>
+                              <div className='flex flex-col gap-2 md:flex-row md:items-center md:gap-2 md:flex-1'>
+                                <div className='w-full md:flex-1'>
+                                  <div className='relative'>
+                                    <Autocomplete
+                                      options={selectOptions.equipamentos}
+                                      value={selectedEquipamentoId}
+                                      onValueChange={setSelectedEquipamentoId}
+                                      placeholder={placeholder(
+                                        selectLoading.equipamentos,
+                                        'o equipamento'
+                                      )}
+                                      disabled={selectLoading.equipamentos}
+                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                    />
+                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={() => handleViewEquipamento(selectedEquipamentoId)}
+                                        title='Ver Equipamento'
+                                        disabled={!selectedEquipamentoId}
+                                      >
+                                        <Eye className='h-4 w-4' />
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleCreateEquipamento}
+                                        title='Criar novo equipamento'
+                                      >
+                                        <Plus className='h-4 w-4' />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  type='button'
+                                  variant='secondary'
+                                  size='default'
+                                  className='w-full md:w-auto md:min-w-[160px] md:flex-shrink-0 h-12'
+                                  onClick={handleAddEquipamento}
+                                  disabled={!selectedEquipamentoId}
+                                >
+                                  Adicionar
+                                </Button>
+                              </div>
+                            </div>
+                            {equipamentosSelecionadosDetalhes.length > 0 ? (
+                              <div className='divide-y rounded-md border'>
+                                {equipamentosSelecionadosDetalhes.map(({ id, label }) => {
+                                  const equipamentoIndisponivel = label === 'Equipamento indisponível'
+                                  return (
+                                    <div
+                                      key={id}
+                                      className='flex flex-col gap-3 p-3 md:flex-row md:items-center md:justify-between'
+                                    >
+                                      <div className='min-w-0'>
+                                        <p className='truncate text-sm font-medium'>{label}</p>
+                                        {equipamentoIndisponivel && (
+                                          <p className='text-xs text-muted-foreground'>
+                                            Este equipamento já não está disponível. Considere removê-lo
+                                            da lista.
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div className='flex shrink-0 gap-2'>
+                                        <Button
+                                          type='button'
+                                          variant='destructive'
+                                          size='icon'
+                                          onClick={() => handleRemoveEquipamento(id)}
+                                          title='Remover Equipamento'
+                                        >
+                                          <Trash2 className='h-4 w-4' />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            ) : (
+                              <p className='text-sm italic text-muted-foreground'>
+                                Ainda não adicionou equipamentos extra a esta viatura.
+                              </p>
                             )}
-                            disabled={selectLoading.equipamentos}
-                            className={SELECT_WITH_ACTIONS_CLASS}
-                          />
-                          <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='sm'
-                              onClick={handleViewEquipamento}
-                              className='h-8 w-8 p-0'
-                              title='Ver Equipamento'
-                              disabled={!field.value}
-                            >
-                              <Eye className='h-4 w-4' />
-                            </Button>
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='sm'
-                              onClick={handleCreateEquipamento}
-                              className='h-8 w-8 p-0'
-                              title='Criar Equipamento'
-                            >
-                              <Plus className='h-4 w-4' />
-                            </Button>
                           </div>
-                        </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

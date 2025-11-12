@@ -1,3 +1,4 @@
+using System.Linq;
 using AutoMapper;
 using Frotas.API.Application.Services.Base.CodigoPostalService.DTOs;
 using Frotas.API.Application.Services.Base.ConcelhoService.DTOs;
@@ -195,7 +196,15 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<UpdateSeguroRequest, Seguro>();
 
       // Viaturas mappings
-      _ = CreateMap<Viatura, ViaturaDTO>();
+      _ = CreateMap<Viatura, ViaturaDTO>()
+        .ForMember(
+          dest => dest.Equipamentos,
+          opt => opt.MapFrom(src => src.ViaturaEquipamentos.Select(ve => ve.Equipamento))
+        )
+        .ForMember(
+          dest => dest.EquipamentoIds,
+          opt => opt.MapFrom(src => src.ViaturaEquipamentos.Select(ve => ve.EquipamentoId))
+        );
       _ = CreateMap<CreateViaturaRequest, Viatura>()
         .ForMember(dest => dest.Marca, opt => opt.Ignore())
         .ForMember(dest => dest.Modelo, opt => opt.Ignore())
@@ -210,7 +219,7 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.Terceiro, opt => opt.Ignore())
         .ForMember(dest => dest.Fornecedor, opt => opt.Ignore())
         .ForMember(dest => dest.Seguro, opt => opt.Ignore())
-        .ForMember(dest => dest.Equipamento, opt => opt.Ignore());
+        .ForMember(dest => dest.ViaturaEquipamentos, opt => opt.Ignore());
       _ = CreateMap<UpdateViaturaRequest, Viatura>()
         .ForMember(dest => dest.Marca, opt => opt.Ignore())
         .ForMember(dest => dest.Modelo, opt => opt.Ignore())
@@ -225,7 +234,7 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.Terceiro, opt => opt.Ignore())
         .ForMember(dest => dest.Fornecedor, opt => opt.Ignore())
         .ForMember(dest => dest.Seguro, opt => opt.Ignore())
-        .ForMember(dest => dest.Equipamento, opt => opt.Ignore());
+        .ForMember(dest => dest.ViaturaEquipamentos, opt => opt.Ignore());
 
       // add new entity mappings here...
     }

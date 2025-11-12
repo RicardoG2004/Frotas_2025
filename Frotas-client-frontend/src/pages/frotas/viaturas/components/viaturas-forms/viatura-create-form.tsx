@@ -56,7 +56,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   dataValidadeSelo: values.dataValidadeSelo.toISOString(),
   urlImagem1: values.urlImagem1 || '',
   urlImagem2: values.urlImagem2 || '',
-  equipamentoId: values.equipamentoId,
+  equipamentoIds: values.equipamentoIds,
 })
 
 const ViaturaCreateForm = () => {

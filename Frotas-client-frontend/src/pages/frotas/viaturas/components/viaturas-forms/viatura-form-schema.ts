@@ -75,7 +75,9 @@ export const viaturaFormSchema = z.object({
     })),
   urlImagem1: z.string().optional().default(''),
   urlImagem2: z.string().optional().default(''),
-  equipamentoId: z.string().uuid({ message: 'Selecione o equipamento' }),
+  equipamentoIds: z
+    .array(z.string().uuid({ message: 'Selecione um equipamento válido' }))
+    .min(1, { message: 'Selecione pelo menos um equipamento' }),
 })
 
 export type ViaturaFormSchemaType = z.infer<typeof viaturaFormSchema>
@@ -130,6 +132,6 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   dataValidadeSelo: undefined,
   urlImagem1: '',
   urlImagem2: '',
-  equipamentoId: '',
+  equipamentoIds: [],
 }
 

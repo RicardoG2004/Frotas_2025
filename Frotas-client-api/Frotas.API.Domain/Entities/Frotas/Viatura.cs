@@ -1,6 +1,7 @@
-using Frotas.API.Domain.Entities.Common;
-using Frotas.API.Domain.Entities.Base;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Frotas.API.Domain.Entities.Base;
+using Frotas.API.Domain.Entities.Common;
 
 namespace Frotas.API.Domain.Entities.Frotas
 {
@@ -69,7 +70,7 @@ namespace Frotas.API.Domain.Entities.Frotas
     public DateTime DataValidadeSelo { get; set; }
     public string URLImagem1 { get; set; }
     public string URLImagem2 { get; set; }
-    public Guid EquipamentoId { get; set; }
-    public Equipamento Equipamento { get; set; }
+    public ICollection<ViaturaEquipamento> ViaturaEquipamentos { get; set; } =
+      new List<ViaturaEquipamento>();
   }
 }
