@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { NumberInput } from '@/components/ui/number-input'
 import { Textarea } from '@/components/ui/textarea'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Autocomplete, type AutocompleteOption } from '@/components/ui/autocomplete'
@@ -164,6 +165,9 @@ const FormSection = ({
 const FIELD_HEIGHT_CLASS = 'h-12'
 const SELECT_WITH_ACTIONS_CLASS = `${FIELD_HEIGHT_CLASS} px-4 pr-32 shadow-inner drop-shadow-xl`
 const TEXT_INPUT_CLASS = `${FIELD_HEIGHT_CLASS} px-4 shadow-inner drop-shadow-xl`
+
+const toNumberValue = (value: unknown) =>
+  typeof value === 'number' && !Number.isNaN(value) ? value : undefined
 
 const buildOptions = (
   items: Array<{ id?: string; designacao?: string; descricao?: string; nome?: string }>
@@ -832,11 +836,15 @@ const ViaturaFormContainer = ({
                           <FormItem>
                             <FormLabel>Número Interno</FormLabel>
                             <FormControl>
-                              <Input
-                                type='number'
+                              <NumberInput
+                                value={toNumberValue(field.value)}
+                                onValueChange={(nextValue) => field.onChange(nextValue)}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
                                 placeholder='Número interno da viatura'
-                                {...field}
                                 className={TEXT_INPUT_CLASS}
+                                min={0}
                               />
                             </FormControl>
                             <FormMessage />
@@ -850,11 +858,15 @@ const ViaturaFormContainer = ({
                           <FormItem>
                             <FormLabel>Ano de Fabrico</FormLabel>
                             <FormControl>
-                              <Input
-                                type='number'
+                              <NumberInput
+                                value={toNumberValue(field.value)}
+                                onValueChange={(nextValue) => field.onChange(nextValue)}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
                                 placeholder='Ano'
-                                {...field}
                                 className={TEXT_INPUT_CLASS}
+                                min={1900}
                               />
                             </FormControl>
                             <FormMessage />
@@ -868,11 +880,16 @@ const ViaturaFormContainer = ({
                           <FormItem>
                             <FormLabel>Mês de Fabrico</FormLabel>
                             <FormControl>
-                              <Input
-                                type='number'
+                              <NumberInput
+                                value={toNumberValue(field.value)}
+                                onValueChange={(nextValue) => field.onChange(nextValue)}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
                                 placeholder='Mês (1-12)'
-                                {...field}
                                 className={TEXT_INPUT_CLASS}
+                                min={1}
+                                max={12}
                               />
                             </FormControl>
                             <FormMessage />
@@ -1425,12 +1442,16 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Custo (€)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              step='0.01'
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
                               placeholder='Custo da viatura'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                              className={TEXT_INPUT_CLASS}
+                              step={0.01}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1444,11 +1465,16 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Despesas Incluídas (€)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              step='0.01'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              placeholder='Despesas incluídas'
+                              className={TEXT_INPUT_CLASS}
+                              step={0.01}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1560,12 +1586,16 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Consumo Médio (L/100km)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              step='0.1'
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
                               placeholder='Consumo médio'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                              className={TEXT_INPUT_CLASS}
+                              step={0.1}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1581,10 +1611,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Nº de Quadro</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1598,10 +1632,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Nº de Motor</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1615,11 +1653,15 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Cilindrada (cm³)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              step='0.1'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              step={0.1}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1635,10 +1677,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Potência (cv)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1652,10 +1698,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Tara (kg)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1669,10 +1719,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Lotação</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1688,7 +1742,15 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Carga Útil (kg)</FormLabel>
                           <FormControl>
-                            <Input type='number' {...field} className={TEXT_INPUT_CLASS} />
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1701,7 +1763,15 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Comprimento (mm)</FormLabel>
                           <FormControl>
-                            <Input type='number' {...field} className={TEXT_INPUT_CLASS} />
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1714,7 +1784,15 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Largura (mm)</FormLabel>
                           <FormControl>
-                            <Input type='number' {...field} className={TEXT_INPUT_CLASS} />
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1988,11 +2066,15 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Valor Total do Contrato (€)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              step='0.01'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              step={0.01}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2046,10 +2128,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Nº de Rendas</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2063,11 +2149,15 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Valor por Renda (€)</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              step='0.01'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              step={0.01}
+                              min={0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2082,12 +2172,16 @@ const ViaturaFormContainer = ({
                       <FormItem>
                         <FormLabel>Valor Residual (€)</FormLabel>
                         <FormControl>
-                          <Input
-                            type='number'
-                            step='0.01'
-                            {...field}
-                            className={TEXT_INPUT_CLASS}
-                          />
+                        <NumberInput
+                          value={toNumberValue(field.value)}
+                          onValueChange={(nextValue) => field.onChange(nextValue)}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                          className={TEXT_INPUT_CLASS}
+                          step={0.01}
+                          min={0}
+                        />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -2171,10 +2265,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Ano Imposto de Selo</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={1900}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2188,10 +2286,14 @@ const ViaturaFormContainer = ({
                         <FormItem>
                           <FormLabel>Ano Imposto Circulação</FormLabel>
                           <FormControl>
-                            <Input
-                              type='number'
-                              {...field}
-                                className={TEXT_INPUT_CLASS}
+                            <NumberInput
+                              value={toNumberValue(field.value)}
+                              onValueChange={(nextValue) => field.onChange(nextValue)}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                              className={TEXT_INPUT_CLASS}
+                              min={1900}
                             />
                           </FormControl>
                           <FormMessage />
