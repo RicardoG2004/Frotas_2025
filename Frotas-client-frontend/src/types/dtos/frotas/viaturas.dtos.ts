@@ -107,6 +107,11 @@ export interface ViaturaDTO {
     id?: string
     designacao?: string
   }>
+  garantiaIds: string[]
+  garantias?: Array<{
+    id?: string
+    designacao?: string
+  }>
   inspecoes?: ViaturaInspecaoDTO[]
   createdOn: string
 }
@@ -177,6 +182,7 @@ export interface CreateViaturaDTO {
   urlImagem1: string
   urlImagem2: string
   equipamentoIds: string[]
+  garantiaIds: string[]
   inspecoes: ViaturaInspecaoUpsertDTO[]
 }
 

@@ -58,6 +58,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public string URLImagem1 { get; set; }
     public string URLImagem2 { get; set; }
     public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
+    public ICollection<Guid> GarantiaIds { get; set; } = new List<Guid>();
     public ICollection<ViaturaInspecaoUpsertDTO> Inspecoes { get; set; } = new List<ViaturaInspecaoUpsertDTO>();
   }
 
@@ -112,6 +113,10 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
         .NotNull()
         .Must(ids => ids.Count > 0)
         .WithMessage("Selecione pelo menos um equipamento");
+      _ = RuleFor(x => x.GarantiaIds)
+        .NotNull()
+        .Must(ids => ids.Count > 0)
+        .WithMessage("Selecione pelo menos uma garantia");
       _ = RuleForEach(x => x.Inspecoes).ChildRules(inspection =>
       {
         _ = inspection.RuleFor(i => i.DataInspecao).NotEmpty();

@@ -57,6 +57,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Seguro> Seguros { get; set; }
     public DbSet<Viatura> Viaturas { get; set; }
     public DbSet<ViaturaEquipamento> ViaturaEquipamentos { get; set; }
+    public DbSet<ViaturaGarantia> ViaturaGarantias { get; set; }
     public DbSet<ViaturaSeguro> ViaturaSeguros { get; set; }
     public DbSet<ViaturaInspecao> ViaturaInspecoes { get; set; }
     
@@ -85,6 +86,20 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Equipamento)
         .WithMany(x => x.ViaturaEquipamentos)
         .HasForeignKey(x => x.EquipamentoId);
+
+      modelBuilder.Entity<ViaturaGarantia>()
+        .HasIndex(x => new { x.ViaturaId, x.GarantiaId })
+        .IsUnique();
+
+      modelBuilder.Entity<ViaturaGarantia>()
+        .HasOne(x => x.Viatura)
+        .WithMany(x => x.ViaturaGarantias)
+        .HasForeignKey(x => x.ViaturaId);
+
+      modelBuilder.Entity<ViaturaGarantia>()
+        .HasOne(x => x.Garantia)
+        .WithMany(x => x.ViaturaGarantias)
+        .HasForeignKey(x => x.GarantiaId);
 
       modelBuilder.Entity<ViaturaSeguro>()
         .HasIndex(x => new { x.ViaturaId, x.SeguroId })

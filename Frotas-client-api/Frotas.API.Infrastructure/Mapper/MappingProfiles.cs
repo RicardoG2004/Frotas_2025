@@ -207,6 +207,14 @@ namespace Frotas.API.Infrastructure.Mapper
           opt => opt.MapFrom(src => src.ViaturaEquipamentos.Select(ve => ve.EquipamentoId))
         )
         .ForMember(
+          dest => dest.Garantias,
+          opt => opt.MapFrom(src => src.ViaturaGarantias.Select(vg => vg.Garantia))
+        )
+        .ForMember(
+          dest => dest.GarantiaIds,
+          opt => opt.MapFrom(src => src.ViaturaGarantias.Select(vg => vg.GarantiaId))
+        )
+        .ForMember(
           dest => dest.Seguros,
           opt => opt.MapFrom(src => src.ViaturaSeguros.Select(vs => vs.Seguro))
         )
@@ -232,6 +240,7 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.Terceiro, opt => opt.Ignore())
         .ForMember(dest => dest.Fornecedor, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaEquipamentos, opt => opt.Ignore())
+        .ForMember(dest => dest.ViaturaGarantias, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaSeguros, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaInspecoes, opt => opt.Ignore());
       _ = CreateMap<UpdateViaturaRequest, Viatura>()
@@ -248,6 +257,7 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.Terceiro, opt => opt.Ignore())
         .ForMember(dest => dest.Fornecedor, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaEquipamentos, opt => opt.Ignore())
+        .ForMember(dest => dest.ViaturaGarantias, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaSeguros, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaInspecoes, opt => opt.Ignore());
 

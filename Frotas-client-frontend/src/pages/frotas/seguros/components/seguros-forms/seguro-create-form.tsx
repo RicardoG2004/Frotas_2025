@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { addYears } from 'date-fns'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm, type DefaultValues } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { CreateSeguroDTO } from '@/types/dtos/frotas/seguros.dtos'
@@ -159,10 +158,8 @@ const SeguroCreateForm = ({
     },
   })
 
-  const defaultValues = useMemo(() => {
-    const start = new Date()
-    const end = addYears(start, 1)
-    return {
+  const defaultValues = useMemo<DefaultValues<SeguroFormSchemaType>>(
+    () => ({
       designacao: '',
       apolice: '',
       seguradoraId: '',
@@ -171,10 +168,11 @@ const SeguroCreateForm = ({
       valorCobertura: undefined as unknown as number,
       custoAnual: undefined as unknown as number,
       riscosCobertos: '',
-      dataInicial: start,
-      dataFinal: end,
-    }
-  }, [])
+      dataInicial: undefined,
+      dataFinal: undefined,
+    }),
+    []
+  )
 
   const seguroResolver: Resolver<SeguroFormSchemaType> = async (values) => {
     const result = seguroFormSchema.safeParse(values)
@@ -674,9 +672,11 @@ const SeguroCreateForm = ({
                             <FormLabel>Data Inicial</FormLabel>
                             <FormControl>
                               <DatePicker
-                                value={field.value}
+                                value={field.value || undefined}
                                 onChange={(date) => field.onChange(date)}
                                 placeholder='Selecione a data inicial'
+                                allowClear
+                                className='h-12'
                               />
                             </FormControl>
                             <FormMessage />
@@ -691,9 +691,11 @@ const SeguroCreateForm = ({
                             <FormLabel>Data Final</FormLabel>
                             <FormControl>
                               <DatePicker
-                                value={field.value}
+                                value={field.value || undefined}
                                 onChange={(date) => field.onChange(date)}
                                 placeholder='Selecione a data final'
+                                allowClear
+                                className='h-12'
                               />
                             </FormControl>
                             <FormMessage />

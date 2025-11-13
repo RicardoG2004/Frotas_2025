@@ -75,6 +75,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
       Viatura newViatura = _mapper.Map<CreateViaturaRequest, Viatura>(request);
       SyncEquipamentos(newViatura, request.EquipamentoIds);
+      SyncGarantias(newViatura, request.GarantiaIds);
       SyncSeguros(newViatura, request.SeguroIds);
       SyncInspecoes(newViatura, request.Inspecoes);
 
@@ -108,6 +109,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
       Viatura updatedViatura = _mapper.Map(request, viaturaInDb);
       SyncEquipamentos(updatedViatura, request.EquipamentoIds);
+      SyncGarantias(updatedViatura, request.GarantiaIds);
       SyncSeguros(updatedViatura, request.SeguroIds);
       SyncInspecoes(updatedViatura, request.Inspecoes);
 
@@ -250,6 +252,34 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       if (!existingIds.Contains(seguroId))
       {
         viatura.ViaturaSeguros.Add(new ViaturaSeguro { SeguroId = seguroId });
+      }
+    }
+  }
+
+  private static void SyncGarantias(Viatura viatura, ICollection<Guid> garantiaIds)
+  {
+    garantiaIds ??= new List<Guid>();
+    viatura.ViaturaGarantias ??= new List<ViaturaGarantia>();
+
+    HashSet<Guid> desiredIds = garantiaIds.ToHashSet();
+    List<ViaturaGarantia> toRemove = viatura.ViaturaGarantias
+      .Where(vg => !desiredIds.Contains(vg.GarantiaId))
+      .ToList();
+
+    foreach (ViaturaGarantia item in toRemove)
+    {
+      _ = viatura.ViaturaGarantias.Remove(item);
+    }
+
+    HashSet<Guid> existingIds = viatura.ViaturaGarantias
+      .Select(vg => vg.GarantiaId)
+      .ToHashSet();
+
+    foreach (Guid garantiaId in desiredIds)
+    {
+      if (!existingIds.Contains(garantiaId))
+      {
+        viatura.ViaturaGarantias.Add(new ViaturaGarantia { GarantiaId = garantiaId });
       }
     }
   }

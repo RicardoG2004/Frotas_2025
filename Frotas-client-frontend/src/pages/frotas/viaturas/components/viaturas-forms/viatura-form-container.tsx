@@ -44,6 +44,7 @@ import {
   Ruler,
   Settings,
   ShieldCheck,
+  ShieldPlus,
   Wrench,
   Eye,
   Plus,
@@ -77,6 +78,7 @@ import { useGetDelegacoesSelect } from '@/pages/base/delegacoes/queries/delegaco
 import { useGetTerceirosSelect } from '@/pages/base/terceiros/queries/terceiros-queries'
 import { useGetFornecedoresSelect } from '@/pages/base/fornecedores/queries/fornecedores-queries'
 import { useGetSegurosSelect } from '@/pages/frotas/seguros/queries/seguros-queries'
+import { useGetGarantiasSelect } from '@/pages/base/garantias/queries/garantias-queries'
 import { useGetEquipamentosSelect } from '@/pages/frotas/equipamentos/queries/equipamentos-queries'
 import { useWindowsStore } from '@/stores/use-windows-store'
 import { cn } from '@/lib/utils'
@@ -108,6 +110,8 @@ import {
   openSeguroViewWindow,
   openEquipamentoCreationWindow,
   openEquipamentoViewWindow,
+  createEntityCreationWindow,
+  createEntityViewWindow,
 } from '@/utils/window-utils'
 import { useDropzone } from 'react-dropzone'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -126,6 +130,7 @@ type ViaturaSelectOptions = {
   terceiros: AutocompleteOption[]
   fornecedores: AutocompleteOption[]
   seguros: AutocompleteOption[]
+  garantias: AutocompleteOption[]
   equipamentos: AutocompleteOption[]
 }
 
@@ -143,6 +148,7 @@ type ViaturaSelectLoading = {
   terceiros: boolean
   fornecedores: boolean
   seguros: boolean
+  garantias: boolean
   equipamentos: boolean
 }
 
@@ -178,6 +184,14 @@ const FormSection = ({
     </div>
     <div className='mt-4 flex-1 space-y-4'>{children}</div>
   </div>
+)
+
+const openGarantiaCreationWindowFn = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/garantias/create'
+)
+const openGarantiaViewWindowFn = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/garantias/update',
+  'garantiaId'
 )
 
 const FIELD_HEIGHT_CLASS = 'h-12'
@@ -572,6 +586,11 @@ const ViaturaFormContainer = ({
     refetch: refetchSeguros,
   } = useGetSegurosSelect()
   const {
+    data: garantias = [],
+    isLoading: isLoadingGarantias,
+    refetch: refetchGarantias,
+  } = useGetGarantiasSelect()
+  const {
     data: equipamentos = [],
     isLoading: isLoadingEquipamentos,
     refetch: refetchEquipamentos,
@@ -592,6 +611,7 @@ const ViaturaFormContainer = ({
       terceiros: buildOptions(terceiros),
       fornecedores: buildOptions(fornecedores),
       seguros: buildOptions(seguros),
+      garantias: buildOptions(garantias),
       equipamentos: buildOptions(equipamentos),
     }),
     [
@@ -602,6 +622,7 @@ const ViaturaFormContainer = ({
       delegacoes,
       equipamentos,
       fornecedores,
+      garantias,
       localizacoes,
       marcas,
       modelos,
@@ -626,13 +647,16 @@ const ViaturaFormContainer = ({
     terceiros: isLoadingTerceiros,
     fornecedores: isLoadingFornecedores,
     seguros: isLoadingSeguros,
+  garantias: isLoadingGarantias,
     equipamentos: isLoadingEquipamentos,
   }
 
   const [selectedSeguroId, setSelectedSeguroId] = useState('')
   const segurosSelecionados = form.watch('seguroIds') ?? []
   const [selectedEquipamentoId, setSelectedEquipamentoId] = useState('')
+  const [selectedGarantiaId, setSelectedGarantiaId] = useState('')
   const equipamentosSelecionados = form.watch('equipamentoIds') ?? []
+  const garantiasSelecionadas = form.watch('garantiaIds') ?? []
 
   const segurosMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -650,6 +674,14 @@ const ViaturaFormContainer = ({
     return map
   }, [selectOptions.equipamentos])
 
+  const garantiasMap = useMemo(() => {
+    const map = new Map<string, string>()
+    selectOptions.garantias.forEach((option) => {
+      map.set(option.value, option.label)
+    })
+    return map
+  }, [selectOptions.garantias])
+
   const segurosSelecionadosDetalhes = useMemo(
     () =>
       segurosSelecionados.map((id) => ({
@@ -666,6 +698,15 @@ const ViaturaFormContainer = ({
         label: equipamentosMap.get(id) ?? 'Equipamento indisponível',
       })),
     [equipamentosSelecionados, equipamentosMap]
+  )
+
+  const garantiasSelecionadasDetalhes = useMemo(
+    () =>
+      garantiasSelecionadas.map((id) => ({
+        id,
+        label: garantiasMap.get(id) ?? 'Garantia indisponível',
+      })),
+    [garantiasSelecionadas, garantiasMap]
   )
 
   const addSeguroToForm = (seguroId: string) => {
@@ -704,12 +745,34 @@ const ViaturaFormContainer = ({
     setSelectedEquipamentoId('')
   }
 
+  const addGarantiaToForm = (garantiaId: string) => {
+    if (!garantiaId) {
+      return
+    }
+
+    const current = form.getValues('garantiaIds') ?? []
+    if (current.includes(garantiaId)) {
+      toast.warning('Esta garantia já foi adicionada')
+      return
+    }
+
+    form.setValue('garantiaIds', [...current, garantiaId], {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setSelectedGarantiaId('')
+  }
+
   const handleAddEquipamento = () => {
     addEquipamentoToForm(selectedEquipamentoId)
   }
 
   const handleAddSeguro = () => {
     addSeguroToForm(selectedSeguroId)
+  }
+
+  const handleAddGarantia = () => {
+    addGarantiaToForm(selectedGarantiaId)
   }
 
   const getNextInspectionDate = (date: Date) => {
@@ -771,6 +834,17 @@ const ViaturaFormContainer = ({
     )
 
     setSelectedEquipamentoId((prev) => (prev === equipamentoId ? '' : prev))
+  }
+
+  const handleRemoveGarantia = (garantiaId: string) => {
+    const current = form.getValues('garantiaIds') ?? []
+    form.setValue(
+      'garantiaIds',
+      current.filter((id) => id !== garantiaId),
+      { shouldDirty: true, shouldValidate: true }
+    )
+
+    setSelectedGarantiaId((prev) => (prev === garantiaId ? '' : prev))
   }
 
   const handleRemoveInspection = (index: number) => {
@@ -851,6 +925,7 @@ const ViaturaFormContainer = ({
       urlImagem1: 'notas',
       urlImagem2: 'notas',
       equipamentoIds: 'equipamento',
+      garantiaIds: 'garantias',
       inspecoes: 'inspecoes',
     },
   })
@@ -989,6 +1064,14 @@ const ViaturaFormContainer = ({
       openEquipamentoViewWindow,
       equipamentoId,
       'Não foi possível abrir o equipamento selecionado'
+    )
+
+  const handleCreateGarantia = () => openCreation(openGarantiaCreationWindowFn)
+  const handleViewGarantia = (garantiaId: string) =>
+    openView(
+      openGarantiaViewWindowFn,
+      garantiaId,
+      'Não foi possível abrir a garantia selecionada'
     )
 
   useAutoSelectionWithReturnData({
@@ -1181,6 +1264,21 @@ const ViaturaFormContainer = ({
     returnDataKey: `return-data-${parentWindowId}-equipamento`,
   })
 
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: garantias,
+    setValue: (value: string) => {
+      addGarantiaToForm(value)
+    },
+    refetch: refetchGarantias,
+    itemName: 'Garantia',
+    successMessage: 'Garantia selecionada automaticamente',
+    manualSelectionMessage: 'Garantia criada com sucesso. Por favor, selecione-a manualmente.',
+    queryKey: ['garantias-select'],
+    returnDataKey: `return-data-${parentWindowId}-garantia`,
+  })
+
   const placeholder = (loading: boolean, label: string) =>
     loading ? `A carregar ${label}...` : `Selecione ${label}`
 
@@ -1224,6 +1322,10 @@ const ViaturaFormContainer = ({
             <PersistentTabsTrigger value='seguros'>
               <ShieldCheck className='mr-2 h-4 w-4' />
               Seguros
+            </PersistentTabsTrigger>
+            <PersistentTabsTrigger value='garantias'>
+              <ShieldPlus className='mr-2 h-4 w-4' />
+              Garantias
             </PersistentTabsTrigger>
             <PersistentTabsTrigger value='notas'>
               <FileText className='mr-2 h-4 w-4' />
@@ -3290,6 +3392,191 @@ const ViaturaFormContainer = ({
                       </div>
                     </FormSection>
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+          </PersistentTabsContent>
+
+          {/* Garantias */}
+          <PersistentTabsContent value='garantias'>
+            <div className='space-y-6'>
+              <Card className='overflow-hidden border-l-4 border-l-primary/20 transition-all duration-200 hover:border-l-primary/40 hover:shadow-md'>
+                <CardHeader className='pb-4'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                      <ShieldPlus className='h-4 w-4' />
+                    </div>
+                    <div>
+                      <CardTitle className='flex items-center gap-2 text-base'>
+                        Garantias
+                      </CardTitle>
+                      <p className='mt-1 text-sm text-muted-foreground'>
+                        Associe garantias contratuais aplicáveis à viatura
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  <FormField
+                    control={form.control}
+                    name='garantiaIds'
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Garantia</FormLabel>
+                        <FormControl>
+                          <div className='space-y-4'>
+                            <div className='flex flex-col gap-3 md:flex-row md:items-center md:gap-4'>
+                              <div className='flex flex-col gap-2 md:flex-row md:items-center md:gap-2 md:flex-1'>
+                                <div className='w-full md:flex-1'>
+                                  <div className='relative'>
+                                    <Autocomplete
+                                      options={selectOptions.garantias}
+                                      value={selectedGarantiaId}
+                                      onValueChange={setSelectedGarantiaId}
+                                      placeholder={placeholder(
+                                        selectLoading.garantias,
+                                        'a garantia'
+                                      )}
+                                      disabled={selectLoading.garantias}
+                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                    />
+                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={() => handleViewGarantia(selectedGarantiaId)}
+                                        title='Ver Garantia'
+                                        disabled={!selectedGarantiaId}
+                                        className='h-8 w-8 p-0'
+                                      >
+                                        <Eye className='h-4 w-4' />
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleCreateGarantia}
+                                        title='Criar nova garantia'
+                                        className='h-8 w-8 p-0'
+                                      >
+                                        <Plus className='h-4 w-4' />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  type='button'
+                                  variant='secondary'
+                                  size='default'
+                                  className='w-full md:w-auto md:min-w-[160px] md:flex-shrink-0 h-12'
+                                  onClick={handleAddGarantia}
+                                  disabled={!selectedGarantiaId}
+                                >
+                                  Adicionar
+                                </Button>
+                              </div>
+                            </div>
+                            {garantiasSelecionadasDetalhes.length > 0 ? (
+                              <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
+                                <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                                  <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                                    <ShieldCheck className='h-4 w-4 text-primary' />
+                                    Garantias selecionadas
+                                    <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                                      {garantiasSelecionadasDetalhes.length}
+                                    </Badge>
+                                  </div>
+                                  <p className='text-xs text-muted-foreground'>
+                                    Revise as garantias associadas antes de concluir o registo da viatura.
+                                  </p>
+                                </div>
+
+                                <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
+                                  {garantiasSelecionadasDetalhes.map(({ id, label }) => {
+                                    const garantiaIndisponivel = label === 'Garantia indisponível'
+                                    return (
+                                      <div
+                                        key={id}
+                                        className='group flex h-full flex-col justify-between gap-3 rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md'
+                                      >
+                                        <div className='flex items-start gap-3'>
+                                          <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                                            <ShieldCheck className='h-5 w-5' />
+                                          </div>
+                                          <div className='min-w-0 space-y-1'>
+                                            <div className='flex items-start justify-between gap-2'>
+                                              <p className='truncate text-sm font-medium text-foreground'>
+                                                {label}
+                                              </p>
+                                              {garantiaIndisponivel && (
+                                                <Badge
+                                                  variant='outline'
+                                                  className='inline-flex items-center rounded-full border-destructive/30 bg-destructive/10 px-2 py-[2px] text-[11px] font-medium text-destructive'
+                                                >
+                                                  Indisponível
+                                                </Badge>
+                                              )}
+                                            </div>
+                                            <p className='text-xs text-muted-foreground'>
+                                              {garantiaIndisponivel
+                                                ? 'Esta garantia já não está disponível. Considere removê-la.'
+                                                : 'Garantia associada à viatura com sucesso.'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className='flex flex-wrap justify-end gap-2'>
+                                          <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            onClick={() => handleViewGarantia(id)}
+                                            title='Ver Garantia'
+                                            disabled={garantiaIndisponivel}
+                                            className={cn(
+                                              'gap-2',
+                                              garantiaIndisponivel && 'pointer-events-none opacity-60'
+                                            )}
+                                          >
+                                            <Eye className='h-4 w-4' />
+                                            Ver
+                                          </Button>
+                                          <Button
+                                            type='button'
+                                            variant='ghost'
+                                            size='sm'
+                                            onClick={() => handleRemoveGarantia(id)}
+                                            title='Remover Garantia'
+                                            className='text-destructive hover:text-destructive'
+                                          >
+                                            <Trash2 className='mr-2 h-4 w-4' />
+                                            Remover
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className='rounded-xl border border-dashed border-border/70 bg-muted/5 p-6 text-center shadow-inner'>
+                                <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                                  <ShieldPlus className='h-6 w-6' />
+                                </div>
+                                <h4 className='mt-4 text-sm font-semibold text-foreground'>
+                                  Sem garantias associadas
+                                </h4>
+                                <p className='mt-2 text-sm text-muted-foreground'>
+                                  Adicione garantias ativas para manter o histórico de cobertura da viatura.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
               </Card>
             </div>

@@ -653,9 +653,11 @@ const SeguroUpdateForm = ({
                             <FormLabel>Data Inicial</FormLabel>
                             <FormControl>
                               <DatePicker
-                                value={field.value}
+                                value={field.value || undefined}
                                 onChange={(date) => field.onChange(date)}
                                 placeholder='Selecione a data inicial'
+                                allowClear
+                                className='h-12'
                               />
                             </FormControl>
                             <FormMessage />
@@ -670,9 +672,11 @@ const SeguroUpdateForm = ({
                             <FormLabel>Data Final</FormLabel>
                             <FormControl>
                               <DatePicker
-                                value={field.value}
+                                value={field.value || undefined}
                                 onChange={(date) => field.onChange(date)}
                                 placeholder='Selecione a data final'
+                                allowClear
+                                className='h-12'
                               />
                             </FormControl>
                             <FormMessage />

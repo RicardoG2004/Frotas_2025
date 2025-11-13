@@ -613,6 +613,10 @@ export const openSeguroCreationWindow = createEntityCreationWindow(
   '/frotas/configuracoes/seguros/create'
 )
 
+export const openGarantiaCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/garantias/create'
+)
+
 export const openEquipamentoCreationWindow = createEntityCreationWindow(
   '/frotas/configuracoes/equipamentos/create'
 )
@@ -785,6 +789,11 @@ export const openFornecedorViewWindow = createEntityViewWindow(
 export const openSeguroViewWindow = createEntityViewWindow(
   '/frotas/configuracoes/seguros/update',
   'seguroId'
+)
+
+export const openGarantiaViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/garantias/update',
+  'garantiaId'
 )
 
 export const openEquipamentoViewWindow = createEntityViewWindow(

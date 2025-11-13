@@ -287,7 +287,10 @@ const GarantiaCreateForm = ({
             tabKey={`garantia-${instanceId}`}
           >
             <TabsList>
-              <TabsTrigger value='dados'>Identificação da Garantia</TabsTrigger>
+              <TabsTrigger value='dados' className='flex items-center gap-2'>
+                <ShieldCheck className='h-4 w-4' />
+                Identificação
+              </TabsTrigger>
             </TabsList>
             <TabsContent value='dados'>
               <Card className='overflow-hidden border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-all duration-200 hover:shadow-md'>
@@ -298,7 +301,7 @@ const GarantiaCreateForm = ({
                     </div>
                     <div>
                       <CardTitle className='text-base flex items-center gap-2'>
-                        Identificação da Garantia
+                        Identificação
                         <Badge variant='secondary' className='text-xs'>
                           Obrigatório
                         </Badge>

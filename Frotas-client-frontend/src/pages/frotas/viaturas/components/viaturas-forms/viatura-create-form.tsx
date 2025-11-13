@@ -58,6 +58,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   urlImagem1: values.urlImagem1 || '',
   urlImagem2: values.urlImagem2 || '',
   equipamentoIds: values.equipamentoIds,
+  garantiaIds: values.garantiaIds,
   inspecoes:
     values.inspecoes?.map((inspecao) => ({
       id: inspecao.id,

@@ -391,22 +391,6 @@ export const roleHeaderMenus = {
             funcionalidadeId: '', // Removed permission check temporarily
           },
           {
-            label: 'Viaturas',
-            href: '/frotas/viaturas',
-            description: 'Faça a gestão das viaturas da frota',
-            icon: 'car',
-            colors: {
-              colorful: 'bg-orange-500',
-              'theme-color': 'bg-primary',
-              pastel: 'bg-orange-300',
-              vibrant: 'bg-orange-600',
-              neon: 'bg-orange-400',
-              'neon-cyberpunk':
-                'bg-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.9)]',
-            },
-            funcionalidadeId: '',
-          },
-          {
             label: 'Tipos de Viatura',
             href: '/frotas/configuracoes/tipo-viaturas',
             description: 'Faça a gestão de tipos de viatura',
@@ -485,6 +469,30 @@ export const roleHeaderMenus = {
                 'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.9)]',
             },
             funcionalidadeId: '', // Removed permission check temporarily
+          },
+        ],
+      },
+      {
+        label: 'Viaturas',
+        href: '/frotas/viaturas',
+        icon: '',
+        funcionalidadeId: '',
+        items: [
+          {
+            label: 'Viaturas',
+            href: '/frotas/viaturas',
+            description: 'Faça a gestão das viaturas da frota',
+            icon: 'car',
+            colors: {
+              colorful: 'bg-orange-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-orange-300',
+              vibrant: 'bg-orange-600',
+              neon: 'bg-orange-400',
+              'neon-cyberpunk':
+                'bg-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.9)]',
+            },
+            funcionalidadeId: '',
           },
         ],
       },
