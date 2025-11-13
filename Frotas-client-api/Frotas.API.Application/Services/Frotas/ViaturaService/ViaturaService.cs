@@ -99,8 +99,8 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         return Response<Guid>.Fail("Não encontrado");
       }
 
-      ViaturaMatchMatricula specification = new(request.Matricula, id);
-      bool viaturaExists = await _repository.ExistsAsync<Viatura, Guid>(specification);
+      ViaturaMatchMatricula matriculaSpecification = new(request.Matricula, id);
+      bool viaturaExists = await _repository.ExistsAsync<Viatura, Guid>(matriculaSpecification);
       if (viaturaExists)
       {
         return Response<Guid>.Fail("Já existe uma viatura com esta matrícula");
@@ -195,7 +195,6 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         return Response<IEnumerable<Guid>>.Fail(ex.Message);
       }
     }
-  }
 
   private static void SyncEquipamentos(Viatura viatura, ICollection<Guid> equipamentoIds)
   {
@@ -304,6 +303,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         }
       );
     }
+  }
   }
 }
 

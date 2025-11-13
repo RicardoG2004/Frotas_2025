@@ -98,7 +98,12 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.Specifications
               );
               break;
             case "seguro.designacao":
-              _ = Query.Where(x => x.Seguro != null && x.Seguro.Designacao.Contains(filter.Value));
+            _ = Query.Where(
+              x =>
+                x.ViaturaSeguros.Any(
+                  vs => vs.Seguro != null && vs.Seguro.Designacao.Contains(filter.Value)
+                )
+            );
               break;
             case "marketing":
               if (bool.TryParse(filter.Value, out bool marketing))

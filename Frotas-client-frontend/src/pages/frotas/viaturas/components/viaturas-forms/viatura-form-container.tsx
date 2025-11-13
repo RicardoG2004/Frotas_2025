@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -52,6 +52,8 @@ import {
   FolderOpen,
   Stamp,
   StickyNote,
+  Download,
+  File,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
@@ -192,14 +194,99 @@ const formatDateLabel = (value: Date | string | null | undefined) => {
   return date.toLocaleDateString('pt-PT')
 }
 
-type ImageUploaderProps = {
+type FileUploaderProps = {
   value?: string
   onChange: (value: string) => void
   label: string
 }
 
-const ImageUploader = ({ value, onChange, label }: ImageUploaderProps) => {
+const FileUploader = ({ value, onChange, label }: FileUploaderProps) => {
   const [previewOpen, setPreviewOpen] = useState(false)
+  const [fileInfo, setFileInfo] = useState<{
+    name: string
+    size: number
+    type: string
+    isImage: boolean
+  } | null>(null)
+  const fileInfoRef = useRef<{
+    name: string
+    size: number
+    type: string
+    isImage: boolean
+  } | null>(null)
+
+  // Parse file info from base64 data URL
+  useEffect(() => {
+    if (!value) {
+      setFileInfo(null)
+      fileInfoRef.current = null
+      return
+    }
+
+    // Check if it's a base64 data URL
+    if (value.startsWith('data:')) {
+      const matches = value.match(/^data:([^;]+);base64,(.+)$/)
+      if (matches) {
+        const mimeType = matches[1]
+        const isImage = mimeType.startsWith('image/')
+        
+        // Get file extension from mime type
+        const extension = mimeType.split('/')[1]?.split(';')[0] || 'bin'
+        
+        // Generate a meaningful filename based on mime type
+        const getFileExtension = (mime: string) => {
+          const mimeMap: Record<string, string> = {
+            'application/pdf': 'pdf',
+            'application/msword': 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+            'application/vnd.ms-excel': 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+            'text/plain': 'txt',
+            'text/csv': 'csv',
+          }
+          return mimeMap[mime] || extension
+        }
+        
+        const fileExt = getFileExtension(mimeType)
+        // Use stored filename if available, otherwise generate one
+        const fileName = fileInfoRef.current?.name && !fileInfoRef.current.name.startsWith('documento.')
+          ? fileInfoRef.current.name
+          : `documento.${fileExt}`
+        
+        // Estimate size from base64 (base64 is ~33% larger than original)
+        // Use stored size if available and more accurate
+        const base64Length = matches[2].length
+        const estimatedSize = fileInfoRef.current?.size && fileInfoRef.current.size > 0
+          ? fileInfoRef.current.size
+          : Math.round((base64Length * 3) / 4)
+
+        const info = {
+          name: fileName,
+          size: estimatedSize,
+          type: mimeType,
+          isImage,
+        }
+        setFileInfo(info)
+        // Clear ref after using it to avoid stale data
+        if (fileInfoRef.current) {
+          fileInfoRef.current = null
+        }
+      }
+    } else if (value.startsWith('http://') || value.startsWith('https://')) {
+      // It's a URL, try to determine if it's an image by extension
+      const urlLower = value.toLowerCase()
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
+      const isImage = imageExtensions.some(ext => urlLower.includes(ext))
+      
+      const info = {
+        name: 'Documento',
+        size: 0,
+        type: isImage ? 'image/*' : 'application/octet-stream',
+        isImage,
+      }
+      setFileInfo(info)
+    }
+  }, [value])
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -212,7 +299,21 @@ const ImageUploader = ({ value, onChange, label }: ImageUploaderProps) => {
       reader.onload = () => {
         const result = reader.result
         if (typeof result === 'string') {
-          onChange(result)
+          // Store file metadata in the data URL by adding filename as a comment
+          // Format: data:mime/type;base64,data...;filename=originalname.ext
+          const base64Data = result
+          // We'll store it as-is, and extract filename from the File object when available
+          onChange(base64Data)
+          
+          // Store file info immediately and in ref to preserve it
+          const info = {
+            name: file.name,
+            size: file.size,
+            type: file.type || 'application/octet-stream',
+            isImage: file.type.startsWith('image/'),
+          }
+          setFileInfo(info)
+          fileInfoRef.current = info
         }
       }
       reader.readAsDataURL(file)
@@ -221,63 +322,113 @@ const ImageUploader = ({ value, onChange, label }: ImageUploaderProps) => {
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { 'image/*': [] },
+    accept: undefined, // Accept all file types
     multiple: false,
     onDrop: handleDrop,
   })
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
+  }
+
+  const handleDownload = () => {
+    if (!value) return
+
+    if (value.startsWith('data:')) {
+      const link = document.createElement('a')
+      link.href = value
+      link.download = fileInfo?.name || 'documento'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else if (value.startsWith('http://') || value.startsWith('https://')) {
+      window.open(value, '_blank')
+    }
+  }
+
+  const isImage = fileInfo?.isImage ?? false
+
   return (
-    <div className='space-y-3'>
+    <div className='space-y-2'>
       <div
         {...getRootProps({
           className: cn(
-            'relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/30 transition hover:border-primary/50 hover:bg-muted/40',
-            isDragActive && 'border-primary bg-primary/10'
+            'group relative flex min-h-[110px] w-full cursor-pointer items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-center transition hover:border-primary/50 hover:bg-muted/40',
+            isDragActive && 'border-primary bg-primary/10',
+            value && 'border-foreground/20 bg-background'
           ),
         })}
       >
         <input {...getInputProps()} aria-label={`Carregar ${label}`} />
-        {value ? (
-          <img src={value} alt={label} className='h-full w-full object-cover' />
-        ) : (
-          <div className='flex flex-col items-center gap-2 text-center text-sm text-muted-foreground'>
-            <FolderOpen className='h-6 w-6' />
-            <span>Arraste ou selecione uma imagem</span>
+        <div className='flex w-full flex-col items-center gap-2'>
+          <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+            <File className='h-5 w-5' />
           </div>
-        )}
+          {value && fileInfo ? (
+            <div className='flex flex-col items-center gap-1'>
+              <span className='text-sm font-medium text-foreground line-clamp-1'>{fileInfo.name}</span>
+              <span className='text-xs text-muted-foreground'>
+                {formatFileSize(fileInfo.size)} • {fileInfo.type}
+              </span>
+              <span className='text-[11px] text-muted-foreground'>Clique para substituir</span>
+            </div>
+          ) : (
+            <div className='text-xs text-muted-foreground'>
+              <p className='font-medium text-foreground'>Arraste ou clique para anexar</p>
+              <p>PDF, imagens, documentos, etc.</p>
+            </div>
+          )}
+        </div>
       </div>
+
       {value ? (
-        <div className='flex flex-col gap-2 sm:flex-row'>
+        <div className='flex flex-wrap items-center gap-2'>
+          {isImage ? (
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              className='inline-flex h-7 items-center gap-2 px-2 text-[11px]'
+              onClick={() => setPreviewOpen(true)}
+            >
+              <Eye className='h-3 w-3' /> Ver
+            </Button>
+          ) : null}
           <Button
             type='button'
             variant='outline'
             size='sm'
-            className='inline-flex items-center gap-2'
-            onClick={() => setPreviewOpen(true)}
+            className='inline-flex h-7 items-center gap-2 px-2 text-[11px]'
+            onClick={handleDownload}
           >
-            <Eye className='h-4 w-4' /> Ver imagem
+            <Download className='h-3 w-3' /> Descarregar
           </Button>
           <Button
             type='button'
             variant='outline'
             size='sm'
-            className='inline-flex items-center gap-2'
+            className='inline-flex h-7 items-center gap-2 px-2 text-[11px]'
             onClick={() => onChange('')}
           >
-            <Trash2 className='h-4 w-4' /> Remover imagem
+            <Trash2 className='h-3 w-3' /> Remover
           </Button>
         </div>
       ) : null}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className='max-w-3xl'>
-          <DialogHeader>
-            <DialogTitle>{label}</DialogTitle>
-          </DialogHeader>
-          {value ? (
+
+      {isImage && value ? (
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className='max-w-3xl'>
+            <DialogHeader>
+              <DialogTitle>{label}</DialogTitle>
+            </DialogHeader>
             <img src={value} alt={label} className='max-h-[70vh] w-full object-contain' />
-          ) : null}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </div>
   )
 }
@@ -2892,21 +3043,19 @@ const ViaturaFormContainer = ({
                                           <div className='min-w-0 space-y-1'>
                                             <div className='flex items-start justify-between gap-2'>
                                               <p className='truncate text-sm font-medium text-foreground'>{label}</p>
-                                              <Badge
-                                                variant='outline'
-                                                className={cn(
-                                                  'inline-flex items-center rounded-full border-primary/20 bg-primary/5 px-2 py-[2px] text-[11px] font-medium text-primary',
-                                                  seguroIndisponivel &&
-                                                    'border-destructive/30 bg-destructive/10 text-destructive'
-                                                )}
-                                              >
-                                                {seguroIndisponivel ? 'Indisponível' : 'Ativo'}
-                                              </Badge>
+                                              {seguroIndisponivel && (
+                                                <Badge
+                                                  variant='outline'
+                                                  className='inline-flex items-center rounded-full border-destructive/30 bg-destructive/10 px-2 py-[2px] text-[11px] font-medium text-destructive'
+                                                >
+                                                  Indisponível
+                                                </Badge>
+                                              )}
                                             </div>
                                             <p className='text-xs text-muted-foreground'>
                                               {seguroIndisponivel
                                                 ? 'Este seguro já não está disponível. Considere removê-lo da viatura.'
-                                                : 'Seguro associado com sucesso. Utilize Ver para confirmar os detalhes.'}
+                                                : 'Seguro associado com sucesso.'}
                                             </p>
                                           </div>
                                         </div>
@@ -3101,7 +3250,7 @@ const ViaturaFormContainer = ({
                     <FormSection
                       icon={FolderOpen}
                       title='Documentação'
-                      description='Referencie imagens e anexos relevantes'
+                      description='Anexe documentos, imagens e ficheiros relevantes'
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
                     <FormField
@@ -3109,12 +3258,12 @@ const ViaturaFormContainer = ({
                       name='urlImagem1'
                       render={({ field }) => (
                         <FormItem>
-                              <FormLabel>Imagem 1</FormLabel>
+                              <FormLabel>Documento 1</FormLabel>
                           <FormControl>
-                                <ImageUploader
+                                <FileUploader
                                   value={field.value}
                                   onChange={(value: string) => field.onChange(value)}
-                                  label='Imagem 1'
+                                  label='Documento 1'
                             />
                           </FormControl>
                           <FormMessage />
@@ -3126,12 +3275,12 @@ const ViaturaFormContainer = ({
                       name='urlImagem2'
                       render={({ field }) => (
                         <FormItem>
-                              <FormLabel>Imagem 2</FormLabel>
+                              <FormLabel>Documento 2</FormLabel>
                           <FormControl>
-                                <ImageUploader
+                                <FileUploader
                                   value={field.value}
                                   onChange={(value: string) => field.onChange(value)}
-                                  label='Imagem 2'
+                                  label='Documento 2'
                             />
                           </FormControl>
                           <FormMessage />
@@ -3258,16 +3407,14 @@ const ViaturaFormContainer = ({
                                               <p className='truncate text-sm font-medium text-foreground'>
                                                 {label}
                                               </p>
-                                              <Badge
-                                                variant='outline'
-                                                className={cn(
-                                                  'inline-flex items-center rounded-full border-primary/20 bg-primary/5 px-2 py-[2px] text-[11px] font-medium text-primary',
-                                                  equipamentoIndisponivel &&
-                                                    'border-destructive/30 bg-destructive/10 text-destructive'
-                                                )}
-                                              >
-                                                {equipamentoIndisponivel ? 'Indisponível' : 'Ativo'}
-                                              </Badge>
+                                              {equipamentoIndisponivel && (
+                                                <Badge
+                                                  variant='outline'
+                                                  className='inline-flex items-center rounded-full border-destructive/30 bg-destructive/10 px-2 py-[2px] text-[11px] font-medium text-destructive'
+                                                >
+                                                  Indisponível
+                                                </Badge>
+                                              )}
                                             </div>
                                             <p className='text-xs text-muted-foreground'>
                                               {equipamentoIndisponivel
@@ -3276,7 +3423,22 @@ const ViaturaFormContainer = ({
                                             </p>
                                           </div>
                                         </div>
-                                        <div className='flex justify-end'>
+                                        <div className='flex flex-wrap justify-end gap-2'>
+                                          <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            onClick={() => handleViewEquipamento(id)}
+                                            title='Ver Equipamento'
+                                            disabled={equipamentoIndisponivel}
+                                            className={cn(
+                                              'gap-2',
+                                              equipamentoIndisponivel && 'pointer-events-none opacity-60'
+                                            )}
+                                          >
+                                            <Eye className='h-4 w-4' />
+                                            Ver
+                                          </Button>
                                           <Button
                                             type='button'
                                             variant='ghost'
@@ -3295,9 +3457,15 @@ const ViaturaFormContainer = ({
                                 </div>
                               </div>
                             ) : (
-                              <p className='text-sm italic text-muted-foreground'>
-                                Ainda não adicionou equipamentos extra a esta viatura.
-                              </p>
+                              <div className='rounded-xl border border-dashed border-border/70 bg-muted/5 p-6 text-center shadow-inner'>
+                                <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                                  <Package className='h-6 w-6' />
+                                </div>
+                                <h4 className='mt-4 text-sm font-semibold text-foreground'>Sem equipamentos associados</h4>
+                                <p className='mt-2 text-sm text-muted-foreground'>
+                                  Adicione equipamentos extra à viatura para registar todos os acessórios relevantes.
+                                </p>
+                              </div>
                             )}
                           </div>
                         </FormControl>
