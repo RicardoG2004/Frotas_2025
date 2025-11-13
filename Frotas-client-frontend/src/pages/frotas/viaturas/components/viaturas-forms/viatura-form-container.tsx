@@ -534,6 +534,12 @@ const ViaturaFormContainer = ({
 
   const inspecoesValues = form.watch('inspecoes') ?? []
   const entidadeFornecedoraTipo = form.watch('entidadeFornecedoraTipo')
+  const tipoPropulsao = form.watch('tipoPropulsao')
+  const isElectricPropulsion = tipoPropulsao === 'eletrico'
+  const isHybridPropulsion = tipoPropulsao === 'hibrido'
+  const showCombustivelFields = !isElectricPropulsion || isHybridPropulsion
+  const showElectricFields = isElectricPropulsion || isHybridPropulsion
+  const motorizacaoSelecionada = tipoPropulsao === 'combustao' || isElectricPropulsion || isHybridPropulsion
 
   useEffect(() => {
     if (entidadeFornecedoraTipo === 'fornecedor') {
@@ -566,6 +572,46 @@ const ViaturaFormContainer = ({
       })
     }
   }, [initialValues, form])
+
+  const combustivelSectionIcon =
+    isElectricPropulsion || isHybridPropulsion ? BatteryCharging : Fuel
+  const combustivelSectionTitle = isElectricPropulsion
+    ? 'Energia e autonomia'
+    : isHybridPropulsion
+      ? 'Combustível e energia'
+      : 'Combustível e consumo'
+  const combustivelSectionDescription = isElectricPropulsion
+    ? 'Defina o consumo elétrico e a autonomia estimada'
+    : isHybridPropulsion
+      ? 'Defina os consumos híbridos e a autonomia em modo elétrico'
+      : 'Defina o combustível e o consumo médio estimado'
+  const consumoMedioLabel = isElectricPropulsion
+    ? 'Consumo Médio (kWh/100km)'
+    : isHybridPropulsion
+      ? 'Consumo Médio Combustível (L/100km)'
+      : 'Consumo Médio (L/100km)'
+  const combustivelGridClass = isElectricPropulsion
+    ? 'grid gap-4'
+    : 'grid gap-4 sm:grid-cols-[2fr_1fr]'
+  const motorSectionIcon = isElectricPropulsion || isHybridPropulsion ? BatteryCharging : Gauge
+  const motorSectionTitle = isElectricPropulsion
+    ? 'Bateria e performance'
+    : isHybridPropulsion
+      ? 'Sistema híbrido e performance'
+      : 'Motor e performance'
+  const motorSectionDescription = isElectricPropulsion
+    ? 'Informação sobre a potência e capacidade energética da viatura'
+    : isHybridPropulsion
+      ? 'Detalhe as especificações térmicas e elétricas do sistema híbrido'
+      : 'Especificações de potência do conjunto motor'
+  const potenciaLabel = isElectricPropulsion
+    ? 'Potência (kW)'
+    : isHybridPropulsion
+      ? 'Potência combinada (cv)'
+      : 'Potência (cv)'
+  const identificacaoMecanicaGridClass = isHybridPropulsion
+    ? 'grid gap-4'
+    : 'grid gap-4 sm:grid-cols-2'
 
   const {
     fields: inspectionFields,
@@ -688,6 +734,28 @@ const ViaturaFormContainer = ({
       tipoViaturas,
     ]
   )
+
+  useEffect(() => {
+    if (!isElectricPropulsion || isHybridPropulsion) {
+      return
+    }
+
+    const currentCombustivel = form.getValues('combustivelId')
+    const eletricOption = selectOptions.combustiveis.find((option) => {
+      const normalizedLabel = option.label
+        ?.toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+      return normalizedLabel?.includes('eletric')
+    })
+
+    if (eletricOption && currentCombustivel !== eletricOption.value) {
+      form.setValue('combustivelId', eletricOption.value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+  }, [form, isElectricPropulsion, isHybridPropulsion, selectOptions.combustiveis])
 
   const selectLoading: ViaturaSelectLoading = {
     marcas: isLoadingMarcas,
@@ -947,9 +1015,11 @@ const ViaturaFormContainer = ({
       custo: 'caracterizacao',
       despesasIncluidas: 'caracterizacao',
       consumoMedio: 'caracterizacao',
+      autonomia: 'caracterizacao',
       nQuadro: 'caracterizacao',
       nMotor: 'caracterizacao',
       cilindrada: 'caracterizacao',
+      capacidadeBateria: 'caracterizacao',
       potencia: 'caracterizacao',
       tara: 'caracterizacao',
       lotacao: 'caracterizacao',
@@ -2321,66 +2391,69 @@ const ViaturaFormContainer = ({
                     </FormSection>
 
                     <FormSection
-                      icon={Fuel}
-                      title='Combustível e consumo'
-                      description='Defina o combustível e o consumo médio estimado'
+                      icon={combustivelSectionIcon}
+                      title={combustivelSectionTitle}
+                      description={combustivelSectionDescription}
                     >
-                      <div className='grid gap-4 sm:grid-cols-[2fr_1fr]'>
-                    <FormField
-                      control={form.control}
-                      name='combustivelId'
-                      render={({ field }) => (
-                            <FormItem className='sm:col-span-2'>
-                          <FormLabel>Combustível</FormLabel>
-                          <FormControl>
-                                <div className='relative'>
-                            <Autocomplete
-                              options={selectOptions.combustiveis}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                                    placeholder={placeholder(
-                                      selectLoading.combustiveis,
-                                      'o combustível'
-                                    )}
-                              disabled={selectLoading.combustiveis}
-                                    className={SELECT_WITH_ACTIONS_CLASS}
-                                  />
-                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                    <Button
-                                      type='button'
-                                      variant='outline'
-                                      size='sm'
-                                      onClick={handleViewCombustivel}
-                                      className='h-8 w-8 p-0'
-                                      title='Ver Combustível'
-                                      disabled={!field.value}
-                                    >
-                                      <Eye className='h-4 w-4' />
-                                    </Button>
-                                    <Button
-                                      type='button'
-                                      variant='outline'
-                                      size='sm'
-                                      onClick={handleCreateCombustivel}
-                                      className='h-8 w-8 p-0'
-                                      title='Criar Combustível'
-                                    >
-                                      <Plus className='h-4 w-4' />
-                                    </Button>
+                      <div className={combustivelGridClass}>
+                        {showCombustivelFields ? (
+                          <FormField
+                            control={form.control}
+                            name='combustivelId'
+                            render={({ field }) => (
+                              <FormItem className='sm:col-span-2'>
+                                <FormLabel>Combustível</FormLabel>
+                                <FormControl>
+                                  <div className='relative'>
+                                    <Autocomplete
+                                      options={selectOptions.combustiveis}
+                                      value={field.value}
+                                      onValueChange={field.onChange}
+                                      placeholder={placeholder(
+                                        selectLoading.combustiveis,
+                                        'o combustível'
+                                      )}
+                                      disabled={selectLoading.combustiveis || !motorizacaoSelecionada}
+                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                    />
+                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleViewCombustivel}
+                                        className='h-8 w-8 p-0'
+                                        title='Ver Combustível'
+                                        disabled={!field.value || !motorizacaoSelecionada}
+                                      >
+                                        <Eye className='h-4 w-4' />
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleCreateCombustivel}
+                                        className='h-8 w-8 p-0'
+                                        title='Criar Combustível'
+                                        disabled={!motorizacaoSelecionada}
+                                      >
+                                        <Plus className='h-4 w-4' />
+                                      </Button>
+                                    </div>
                                   </div>
-                                </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='consumoMedio'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Consumo Médio (L/100km)</FormLabel>
-                          <FormControl>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ) : null}
+                        <FormField
+                          control={form.control}
+                          name='consumoMedio'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{consumoMedioLabel}</FormLabel>
+                              <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -2390,13 +2463,39 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   step={0.1}
                                   min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                                  disabled={!motorizacaoSelecionada}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {showElectricFields ? (
+                          <FormField
+                            control={form.control}
+                            name='autonomia'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Autonomia (km)</FormLabel>
+                                <FormControl>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                    className={TEXT_INPUT_CLASS}
+                                    step={1}
+                                    min={0}
+                                    disabled={!motorizacaoSelecionada}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ) : null}
+                      </div>
                     </FormSection>
                   </div>
 
@@ -2406,7 +2505,7 @@ const ViaturaFormContainer = ({
                       title='Identificação mecânica'
                       description='Identificadores únicos gravados na viatura'
                     >
-                      <div className='grid gap-4 sm:grid-cols-2'>
+                      <div className={identificacaoMecanicaGridClass}>
                     <FormField
                       control={form.control}
                       name='nQuadro'
@@ -2433,7 +2532,9 @@ const ViaturaFormContainer = ({
                       name='nMotor'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nº de Motor</FormLabel>
+                          <FormLabel>
+                            {isElectricPropulsion ? 'Nº de Motor Elétrico' : 'Nº de Motor'}
+                          </FormLabel>
                           <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
@@ -2453,18 +2554,43 @@ const ViaturaFormContainer = ({
                     </FormSection>
 
                     <FormSection
-                      icon={Gauge}
-                      title='Motor e performance'
-                      description='Especificações de potência do conjunto motor'
+                      icon={motorSectionIcon}
+                      title={motorSectionTitle}
+                      description={motorSectionDescription}
                     >
                       <div className='grid gap-4 sm:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='cilindrada'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cilindrada (cm³)</FormLabel>
-                          <FormControl>
+                        {showCombustivelFields ? (
+                          <FormField
+                            control={form.control}
+                            name='cilindrada'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Cilindrada (cm³)</FormLabel>
+                                <FormControl>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                    className={TEXT_INPUT_CLASS}
+                                    step={0.1}
+                                    min={0}
+                                    disabled={!motorizacaoSelecionada}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ) : null}
+                        <FormField
+                          control={form.control}
+                          name='potencia'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{potenciaLabel}</FormLabel>
+                              <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -2472,35 +2598,39 @@ const ViaturaFormContainer = ({
                                   name={field.name}
                                   ref={field.ref}
                                   className={TEXT_INPUT_CLASS}
-                                  step={0.1}
                                   min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='potencia'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Potência (cv)</FormLabel>
-                          <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                                  disabled={!motorizacaoSelecionada}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {showElectricFields ? (
+                          <FormField
+                            control={form.control}
+                            name='capacidadeBateria'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Capacidade da Bateria (kWh)</FormLabel>
+                                <FormControl>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                    className={TEXT_INPUT_CLASS}
+                                    step={0.1}
+                                    min={0}
+                                    disabled={!motorizacaoSelecionada}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ) : null}
                       </div>
                     </FormSection>
                   </div>

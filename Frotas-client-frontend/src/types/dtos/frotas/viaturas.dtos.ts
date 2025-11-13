@@ -63,6 +63,7 @@ export interface ViaturaDTO {
   custo: number
   despesasIncluidas: number
   consumoMedio: number
+  autonomia?: number | null
   terceiroId: string | null
   terceiro?: {
     id?: string
@@ -76,8 +77,9 @@ export interface ViaturaDTO {
   entidadeFornecedoraTipo: 'fornecedor' | 'terceiro'
   nQuadro: number
   nMotor: number
-  cilindrada: number
+  cilindrada: number | null
   potencia: number
+  capacidadeBateria?: number | null
   tara: number
   lotacao: number
   marketing: boolean
@@ -156,13 +158,15 @@ export interface CreateViaturaDTO {
   custo: number
   despesasIncluidas: number
   consumoMedio: number
+  autonomia?: number | null
   terceiroId: string | null
   fornecedorId: string | null
   entidadeFornecedoraTipo: 'fornecedor' | 'terceiro'
   nQuadro: number
   nMotor: number
-  cilindrada: number
+  cilindrada: number | null
   potencia: number
+  capacidadeBateria?: number | null
   tara: number
   lotacao: number
   marketing: boolean

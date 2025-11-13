@@ -84,9 +84,11 @@ const viaturaFormSchemaObject = z.object({
   custo: z.coerce.number().min(0),
   despesasIncluidas: z.coerce.number().min(0),
   consumoMedio: z.coerce.number().min(0),
+  autonomia: z.coerce.number().min(0).optional(),
   nQuadro: z.coerce.number().nonnegative(),
   nMotor: z.coerce.number().nonnegative(),
-  cilindrada: z.coerce.number().min(0),
+  cilindrada: z.coerce.number().min(0).optional(),
+  capacidadeBateria: z.coerce.number().min(0).optional(),
   potencia: z.coerce.number().min(0),
   tara: z.coerce.number().nonnegative(),
   lotacao: z.coerce.number().nonnegative(),
@@ -162,6 +164,33 @@ export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx)
   }
 
   const inspections = data.inspecoes ?? []
+
+  const isElectric = data.tipoPropulsao === 'eletrico'
+  const isHybrid = data.tipoPropulsao === 'hibrido'
+  if (isElectric || isHybrid) {
+    if (data.autonomia === undefined || Number.isNaN(data.autonomia)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indique a autonomia estimada',
+        path: ['autonomia'],
+      })
+    }
+    if (data.capacidadeBateria === undefined || Number.isNaN(data.capacidadeBateria)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indique a capacidade da bateria',
+        path: ['capacidadeBateria'],
+      })
+    }
+  }
+  if (!isElectric && (data.cilindrada === undefined || Number.isNaN(data.cilindrada))) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Indique a cilindrada do motor',
+      path: ['cilindrada'],
+    })
+  }
+
   if (inspections.length < 2) {
     return
   }
@@ -215,9 +244,11 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   custo: undefined,
   despesasIncluidas: undefined,
   consumoMedio: undefined,
+  autonomia: undefined,
   nQuadro: undefined,
   nMotor: undefined,
   cilindrada: undefined,
+  capacidadeBateria: undefined,
   potencia: undefined,
   tara: undefined,
   lotacao: undefined,

@@ -28,6 +28,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   custo: values.custo,
   despesasIncluidas: values.despesasIncluidas,
   consumoMedio: values.consumoMedio,
+  autonomia: values.autonomia ?? null,
   entidadeFornecedoraTipo: values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro',
   terceiroId:
     values.entidadeFornecedoraTipo === 'terceiro' && values.terceiroId
@@ -39,8 +40,9 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
       : null,
   nQuadro: values.nQuadro,
   nMotor: values.nMotor,
-  cilindrada: values.cilindrada,
+  cilindrada: values.cilindrada ?? null,
   potencia: values.potencia,
+  capacidadeBateria: values.capacidadeBateria ?? null,
   tara: values.tara,
   lotacao: values.lotacao,
   marketing: values.marketing,
