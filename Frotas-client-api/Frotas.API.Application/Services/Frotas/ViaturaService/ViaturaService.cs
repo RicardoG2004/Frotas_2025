@@ -337,6 +337,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     }
   }
 
+
   private static void NormalizeEntidadeFornecedora(CreateViaturaRequest request)
   {
     if (request == null)

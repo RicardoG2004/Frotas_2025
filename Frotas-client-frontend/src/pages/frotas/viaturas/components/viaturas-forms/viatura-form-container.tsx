@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -68,8 +76,10 @@ import {
   defaultViaturaFormValues,
   viaturaFormSchema,
   viaturaPropulsaoOptions,
+  parseViaturaDocumentosFromPair,
   type ViaturaFormSchemaType,
   type ViaturaPropulsaoType,
+  type ViaturaDocumentoFormValue,
 } from './viatura-form-schema'
 import { useGetMarcasSelect } from '@/pages/frotas/Marcas/queries/marcas-queries'
 import { useGetModelosSelect } from '@/pages/frotas/modelos/queries/modelos-queries'
@@ -119,7 +129,6 @@ import {
   createEntityCreationWindow,
   createEntityViewWindow,
 } from '@/utils/window-utils'
-import { useDropzone } from 'react-dropzone'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 type ViaturaSelectOptions = {
@@ -240,238 +249,204 @@ const formatDateLabel = (value: Date | string | null | undefined) => {
   return date.toLocaleDateString('pt-PT')
 }
 
-type FileUploaderProps = {
-  value?: string
-  onChange: (value: string) => void
-  label: string
+type DocumentosUploaderProps = {
+  value?: ViaturaDocumentoFormValue[]
+  onChange: (documentos: ViaturaDocumentoFormValue[]) => void
 }
 
-const FileUploader = ({ value, onChange, label }: FileUploaderProps) => {
-  const [previewOpen, setPreviewOpen] = useState(false)
-  const [fileInfo, setFileInfo] = useState<{
-    name: string
-    size: number
-    type: string
-    isImage: boolean
-  } | null>(null)
-  const fileInfoRef = useRef<{
-    name: string
-    size: number
-    type: string
-    isImage: boolean
-  } | null>(null)
-
-  // Parse file info from base64 data URL
-  useEffect(() => {
-    if (!value) {
-      setFileInfo(null)
-      fileInfoRef.current = null
-      return
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result)
+      } else {
+        reject(new Error('Não foi possível ler o ficheiro.'))
+      }
     }
-
-    // Check if it's a base64 data URL
-    if (value.startsWith('data:')) {
-      const matches = value.match(/^data:([^;]+);base64,(.+)$/)
-      if (matches) {
-        const mimeType = matches[1]
-        const isImage = mimeType.startsWith('image/')
-        
-        // Get file extension from mime type
-        const extension = mimeType.split('/')[1]?.split(';')[0] || 'bin'
-        
-        // Generate a meaningful filename based on mime type
-        const getFileExtension = (mime: string) => {
-          const mimeMap: Record<string, string> = {
-            'application/pdf': 'pdf',
-            'application/msword': 'doc',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
-            'application/vnd.ms-excel': 'xls',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-            'text/plain': 'txt',
-            'text/csv': 'csv',
-          }
-          return mimeMap[mime] || extension
-        }
-        
-        const fileExt = getFileExtension(mimeType)
-        // Use stored filename if available, otherwise generate one
-        const fileName = fileInfoRef.current?.name && !fileInfoRef.current.name.startsWith('documento.')
-          ? fileInfoRef.current.name
-          : `documento.${fileExt}`
-        
-        // Estimate size from base64 (base64 is ~33% larger than original)
-        // Use stored size if available and more accurate
-        const base64Length = matches[2].length
-        const estimatedSize = fileInfoRef.current?.size && fileInfoRef.current.size > 0
-          ? fileInfoRef.current.size
-          : Math.round((base64Length * 3) / 4)
-
-        const info = {
-          name: fileName,
-          size: estimatedSize,
-          type: mimeType,
-          isImage,
-        }
-        setFileInfo(info)
-        // Clear ref after using it to avoid stale data
-        if (fileInfoRef.current) {
-          fileInfoRef.current = null
-        }
-      }
-    } else if (value.startsWith('http://') || value.startsWith('https://')) {
-      // It's a URL, try to determine if it's an image by extension
-      const urlLower = value.toLowerCase()
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
-      const isImage = imageExtensions.some(ext => urlLower.includes(ext))
-      
-      const info = {
-        name: 'Documento',
-        size: 0,
-        type: isImage ? 'image/*' : 'application/octet-stream',
-        isImage,
-      }
-      setFileInfo(info)
-    }
-  }, [value])
-
-  const handleDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const file = acceptedFiles?.[0]
-      if (!file) {
-        return
-      }
-
-      const reader = new FileReader()
-      reader.onload = () => {
-        const result = reader.result
-        if (typeof result === 'string') {
-          // Store file metadata in the data URL by adding filename as a comment
-          // Format: data:mime/type;base64,data...;filename=originalname.ext
-          const base64Data = result
-          // We'll store it as-is, and extract filename from the File object when available
-          onChange(base64Data)
-          
-          // Store file info immediately and in ref to preserve it
-          const info = {
-            name: file.name,
-            size: file.size,
-            type: file.type || 'application/octet-stream',
-            isImage: file.type.startsWith('image/'),
-          }
-          setFileInfo(info)
-          fileInfoRef.current = info
-        }
-      }
-      reader.readAsDataURL(file)
-    },
-    [onChange]
-  )
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: undefined, // Accept all file types
-    multiple: false,
-    onDrop: handleDrop,
+    reader.onerror = () => reject(reader.error ?? new Error('Erro ao ler o ficheiro.'))
+    reader.readAsDataURL(file)
   })
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
+const formatFileSize = (bytes?: number) => {
+  if (bytes === undefined || bytes === null) {
+    return '0 Bytes'
   }
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100} ${sizes[i]}`
+}
 
-  const handleDownload = () => {
-    if (!value) return
+const isImageContentType = (contentType: string) => contentType.startsWith('image/')
 
-    if (value.startsWith('data:')) {
+const DocumentosUploader = ({ value, onChange }: DocumentosUploaderProps) => {
+  const documentos = value ?? []
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const convertFilesToDocumentos = useCallback(async (files: File[]) => {
+    if (!files.length) {
+      return []
+    }
+
+    return Promise.all(
+      files.map(async (file) => ({
+        nome: file.name || 'documento',
+        dados: await readFileAsDataUrl(file),
+        contentType: file.type || 'application/octet-stream',
+        tamanho: file.size,
+      }))
+    )
+  }, [])
+
+  const appendDocumentos = useCallback(
+    (novos: ViaturaDocumentoFormValue[]) => {
+      if (novos.length === 0) return
+      onChange([...documentos, ...novos])
+    },
+    [documentos, onChange]
+  )
+
+  const handleInputChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const fileList = event.target.files ? Array.from(event.target.files) : []
+      const novos = await convertFilesToDocumentos(fileList)
+      appendDocumentos(novos)
+      event.target.value = ''
+    },
+    [appendDocumentos, convertFilesToDocumentos]
+  )
+
+  const handleAddClick = useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleRemove = useCallback(
+    (index: number) => {
+      const next = documentos.filter((_, i) => i !== index)
+      onChange(next)
+    },
+    [documentos, onChange]
+  )
+
+  const handleDownload = useCallback((documento: ViaturaDocumentoFormValue) => {
+    if (!documento?.dados) return
+
+    if (documento.dados.startsWith('data:')) {
       const link = document.createElement('a')
-      link.href = value
-      link.download = fileInfo?.name || 'documento'
+      link.href = documento.dados
+      link.download = documento.nome || 'documento'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-    } else if (value.startsWith('http://') || value.startsWith('https://')) {
-      window.open(value, '_blank')
+      return
     }
-  }
 
-  const isImage = fileInfo?.isImage ?? false
+    if (documento.dados.startsWith('http://') || documento.dados.startsWith('https://')) {
+      window.open(documento.dados, '_blank')
+    }
+  }, [])
+
+  const previewDocumento =
+    previewIndex !== null ? documentos.at(previewIndex) ?? null : null
 
   return (
-    <div className='space-y-2'>
-      <div
-        {...getRootProps({
-          className: cn(
-            'group relative flex min-h-[110px] w-full cursor-pointer items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-center transition hover:border-primary/50 hover:bg-muted/40',
-            isDragActive && 'border-primary bg-primary/10',
-            value && 'border-foreground/20 bg-background'
-          ),
-        })}
-      >
-        <input {...getInputProps()} aria-label={`Carregar ${label}`} />
-        <div className='flex w-full flex-col items-center gap-2'>
-          <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
-            <File className='h-5 w-5' />
-          </div>
-          {value && fileInfo ? (
-            <div className='flex flex-col items-center gap-1'>
-              <span className='text-sm font-medium text-foreground line-clamp-1'>{fileInfo.name}</span>
-              <span className='text-xs text-muted-foreground'>
-                {formatFileSize(fileInfo.size)} • {fileInfo.type}
-              </span>
-              <span className='text-[11px] text-muted-foreground'>Clique para substituir</span>
-            </div>
-          ) : (
-            <div className='text-xs text-muted-foreground'>
-              <p className='font-medium text-foreground'>Arraste ou clique para anexar</p>
-              <p>PDF, imagens, documentos, etc.</p>
-            </div>
-          )}
-        </div>
+    <div className='space-y-3'>
+      <div className='flex items-center gap-2'>
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          className='h-8 px-2 text-xs font-medium'
+          onClick={handleAddClick}
+        >
+          <Plus className='mr-1 h-3 w-3' aria-hidden />
+          Anexar ficheiro
+        </Button>
+        <input
+          ref={fileInputRef}
+          type='file'
+          className='hidden'
+          multiple
+          onChange={handleInputChange}
+        />
       </div>
 
-      {value ? (
-        <div className='flex flex-wrap items-center gap-2'>
-          {isImage ? (
-            <Button
-              type='button'
-              variant='outline'
-              size='sm'
-              className='inline-flex h-7 items-center gap-2 px-2 text-[11px]'
-              onClick={() => setPreviewOpen(true)}
-            >
-              <Eye className='h-3 w-3' /> Ver
-            </Button>
-          ) : null}
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='inline-flex h-7 items-center gap-2 px-2 text-[11px]'
-            onClick={handleDownload}
-          >
-            <Download className='h-3 w-3' /> Descarregar
-          </Button>
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='inline-flex h-7 items-center gap-2 px-2 text-[11px]'
-            onClick={() => onChange('')}
-          >
-            <Trash2 className='h-3 w-3' /> Remover
-          </Button>
-        </div>
-      ) : null}
+      {documentos.length > 0 ? (
+        <div className='grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(150px,1fr))]'>
+          {documentos.map((documento, index) => {
+            const isImage = isImageContentType(documento.contentType)
+            const handleOpenDocumento = () => {
+              if (isImage && documento.dados.startsWith('data:')) {
+                setPreviewIndex(index)
+              } else {
+                handleDownload(documento)
+              }
+            }
 
-      {isImage && value ? (
-        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            return (
+              <div
+                key={`${documento.nome}-${index}`}
+                className='group relative rounded-xl border border-border/40 bg-card shadow-sm ring-1 ring-transparent transition hover:border-primary/40 hover:shadow-md hover:ring-primary/10'
+              >
+                <button
+                  type='button'
+                  onClick={handleOpenDocumento}
+                  className='flex h-28 w-full flex-col items-center justify-center gap-2 px-3 text-center text-xs font-medium text-foreground'
+                >
+                  <div className='flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary/20 group-hover:text-primary-foreground'>
+                    <File className='h-4 w-4' aria-hidden />
+                  </div>
+                  <span className='line-clamp-2 max-w-[130px] text-[11px] leading-tight text-primary'>
+                    {documento.nome}
+                  </span>
+                  <span className='text-[10px] text-muted-foreground'>
+                    {formatFileSize(documento.tamanho)}
+                  </span>
+                </button>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  className='absolute right-1 top-1 h-6 w-6 text-muted-foreground transition hover:text-destructive'
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    handleRemove(index)
+                  }}
+                  title='Remover'
+                >
+                  <Trash2 className='h-3 w-3' />
+                </Button>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <p className='text-xs text-muted-foreground'>
+          Ainda não há documentos anexados. Utilize o botão acima para carregar ficheiros.
+        </p>
+      )}
+
+      {previewDocumento && previewDocumento.dados.startsWith('data:') ? (
+        <Dialog
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setPreviewIndex(null)
+            }
+          }}
+        >
           <DialogContent className='max-w-3xl'>
             <DialogHeader>
-              <DialogTitle>{label}</DialogTitle>
+              <DialogTitle>{previewDocumento.nome}</DialogTitle>
             </DialogHeader>
-            <img src={value} alt={label} className='max-h-[70vh] w-full object-contain' />
+            <img
+              src={previewDocumento.dados}
+              alt={previewDocumento.nome}
+              className='max-h-[70vh] w-full object-contain'
+            />
           </DialogContent>
         </Dialog>
       ) : null}
@@ -512,12 +487,21 @@ const ViaturaFormContainer = ({
   tabKey,
   isSubmitting,
 }: ViaturaFormContainerProps) => {
-  const form = useForm<ViaturaFormSchemaType>({
-    resolver: zodResolver(viaturaFormSchema),
-    defaultValues: {
+  const initialFormValues = useMemo<Partial<ViaturaFormSchemaType>>(() => {
+    const documentosBase =
+      initialValues?.documentos ??
+      parseViaturaDocumentosFromPair(initialValues?.urlImagem1, initialValues?.urlImagem2)
+
+    return {
       ...defaultViaturaFormValues,
       ...initialValues,
-    },
+      documentos: documentosBase?.map((documento) => ({ ...documento })) ?? [],
+    }
+  }, [initialValues])
+
+  const form = useForm<ViaturaFormSchemaType>({
+    resolver: zodResolver(viaturaFormSchema),
+    defaultValues: initialFormValues,
     mode: 'onSubmit',
   })
 
@@ -565,13 +549,8 @@ const ViaturaFormContainer = ({
   }, [entidadeFornecedoraTipo, form])
 
   useEffect(() => {
-    if (initialValues) {
-      form.reset({
-        ...defaultViaturaFormValues,
-        ...initialValues,
-      })
-    }
-  }, [initialValues, form])
+    form.reset(initialFormValues)
+  }, [form, initialFormValues])
 
   const combustivelSectionIcon =
     isElectricPropulsion || isHybridPropulsion ? BatteryCharging : Fuel
@@ -3595,42 +3574,22 @@ const ViaturaFormContainer = ({
                       title='Documentação'
                       description='Anexe documentos, imagens e ficheiros relevantes'
                     >
-                      <div className='grid gap-4 sm:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='urlImagem1'
-                      render={({ field }) => (
-                        <FormItem>
-                              <FormLabel>Documento 1</FormLabel>
-                          <FormControl>
-                                <FileUploader
-                                  value={field.value}
-                                  onChange={(value: string) => field.onChange(value)}
-                                  label='Documento 1'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='urlImagem2'
-                      render={({ field }) => (
-                        <FormItem>
-                              <FormLabel>Documento 2</FormLabel>
-                          <FormControl>
-                                <FileUploader
-                                  value={field.value}
-                                  onChange={(value: string) => field.onChange(value)}
-                                  label='Documento 2'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                      </div>
+                      <FormField
+                        control={form.control}
+                        name='documentos'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Documentos anexados</FormLabel>
+                            <FormControl>
+                              <DocumentosUploader
+                                value={field.value}
+                                onChange={(next) => field.onChange(next)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </FormSection>
                   </div>
                 </CardContent>

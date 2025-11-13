@@ -10,6 +10,114 @@ const dateWithMessages = (requiredMessage: string, invalidMessage: string) =>
     invalid_type_error: invalidMessage,
   } as any)
 
+const DOCUMENTOS_STORAGE_VERSION = 1
+
+const viaturaDocumentoSchema = z.object({
+  nome: z.string().min(1),
+  dados: z.string().min(1),
+  contentType: z.string().min(1),
+  tamanho: z.number().nonnegative(),
+})
+
+type ViaturaDocumentoSchemaType = z.infer<typeof viaturaDocumentoSchema>
+
+const sanitizeDocumento = (documento: unknown): ViaturaDocumentoSchemaType | null => {
+  const parsed = viaturaDocumentoSchema.safeParse(documento)
+  return parsed.success ? parsed.data : null
+}
+
+const parseDocumentosPayload = (
+  payload?: string | null | undefined
+): ViaturaDocumentoSchemaType[] => {
+  if (!payload) {
+    return []
+  }
+
+  const trimmed = payload.trim()
+  if (!trimmed) {
+    return []
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed) as {
+      version?: number
+      files?: unknown[]
+    }
+
+    if (
+      parsed &&
+      Array.isArray(parsed.files) &&
+      (parsed.version === undefined || parsed.version === DOCUMENTOS_STORAGE_VERSION)
+    ) {
+      return parsed.files
+        .map(sanitizeDocumento)
+        .filter((doc): doc is ViaturaDocumentoSchemaType => doc !== null)
+    }
+  } catch (_error) {
+    // Não é JSON, continuar para os formatos legacy
+  }
+
+  if (trimmed.startsWith('data:')) {
+    const matches = trimmed.match(/^data:([^;]+);base64,(.+)$/)
+    if (matches) {
+      const mimeType = matches[1]
+      const base64Data = matches[2]
+      const estimatedSize = Math.round((base64Data.length * 3) / 4)
+      const extension = mimeType.split('/')[1]?.split(';')[0] || 'bin'
+      return [
+        {
+          nome: `documento.${extension}`,
+          dados: trimmed,
+          contentType: mimeType,
+          tamanho: estimatedSize,
+        },
+      ]
+    }
+  }
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    const lastSegment = trimmed.split('/').pop()
+    return [
+      {
+        nome: lastSegment && lastSegment.length < 120 ? lastSegment : 'documento',
+        dados: trimmed,
+        contentType: 'application/octet-stream',
+        tamanho: 0,
+      },
+    ]
+  }
+
+  return []
+}
+
+export const parseViaturaDocumentosFromPair = (
+  urlImagem1?: string | null,
+  urlImagem2?: string | null
+): ViaturaDocumentoSchemaType[] => [
+  ...parseDocumentosPayload(urlImagem1),
+  ...parseDocumentosPayload(urlImagem2),
+]
+
+export const encodeViaturaDocumentos = (
+  documentos: ViaturaDocumentoSchemaType[] | undefined
+): string => {
+  if (!documentos?.length) {
+    return ''
+  }
+
+  return JSON.stringify({
+    version: DOCUMENTOS_STORAGE_VERSION,
+    files: documentos.map((documento) => ({
+      nome: documento.nome,
+      dados: documento.dados,
+      contentType: documento.contentType,
+      tamanho: documento.tamanho,
+    })),
+  })
+}
+
+export type ViaturaDocumentoFormValue = ViaturaDocumentoSchemaType
+
 const viaturaInspecaoSchema = z
   .object({
     id: z.string().uuid().optional(),
@@ -129,6 +237,7 @@ const viaturaFormSchemaObject = z.object({
   ),
   urlImagem1: z.string().optional().default(''),
   urlImagem2: z.string().optional().default(''),
+  documentos: z.array(viaturaDocumentoSchema).optional().default([]),
   equipamentoIds: z
     .array(z.string().uuid({ message: 'Selecione um equipamento válido' }))
     .min(1, { message: 'Selecione pelo menos um equipamento' }),
@@ -275,6 +384,7 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   dataValidadeSelo: undefined,
   urlImagem1: '',
   urlImagem2: '',
+  documentos: [],
   equipamentoIds: [],
   garantiaIds: [],
   inspecoes: [],
