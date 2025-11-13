@@ -13,7 +13,14 @@ interface ViaturaUpdateFormProps {
   viaturaId: string
 }
 
-const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => ({
+const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
+  const entidadeFornecedoraTipo =
+    viatura.entidadeFornecedoraTipo?.toLowerCase() === 'terceiro' ||
+    (!viatura.fornecedorId && viatura.terceiroId)
+      ? 'terceiro'
+      : 'fornecedor'
+
+  return {
   matricula: viatura.matricula || '',
   numero: viatura.numero ?? 0,
   anoFabrico: viatura.anoFabrico ?? new Date().getFullYear(),
@@ -30,11 +37,12 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => ({
   localizacaoId: viatura.localizacaoId || '',
   setorId: viatura.setorId || '',
   delegacaoId: viatura.delegacaoId || '',
+  entidadeFornecedoraTipo,
   custo: viatura.custo ?? 0,
   despesasIncluidas: viatura.despesasIncluidas ?? 0,
   consumoMedio: viatura.consumoMedio ?? 0,
-  terceiroId: viatura.terceiroId || '',
-  fornecedorId: viatura.fornecedorId || '',
+  terceiroId: viatura.terceiroId ?? '',
+  fornecedorId: viatura.fornecedorId ?? '',
   nQuadro: viatura.nQuadro ?? 0,
   nMotor: viatura.nMotor ?? 0,
   cilindrada: viatura.cilindrada ?? 0,
@@ -90,7 +98,8 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => ({
         ? new Date(inspecao.dataProximaInspecao)
         : new Date(),
     })) ?? [],
-})
+  }
+}
 
 const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   matricula: values.matricula,
@@ -112,8 +121,15 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   custo: values.custo,
   despesasIncluidas: values.despesasIncluidas,
   consumoMedio: values.consumoMedio,
-  terceiroId: values.terceiroId,
-  fornecedorId: values.fornecedorId,
+  entidadeFornecedoraTipo: values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro',
+  terceiroId:
+    values.entidadeFornecedoraTipo === 'terceiro' && values.terceiroId
+      ? values.terceiroId
+      : null,
+  fornecedorId:
+    values.entidadeFornecedoraTipo === 'fornecedor' && values.fornecedorId
+      ? values.fornecedorId
+      : null,
   nQuadro: values.nQuadro,
   nMotor: values.nMotor,
   cilindrada: values.cilindrada,

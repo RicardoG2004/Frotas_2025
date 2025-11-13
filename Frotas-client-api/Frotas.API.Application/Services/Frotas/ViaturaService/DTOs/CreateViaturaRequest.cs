@@ -27,8 +27,9 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public decimal Custo { get; set; }
     public decimal DespesasIncluidas { get; set; }
     public decimal ConsumoMedio { get; set; }
-    public Guid TerceiroId { get; set; }
-    public Guid FornecedorId { get; set; }
+    public Guid? TerceiroId { get; set; }
+    public Guid? FornecedorId { get; set; }
+    public string EntidadeFornecedoraTipo { get; set; } = string.Empty;
     public int NQuadro { get; set; }
     public int NMotor { get; set; }
     public decimal Cilindrada { get; set; }
@@ -85,8 +86,38 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
       _ = RuleFor(x => x.Custo).GreaterThanOrEqualTo(0);
       _ = RuleFor(x => x.DespesasIncluidas).GreaterThanOrEqualTo(0);
       _ = RuleFor(x => x.ConsumoMedio).GreaterThanOrEqualTo(0);
-      _ = RuleFor(x => x.TerceiroId).NotEmpty();
-      _ = RuleFor(x => x.FornecedorId).NotEmpty();
+      _ = RuleFor(x => x.EntidadeFornecedoraTipo)
+        .NotEmpty()
+        .Must(tipo =>
+        {
+          string? trimmed = tipo?.Trim();
+          return string.Equals(trimmed, "fornecedor", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "terceiro", StringComparison.OrdinalIgnoreCase);
+        })
+        .WithMessage("O tipo de entidade fornecedora é inválido. Selecione 'Fornecedor' ou 'Outros Devedores/Credores'.");
+      _ = RuleFor(x => x)
+        .Custom((request, context) =>
+        {
+          string? tipo = request.EntidadeFornecedoraTipo?.Trim();
+          if (string.Equals(tipo, "fornecedor", StringComparison.OrdinalIgnoreCase))
+          {
+            if (!request.FornecedorId.HasValue || request.FornecedorId == Guid.Empty)
+            {
+              context.AddFailure(nameof(request.FornecedorId), "Selecione o fornecedor.");
+            }
+          }
+          else if (string.Equals(tipo, "terceiro", StringComparison.OrdinalIgnoreCase))
+          {
+            if (!request.TerceiroId.HasValue || request.TerceiroId == Guid.Empty)
+            {
+              context.AddFailure(nameof(request.TerceiroId), "Selecione o outro devedor/credor.");
+            }
+          }
+          else
+          {
+            context.AddFailure(nameof(request.EntidadeFornecedoraTipo), "Selecione o tipo de entidade fornecedora.");
+          }
+        });
       _ = RuleFor(x => x.NQuadro).GreaterThanOrEqualTo(0);
       _ = RuleFor(x => x.NMotor).GreaterThanOrEqualTo(0);
       _ = RuleFor(x => x.Cilindrada).GreaterThanOrEqualTo(0);

@@ -59,16 +59,17 @@ export interface ViaturaDTO {
   custo: number
   despesasIncluidas: number
   consumoMedio: number
-  terceiroId: string
+  terceiroId: string | null
   terceiro?: {
     id?: string
     nome?: string
   }
-  fornecedorId: string
+  fornecedorId: string | null
   fornecedor?: {
     id?: string
     nome?: string
   }
+  entidadeFornecedoraTipo: 'fornecedor' | 'terceiro'
   nQuadro: number
   nMotor: number
   cilindrada: number
@@ -150,8 +151,9 @@ export interface CreateViaturaDTO {
   custo: number
   despesasIncluidas: number
   consumoMedio: number
-  terceiroId: string
-  fornecedorId: string
+  terceiroId: string | null
+  fornecedorId: string | null
+  entidadeFornecedoraTipo: 'fornecedor' | 'terceiro'
   nQuadro: number
   nMotor: number
   cilindrada: number

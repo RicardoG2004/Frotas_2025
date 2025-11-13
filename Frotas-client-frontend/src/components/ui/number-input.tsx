@@ -29,6 +29,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       onWheel,
       onBlur,
       disabled,
+      placeholder,
       ...props
     },
     ref
@@ -238,6 +239,9 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       }
     }, [handleStep, isFocused])
 
+    const resolvedPlaceholder =
+      placeholder !== undefined ? placeholder : step < 1 ? '0,00' : '0'
+
     return (
       <div className='relative'>
         <Input
@@ -249,6 +253,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           onBlur={handleInternalBlur}
           onFocus={handleInternalFocus}
           className={cn('pr-12', className)}
+          placeholder={resolvedPlaceholder}
           disabled={disabled}
           inputMode='decimal'
           {...props}

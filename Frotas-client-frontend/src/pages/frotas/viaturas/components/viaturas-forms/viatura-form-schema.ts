@@ -30,6 +30,8 @@ const viaturaInspecaoSchema = z
     }
   )
 
+const uuidOrEmpty = z.string().uuid({ message: 'Selecione um valor válido' }).or(z.literal(''))
+
 const viaturaFormSchemaObject = z.object({
   matricula: z
     .string({ message: 'A matrícula é obrigatória' })
@@ -58,8 +60,14 @@ const viaturaFormSchemaObject = z.object({
   localizacaoId: z.string().uuid({ message: 'Selecione a localização' }),
   setorId: z.string().uuid({ message: 'Selecione o setor' }),
   delegacaoId: z.string().uuid({ message: 'Selecione a delegação' }),
-  terceiroId: z.string().uuid({ message: 'Selecione o terceiro' }),
-  fornecedorId: z.string().uuid({ message: 'Selecione o fornecedor' }),
+  entidadeFornecedoraTipo: z
+    .enum(['fornecedor', 'terceiro'])
+    .or(z.literal(''))
+    .refine((value) => value === '' || value === 'fornecedor' || value === 'terceiro', {
+      message: 'Selecione o tipo de entidade fornecedora',
+    }),
+  terceiroId: uuidOrEmpty,
+  fornecedorId: uuidOrEmpty,
   custo: z.coerce.number().min(0),
   despesasIncluidas: z.coerce.number().min(0),
   consumoMedio: z.coerce.number().min(0),
@@ -116,6 +124,30 @@ const viaturaFormSchemaObject = z.object({
 })
 
 export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx) => {
+  if (data.entidadeFornecedoraTipo === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecione o tipo de entidade fornecedora',
+      path: ['entidadeFornecedoraTipo'],
+    })
+  } else if (data.entidadeFornecedoraTipo === 'fornecedor') {
+    if (!data.fornecedorId || data.fornecedorId === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecione o fornecedor',
+        path: ['fornecedorId'],
+      })
+    }
+  } else if (data.entidadeFornecedoraTipo === 'terceiro') {
+    if (!data.terceiroId || data.terceiroId === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecione o outro devedor/credor',
+        path: ['terceiroId'],
+      })
+    }
+  }
+
   const inspections = data.inspecoes ?? []
   if (inspections.length < 2) {
     return
@@ -163,6 +195,7 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   localizacaoId: '',
   setorId: '',
   delegacaoId: '',
+  entidadeFornecedoraTipo: '',
   terceiroId: '',
   fornecedorId: '',
   custo: undefined,

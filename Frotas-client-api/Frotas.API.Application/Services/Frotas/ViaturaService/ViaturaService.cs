@@ -73,6 +73,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         return Response<Guid>.Fail("Viatura já existe");
       }
 
+      NormalizeEntidadeFornecedora(request);
       Viatura newViatura = _mapper.Map<CreateViaturaRequest, Viatura>(request);
       SyncEquipamentos(newViatura, request.EquipamentoIds);
       SyncGarantias(newViatura, request.GarantiaIds);
@@ -107,6 +108,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         return Response<Guid>.Fail("Já existe uma viatura com esta matrícula");
       }
 
+      NormalizeEntidadeFornecedora(request);
       Viatura updatedViatura = _mapper.Map(request, viaturaInDb);
       SyncEquipamentos(updatedViatura, request.EquipamentoIds);
       SyncGarantias(updatedViatura, request.GarantiaIds);
@@ -333,6 +335,49 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         }
       );
     }
+  }
+
+  private static void NormalizeEntidadeFornecedora(CreateViaturaRequest request)
+  {
+    if (request == null)
+    {
+      return;
+    }
+
+    request.EntidadeFornecedoraTipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
+    if (request.EntidadeFornecedoraTipo == "fornecedor")
+    {
+      request.TerceiroId = null;
+    }
+    else
+    {
+      request.FornecedorId = null;
+    }
+  }
+
+  private static void NormalizeEntidadeFornecedora(UpdateViaturaRequest request)
+  {
+    if (request == null)
+    {
+      return;
+    }
+
+    request.EntidadeFornecedoraTipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
+    if (request.EntidadeFornecedoraTipo == "fornecedor")
+    {
+      request.TerceiroId = null;
+    }
+    else
+    {
+      request.FornecedorId = null;
+    }
+  }
+
+  private static string NormalizeEntidadeFornecedoraTipo(string? tipo)
+  {
+    return string.Equals(tipo?.Trim(), "terceiro", StringComparison.OrdinalIgnoreCase)
+      ? "terceiro"
+      : "fornecedor";
   }
   }
 }

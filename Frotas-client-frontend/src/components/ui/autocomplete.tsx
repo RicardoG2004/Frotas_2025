@@ -51,7 +51,7 @@ export function Autocomplete({
   const normalizedInput = inputValue.trim().toLowerCase()
 
   // Show all options when opened via click or input is empty, filter when typing and input is not empty
-  const filteredOptions =
+  let filteredOptions =
     isTyping && normalizedInput !== ''
       ? options
           .filter((option) =>
@@ -59,6 +59,13 @@ export function Autocomplete({
           )
           .slice(0, 3) // Limit to 3 options when typing and input is not empty
       : options.slice(0, defaultVisibleCount) // Show first N options when opened via click or input is empty
+
+  if (
+    selectedOption &&
+    !filteredOptions.some((option) => option.value === selectedOption.value)
+  ) {
+    filteredOptions = [selectedOption, ...filteredOptions]
+  }
 
   const showCreateOption =
     createOption &&
@@ -97,8 +104,13 @@ export function Autocomplete({
   const handleSelect = (selectedValue: string) => {
     const option = options.find((opt) => opt.label === selectedValue)
     if (option) {
-      onValueChange(option.value)
-      setInputValue(option.label)
+      if (option.value === value) {
+        onValueChange('')
+        setInputValue('')
+      } else {
+        onValueChange(option.value)
+        setInputValue(option.label)
+      }
     } else if (onCreateOption) {
       onCreateOption(inputValue)
     }

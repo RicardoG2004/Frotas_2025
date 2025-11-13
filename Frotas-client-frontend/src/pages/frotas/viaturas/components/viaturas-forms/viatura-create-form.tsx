@@ -26,8 +26,15 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   custo: values.custo,
   despesasIncluidas: values.despesasIncluidas,
   consumoMedio: values.consumoMedio,
-  terceiroId: values.terceiroId,
-  fornecedorId: values.fornecedorId,
+  entidadeFornecedoraTipo: values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro',
+  terceiroId:
+    values.entidadeFornecedoraTipo === 'terceiro' && values.terceiroId
+      ? values.terceiroId
+      : null,
+  fornecedorId:
+    values.entidadeFornecedoraTipo === 'fornecedor' && values.fornecedorId
+      ? values.fornecedorId
+      : null,
   nQuadro: values.nQuadro,
   nMotor: values.nMotor,
   cilindrada: values.cilindrada,

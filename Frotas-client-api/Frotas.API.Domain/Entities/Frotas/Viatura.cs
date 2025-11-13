@@ -37,10 +37,10 @@ namespace Frotas.API.Domain.Entities.Frotas
     public decimal Custo { get; set; }
     public decimal DespesasIncluidas { get; set; }
     public decimal ConsumoMedio { get; set; }
-    public Guid TerceiroId { get; set; }
-    public Terceiro Terceiro { get; set; }
-    public Guid FornecedorId { get; set; }
-    public Fornecedor Fornecedor { get; set; }
+    public Guid? TerceiroId { get; set; }
+    public Terceiro? Terceiro { get; set; }
+    public Guid? FornecedorId { get; set; }
+    public Fornecedor? Fornecedor { get; set; }
     public int NQuadro { get; set; }
     public int NMotor { get; set; }
     public decimal Cilindrada { get; set; }

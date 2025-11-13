@@ -51,10 +51,11 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public decimal Custo { get; set; }
     public decimal DespesasIncluidas { get; set; }
     public decimal ConsumoMedio { get; set; }
-    public Guid TerceiroId { get; set; }
-    public TerceiroDTO Terceiro { get; set; }
-    public Guid FornecedorId { get; set; }
-    public FornecedorDTO Fornecedor { get; set; }
+    public Guid? TerceiroId { get; set; }
+    public TerceiroDTO? Terceiro { get; set; }
+    public Guid? FornecedorId { get; set; }
+    public FornecedorDTO? Fornecedor { get; set; }
+    public string EntidadeFornecedoraTipo { get; set; } = "fornecedor";
     public int NQuadro { get; set; }
     public int NMotor { get; set; }
     public decimal Cilindrada { get; set; }
