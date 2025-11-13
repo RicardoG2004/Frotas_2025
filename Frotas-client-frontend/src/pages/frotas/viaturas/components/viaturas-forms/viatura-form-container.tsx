@@ -29,6 +29,7 @@ import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import {
   Building2,
+  BatteryCharging,
   CalendarDays,
   Car,
   CheckSquare,
@@ -39,6 +40,7 @@ import {
   Fingerprint,
   Fuel,
   Gauge,
+  Leaf,
   MapPin,
   Package,
   PiggyBank,
@@ -47,6 +49,7 @@ import {
   ShieldCheck,
   ShieldPlus,
   Wrench,
+  Flame,
   Eye,
   Plus,
   Trash2,
@@ -64,7 +67,9 @@ import { useAutoSelectionWithReturnData } from '@/hooks/use-auto-selection-with-
 import {
   defaultViaturaFormValues,
   viaturaFormSchema,
+  viaturaPropulsaoOptions,
   type ViaturaFormSchemaType,
+  type ViaturaPropulsaoType,
 } from './viatura-form-schema'
 import { useGetMarcasSelect } from '@/pages/frotas/Marcas/queries/marcas-queries'
 import { useGetModelosSelect } from '@/pages/frotas/modelos/queries/modelos-queries'
@@ -198,6 +203,32 @@ const openGarantiaViewWindowFn = createEntityViewWindow(
 const FIELD_HEIGHT_CLASS = 'h-12'
 const SELECT_WITH_ACTIONS_CLASS = `${FIELD_HEIGHT_CLASS} px-4 pr-32 shadow-inner drop-shadow-xl`
 const TEXT_INPUT_CLASS = `${FIELD_HEIGHT_CLASS} px-4 shadow-inner drop-shadow-xl`
+
+const PROPULSAO_DETAILS: Record<
+  ViaturaPropulsaoType,
+  { label: string; description: string; icon: LucideIcon }
+> = {
+  combustao: {
+    label: 'Combustão',
+    description: 'Motor térmico convencional (gasolina, gasóleo, GPL...).',
+    icon: Flame,
+  },
+  hibrido: {
+    label: 'Híbrido',
+    description: 'Combinação de motor térmico com apoio elétrico.',
+    icon: Leaf,
+  },
+  eletrico: {
+    label: 'Elétrico',
+    description: 'Propulsão 100% elétrica alimentada por bateria.',
+    icon: BatteryCharging,
+  },
+}
+
+const PROPULSAO_OPTIONS = viaturaPropulsaoOptions.map((value) => ({
+  value,
+  ...PROPULSAO_DETAILS[value],
+}))
 
 const toNumberValue = (value: unknown) =>
   typeof value === 'number' && !Number.isNaN(value) ? value : undefined
@@ -911,6 +942,7 @@ const ViaturaFormContainer = ({
       modeloId: 'identificacao',
       tipoViaturaId: 'identificacao',
       corId: 'identificacao',
+      tipoPropulsao: 'identificacao',
       combustivelId: 'caracterizacao',
       custo: 'caracterizacao',
       despesasIncluidas: 'caracterizacao',
@@ -1401,14 +1433,14 @@ const ViaturaFormContainer = ({
                     title='Dados principais'
                     description='Informações base de identificação e registo'
                   >
-                    <div className='grid gap-4 md:grid-cols-[1.35fr_1.65fr] xl:grid-cols-[1.35fr_1.65fr_1.3fr] items-start'>
-                    <FormField
-                      control={form.control}
-                      name='matricula'
-                      render={({ field }) => (
-                        <FormItem>
+                    <div className='grid items-start gap-4 md:grid-cols-[1.35fr_1.65fr] xl:grid-cols-[1.35fr_1.65fr_1.3fr]'>
+                      <FormField
+                        control={form.control}
+                        name='matricula'
+                        render={({ field }) => (
+                          <FormItem>
                             <FormLabel className='sr-only'>Matrícula</FormLabel>
-                          <FormControl>
+                            <FormControl>
                               <LicensePlateInput
                                 name={field.name}
                                 value={field.value ?? ''}
@@ -1416,20 +1448,20 @@ const ViaturaFormContainer = ({
                                 onBlur={field.onBlur}
                                 ref={field.ref}
                                 className='shadow-inner drop-shadow-xl'
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <div className='flex flex-col gap-4 md:pr-0'>
-                    <FormField
-                      control={form.control}
-                      name='numero'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Número Interno</FormLabel>
-                          <FormControl>
+                        <FormField
+                          control={form.control}
+                          name='numero'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Número Interno</FormLabel>
+                              <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1438,40 +1470,40 @@ const ViaturaFormContainer = ({
                                   ref={field.ref}
                                   className={TEXT_INPUT_CLASS}
                                   min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
                           name='dataInicial'
-                      render={({ field }) => (
-                        <FormItem>
+                          render={({ field }) => (
+                            <FormItem>
                               <FormLabel>Data de Registo</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value || undefined}
-                              onChange={field.onChange}
-                              placeholder='Selecione a data de registo'
-                              className={FIELD_HEIGHT_CLASS}
-                              allowClear
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                              <FormControl>
+                                <DatePicker
+                                  value={field.value || undefined}
+                                  onChange={field.onChange}
+                                  placeholder='Selecione a data de registo'
+                                  className={FIELD_HEIGHT_CLASS}
+                                  allowClear
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                       <div className='md:col-start-2 xl:col-start-3 flex flex-col gap-4 md:pl-0'>
-                    <FormField
-                      control={form.control}
+                        <FormField
+                          control={form.control}
                           name='anoFabrico'
-                      render={({ field }) => (
-                        <FormItem>
+                          render={({ field }) => (
+                            <FormItem>
                               <FormLabel>Ano de Fabrico</FormLabel>
-                          <FormControl>
+                              <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1480,19 +1512,19 @@ const ViaturaFormContainer = ({
                                   ref={field.ref}
                                   className={TEXT_INPUT_CLASS}
                                   min={1900}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
                           name='mesFabrico'
-                      render={({ field }) => (
-                        <FormItem>
+                          render={({ field }) => (
+                            <FormItem>
                               <FormLabel>Mês de Fabrico</FormLabel>
-                          <FormControl>
+                              <FormControl>
                                 <NumberInput
                                   value={toNumberValue(field.value)}
                                   onValueChange={(nextValue) => field.onChange(nextValue)}
@@ -1502,14 +1534,67 @@ const ViaturaFormContainer = ({
                                   className={TEXT_INPUT_CLASS}
                                   min={1}
                                   max={12}
-                            />
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </FormSection>
+
+                  <FormSection
+                    icon={BatteryCharging}
+                    title='Motorização'
+                    description='Selecione o tipo de motorização principal da viatura'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='tipoPropulsao'
+                      render={({ field }) => (
+                        <FormItem className='space-y-4'>
+                          <FormLabel>Tipo de motorização</FormLabel>
+                          <FormControl>
+                            <ToggleGroup
+                              type='single'
+                              value={field.value}
+                              onValueChange={(value) => {
+                                if (!value) {
+                                  field.onChange('')
+                                  return
+                                }
+                                field.onChange(value)
+                              }}
+                              className='grid gap-3 md:grid-cols-3'
+                            >
+                              {PROPULSAO_OPTIONS.map((option) => (
+                                <ToggleGroupItem
+                                  key={option.value}
+                                  value={option.value}
+                                  className='flex h-full flex-col items-start gap-3 rounded-xl border border-input bg-background p-4 text-left shadow-sm transition data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary'
+                                >
+                                  <div className='flex items-start gap-3'>
+                                    <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+                                      <option.icon className='h-4 w-4' />
+                                    </div>
+                                    <div className='text-left'>
+                                      <p className='text-sm font-semibold leading-tight text-foreground'>
+                                        {option.label}
+                                      </p>
+                                      <p className='mt-1 text-xs leading-snug text-muted-foreground'>
+                                        {option.description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </ToggleGroupItem>
+                              ))}
+                            </ToggleGroup>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                    </div>
                   </FormSection>
 
                   <div className='grid gap-6 lg:grid-cols-2'>

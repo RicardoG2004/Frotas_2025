@@ -1,4 +1,8 @@
 import { z } from 'zod'
+import {
+  VIATURA_PROPULSAO_TYPES,
+  type ViaturaPropulsao,
+} from '@/types/dtos/frotas/viaturas.dtos'
 
 const dateWithMessages = (requiredMessage: string, invalidMessage: string) =>
   z.date({
@@ -32,6 +36,9 @@ const viaturaInspecaoSchema = z
 
 const uuidOrEmpty = z.string().uuid({ message: 'Selecione um valor válido' }).or(z.literal(''))
 
+export const viaturaPropulsaoOptions = VIATURA_PROPULSAO_TYPES
+export type ViaturaPropulsaoType = ViaturaPropulsao
+
 const viaturaFormSchemaObject = z.object({
   matricula: z
     .string({ message: 'A matrícula é obrigatória' })
@@ -60,6 +67,12 @@ const viaturaFormSchemaObject = z.object({
   localizacaoId: z.string().uuid({ message: 'Selecione a localização' }),
   setorId: z.string().uuid({ message: 'Selecione o setor' }),
   delegacaoId: z.string().uuid({ message: 'Selecione a delegação' }),
+  tipoPropulsao: z
+    .enum(viaturaPropulsaoOptions)
+    .or(z.literal(''))
+    .refine((value): value is ViaturaPropulsaoType => value !== '', {
+      message: 'Selecione o tipo de motorização',
+    }),
   entidadeFornecedoraTipo: z
     .enum(['fornecedor', 'terceiro'])
     .or(z.literal(''))
@@ -195,6 +208,7 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   localizacaoId: '',
   setorId: '',
   delegacaoId: '',
+  tipoPropulsao: '',
   entidadeFornecedoraTipo: '',
   terceiroId: '',
   fornecedorId: '',

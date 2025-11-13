@@ -1,3 +1,6 @@
+export const VIATURA_PROPULSAO_TYPES = ['combustao', 'hibrido', 'eletrico'] as const
+export type ViaturaPropulsao = (typeof VIATURA_PROPULSAO_TYPES)[number]
+
 export interface ViaturaDTO {
   id: string
   matricula: string
@@ -30,6 +33,7 @@ export interface ViaturaDTO {
     id?: string
     designacao?: string
   }
+  tipoPropulsao: ViaturaPropulsao
   conservatoriaId: string
   conservatoria?: {
     id?: string
@@ -142,6 +146,7 @@ export interface CreateViaturaDTO {
   tipoViaturaId: string
   corId: string
   combustivelId: string
+  tipoPropulsao: ViaturaPropulsao
   conservatoriaId: string
   categoriaId: string
   localizacaoId: string

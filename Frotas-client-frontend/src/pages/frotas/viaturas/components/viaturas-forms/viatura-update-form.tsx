@@ -7,10 +7,21 @@ import { ViaturaFormContainer } from './viatura-form-container'
 import { useGetViatura } from '@/pages/frotas/viaturas/queries/viaturas-queries'
 import { useUpdateViatura } from '@/pages/frotas/viaturas/queries/viaturas-mutations'
 import { type ViaturaFormSchemaType } from './viatura-form-schema'
-import { ViaturaDTO } from '@/types/dtos/frotas/viaturas.dtos'
+import {
+  ViaturaDTO,
+  VIATURA_PROPULSAO_TYPES,
+  type ViaturaPropulsao,
+} from '@/types/dtos/frotas/viaturas.dtos'
 
 interface ViaturaUpdateFormProps {
   viaturaId: string
+}
+
+const normalizePropulsao = (tipo?: ViaturaPropulsao | null): ViaturaPropulsao => {
+  if (tipo && (VIATURA_PROPULSAO_TYPES as readonly string[]).includes(tipo)) {
+    return tipo
+  }
+  return 'combustao'
 }
 
 const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
@@ -32,6 +43,7 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
   tipoViaturaId: viatura.tipoViaturaId || '',
   corId: viatura.corId || '',
   combustivelId: viatura.combustivelId || '',
+  tipoPropulsao: normalizePropulsao(viatura.tipoPropulsao),
   conservatoriaId: viatura.conservatoriaId || '',
   categoriaId: viatura.categoriaId || '',
   localizacaoId: viatura.localizacaoId || '',
@@ -113,6 +125,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   tipoViaturaId: values.tipoViaturaId,
   corId: values.corId,
   combustivelId: values.combustivelId,
+  tipoPropulsao: values.tipoPropulsao as ViaturaPropulsao,
   conservatoriaId: values.conservatoriaId,
   categoriaId: values.categoriaId,
   localizacaoId: values.localizacaoId,

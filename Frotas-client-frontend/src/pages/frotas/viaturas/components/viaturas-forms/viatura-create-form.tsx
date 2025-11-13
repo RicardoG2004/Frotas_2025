@@ -5,6 +5,7 @@ import { handleApiResponse } from '@/utils/response-handlers'
 import { ViaturaFormContainer } from './viatura-form-container'
 import { useCreateViatura } from '@/pages/frotas/viaturas/queries/viaturas-mutations'
 import { type ViaturaFormSchemaType } from './viatura-form-schema'
+import { type ViaturaPropulsao } from '@/types/dtos/frotas/viaturas.dtos'
 
 const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   matricula: values.matricula,
@@ -18,6 +19,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => ({
   tipoViaturaId: values.tipoViaturaId,
   corId: values.corId,
   combustivelId: values.combustivelId,
+  tipoPropulsao: values.tipoPropulsao as ViaturaPropulsao,
   conservatoriaId: values.conservatoriaId,
   categoriaId: values.categoriaId,
   localizacaoId: values.localizacaoId,
