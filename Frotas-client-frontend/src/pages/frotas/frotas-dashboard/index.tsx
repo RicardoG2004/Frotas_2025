@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth-store'
 import { Icons } from '@/components/ui/icons'
@@ -5,10 +6,14 @@ import { GreetingCard } from '@/components/shared/greeting-card'
 import { PageHead } from '@/components/shared/page-head.jsx'
 import { RecentPagesGrid } from '@/components/shared/recent-pages-grid'
 import { createIconGradient } from '@/lib/icon-gradient'
+import { useTheme } from '@/providers/theme-provider'
+import { getMenuColorByTheme } from '@/utils/menu-colors'
+import { cn } from '@/lib/utils'
 
 export function FrotasDashboardPage() {
   const { name, selectedCemiterio } = useAuthStore()
   const navigate = useNavigate()
+  const { iconTheme } = useTheme()
 
   const quickActionConfigs = [
     {
@@ -90,12 +95,26 @@ export function FrotasDashboardPage() {
     },
   ] as const
 
-  const quickActions = quickActionConfigs.map((action, index) => ({
-    ...action,
-    gradient: createIconGradient(index, quickActionConfigs.length),
-  }))
+  const quickActions = quickActionConfigs.map((action, index) => {
+    const baseStyle: CSSProperties = { borderRadius: 'var(--radius)' }
+    const isColorful = iconTheme === 'colorful'
 
-  const headerGradient = createIconGradient(0, 2)
+    return {
+      ...action,
+      backgroundStyle: isColorful
+        ? {
+            ...baseStyle,
+            backgroundImage: createIconGradient(
+              index,
+              quickActionConfigs.length
+            ),
+          }
+        : baseStyle,
+      backgroundClass: isColorful
+        ? ''
+        : getMenuColorByTheme(action.path, iconTheme),
+    }
+  })
 
   return (
     <>
@@ -158,11 +177,11 @@ export function FrotasDashboardPage() {
                   <div className='flex items-center gap-3'>
                     {/* Modern icon container with glow */}
                     <div
-                      className='relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300'
-                      style={{
-                        borderRadius: 'var(--radius)',
-                        backgroundImage: action.gradient,
-                      }}
+                      className={cn(
+                        'relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300 text-white',
+                        action.backgroundClass
+                      )}
+                      style={action.backgroundStyle}
                     >
                       <div
                         className='absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'

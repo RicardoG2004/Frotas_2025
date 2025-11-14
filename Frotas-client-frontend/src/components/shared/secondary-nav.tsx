@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type CSSProperties } from 'react'
 import { MenuItem } from '@/types/navigation/menu.types'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -6,6 +6,8 @@ import { usePermissionsStore } from '@/stores/permissions-store'
 import { cn } from '@/lib/utils'
 import { shouldManageWindow } from '@/utils/window-utils'
 import { createIconGradient } from '@/lib/icon-gradient'
+import { useTheme } from '@/providers/theme-provider'
+import { getMenuColorByTheme } from '@/utils/menu-colors'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +30,7 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const { hasPermission } = usePermissionsStore()
+  const { iconTheme } = useTheme()
 
   useEffect(() => {
     // Trigger enter animation when mounted
@@ -79,6 +82,23 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
     return true
   }
 
+  const getIconBackground = (
+    path: string,
+    index: number,
+    total: number
+  ): { style?: CSSProperties; className: string } => {
+    if (iconTheme === 'colorful') {
+      return {
+        style: { backgroundImage: createIconGradient(index, total) },
+        className: '',
+      }
+    }
+
+    return {
+      className: getMenuColorByTheme(path, iconTheme),
+    }
+  }
+
   const renderDropdownItem = (
     item: MenuItem,
     index: number,
@@ -90,7 +110,7 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
     }
 
     const Icon = item.icon ? Icons[item.icon as keyof typeof Icons] : null
-    const iconGradient = createIconGradient(index, siblingsCount)
+    const iconBackground = getIconBackground(item.href, index, siblingsCount)
     const isActive = isItemActive(item.href)
 
     if (item.dropdown) {
@@ -119,8 +139,11 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
             <div className='flex items-center gap-2'>
               {Icon && (
                 <span
-                  className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
-                  style={{ backgroundImage: iconGradient }}
+                  className={cn(
+                    'h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow',
+                    iconBackground.style ? '' : iconBackground.className
+                  )}
+                  style={iconBackground.style}
                 >
                   <Icon className='h-2.5 w-2.5 text-white' />
                 </span>
@@ -171,8 +194,11 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
         >
           {Icon && (
             <span
-              className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
-              style={{ backgroundImage: iconGradient }}
+              className={cn(
+                'h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow',
+                iconBackground.style ? '' : iconBackground.className
+              )}
+              style={iconBackground.style}
             >
               <Icon className='h-2.5 w-2.5 text-white' />
             </span>
@@ -199,7 +225,11 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
         <div className='flex h-12 items-center px-6'>
           <nav className='flex space-x-8'>
             {filteredItems.map((item, index) => {
-              const itemGradient = createIconGradient(index, filteredItems.length)
+              const itemBackground = getIconBackground(
+                item.href,
+                index,
+                filteredItems.length
+              )
               const Icon = item.icon && Icons[item.icon as keyof typeof Icons]
 
               if (item.dropdown) {
@@ -230,8 +260,11 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
                     >
                       {Icon && (
                         <span
-                          className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
-                          style={{ backgroundImage: itemGradient }}
+                          className={cn(
+                            'h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow',
+                            itemBackground.style ? '' : itemBackground.className
+                          )}
+                          style={itemBackground.style}
                         >
                           <Icon className='h-2.5 w-2.5 text-white' />
                         </span>
@@ -280,8 +313,11 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
                 >
                   {Icon && (
                     <span
-                      className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
-                      style={{ backgroundImage: itemGradient }}
+                      className={cn(
+                        'h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow',
+                        itemBackground.style ? '' : itemBackground.className
+                      )}
+                      style={itemBackground.style}
                     >
                       <Icon className='h-2.5 w-2.5 text-white' />
                     </span>

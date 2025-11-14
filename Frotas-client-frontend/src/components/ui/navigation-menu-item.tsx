@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { shouldManageWindow } from '@/utils/window-utils'
-import { useIconThemeColor } from '@/hooks/use-icon-theme'
 import { Icons } from '@/components/ui/icons'
 import { NavigationMenuLink } from '@/components/ui/navigation-menu'
 
@@ -10,13 +9,25 @@ interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
   title: string
   to: string
   icon?: keyof typeof Icons
-  iconGradient?: string
+  iconBackgroundClassName?: string
+  iconBackgroundStyle?: React.CSSProperties
 }
 
 const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
-  ({ className, title, children, to, icon, iconGradient, ...props }, ref) => {
+  (
+    {
+      className,
+      title,
+      children,
+      to,
+      icon,
+      iconBackgroundClassName,
+      iconBackgroundStyle,
+      ...props
+    },
+    ref
+  ) => {
     const navigate = useNavigate()
-    const themeColorClass = useIconThemeColor(to)
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
       // If this is a route that should manage windows, add a new instance ID
@@ -49,12 +60,11 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
             <div className='flex items-center gap-2 text-sm font-medium leading-none'>
               {icon && Icons[icon] && (
                 <span
-                  className={`h-5 w-5 p-0.5 rounded-md flex items-center justify-center ${
-                    iconGradient ? '' : themeColorClass
-                  }`}
-                  style={
-                    iconGradient ? { backgroundImage: iconGradient } : undefined
-                  }
+                  className={cn(
+                    'h-5 w-5 p-0.5 rounded-md flex items-center justify-center text-white shadow',
+                    iconBackgroundStyle ? '' : iconBackgroundClassName
+                  )}
+                  style={iconBackgroundStyle}
                 >
                   {React.createElement(
                     Icons[icon] as React.ComponentType<any>,

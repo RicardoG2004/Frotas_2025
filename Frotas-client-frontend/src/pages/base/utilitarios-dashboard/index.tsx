@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth-store'
 import { Icons } from '@/components/ui/icons'
@@ -5,10 +6,15 @@ import { GreetingCard } from '@/components/shared/greeting-card'
 import { PageHead } from '@/components/shared/page-head.jsx'
 import { RecentPagesGrid } from '@/components/shared/recent-pages-grid'
 import { getWindowMetadata } from '@/utils/window-utils'
+import { useTheme } from '@/providers/theme-provider'
+import { getMenuColorByTheme } from '@/utils/menu-colors'
+import { createIconGradient } from '@/lib/icon-gradient'
+import { cn } from '@/lib/utils'
 
 export function UtilitariosDashboardPage() {
   const { name, selectedCemiterio } = useAuthStore()
   const navigate = useNavigate()
+  const { iconTheme } = useTheme()
 
   const quickActionPaths = [
     '/utilitarios/tabelas/geograficas/paises',
@@ -29,42 +35,28 @@ export function UtilitariosDashboardPage() {
     '/utilitarios/tabelas/configuracoes/cargos',
   ] as const
 
-  type RGB = { r: number; g: number; b: number }
-
-  const startColor: RGB = { r: 109, g: 40, b: 217 } // purple-600
-  const endColor: RGB = { r: 34, g: 197, b: 94 } // green-500
-
-  const interpolateColor = (ratio: number): RGB => ({
-    r: Math.round(startColor.r + (endColor.r - startColor.r) * ratio),
-    g: Math.round(startColor.g + (endColor.g - startColor.g) * ratio),
-    b: Math.round(startColor.b + (endColor.b - startColor.b) * ratio),
-  })
-
-  const lightenColor = (color: RGB, amount = 0.25): RGB => ({
-    r: Math.round(color.r + (255 - color.r) * amount),
-    g: Math.round(color.g + (255 - color.g) * amount),
-    b: Math.round(color.b + (255 - color.b) * amount),
-  })
-
-  const rgbToCss = (color: RGB) => `rgb(${color.r}, ${color.g}, ${color.b})`
-
-  const createGradient = (index: number, total: number) => {
-    const ratio = total <= 1 ? 0 : index / (total - 1)
-    const baseColor = interpolateColor(ratio)
-    const highlightColor = lightenColor(baseColor)
-
-    return `linear-gradient(135deg, ${rgbToCss(baseColor)}, ${rgbToCss(highlightColor)})`
-  }
-
   const quickActions = quickActionPaths.map((path, index) => {
     const config = getWindowMetadata(path)
+    const isColorful = iconTheme === 'colorful'
+    const baseStyle: CSSProperties = { borderRadius: 'var(--radius)' }
     return {
       title: config.title,
-    description: `Gestão de ${config.title.toLowerCase()}`,
+      description: `Gestão de ${config.title.toLowerCase()}`,
       icon: config.icon ? Icons[config.icon] : Icons.fileText,
       path,
       openInNewWindow: true,
-      gradient: createGradient(index, quickActionPaths.length),
+      backgroundStyle: isColorful
+        ? {
+            ...baseStyle,
+            backgroundImage: createIconGradient(
+              index,
+              quickActionPaths.length
+            ),
+          }
+        : baseStyle,
+      backgroundClass: isColorful
+        ? ''
+        : getMenuColorByTheme(path, iconTheme),
     }
   })
 
@@ -130,11 +122,11 @@ export function UtilitariosDashboardPage() {
                   <div className='flex items-center gap-3'>
                     {/* Modern icon container with glow */}
                     <div
-                      className='relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300'
-                      style={{
-                        borderRadius: 'var(--radius)',
-                        backgroundImage: action.gradient,
-                      }}
+                      className={cn(
+                        'relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300 text-white',
+                        action.backgroundClass
+                      )}
+                      style={action.backgroundStyle}
                     >
                       <div
                         className='absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'
