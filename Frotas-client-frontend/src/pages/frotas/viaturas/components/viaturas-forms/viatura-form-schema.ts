@@ -17,6 +17,11 @@ const viaturaDocumentoSchema = z.object({
   dados: z.string().min(1),
   contentType: z.string().min(1),
   tamanho: z.number().nonnegative(),
+  pasta: z
+    .string()
+    .max(120, { message: 'O nome da pasta é demasiado longo.' })
+    .optional()
+    .nullable(),
 })
 
 type ViaturaDocumentoSchemaType = z.infer<typeof viaturaDocumentoSchema>
@@ -112,6 +117,7 @@ export const encodeViaturaDocumentos = (
       dados: documento.dados,
       contentType: documento.contentType,
       tamanho: documento.tamanho,
+      pasta: documento.pasta ?? undefined,
     })),
   })
 }
