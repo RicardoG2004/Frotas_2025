@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePermissionsStore } from '@/stores/permissions-store'
 import { cn } from '@/lib/utils'
 import { shouldManageWindow } from '@/utils/window-utils'
-import { useIconThemeColor } from '@/hooks/use-icon-theme'
+import { createIconGradient } from '@/lib/icon-gradient'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -79,13 +79,18 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
     return true
   }
 
-  const renderDropdownItem = (item: MenuItem, index: number) => {
+  const renderDropdownItem = (
+    item: MenuItem,
+    index: number,
+    siblingsCount: number
+  ) => {
     // Skip rendering if user doesn't have permission
     if (!hasItemPermission(item)) {
       return null
     }
 
     const Icon = item.icon ? Icons[item.icon as keyof typeof Icons] : null
+    const iconGradient = createIconGradient(index, siblingsCount)
     const isActive = isItemActive(item.href)
 
     if (item.dropdown) {
@@ -114,7 +119,8 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
             <div className='flex items-center gap-2'>
               {Icon && (
                 <span
-                  className={`h-4 w-4 p-0.5 rounded-md flex items-center justify-center ${useIconThemeColor(item.href)}`}
+                  className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
+                  style={{ backgroundImage: iconGradient }}
                 >
                   <Icon className='h-2.5 w-2.5 text-white' />
                 </span>
@@ -137,7 +143,7 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
             )}
           >
             {filteredDropdown.map((subItem, subIndex) =>
-              renderDropdownItem(subItem, subIndex)
+              renderDropdownItem(subItem, subIndex, filteredDropdown.length)
             )}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
@@ -165,7 +171,8 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
         >
           {Icon && (
             <span
-              className={`h-4 w-4 p-0.5 rounded-md flex items-center justify-center ${useIconThemeColor(item.href)}`}
+              className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
+              style={{ backgroundImage: iconGradient }}
             >
               <Icon className='h-2.5 w-2.5 text-white' />
             </span>
@@ -192,6 +199,7 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
         <div className='flex h-12 items-center px-6'>
           <nav className='flex space-x-8'>
             {filteredItems.map((item, index) => {
+              const itemGradient = createIconGradient(index, filteredItems.length)
               const Icon = item.icon && Icons[item.icon as keyof typeof Icons]
 
               if (item.dropdown) {
@@ -222,7 +230,8 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
                     >
                       {Icon && (
                         <span
-                          className={`h-4 w-4 p-0.5 rounded-md flex items-center justify-center ${useIconThemeColor(item.href)}`}
+                          className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
+                          style={{ backgroundImage: itemGradient }}
                         >
                           <Icon className='h-2.5 w-2.5 text-white' />
                         </span>
@@ -242,7 +251,11 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
                       )}
                     >
                       {filteredDropdown.map((dropdownItem, dropdownIndex) =>
-                        renderDropdownItem(dropdownItem, dropdownIndex)
+                        renderDropdownItem(
+                          dropdownItem,
+                          dropdownIndex,
+                          filteredDropdown.length
+                        )
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -267,7 +280,8 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
                 >
                   {Icon && (
                     <span
-                      className={`h-4 w-4 p-0.5 rounded-md flex items-center justify-center ${useIconThemeColor(item.href)}`}
+                      className='h-4 w-4 p-0.5 rounded-md flex items-center justify-center text-white shadow'
+                      style={{ backgroundImage: itemGradient }}
                     >
                       <Icon className='h-2.5 w-2.5 text-white' />
                     </span>

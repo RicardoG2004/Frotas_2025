@@ -1,22 +1,21 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth-store'
-import { useIconThemeColor } from '@/hooks/use-icon-theme'
 import { Icons } from '@/components/ui/icons'
 import { GreetingCard } from '@/components/shared/greeting-card'
 import { PageHead } from '@/components/shared/page-head.jsx'
 import { RecentPagesGrid } from '@/components/shared/recent-pages-grid'
+import { createIconGradient } from '@/lib/icon-gradient'
 
 export function FrotasDashboardPage() {
   const { name, selectedCemiterio } = useAuthStore()
   const navigate = useNavigate()
 
-  const quickActions = [
+  const quickActionConfigs = [
     {
       title: 'Viaturas',
       description: 'Gestão de viaturas da frota',
       icon: Icons.car,
       path: '/frotas/viaturas',
-      color: useIconThemeColor('/frotas/viaturas'),
       openInNewWindow: true,
     },
     {
@@ -24,7 +23,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de peças',
       icon: Icons.container,
       path: '/frotas/configuracoes/pecas',
-      color: useIconThemeColor('/frotas/configuracoes/pecas'),
       openInNewWindow: true,
     },
     {
@@ -32,7 +30,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de serviços',
       icon: Icons.settings,
       path: '/frotas/configuracoes/servicos',
-      color: useIconThemeColor('/frotas/configuracoes/servicos'),
       openInNewWindow: true,
     },
     {
@@ -40,7 +37,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de marcas de carros',
       icon: Icons.shield,
       path: '/frotas/configuracoes/marcas',
-      color: useIconThemeColor('/frotas/configuracoes/marcas'),
       openInNewWindow: true,
     },
     {
@@ -48,7 +44,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de modelos de veículos',
       icon: Icons.layers,
       path: '/frotas/configuracoes/modelos',
-      color: useIconThemeColor('/frotas/configuracoes/modelos'),
       openInNewWindow: true,
     },
     {
@@ -56,7 +51,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de categorias de veículos',
       icon: Icons.truck,
       path: '/frotas/configuracoes/categorias',
-      color: useIconThemeColor('/frotas/configuracoes/categorias'),
       openInNewWindow: true,
     },
     {
@@ -64,7 +58,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de tipos de viatura',
       icon: Icons.car,
       path: '/frotas/configuracoes/tipo-viaturas',
-      color: useIconThemeColor('/frotas/configuracoes/tipo-viaturas'),
       openInNewWindow: true,
     },
     {
@@ -72,7 +65,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de cores',
       icon: Icons.droplet,
       path: '/frotas/configuracoes/cores',
-      color: useIconThemeColor('/frotas/configuracoes/cores'),
       openInNewWindow: true,
     },
     {
@@ -80,7 +72,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de seguradoras',
       icon: Icons.shield,
       path: '/frotas/configuracoes/seguradoras',
-      color: useIconThemeColor('/frotas/configuracoes/seguradoras'),
       openInNewWindow: true,
     },
     {
@@ -88,7 +79,6 @@ export function FrotasDashboardPage() {
       description: 'Gestão de seguros',
       icon: Icons.fileText,
       path: '/frotas/configuracoes/seguros',
-      color: useIconThemeColor('/frotas/configuracoes/seguros'),
       openInNewWindow: true,
     },
     {
@@ -96,10 +86,16 @@ export function FrotasDashboardPage() {
       description: 'Gestão de equipamentos',
       icon: Icons.wrench,
       path: '/frotas/configuracoes/equipamentos',
-      color: useIconThemeColor('/frotas/configuracoes/equipamentos'),
       openInNewWindow: true,
     },
-  ]
+  ] as const
+
+  const quickActions = quickActionConfigs.map((action, index) => ({
+    ...action,
+    gradient: createIconGradient(index, quickActionConfigs.length),
+  }))
+
+  const headerGradient = createIconGradient(0, 2)
 
   return (
     <>
@@ -162,8 +158,11 @@ export function FrotasDashboardPage() {
                   <div className='flex items-center gap-3'>
                     {/* Modern icon container with glow */}
                     <div
-                      className={`relative p-2.5 ${action.color} shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300`}
-                      style={{ borderRadius: 'var(--radius)' }}
+                      className='relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300'
+                      style={{
+                        borderRadius: 'var(--radius)',
+                        backgroundImage: action.gradient,
+                      }}
                     >
                       <div
                         className='absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'

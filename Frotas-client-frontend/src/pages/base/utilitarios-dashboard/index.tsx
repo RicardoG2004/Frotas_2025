@@ -29,34 +29,42 @@ export function UtilitariosDashboardPage() {
     '/utilitarios/tabelas/configuracoes/cargos',
   ] as const
 
-  const colorPalette = [
-    'from-blue-500/90 via-blue-500/90 to-blue-400/90',
-    'from-sky-500/90 via-sky-500/90 to-sky-400/90',
-    'from-cyan-500/90 via-cyan-500/90 to-cyan-400/90',
-    'from-teal-500/90 via-teal-500/90 to-teal-400/90',
-    'from-emerald-500/90 via-emerald-500/90 to-emerald-400/90',
-    'from-green-500/90 via-green-500/90 to-green-400/90',
-    'from-lime-500/90 via-lime-500/90 to-lime-400/90',
-    'from-yellow-500/90 via-yellow-500/90 to-amber-400/90',
-    'from-orange-500/90 via-orange-500/90 to-orange-400/90',
-    'from-red-500/90 via-red-500/90 to-rose-500/90',
-    'from-rose-500/90 via-pink-500/90 to-pink-400/90',
-    'from-fuchsia-500/90 via-fuchsia-500/90 to-purple-400/90',
-    'from-purple-500/90 via-purple-500/90 to-violet-400/90',
-    'from-violet-500/90 via-violet-500/90 to-indigo-400/90',
-    'from-indigo-500/90 via-indigo-500/90 to-blue-400/90',
-  ]
+  type RGB = { r: number; g: number; b: number }
+
+  const startColor: RGB = { r: 109, g: 40, b: 217 } // purple-600
+  const endColor: RGB = { r: 34, g: 197, b: 94 } // green-500
+
+  const interpolateColor = (ratio: number): RGB => ({
+    r: Math.round(startColor.r + (endColor.r - startColor.r) * ratio),
+    g: Math.round(startColor.g + (endColor.g - startColor.g) * ratio),
+    b: Math.round(startColor.b + (endColor.b - startColor.b) * ratio),
+  })
+
+  const lightenColor = (color: RGB, amount = 0.25): RGB => ({
+    r: Math.round(color.r + (255 - color.r) * amount),
+    g: Math.round(color.g + (255 - color.g) * amount),
+    b: Math.round(color.b + (255 - color.b) * amount),
+  })
+
+  const rgbToCss = (color: RGB) => `rgb(${color.r}, ${color.g}, ${color.b})`
+
+  const createGradient = (index: number, total: number) => {
+    const ratio = total <= 1 ? 0 : index / (total - 1)
+    const baseColor = interpolateColor(ratio)
+    const highlightColor = lightenColor(baseColor)
+
+    return `linear-gradient(135deg, ${rgbToCss(baseColor)}, ${rgbToCss(highlightColor)})`
+  }
 
   const quickActions = quickActionPaths.map((path, index) => {
     const config = getWindowMetadata(path)
-    const gradient = colorPalette[index % colorPalette.length]
     return {
       title: config.title,
     description: `Gestão de ${config.title.toLowerCase()}`,
       icon: config.icon ? Icons[config.icon] : Icons.fileText,
       path,
       openInNewWindow: true,
-      gradient,
+      gradient: createGradient(index, quickActionPaths.length),
     }
   })
 
@@ -122,8 +130,11 @@ export function UtilitariosDashboardPage() {
                   <div className='flex items-center gap-3'>
                     {/* Modern icon container with glow */}
                     <div
-                      className={`relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300 bg-gradient-to-br ${action.gradient}`}
-                      style={{ borderRadius: 'var(--radius)' }}
+                      className='relative p-2.5 shadow-lg group-hover:shadow-2xl group-hover:shadow-primary/25 group-hover:scale-110 transition-all duration-300'
+                      style={{
+                        borderRadius: 'var(--radius)',
+                        backgroundImage: action.gradient,
+                      }}
                     >
                       <div
                         className='absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'

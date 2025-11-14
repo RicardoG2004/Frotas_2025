@@ -10,11 +10,13 @@ interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
   title: string
   to: string
   icon?: keyof typeof Icons
+  iconGradient?: string
 }
 
 const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
-  ({ className, title, children, to, icon, ...props }, ref) => {
+  ({ className, title, children, to, icon, iconGradient, ...props }, ref) => {
     const navigate = useNavigate()
+    const themeColorClass = useIconThemeColor(to)
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
       // If this is a route that should manage windows, add a new instance ID
@@ -47,7 +49,12 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
             <div className='flex items-center gap-2 text-sm font-medium leading-none'>
               {icon && Icons[icon] && (
                 <span
-                  className={`h-5 w-5 p-0.5 rounded-md flex items-center justify-center ${useIconThemeColor(to)}`}
+                  className={`h-5 w-5 p-0.5 rounded-md flex items-center justify-center ${
+                    iconGradient ? '' : themeColorClass
+                  }`}
+                  style={
+                    iconGradient ? { backgroundImage: iconGradient } : undefined
+                  }
                 >
                   {React.createElement(
                     Icons[icon] as React.ComponentType<any>,

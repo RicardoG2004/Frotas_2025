@@ -9,7 +9,7 @@ import { useWindowsStore } from '@/stores/use-windows-store'
 import { cn } from '@/lib/utils'
 import { shouldManageWindow } from '@/utils/window-utils'
 import { useHeaderMenu } from '@/hooks/use-header-menu'
-import { useIconThemeColor } from '@/hooks/use-icon-theme'
+import { createIconGradient } from '@/lib/icon-gradient'
 import { Icons } from '@/components/ui/icons'
 import {
   NavigationMenu,
@@ -186,6 +186,10 @@ export function HeaderNav() {
           <NavigationMenu>
             <NavigationMenuList>
               {filteredMenuItems.map((item, index) => {
+                const iconGradient = createIconGradient(
+                  index,
+                  filteredMenuItems.length
+                )
                 const filteredSubItems =
                   item.items?.filter(hasItemPermission) || []
                 if (item.items && filteredSubItems.length === 0) {
@@ -206,7 +210,8 @@ export function HeaderNav() {
                           <div className='flex items-center gap-2'>
                             {item.icon && Icons[item.icon] && (
                               <span
-                                className={`h-5 w-5 p-0.5 rounded flex items-center justify-center ${useIconThemeColor(item.href)}`}
+                                className='h-5 w-5 p-0.5 rounded flex items-center justify-center text-white shadow'
+                                style={{ backgroundImage: iconGradient }}
                               >
                                 {React.createElement(
                                   Icons[item.icon] as React.ComponentType<any>,
@@ -227,6 +232,10 @@ export function HeaderNav() {
                                 title={subItem.label}
                                 to={subItem.href}
                                 icon={subItem.icon as keyof typeof Icons}
+                                iconGradient={createIconGradient(
+                                  subIndex,
+                                  filteredSubItems.length
+                                )}
                                 className={cn(
                                   isItemActive(subItem.href) &&
                                     'bg-accent text-accent-foreground'
@@ -258,7 +267,8 @@ export function HeaderNav() {
                           <div className='flex items-center gap-2'>
                             {item.icon && Icons[item.icon] && (
                               <span
-                                className={`h-5 w-5 p-0.5 rounded flex items-center justify-center ${useIconThemeColor(item.href)}`}
+                                className='h-5 w-5 p-0.5 rounded flex items-center justify-center text-white shadow'
+                                style={{ backgroundImage: iconGradient }}
                               >
                                 {React.createElement(
                                   Icons[item.icon] as React.ComponentType<any>,
