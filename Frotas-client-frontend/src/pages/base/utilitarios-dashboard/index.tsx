@@ -26,6 +26,7 @@ export function UtilitariosDashboardPage() {
     '/utilitarios/tabelas/configuracoes/garantias',
     '/utilitarios/tabelas/configuracoes/entidades',
     '/utilitarios/tabelas/configuracoes/fornecedores',
+    '/utilitarios/tabelas/configuracoes/cargos',
   ] as const
 
   const colorPalette = [

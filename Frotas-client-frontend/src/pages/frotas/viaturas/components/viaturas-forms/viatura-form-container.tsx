@@ -4139,7 +4139,7 @@ const ViaturaFormContainer = ({
                               placeholder='Registe notas relevantes sobre a viatura'
                               rows={5}
                               {...field}
-                              className='shadow-inner drop-shadow-xl'
+                              className='shadow-inner drop-shadow-xl documentation-scroll resize-none pr-3'
                             />
                           </FormControl>
                           <FormMessage />

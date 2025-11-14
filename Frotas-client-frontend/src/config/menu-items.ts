@@ -243,6 +243,19 @@ export const roleHeaderMenus = {
                 funcionalidadeId: modules.utilitarios.permissions.entidades.id,
               },
               {
+                label: 'Cargos',
+                href: '/utilitarios/tabelas/configuracoes/cargos',
+                icon: 'briefcase',
+                colors: {
+                  colorful: 'bg-amber-500',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-amber-200',
+                  vibrant: 'bg-amber-600',
+                  neon: 'bg-amber-400',
+                },
+                funcionalidadeId: modules.utilitarios.permissions.cargos.id,
+              },
+              {
                 label: 'Fornecedores',
                 href: '/utilitarios/tabelas/configuracoes/fornecedores',
                 icon: 'briefcase',

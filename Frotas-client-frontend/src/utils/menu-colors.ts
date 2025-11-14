@@ -2,29 +2,50 @@ import { roleHeaderMenus } from '@/config/menu-items'
 
 type IconTheme = 'colorful' | 'theme-color' | 'pastel' | 'vibrant' | 'neon'
 
-export function getMenuColor(path: string): string {
-  // Check frotas menu items
-  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
+const getHeaderMenuSections = <T extends { items?: unknown[] }>(
+  sections: T[] | undefined | null
+) => sections ?? []
 
-  for (const item of frotasMenu) {
-    if (item.href === path && 'color' in item && item.color) {
-      return item.color as string
+const getHeaderMenuDropdowns = <
+  T extends { secondaryMenu?: { dropdown?: unknown[] }[] }
+>(
+  sections: T[] | undefined | null
+) => sections ?? []
+
+export function getMenuColor(path: string): string {
+  // Check all frotas menu sections
+  const frotasSections = getHeaderMenuSections(roleHeaderMenus.client.frotas)
+
+  for (const section of frotasSections) {
+    const items = (section as { items?: { href: string; color?: string }[] })
+      .items
+    if (!items) continue
+
+    for (const item of items) {
+      if (item.href === path && 'color' in item && item.color) {
+        return item.color as string
+      }
     }
   }
 
   // Check utilitarios menu items (including dropdown items)
-  const utilitariosMenu =
-    roleHeaderMenus.client.utilitarios?.[0]?.secondaryMenu || []
+  const utilitariosSections = getHeaderMenuDropdowns(
+    roleHeaderMenus.client.utilitarios
+  )
 
-  for (const section of utilitariosMenu) {
-    if (section.dropdown) {
-      for (const dropdownItem of section.dropdown) {
-        if (
-          dropdownItem.href === path &&
-          'color' in dropdownItem &&
-          dropdownItem.color
-        ) {
-          return dropdownItem.color as string
+  for (const section of utilitariosSections) {
+    if (!section.secondaryMenu) continue
+
+    for (const secondaryItem of section.secondaryMenu) {
+      if (secondaryItem.dropdown) {
+        for (const dropdownItem of secondaryItem.dropdown) {
+          if (
+            dropdownItem.href === path &&
+            'color' in dropdownItem &&
+            dropdownItem.color
+          ) {
+            return dropdownItem.color as string
+          }
         }
       }
     }
@@ -35,43 +56,53 @@ export function getMenuColor(path: string): string {
 }
 
 export function getMenuColorByTheme(path: string, theme: IconTheme): string {
-  // Check frotas menu items
-  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
+  // Check all frotas menu sections
+  const frotasSections = getHeaderMenuSections(roleHeaderMenus.client.frotas)
 
-  for (const item of frotasMenu) {
-    if (item.href === path && 'colors' in item && item.colors) {
-      return item.colors[theme] || item.colors['colorful'] || 'bg-gray-500'
-    }
-    // Fallback to old color system
-    if (item.href === path && 'color' in item && item.color) {
-      return item.color as string
+  for (const section of frotasSections) {
+    const items = (section as {
+      items?: {
+        href: string
+        colors?: Record<string, string>
+        color?: string
+      }[]
+    }).items
+    if (!items) continue
+
+    for (const item of items) {
+      if (item.href !== path) continue
+
+      if ('colors' in item && item.colors) {
+        return item.colors[theme] || item.colors['colorful'] || 'bg-gray-500'
+      }
+      if ('color' in item && item.color) {
+        return item.color as string
+      }
     }
   }
 
-  // Check utilitarios menu items (including dropdown items)
-  const utilitariosMenu =
-    roleHeaderMenus.client.utilitarios?.[0]?.secondaryMenu || []
+  // Check utilitarios menu dropdown items
+  const utilitariosSections = getHeaderMenuDropdowns(
+    roleHeaderMenus.client.utilitarios
+  )
 
-  for (const section of utilitariosMenu) {
-    if (section.dropdown) {
-      for (const dropdownItem of section.dropdown) {
-        if (
-          dropdownItem.href === path &&
-          'colors' in dropdownItem &&
-          dropdownItem.colors
-        ) {
+  for (const section of utilitariosSections) {
+    if (!section.secondaryMenu) continue
+
+    for (const secondaryItem of section.secondaryMenu) {
+      if (!secondaryItem.dropdown) continue
+
+      for (const dropdownItem of secondaryItem.dropdown) {
+        if (dropdownItem.href !== path) continue
+
+        if ('colors' in dropdownItem && dropdownItem.colors) {
           return (
             dropdownItem.colors[theme] ||
             dropdownItem.colors['colorful'] ||
             'bg-gray-500'
           )
         }
-        // Fallback to old color system
-        if (
-          dropdownItem.href === path &&
-          'color' in dropdownItem &&
-          dropdownItem.color
-        ) {
+        if ('color' in dropdownItem && dropdownItem.color) {
           return dropdownItem.color as string
         }
       }
@@ -83,22 +114,33 @@ export function getMenuColorByTheme(path: string, theme: IconTheme): string {
 }
 
 export function getMenuColorByLabel(label: string): string {
-  // Check frotas menu items
-  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
+  // Check all frotas menu sections
+  const frotasSections = getHeaderMenuSections(roleHeaderMenus.client.frotas)
 
-  for (const item of frotasMenu) {
-    if (item.label === label && 'color' in item && item.color) {
-      return item.color as string
+  for (const section of frotasSections) {
+    const items = (section as { items?: { label?: string; color?: string }[] })
+      .items
+    if (!items) continue
+
+    for (const item of items) {
+      if (item.label === label && 'color' in item && item.color) {
+        return item.color as string
+      }
     }
   }
 
   // Check utilitarios menu items (including dropdown items)
-  const utilitariosMenu =
-    roleHeaderMenus.client.utilitarios?.[0]?.secondaryMenu || []
+  const utilitariosSections = getHeaderMenuDropdowns(
+    roleHeaderMenus.client.utilitarios
+  )
 
-  for (const section of utilitariosMenu) {
-    if (section.dropdown) {
-      for (const dropdownItem of section.dropdown) {
+  for (const section of utilitariosSections) {
+    if (!section.secondaryMenu) continue
+
+    for (const secondaryItem of section.secondaryMenu) {
+      if (!secondaryItem.dropdown) continue
+
+      for (const dropdownItem of secondaryItem.dropdown) {
         if (
           dropdownItem.label === label &&
           'color' in dropdownItem &&

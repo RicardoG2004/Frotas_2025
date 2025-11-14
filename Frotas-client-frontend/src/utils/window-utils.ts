@@ -395,69 +395,62 @@ export function getWindowMetadata(path: string): {
   color: string
   title: string
 } {
-  // Check frotas menu items
-  const frotasMenu = roleHeaderMenus.client.frotas?.[0]?.items || []
+  const frotasSections = roleHeaderMenus.client.frotas ?? []
+  const utilitariosSections = roleHeaderMenus.client.utilitarios ?? []
 
-  for (const item of frotasMenu) {
-    if (item.href === path) {
-      return {
-        icon: item.icon as keyof typeof Icons,
-        color: '', // Will be set by theme-based system
-        title: item.label,
+  const findFrotasItem = (targetPath: string) => {
+    for (const section of frotasSections) {
+      const items = (section as { items?: { href: string }[] }).items
+      if (!items) continue
+      for (const item of items) {
+        if (item.href === targetPath) return item
       }
     }
+    return null
   }
 
-  // Check utilitarios menu items (including dropdown items)
-  const utilitariosMenu =
-    roleHeaderMenus.client.utilitarios?.[0]?.secondaryMenu || []
+  const findUtilitarioItem = (targetPath: string) => {
+    for (const section of utilitariosSections) {
+      const secondaryMenu = (section as {
+        secondaryMenu?: { dropdown?: { href: string }[] }[]
+      }).secondaryMenu
+      if (!secondaryMenu) continue
 
-  for (const section of utilitariosMenu) {
-    if (section.dropdown) {
-      for (const dropdownItem of section.dropdown) {
-        if (dropdownItem.href === path) {
-          return {
-            icon: dropdownItem.icon as keyof typeof Icons,
-            color: '', // Will be set by theme-based system
-            title: dropdownItem.label,
-          }
+      for (const secondary of secondaryMenu) {
+        const dropdownItems = secondary.dropdown
+        if (!dropdownItems) continue
+
+        for (const dropdownItem of dropdownItems) {
+          if (dropdownItem.href === targetPath) return dropdownItem
         }
       }
+    }
+    return null
+  }
+
+  const menuItem = findFrotasItem(path) ?? findUtilitarioItem(path)
+  if (menuItem) {
+    return {
+      icon: menuItem.icon as keyof typeof Icons,
+      color: '', // Will be set by theme-based system
+      title: menuItem.label,
     }
   }
 
   // If no direct match found, try to find parent route for create/update pages
   const pathSegments = path.split('/').filter(Boolean)
 
-  // For create/update pages, look for the parent route
   if (pathSegments.includes('create') || pathSegments.includes('update')) {
-    // Remove the last segment (create/update) and try to find the parent
     const parentPathSegments = pathSegments.slice(0, -1)
     const parentPath = '/' + parentPathSegments.join('/')
 
-    // Check frotas menu items for parent
-    for (const item of frotasMenu) {
-      if (item.href === parentPath) {
-        return {
-          icon: item.icon as keyof typeof Icons,
-          color: '', // Will be set by theme-based system
-          title: item.label,
-        }
-      }
-    }
-
-    // Check utilitarios menu items for parent
-    for (const section of utilitariosMenu) {
-      if (section.dropdown) {
-        for (const dropdownItem of section.dropdown) {
-          if (dropdownItem.href === parentPath) {
-            return {
-              icon: dropdownItem.icon as keyof typeof Icons,
-              color: '', // Will be set by theme-based system
-              title: dropdownItem.label,
-            }
-          }
-        }
+    const parentItem =
+      findFrotasItem(parentPath) ?? findUtilitarioItem(parentPath)
+    if (parentItem) {
+      return {
+        icon: parentItem.icon as keyof typeof Icons,
+        color: '',
+        title: parentItem.label,
       }
     }
   }

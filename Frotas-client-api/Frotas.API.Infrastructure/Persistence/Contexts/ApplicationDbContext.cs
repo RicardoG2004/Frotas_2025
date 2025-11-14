@@ -42,6 +42,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Delegacao> Delegacoes { get; set; }
     public DbSet<Terceiro> Terceiros { get; set; }
     public DbSet<Entidade> Entidades { get; set; }
+    public DbSet<Cargo> Cargos { get; set; }
     public DbSet<Cor> Cores { get; set; }
     public DbSet<Garantia> Garantias { get; set; }
     public DbSet<Peca> Pecas { get; set; }

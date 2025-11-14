@@ -49,6 +49,11 @@ import {
   EntidadesCreatePage,
   EntidadesUpdatePage,
 } from '@/pages/base/entidades'
+import {
+  CargosPage,
+  CargosCreatePage,
+  CargosUpdatePage,
+} from '@/pages/base/cargos'
 
 
 export const utilitariosRoutes = [
@@ -526,6 +531,48 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Entidade',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/cargos',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.cargos.id}
+        actionType={actionTypes.AuthVer}
+      >
+        <CargosPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: utilitarios.permissions.cargos.name,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/cargos/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.cargos.id}
+        actionType={actionTypes.AuthAdd}
+      >
+        <CargosCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Criar ${utilitarios.permissions.cargos.name}`,
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/cargos/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.cargos.id}
+        actionType={actionTypes.AuthChg}
+      >
+        <CargosUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: `Atualizar ${utilitarios.permissions.cargos.name}`,
   },
   {
     path: 'utilitarios/tabelas/configuracoes/fornecedores',
