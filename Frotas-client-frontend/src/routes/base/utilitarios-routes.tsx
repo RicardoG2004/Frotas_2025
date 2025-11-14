@@ -54,6 +54,11 @@ import {
   CargosCreatePage,
   CargosUpdatePage,
 } from '@/pages/base/cargos'
+import {
+  FuncionariosPage,
+  FuncionariosCreatePage,
+  FuncionariosUpdatePage,
+} from '@/pages/base/funcionarios'
 
 
 export const utilitariosRoutes = [
@@ -603,6 +608,48 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Fornecedor',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/funcionarios',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.funcionarios.id}
+        actionType={actionTypes.AuthVer}
+      >
+        <FuncionariosPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Funcionários',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/funcionarios/create',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.funcionarios.id}
+        actionType={actionTypes.AuthAdd}
+      >
+        <FuncionariosCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Funcionário',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/funcionarios/update',
+    element: (
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.funcionarios.id}
+        actionType={actionTypes.AuthChg}
+      >
+        <FuncionariosUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Funcionário',
   },
   {
     path: 'utilitarios/tabelas/configuracoes/taxas-iva',

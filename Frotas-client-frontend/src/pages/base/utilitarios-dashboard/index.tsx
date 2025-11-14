@@ -33,6 +33,7 @@ export function UtilitariosDashboardPage() {
     '/utilitarios/tabelas/configuracoes/entidades',
     '/utilitarios/tabelas/configuracoes/fornecedores',
     '/utilitarios/tabelas/configuracoes/cargos',
+    '/utilitarios/tabelas/configuracoes/funcionarios',
   ] as const
 
   const quickActions = quickActionPaths.map((path, index) => {

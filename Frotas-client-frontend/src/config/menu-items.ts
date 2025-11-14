@@ -270,6 +270,20 @@ export const roleHeaderMenus = {
                 },
                 funcionalidadeId: modules.utilitarios.permissions.fornecedores.id,
               },
+              {
+                label: 'Funcionários',
+                href: '/utilitarios/tabelas/configuracoes/funcionarios',
+                icon: 'briefcase',
+                colors: {
+                  colorful: 'bg-blue-500',
+                  'theme-color': 'bg-primary',
+                  pastel: 'bg-blue-200',
+                  vibrant: 'bg-blue-600',
+                  neon: 'bg-blue-400',
+                },
+                funcionalidadeId:
+                  modules.utilitarios.permissions.funcionarios.id,
+              },
 
               {
                 label: 'Taxas de IVA',

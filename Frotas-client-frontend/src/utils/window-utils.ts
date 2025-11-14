@@ -602,6 +602,10 @@ export const openFornecedorCreationWindow = createEntityCreationWindow(
   '/utilitarios/tabelas/configuracoes/fornecedores/create'
 )
 
+export const openCargoCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/cargos/create'
+)
+
 export const openSeguroCreationWindow = createEntityCreationWindow(
   '/frotas/configuracoes/seguros/create'
 )
@@ -777,6 +781,11 @@ export const openTerceiroViewWindow = createEntityViewWindow(
 export const openFornecedorViewWindow = createEntityViewWindow(
   '/utilitarios/tabelas/configuracoes/fornecedores/update',
   'fornecedorId'
+)
+
+export const openCargoViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/cargos/update',
+  'cargoId'
 )
 
 export const openSeguroViewWindow = createEntityViewWindow(

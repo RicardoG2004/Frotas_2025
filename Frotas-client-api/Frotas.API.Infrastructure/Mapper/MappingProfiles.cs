@@ -14,6 +14,7 @@ using Frotas.API.Application.Services.Base.DelegacaoService.DTOs;
 using Frotas.API.Application.Services.Base.TerceiroService.DTOs;
 using Frotas.API.Application.Services.Base.EntidadeService.DTOs;
 using Frotas.API.Application.Services.Base.CargoService.DTOs;
+using Frotas.API.Application.Services.Base.FuncionarioService.DTOs;
 using Frotas.API.Application.Services.Frotas.CorService.DTOs;
 using Frotas.API.Application.Services.Base.GarantiaService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
@@ -117,6 +118,11 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Cargo, CargoDTO>();
       _ = CreateMap<CreateCargoRequest, Cargo>();
       _ = CreateMap<UpdateCargoRequest, Cargo>();
+
+      // Funcionarios mappings
+      _ = CreateMap<Funcionario, FuncionarioDTO>();
+      _ = CreateMap<CreateFuncionarioRequest, Funcionario>();
+      _ = CreateMap<UpdateFuncionarioRequest, Funcionario>();
 
       // Cores mappings
       _ = CreateMap<Cor, CorDTO>();
