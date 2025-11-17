@@ -201,7 +201,7 @@ const FuncionarioCreateForm = ({
       morada: 'localizacao',
       freguesiaId: 'localizacao',
       codigoPostalId: 'localizacao',
-      delegacaoId: 'localizacao',
+      delegacaoId: 'identificacao',
     },
   })
 
@@ -705,28 +705,97 @@ const FuncionarioCreateForm = ({
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name='ativo'
-                    render={({ field }) => (
-                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4 shadow-inner'>
-                        <div className='space-y-0.5'>
-                          <FormLabel className='text-base flex items-center gap-2'>
-                            Ativo
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <FormField
+                      control={form.control}
+                      name='delegacaoId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='flex items-center gap-2'>
+                            <Building2 className='h-4 w-4' />
+                            Delegação
                           </FormLabel>
-                          <p className='text-sm text-muted-foreground'>
-                            Defina se o funcionário está ativo no sistema
-                          </p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                          <FormControl>
+                            <div className='relative'>
+                              <Autocomplete
+                                options={sortedDelegacoes.map((delegacao) => ({
+                                  value: delegacao.id || '',
+                                  label: delegacao.designacao,
+                                }))}
+                                value={selectedDelegacaoId || field.value}
+                                onValueChange={(value) => {
+                                  setSelectedDelegacaoId(value)
+                                  field.onChange(value)
+                                }}
+                                placeholder={
+                                  isLoadingDelegacoes
+                                    ? 'A carregar...'
+                                    : 'Selecione uma delegação'
+                                }
+                                emptyText='Nenhuma delegação encontrada.'
+                                disabled={isLoadingDelegacoes}
+                                className='px-4 py-6 pr-32 shadow-inner drop-shadow-xl'
+                              />
+                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleViewDelegacao}
+                                  className='h-8 w-8 p-0'
+                                  title='Ver Delegação'
+                                  disabled={!field.value}
+                                >
+                                  <Eye className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleCreateDelegacao}
+                                  className='h-8 w-8 p-0'
+                                  title='Criar Nova Delegação'
+                                >
+                                  <Plus className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='ativo'
+                      render={({ field }) => (
+                        <FormItem className='-mt-2'>
+                          <FormLabel className='flex items-center gap-2'>
+                            Estado
+                            <Badge variant='secondary' className='text-xs opacity-0 pointer-events-none'>
+                              Obrigatório
+                            </Badge>
+                          </FormLabel>
+                          <FormControl>
+                            <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                              <div className='flex items-center gap-2'>
+                                <div
+                                  className={`w-2 h-2 rounded-full ${field.value ? 'bg-green-500' : 'bg-red-500'}`}
+                                />
+                                <span className='text-sm text-muted-foreground'>Ativo</span>
+                              </div>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={createFuncionarioMutation.isPending}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -746,7 +815,7 @@ const FuncionarioCreateForm = ({
                         </Badge>
                       </CardTitle>
                       <p className='text-sm text-muted-foreground mt-1'>
-                        Associe freguesia, código postal e delegação
+                        Associe freguesia e código postal
                       </p>
                     </div>
                   </div>
@@ -896,66 +965,6 @@ const FuncionarioCreateForm = ({
                       )}
                     />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name='delegacaoId'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className='flex items-center gap-2'>
-                          <Building2 className='h-4 w-4' />
-                          Delegação
-                        </FormLabel>
-                        <FormControl>
-                          <div className='relative'>
-                            <Autocomplete
-                              options={sortedDelegacoes.map((delegacao) => ({
-                                value: delegacao.id || '',
-                                label: delegacao.designacao,
-                              }))}
-                              value={selectedDelegacaoId || field.value}
-                              onValueChange={(value) => {
-                                setSelectedDelegacaoId(value)
-                                field.onChange(value)
-                              }}
-                              placeholder={
-                                isLoadingDelegacoes
-                                  ? 'A carregar...'
-                                  : 'Selecione uma delegação'
-                              }
-                              emptyText='Nenhuma delegação encontrada.'
-                              disabled={isLoadingDelegacoes}
-                              className='px-4 py-6 pr-32 shadow-inner drop-shadow-xl'
-                            />
-                            <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                              <Button
-                                type='button'
-                                variant='outline'
-                                size='sm'
-                                onClick={handleViewDelegacao}
-                                className='h-8 w-8 p-0'
-                                title='Ver Delegação'
-                                disabled={!field.value}
-                              >
-                                <Eye className='h-4 w-4' />
-                              </Button>
-                              <Button
-                                type='button'
-                                variant='outline'
-                                size='sm'
-                                onClick={handleCreateDelegacao}
-                                className='h-8 w-8 p-0'
-                                title='Criar Nova Delegação'
-                              >
-                                <Plus className='h-4 w-4' />
-                              </Button>
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </CardContent>
               </Card>
             </TabsContent>
