@@ -82,6 +82,8 @@ import {
   ChevronUp,
   Save,
   Clock,
+  Camera,
+  X,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
@@ -332,6 +334,369 @@ const FOLDER_FILTER_NONE = '__folder_none__'
 const normalizeFolderName = (folder?: string | null) => {
   const trimmed = folder?.trim()
   return trimmed && trimmed.length > 0 ? trimmed : undefined
+}
+
+type FotoViaturaUploaderProps = {
+  value: ViaturaDocumentoFormValue[]
+  onChange: (documentos: ViaturaDocumentoFormValue[]) => void
+}
+
+const fixImageOrientation = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    // Primeiro ler como ArrayBuffer para obter orientação EXIF
+    const reader = new FileReader()
+    
+    reader.onload = async (e) => {
+      if (!e.target?.result) {
+        reject(new Error('Erro ao ler ficheiro'))
+        return
+      }
+      const arrayBuffer = e.target.result as ArrayBuffer
+      const exifOrientation = getOrientationFromArrayBuffer(arrayBuffer)
+      
+      // Se não precisa de correção, retornar data URL normal
+      if (exifOrientation === 1) {
+        const dataUrl = await readFileAsDataUrl(file)
+        resolve(dataUrl)
+        return
+      }
+      
+      // Ler como imagem para aplicar transformações
+      const img = new Image()
+      const imgUrl = URL.createObjectURL(file)
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        
+        if (!ctx) {
+          URL.revokeObjectURL(imgUrl)
+          reject(new Error('Não foi possível criar contexto do canvas'))
+          return
+        }
+
+        let width = img.width
+        let height = img.height
+        
+        // Aplicar transformações baseadas na orientação EXIF
+        switch (exifOrientation) {
+          case 2:
+            canvas.width = width
+            canvas.height = height
+            ctx.transform(-1, 0, 0, 1, width, 0)
+            break
+          case 3:
+            canvas.width = width
+            canvas.height = height
+            ctx.transform(-1, 0, 0, -1, width, height)
+            break
+          case 4:
+            canvas.width = width
+            canvas.height = height
+            ctx.transform(1, 0, 0, -1, 0, height)
+            break
+          case 5:
+            canvas.width = height
+            canvas.height = width
+            ctx.transform(0, 1, 1, 0, 0, 0)
+            break
+          case 6:
+            canvas.width = height
+            canvas.height = width
+            ctx.transform(0, 1, -1, 0, height, 0)
+            break
+          case 7:
+            canvas.width = height
+            canvas.height = width
+            ctx.transform(0, -1, -1, 0, height, width)
+            break
+          case 8:
+            canvas.width = height
+            canvas.height = width
+            ctx.transform(0, -1, 1, 0, 0, width)
+            break
+          default:
+            canvas.width = width
+            canvas.height = height
+        }
+
+        ctx.drawImage(img, 0, 0)
+        URL.revokeObjectURL(imgUrl)
+        resolve(canvas.toDataURL('image/jpeg', 0.92))
+      }
+      
+      img.onerror = () => {
+        URL.revokeObjectURL(imgUrl)
+        reject(new Error('Erro ao carregar imagem'))
+      }
+      
+      img.src = imgUrl
+    }
+    
+    reader.onerror = () => reject(new Error('Erro ao ler ficheiro'))
+    reader.readAsArrayBuffer(file)
+  })
+}
+
+const getOrientationFromArrayBuffer = (arrayBuffer: ArrayBuffer): number => {
+  const view = new DataView(arrayBuffer)
+  
+  // Procurar pelo marcador APP1 (EXIF)
+  if (view.getUint16(0, false) !== 0xffd8) {
+    return 1 // Não é JPEG válido
+  }
+
+  const length = view.byteLength
+  let offset = 2
+
+  while (offset < length) {
+    if (view.getUint16(offset, false) !== 0xffe1) {
+      offset += 2
+      const markerLength = view.getUint16(offset, false)
+      offset += 2 + markerLength
+      continue
+    }
+
+    // APP1 encontrado
+    offset += 2
+    const exifLength = view.getUint16(offset, false)
+    offset += 2
+
+    // Verificar se é EXIF
+    if (offset + 6 > length) return 1
+    const exifHeader = String.fromCharCode(
+      view.getUint8(offset),
+      view.getUint8(offset + 1),
+      view.getUint8(offset + 2),
+      view.getUint8(offset + 3),
+      view.getUint8(offset + 4),
+      view.getUint8(offset + 5)
+    )
+    
+    if (exifHeader !== 'Exif\0\0') {
+      offset += exifLength
+      continue
+    }
+
+    offset += 6
+    const tiffOffset = offset
+
+    // Verificar byte order
+    const byteOrder = view.getUint16(tiffOffset, false)
+    let littleEndian = byteOrder === 0x4949
+
+    offset = tiffOffset + 2
+
+    // Verificar magic number
+    if (view.getUint16(offset, littleEndian) !== 0x002a) {
+      return 1
+    }
+
+    offset = tiffOffset + 4
+    const ifdOffset = view.getUint32(offset, littleEndian)
+    offset = tiffOffset + ifdOffset
+
+    // Número de entradas IFD
+    const numEntries = view.getUint16(offset, littleEndian)
+    offset += 2
+
+    // Procurar tag de orientação (0x0112)
+    for (let i = 0; i < numEntries; i++) {
+      if (view.getUint16(offset, littleEndian) === 0x0112) {
+        offset += 2
+        const format = view.getUint16(offset, littleEndian)
+        offset += 2
+        const numComponents = view.getUint32(offset, littleEndian)
+        offset += 4
+
+        if (format === 3 && numComponents === 1) {
+          const value = view.getUint16(offset, littleEndian)
+          return value
+        }
+        break
+      }
+      offset += 12
+    }
+
+    return 1
+  }
+
+  return 1 // Orientação padrão
+}
+
+const FotoViaturaUploader = ({ value, onChange }: FotoViaturaUploaderProps) => {
+  const documentos = value ?? []
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [processingFile, setProcessingFile] = useState<File | null>(null)
+  const [processingPreviewUrl, setProcessingPreviewUrl] = useState<string | null>(null)
+  const [isViewerOpen, setIsViewerOpen] = useState(false)
+
+  // Encontrar a primeira imagem nos documentos
+  const fotoPrincipal = useMemo(() => {
+    return documentos.find((doc) => isImageContentType(doc.contentType)) ?? null
+  }, [documentos])
+
+  const fotoUrl = useMemo(() => {
+    if (processingPreviewUrl) return processingPreviewUrl
+    if (!fotoPrincipal?.dados) return null
+    return getDocumentoViewerUrl(fotoPrincipal)
+  }, [fotoPrincipal, processingPreviewUrl])
+
+  useEffect(() => {
+    return () => {
+      if (processingPreviewUrl) {
+        URL.revokeObjectURL(processingPreviewUrl)
+      }
+    }
+  }, [processingPreviewUrl])
+
+  const convertFileToDocumento = useCallback(async (file: File) => {
+    // Corrigir orientação da imagem antes de converter
+    const dadosCorrigidos = await fixImageOrientation(file)
+    return {
+      nome: file.name || 'foto-viatura.jpg',
+      dados: dadosCorrigidos,
+      contentType: file.type || 'image/jpeg',
+      tamanho: file.size,
+    }
+  }, [])
+
+  const handleInputChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const fileList = event.target.files ? Array.from(event.target.files) : []
+      if (!fileList.length) {
+        event.target.value = ''
+        return
+      }
+
+      const file = fileList[0]
+      if (!file.type.startsWith('image/')) {
+        toast.error('Por favor, selecione um ficheiro de imagem.')
+        event.target.value = ''
+        return
+      }
+
+      // Criar preview temporário
+      const previewUrl = URL.createObjectURL(file)
+      setProcessingFile(file)
+      setProcessingPreviewUrl(previewUrl)
+
+      try {
+        const novoDocumento = await convertFileToDocumento(file)
+        
+        // Remover foto anterior se existir
+        const outrosDocumentos = documentos.filter((doc) => !isImageContentType(doc.contentType))
+        
+        // Adicionar nova foto como primeiro documento
+        onChange([novoDocumento, ...outrosDocumentos])
+        toast.success('Foto adicionada com sucesso.')
+      } catch (error) {
+        toast.error('Não foi possível processar a imagem.')
+      } finally {
+        setProcessingFile(null)
+        setProcessingPreviewUrl(null)
+        URL.revokeObjectURL(previewUrl)
+        event.target.value = ''
+      }
+    },
+    [documentos, onChange, convertFileToDocumento]
+  )
+
+  const handleRemove = useCallback(() => {
+    const outrosDocumentos = documentos.filter((doc) => !isImageContentType(doc.contentType))
+    onChange(outrosDocumentos)
+    toast.success('Foto removida.')
+  }, [documentos, onChange])
+
+  const handleClick = useCallback(() => {
+    if (fotoUrl) {
+      setIsViewerOpen(true)
+    } else {
+      fileInputRef.current?.click()
+    }
+  }, [fotoUrl])
+
+  const handleImageClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsViewerOpen(true)
+  }, [])
+
+  return (
+    <div className='flex flex-col items-center gap-3'>
+      <div
+        onClick={handleClick}
+        className={cn(
+          'relative flex aspect-square w-full max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg transition-all duration-200',
+          fotoUrl
+            ? 'border border-border bg-card shadow-sm hover:shadow-md'
+            : 'border border-border/60 bg-muted/20 hover:border-primary/50 hover:bg-muted/30'
+        )}
+      >
+        <input
+          ref={fileInputRef}
+          type='file'
+          className='hidden'
+          accept='image/*'
+          onChange={handleInputChange}
+        />
+        {fotoUrl ? (
+          <>
+            <img
+              src={fotoUrl}
+              alt='Foto da viatura'
+              className='h-full w-full object-contain cursor-zoom-in'
+              style={{ imageOrientation: 'from-image' }}
+              onClick={handleImageClick}
+            />
+            {processingFile && (
+              <div className='absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm'>
+                <Loader2 className='h-8 w-8 animate-spin text-primary' />
+              </div>
+            )}
+            <div className='absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity hover:opacity-100 pointer-events-none' />
+            <Button
+              type='button'
+              variant='destructive'
+              size='icon'
+              className='absolute right-2 top-2 h-8 w-8 shadow-lg opacity-0 transition-opacity hover:opacity-100 z-10'
+              onClick={(e) => {
+                e.stopPropagation()
+                handleRemove()
+              }}
+              disabled={processingFile !== null}
+            >
+              <X className='h-4 w-4' />
+            </Button>
+          </>
+        ) : (
+          <div className='flex flex-col items-center gap-3 text-center p-6'>
+            <div className='flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15'>
+              <Camera className='h-7 w-7' />
+            </div>
+            <div className='space-y-1'>
+              <p className='text-sm font-semibold text-foreground'>Adicionar foto da viatura</p>
+              <p className='text-xs text-muted-foreground'>Clique ou arraste uma imagem</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
+        <DialogContent className='max-w-4xl max-h-[90vh] p-0'>
+          <div className='flex items-center justify-center p-6'>
+            {fotoUrl && (
+              <img
+                src={fotoUrl}
+                alt='Foto da viatura'
+                className='max-h-[70vh] w-auto object-contain rounded-lg'
+                style={{ imageOrientation: 'from-image' }}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }
 
 const getDocumentoViewerUrl = (documento?: ViaturaDocumentoFormValue | null) => {
@@ -2443,26 +2808,46 @@ function ViaturaFormContainer({
                     description='Informações base de identificação e registo'
                   >
                     <div className='grid items-start gap-4 md:grid-cols-[1.35fr_1.65fr] xl:grid-cols-[1.35fr_1.65fr_1.3fr]'>
-                      <FormField
-                        control={form.control}
-                        name='matricula'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className='sr-only'>Matrícula</FormLabel>
-                            <FormControl>
-                              <LicensePlateInput
-                                name={field.name}
-                                value={field.value ?? ''}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                ref={field.ref}
-                                className='shadow-inner drop-shadow-xl'
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className='flex flex-col gap-4'>
+                        <FormField
+                          control={form.control}
+                          name='documentos'
+                          render={({ field }) => (
+                            <FormItem className='mt-8'>
+                              <FormLabel className='sr-only'>Foto da Viatura</FormLabel>
+                              <FormControl>
+                                <FotoViaturaUploader
+                                  value={field.value ?? []}
+                                  onChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='matricula'
+                          render={({ field }) => (
+                            <FormItem className='-mt-14 ml-16'>
+                              <FormLabel className='sr-only'>Matrícula</FormLabel>
+                              <FormControl>
+                                <div className='scale-90 origin-left'>
+                                  <LicensePlateInput
+                                    name={field.name}
+                                    value={field.value ?? ''}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    ref={field.ref}
+                                    className='shadow-inner drop-shadow-xl'
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <div className='flex flex-col gap-4 md:pr-0'>
                         <FormField
                           control={form.control}
@@ -2550,60 +2935,66 @@ function ViaturaFormContainer({
                           )}
                         />
                       </div>
-                    </div>
-                  </FormSection>
-
-                  <FormSection
-                    icon={BatteryCharging}
-                    title='Motorização'
-                    description='Selecione o tipo de motorização principal da viatura'
-                  >
-                    <FormField
-                      control={form.control}
-                      name='tipoPropulsao'
-                      render={({ field }) => (
-                        <FormItem className='space-y-4'>
-                          <FormLabel>Tipo de motorização</FormLabel>
-                          <FormControl>
-                            <ToggleGroup
-                              type='single'
-                              value={field.value}
-                              onValueChange={(value) => {
-                                if (!value) {
-                                  field.onChange('')
-                                  return
-                                }
-                                field.onChange(value)
-                              }}
-                              className='grid gap-3 md:grid-cols-3'
-                            >
-                              {PROPULSAO_OPTIONS.map((option) => (
-                                <ToggleGroupItem
-                                  key={option.value}
-                                  value={option.value}
-                                  className='flex h-full flex-col items-start gap-3 rounded-xl border border-input bg-background p-4 text-left shadow-sm transition data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary'
+                      <div className='md:col-start-2 md:col-span-1 xl:col-start-2 xl:col-span-2 space-y-4 -mt-36'>
+                        <div className='flex items-center gap-3'>
+                          <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                            <BatteryCharging className='h-4 w-4' />
+                          </div>
+                          <div>
+                            <h3 className='text-base font-semibold'>Motorização</h3>
+                            <p className='text-sm text-muted-foreground'>
+                              Selecione o tipo de motorização principal da viatura
+                            </p>
+                          </div>
+                        </div>
+                        <FormField
+                          control={form.control}
+                          name='tipoPropulsao'
+                          render={({ field }) => (
+                            <FormItem className='space-y-4'>
+                              <FormLabel className='sr-only'>Tipo de motorização</FormLabel>
+                              <FormControl>
+                                <ToggleGroup
+                                  type='single'
+                                  value={field.value}
+                                  onValueChange={(value) => {
+                                    if (!value) {
+                                      field.onChange('')
+                                      return
+                                    }
+                                    field.onChange(value)
+                                  }}
+                                  className='grid gap-3 md:grid-cols-3'
                                 >
-                                  <div className='flex items-start gap-3'>
-                                    <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
-                                      <option.icon className='h-4 w-4' />
-                                    </div>
-                                    <div className='text-left'>
-                                      <p className='text-sm font-semibold leading-tight text-foreground'>
-                                        {option.label}
-                                      </p>
-                                      <p className='mt-1 text-xs leading-snug text-muted-foreground'>
-                                        {option.description}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </ToggleGroupItem>
-                              ))}
-                            </ToggleGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                                  {PROPULSAO_OPTIONS.map((option) => (
+                                    <ToggleGroupItem
+                                      key={option.value}
+                                      value={option.value}
+                                      className='flex h-full flex-col items-start gap-3 rounded-xl border border-input bg-background p-4 text-left shadow-sm transition data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary'
+                                    >
+                                      <div className='flex items-start gap-3'>
+                                        <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+                                          <option.icon className='h-4 w-4' />
+                                        </div>
+                                        <div className='text-left'>
+                                          <p className='text-sm font-semibold leading-tight text-foreground'>
+                                            {option.label}
+                                          </p>
+                                          <p className='mt-1 text-xs leading-snug text-muted-foreground'>
+                                            {option.description}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </ToggleGroupItem>
+                                  ))}
+                                </ToggleGroup>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
                   </FormSection>
 
                   <div className='grid gap-6 lg:grid-cols-2'>
@@ -6151,4 +6542,5 @@ function ViaturaFormContainer({
 }
 
 export { ViaturaFormContainer }
+
 
