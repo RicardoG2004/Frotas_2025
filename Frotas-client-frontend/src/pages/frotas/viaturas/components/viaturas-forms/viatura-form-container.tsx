@@ -12,7 +12,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -34,8 +34,14 @@ import {
   TabsList as PersistentTabsList,
   TabsTrigger as PersistentTabsTrigger,
 } from '@/components/ui/persistent-tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Building2,
   BatteryCharging,
@@ -72,6 +78,10 @@ import {
   Loader2,
   FolderPlus,
   User,
+  AlertTriangle,
+  ChevronUp,
+  Save,
+  Clock,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
@@ -102,6 +112,9 @@ import { useGetSegurosSelect } from '@/pages/frotas/seguros/queries/seguros-quer
 import { useGetGarantiasSelect } from '@/pages/base/garantias/queries/garantias-queries'
 import { useGetEquipamentosSelect } from '@/pages/frotas/equipamentos/queries/equipamentos-queries'
 import { useGetFuncionariosSelect } from '@/pages/base/funcionarios/queries/funcionarios-queries'
+import { useGetConcelhosSelect } from '@/pages/base/concelhos/queries/concelhos-queries'
+import { useGetFreguesiasSelect } from '@/pages/base/freguesias/queries/freguesias-queries'
+import { useGetCodigosPostaisSelect } from '@/pages/base/codigospostais/queries/codigospostais-queries'
 import { useWindowsStore } from '@/stores/use-windows-store'
 import { cn } from '@/lib/utils'
 import {
@@ -1151,7 +1164,7 @@ interface ViaturaFormContainerProps {
   isSubmitting: boolean
 }
 
-const ViaturaFormContainer = ({
+function ViaturaFormContainer({
   initialValues,
   isLoadingInitial = false,
   onSubmit,
@@ -1159,7 +1172,7 @@ const ViaturaFormContainer = ({
   submitLabel,
   tabKey,
   isSubmitting,
-}: ViaturaFormContainerProps) => {
+}: ViaturaFormContainerProps) {
   const initialFormValues = useMemo<Partial<ViaturaFormSchemaType>>(() => {
     const documentosBase =
       initialValues?.documentos ??
@@ -1190,7 +1203,12 @@ const ViaturaFormContainer = ({
   )
 
   const inspecoesValues = form.watch('inspecoes') ?? []
+  const acidentesValues = form.watch('acidentes') ?? []
   const entidadeFornecedoraTipo = form.watch('entidadeFornecedoraTipo')
+  
+  const [savedAcidentes, setSavedAcidentes] = useState<Set<string>>(new Set())
+  const [expandedAcidentes, setExpandedAcidentes] = useState<Set<string>>(new Set())
+  const [activeAcidenteTab, setActiveAcidenteTab] = useState<Record<string, string>>({})
   const tipoPropulsao = form.watch('tipoPropulsao')
   const isElectricPropulsion = tipoPropulsao === 'eletrico'
   const isHybridPropulsion = tipoPropulsao === 'hibrido'
@@ -1276,6 +1294,16 @@ const ViaturaFormContainer = ({
   })
 
   const {
+    fields: acidenteFields,
+    append: appendAcidente,
+    remove: removeAcidente,
+  } = useFieldArray({
+    control: form.control,
+    name: 'acidentes',
+    keyName: 'fieldId',
+  })
+
+  const {
     data: marcas = [],
     isLoading: isLoadingMarcas,
     refetch: refetchMarcas,
@@ -1354,6 +1382,18 @@ const ViaturaFormContainer = ({
     isLoading: isLoadingFuncionarios,
     refetch: refetchFuncionarios,
   } = useGetFuncionariosSelect()
+  const {
+    data: concelhos = [],
+    isLoading: isLoadingConcelhos,
+  } = useGetConcelhosSelect()
+  const {
+    data: freguesias = [],
+    isLoading: isLoadingFreguesias,
+  } = useGetFreguesiasSelect()
+  const {
+    data: codigosPostais = [],
+    isLoading: isLoadingCodigosPostais,
+  } = useGetCodigosPostaisSelect()
 
   const selectOptions: ViaturaSelectOptions = useMemo(
     () => ({
@@ -1703,6 +1743,159 @@ const ViaturaFormContainer = ({
     })
   }
 
+  const handleAddAcidente = () => {
+    appendAcidente({
+      id: undefined,
+      condutorId: '',
+      dataHora: undefined as any,
+      hora: '',
+      culpa: false,
+      descricaoAcidente: '',
+      descricaoDanos: '',
+      local: '',
+      concelhoId: '',
+      freguesiaId: '',
+      codigoPostalId: '',
+      localReparacao: '',
+    })
+  }
+
+
+  // Inicializar hora dos acidentes vindos do backend e abas ativas
+  useEffect(() => {
+    if (acidentesValues && acidentesValues.length > 0) {
+      acidentesValues.forEach((acidente, index) => {
+        if (acidente?.dataHora && !acidente.hora) {
+          const hora = `${acidente.dataHora.getHours().toString().padStart(2, '0')}:${acidente.dataHora.getMinutes().toString().padStart(2, '0')}`
+          form.setValue(`acidentes.${index}.hora`, hora, { shouldDirty: false })
+        }
+      })
+      
+      // Inicializar abas ativas para acidentes sem aba definida
+      if (acidenteFields && acidenteFields.length > 0) {
+        acidenteFields.forEach((acidente) => {
+          if (acidente && !activeAcidenteTab[acidente.fieldId]) {
+            setActiveAcidenteTab((prev) => ({
+              ...prev,
+              [acidente.fieldId]: 'informacoes',
+            }))
+          }
+        })
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [acidentesValues?.length, acidenteFields.length])
+
+
+  const handleRemoveAcidente = (index: number) => {
+    const acidente = acidenteFields[index]
+    if (acidente) {
+      setSavedAcidentes((prev) => {
+        const next = new Set(prev)
+        next.delete(acidente.fieldId)
+        return next
+      })
+      setExpandedAcidentes((prev) => {
+        const next = new Set(prev)
+        next.delete(acidente.fieldId)
+        return next
+      })
+    }
+    removeAcidente(index)
+  }
+
+  // Handlers para botões de ação dos campos de acidentes
+  const handleViewCondutor = (condutorId: string | undefined) => {
+    if (condutorId) {
+      navigate(`/base/funcionarios/${condutorId}`)
+    }
+  }
+
+  const handleCreateCondutor = () => {
+    navigate('/base/funcionarios/create')
+  }
+
+  const handleViewConcelho = (concelhoId: string | undefined) => {
+    if (concelhoId) {
+      navigate(`/base/concelhos/${concelhoId}`)
+    }
+  }
+
+  const handleCreateConcelho = () => {
+    navigate('/base/concelhos/create')
+  }
+
+  const handleViewFreguesia = (freguesiaId: string | undefined) => {
+    if (freguesiaId) {
+      navigate(`/base/freguesias/${freguesiaId}`)
+    }
+  }
+
+  const handleCreateFreguesia = () => {
+    navigate('/base/freguesias/create')
+  }
+
+  const handleViewCodigoPostal = (codigoPostalId: string | undefined) => {
+    if (codigoPostalId) {
+      navigate(`/base/codigos-postais/${codigoPostalId}`)
+    }
+  }
+
+  const handleCreateCodigoPostal = () => {
+    navigate('/base/codigos-postais/create')
+  }
+
+  const handleSaveAcidente = (index: number) => {
+    const acidente = acidenteFields[index]
+    if (!acidente) return
+
+    const acidenteData = acidentesValues?.[index]
+    if (!acidenteData) return
+
+    // Validar campos obrigatórios
+    const errors = form.formState.errors.acidentes?.[index]
+    if (errors) {
+      toast.error('Por favor, preencha todos os campos obrigatórios antes de guardar.')
+      return
+    }
+
+    if (!acidenteData.condutorId || !acidenteData.dataHora) {
+      toast.error('Por favor, preencha os campos obrigatórios: Condutor e Data.')
+      return
+    }
+
+    // Combinar data e hora
+    if (acidenteData.dataHora && acidenteData.hora) {
+      const [hours, minutes] = acidenteData.hora.split(':').map(Number)
+      const dataComHora = new Date(acidenteData.dataHora)
+      dataComHora.setHours(hours || 0, minutes || 0, 0, 0)
+      form.setValue(`acidentes.${index}.dataHora`, dataComHora, { shouldDirty: true })
+    }
+
+    setSavedAcidentes((prev) => new Set(prev).add(acidente.fieldId))
+    setExpandedAcidentes((prev) => {
+      const next = new Set(prev)
+      next.delete(acidente.fieldId)
+      return next
+    })
+    toast.success('Acidente guardado com sucesso.')
+  }
+
+  const handleToggleExpandAcidente = (index: number) => {
+    const acidente = acidenteFields[index]
+    if (!acidente) return
+
+    setExpandedAcidentes((prev) => {
+      const next = new Set(prev)
+      if (next.has(acidente.fieldId)) {
+        next.delete(acidente.fieldId)
+      } else {
+        next.add(acidente.fieldId)
+      }
+      return next
+    })
+  }
+
   const { setActiveTab } = useTabManager({
     defaultTab: 'identificacao',
     tabKey,
@@ -1768,6 +1961,7 @@ const ViaturaFormContainer = ({
       garantiaIds: 'garantias',
       condutorIds: 'condutores',
       inspecoes: 'inspecoes',
+      acidentes: 'acidentes',
     },
   })
 
@@ -2213,6 +2407,10 @@ const ViaturaFormContainer = ({
             <PersistentTabsTrigger value='condutores'>
               <User className='mr-2 h-4 w-4' />
               Condutores
+            </PersistentTabsTrigger>
+            <PersistentTabsTrigger value='acidentes'>
+              <AlertTriangle className='mr-2 h-4 w-4' />
+              Avaliação de Danos/Acidentes
             </PersistentTabsTrigger>
           </PersistentTabsList>
 
@@ -4904,6 +5102,1029 @@ const ViaturaFormContainer = ({
                       </FormItem>
                     )}
                   />
+                </CardContent>
+              </Card>
+            </div>
+          </PersistentTabsContent>
+
+          {/* Avaliação de Danos/Acidentes */}
+          <PersistentTabsContent value='acidentes'>
+            <div className='space-y-6'>
+              <Card className='overflow-hidden border-l-4 border-l-primary/20 transition-all duration-200 hover:border-l-primary/40 hover:shadow-md'>
+                <CardHeader className='pb-4'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                      <AlertTriangle className='h-4 w-4' />
+                    </div>
+                    <div>
+                      <CardTitle className='flex items-center gap-2 text-base'>
+                        Avaliação de Danos/Acidentes
+                      </CardTitle>
+                      <p className='mt-1 text-sm text-muted-foreground'>
+                        Registe acidentes e danos ocorridos com esta viatura.
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
+                    <p className='text-sm text-muted-foreground'>
+                      Adicione registos de acidentes e danos com todas as informações relevantes.
+                    </p>
+                    <Button
+                      type='button'
+                      variant='secondary'
+                      size='default'
+                      className='md:min-w-[220px]'
+                      onClick={handleAddAcidente}
+                    >
+                      Adicionar
+                    </Button>
+                  </div>
+                  {acidenteFields.length === 0 ? (
+                    <div className='rounded-xl border border-dashed border-border/70 bg-muted/5 p-6 text-center shadow-inner'>
+                      <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                        <AlertTriangle className='h-6 w-6' />
+                      </div>
+                      <h4 className='mt-4 text-sm font-semibold text-foreground'>
+                        Sem acidentes/danos registados
+                      </h4>
+                      <p className='mt-2 text-sm text-muted-foreground'>
+                        Clique em "Adicionar" para registar um acidente ou dano ocorrido com esta viatura.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
+                      <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                        <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                          <AlertTriangle className='h-4 w-4 text-primary' />
+                          Acidentes/Danos registados
+                          <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                            {acidenteFields.length}
+                          </Badge>
+                        </div>
+                        <p className='text-xs text-muted-foreground'>
+                          Edite as informações conforme necessário e remova registos que já não sejam relevantes.
+                        </p>
+                      </div>
+
+                      <div className='space-y-4'>
+                        {acidenteFields.map((acidente, index) => {
+                          const acidenteData = acidentesValues?.[index]
+                          const dataHoraFormatada = formatDateLabel(acidenteData?.dataHora)
+                          // Se o acidente tem ID, considerar como guardado automaticamente
+                          const hasId = !!acidenteData?.id
+                          const isSaved = hasId || savedAcidentes.has(acidente.fieldId)
+                          const isExpanded = expandedAcidentes.has(acidente.fieldId)
+                          
+                          const condutorNome = acidenteData?.condutorId
+                            ? selectOptions.funcionarios.find((f) => f.value === acidenteData.condutorId)?.label || 'Não definido'
+                            : 'Não definido'
+
+                          return (
+                            <div
+                              key={acidente.fieldId}
+                              className={cn(
+                                'group rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md md:p-5',
+                                isSaved && !isExpanded && 'space-y-3'
+                              )}
+                            >
+                              <div className='flex flex-col gap-3 border-b border-border/60 pb-4 sm:flex-row sm:items-center sm:justify-between'>
+                                <div className='flex items-center gap-3'>
+                                  <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                                    <AlertTriangle className='h-5 w-5' />
+                                  </div>
+                                  <div>
+                                    <p className='text-sm font-semibold text-foreground'>
+                                      Acidente/Dano #{index + 1}
+                                      {isSaved && (
+                                        <Badge variant='outline' className='ml-2 rounded-full border-primary/30 bg-primary/10 text-primary font-medium text-[10px]'>
+                                          Guardado
+                                        </Badge>
+                                      )}
+                                    </p>
+                                    <p className='text-xs text-muted-foreground'>
+                                      {dataHoraFormatada
+                                        ? `Ocorrido em ${dataHoraFormatada}.`
+                                        : 'Data/hora ainda não definida.'}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  {isSaved ? (
+                                    <>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={() => handleToggleExpandAcidente(index)}
+                                        className='gap-2'
+                                      >
+                                        {isExpanded ? (
+                                          <>
+                                            <ChevronUp className='h-4 w-4' />
+                                            Ocultar
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Eye className='h-4 w-4' />
+                                            Ver dados
+                                          </>
+                                        )}
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='ghost'
+                                        size='sm'
+                                        onClick={() => handleRemoveAcidente(index)}
+                                        className='text-destructive hover:text-destructive'
+                                      >
+                                        <Trash2 className='h-4 w-4' />
+                                      </Button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Button
+                                        type='button'
+                                        variant='default'
+                                        size='sm'
+                                        onClick={() => handleSaveAcidente(index)}
+                                        className='gap-2'
+                                      >
+                                        <Save className='h-4 w-4' />
+                                        Guardar
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='ghost'
+                                        size='sm'
+                                        onClick={() => handleRemoveAcidente(index)}
+                                        className='text-destructive hover:text-destructive'
+                                      >
+                                        <Trash2 className='h-4 w-4' />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+
+                              {isSaved && !isExpanded ? (
+                                <Card className='border-l-4 border-l-primary/50 shadow-sm'>
+                                  <CardContent className='p-4'>
+                                    <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+                                      <div className='flex items-start gap-3 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted/70'>
+                                        <div className='mt-0.5 rounded-full bg-primary/10 p-2'>
+                                          <User className='h-4 w-4 text-primary' />
+                                        </div>
+                                        <div className='flex-1 space-y-1'>
+                                          <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                                            Condutor
+                                          </p>
+                                          <p className='text-sm font-medium text-foreground'>{condutorNome || 'Não definido'}</p>
+                                        </div>
+                                      </div>
+                                      <div className='flex items-start gap-3 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted/70'>
+                                        <div className='mt-0.5 rounded-full bg-primary/10 p-2'>
+                                          <CalendarDays className='h-4 w-4 text-primary' />
+                                        </div>
+                                        <div className='flex-1 space-y-1'>
+                                          <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                                            Data
+                                          </p>
+                                          <p className='text-sm font-medium text-foreground'>
+                                            {dataHoraFormatada || 'Não definida'}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className='flex items-start gap-3 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted/70'>
+                                        <div className='mt-0.5 rounded-full bg-primary/10 p-2'>
+                                          <MapPin className='h-4 w-4 text-primary' />
+                                        </div>
+                                        <div className='flex-1 space-y-1'>
+                                          <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                                            Local
+                                          </p>
+                                          <p className='text-sm font-medium text-foreground'>
+                                            {acidenteData?.local || 'Não definido'}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ) : (
+                                <Tabs
+                                  value={activeAcidenteTab[acidente.fieldId] || 'informacoes'}
+                                  onValueChange={(value) => {
+                                    setActiveAcidenteTab((prev) => ({
+                                      ...prev,
+                                      [acidente.fieldId]: value,
+                                    }))
+                                  }}
+                                  className='w-full'
+                                >
+                                  <div className='mb-4'>
+                                    <TabsList className='inline-flex h-8 items-center justify-start rounded-md bg-muted p-0.5 text-muted-foreground w-full'>
+                                      <TabsTrigger 
+                                        value='informacoes' 
+                                        className='inline-flex items-center justify-center whitespace-nowrap rounded-sm px-2.5 py-1 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-0 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-1.5 flex-1 h-7'
+                                      >
+                                        <FileText className='h-3 w-3' />
+                                        <span>Informações</span>
+                                      </TabsTrigger>
+                                      <TabsTrigger 
+                                        value='localizacao' 
+                                        className='inline-flex items-center justify-center whitespace-nowrap rounded-sm px-2.5 py-1 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-0 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-1.5 flex-1 h-7'
+                                      >
+                                        <MapPin className='h-3 w-3' />
+                                        <span>Localização</span>
+                                      </TabsTrigger>
+                                      <TabsTrigger 
+                                        value='reparacao' 
+                                        className='inline-flex items-center justify-center whitespace-nowrap rounded-sm px-2.5 py-1 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-0 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-1.5 flex-1 h-7'
+                                      >
+                                        <Wrench className='h-3 w-3' />
+                                        <span>Reparação</span>
+                                      </TabsTrigger>
+                                    </TabsList>
+                                  </div>
+
+                                  <TabsContent value='informacoes' className='space-y-6 mt-0'>
+                                    <Card className='border-l-4 border-l-primary/50 shadow-sm'>
+                                      <CardHeader className='pb-3'>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='rounded-full bg-primary/10 p-2'>
+                                            <User className='h-4 w-4 text-primary' />
+                                          </div>
+                                          <div>
+                                            <CardTitle className='text-base font-semibold'>Informações Básicas</CardTitle>
+                                            <CardDescription className='text-xs'>Dados principais do acidente</CardDescription>
+                                          </div>
+                                        </div>
+                                      </CardHeader>
+                                      <CardContent className='space-y-4'>
+                                        <div className='grid gap-4 md:grid-cols-2'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`acidentes.${index}.condutorId`}
+                                            render={({ field }) => (
+                                              <FormItem>
+                                                <FormLabel>Condutor *</FormLabel>
+                                                <FormControl>
+                                                  <div className='relative'>
+                                                    <Autocomplete
+                                                      options={selectOptions.funcionarios}
+                                                      value={field.value}
+                                                      onValueChange={field.onChange}
+                                                      placeholder={placeholder(
+                                                        selectLoading.funcionarios,
+                                                        'o condutor'
+                                                      )}
+                                                      disabled={selectLoading.funcionarios}
+                                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                                    />
+                                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                                      <Button
+                                                        type='button'
+                                                        variant='outline'
+                                                        size='sm'
+                                                        onClick={() => handleViewCondutor(field.value)}
+                                                        title='Ver Condutor'
+                                                        disabled={!field.value}
+                                                        className='h-8 w-8 p-0'
+                                                      >
+                                                        <Eye className='h-4 w-4' />
+                                                      </Button>
+                                                      <Button
+                                                        type='button'
+                                                        variant='outline'
+                                                        size='sm'
+                                                        onClick={handleCreateCondutor}
+                                                        title='Criar novo condutor'
+                                                        className='h-8 w-8 p-0'
+                                                      >
+                                                        <Plus className='h-4 w-4' />
+                                                      </Button>
+                                                    </div>
+                                                  </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                              </FormItem>
+                                            )}
+                                          />
+
+                                      <FormField
+                                        control={form.control}
+                                        name={`acidentes.${index}.dataHora`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Data *</FormLabel>
+                                            <FormControl>
+                                              <DatePicker
+                                                value={field.value || undefined}
+                                                onChange={(date) => {
+                                                  field.onChange(date)
+                                                  // Manter a hora se já existir
+                                                  if (date && acidentesValues?.[index]?.hora) {
+                                                    const [hours, minutes] = acidentesValues[index].hora.split(':').map(Number)
+                                                    date.setHours(hours || 0, minutes || 0, 0, 0)
+                                                  }
+                                                }}
+                                                placeholder='Selecione a data'
+                                                allowClear
+                                                className={FIELD_HEIGHT_CLASS}
+                                              />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+
+                                      <FormField
+                                        control={form.control}
+                                        name={`acidentes.${index}.hora`}
+                                        render={({ field }) => {
+                                          // Se não há valor mas há dataHora, extrair a hora
+                                          const currentValue = field.value || (acidenteData?.dataHora
+                                            ? `${acidenteData.dataHora.getHours().toString().padStart(2, '0')}:${acidenteData.dataHora.getMinutes().toString().padStart(2, '0')}`
+                                            : '')
+                                          
+                                          const [hours, minutes] = currentValue ? currentValue.split(':').map(Number) : [0, 0]
+                                          const displayHours = isNaN(hours) ? 0 : hours
+                                          const displayMinutes = isNaN(minutes) ? 0 : minutes
+                                          const formattedTime = `${String(displayHours).padStart(2, '0')}:${String(displayMinutes).padStart(2, '0')}`
+
+                                          const updateTime = (newHours: number, newMinutes: number) => {
+                                            const formatted = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`
+                                            field.onChange(formatted)
+                                            // Atualizar dataHora com a hora
+                                            if (acidentesValues?.[index]?.dataHora) {
+                                              const dataComHora = new Date(acidentesValues[index].dataHora)
+                                              dataComHora.setHours(newHours || 0, newMinutes || 0, 0, 0)
+                                              form.setValue(`acidentes.${index}.dataHora`, dataComHora, { shouldDirty: true })
+                                            }
+                                          }
+
+                                          const [isSelectingHours, setIsSelectingHours] = useState(true)
+                                          const [isDragging, setIsDragging] = useState<'hour' | 'minute' | null>(null)
+                                          const clockRef = useRef<HTMLDivElement>(null)
+                                          const startHour24Ref = useRef<number | null>(null)
+                                          const startAngleRef = useRef<number | null>(null)
+                                          const lastAngleRef = useRef<number | null>(null)
+                                          const unwrappedAngleRef = useRef<number>(0)
+                                          
+                                          // Converter para formato 12h para o relógio analógico
+                                          const hour12 = displayHours % 12 || 12
+                                          
+                                          // Calcular ângulos dos ponteiros
+                                          // No CSS rotate(), 0deg aponta para a direita (3 horas)
+                                          // Para apontar para o topo (12 horas), precisamos de -90 graus
+                                          // Os números estão posicionados com: angle = (i * 30) - 90
+                                          // onde i=0 é 12 (topo), i=1 é 1, i=2 é 2, etc.
+                                          
+                                          // Para as horas: hour12 === 12 significa posição 0 (topo)
+                                          const hourPosition = hour12 === 12 ? 0 : hour12
+                                          // Cada hora = 30 graus, cada minuto move 0.5 graus
+                                          // Se está no 6 quando deveria estar no 12, está 180 graus deslocado
+                                          // Precisamos adicionar 180 graus para compensar
+                                          // O cálculo base é: (hourPosition * 30) - 90 para começar no topo
+                                          // Mas como está 180 graus deslocado, adicionamos 180: -90 + 180 = 90
+                                          // Mas 90 graus aponta para baixo (6 horas), então precisamos -90
+                                          // Na verdade, se está no 6 e deveria estar no 12, é só inverter: -180 + 180 = 0, mas isso aponta para a direita
+                                          // Vamos usar: (hourPosition * 30) - 90 (que é o correto para o topo)
+                                          const hourAngle = (hourPosition * 30) + (displayMinutes * 0.5) - 90
+                                          
+                                          // Para os minutos: 0 minutos = topo
+                                          // Cada minuto = 6 graus (360/60)
+                                          const minuteAngle = (displayMinutes * 6) - 90
+
+                                          const calculateAngleFromMouse = (clientX: number, clientY: number) => {
+                                            if (!clockRef.current) return 0
+                                            const rect = clockRef.current.getBoundingClientRect()
+                                            const centerX = rect.left + rect.width / 2
+                                            const centerY = rect.top + rect.height / 2
+                                            const clickX = clientX - centerX
+                                            const clickY = clientY - centerY
+                                            
+                                            // Calcular ângulo do mouse (em graus)
+                                            let angle = Math.atan2(clickY, clickX) * (180 / Math.PI) + 90
+                                            // Normalizar para 0-360
+                                            if (angle < 0) angle += 360
+                                            return angle
+                                          }
+
+                                          const handlePointerMouseDown = (e: React.MouseEvent<HTMLDivElement>, type: 'hour' | 'minute') => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            setIsDragging(type)
+                                            setIsSelectingHours(type === 'hour')
+                                            
+                                            const angle = calculateAngleFromMouse(e.clientX, e.clientY)
+                                            
+                                            if (type === 'hour') {
+                                              startHour24Ref.current = displayHours
+                                              startAngleRef.current = angle
+                                            } else {
+                                              let newMinute = Math.round(angle / 6)
+                                              if (newMinute >= 60) newMinute = 0
+                                              if (newMinute < 0) newMinute = 0
+                                              updateTime(displayHours, newMinute)
+                                            }
+                                          }
+
+                                          useEffect(() => {
+                                            if (!isDragging) {
+                                              startHour24Ref.current = null
+                                              startAngleRef.current = null
+                                              lastAngleRef.current = null
+                                              unwrappedAngleRef.current = 0
+                                              return
+                                            }
+
+                                            const handleMouseMove = (e: MouseEvent) => {
+                                              const angle = calculateAngleFromMouse(e.clientX, e.clientY)
+                                              
+                                              if (isDragging === 'hour') {
+                                                const startHour24 = startHour24Ref.current
+                                                const startAngle = startAngleRef.current
+                                                
+                                                if (startAngle !== null && startHour24 !== null) {
+                                                  if (lastAngleRef.current === null) {
+                                                    // Primeira vez: inicializar
+                                                    lastAngleRef.current = angle
+                                                    unwrappedAngleRef.current = startAngle
+                                                  } else {
+                                                    // Calcular diferença de ângulo
+                                                    let delta = angle - lastAngleRef.current
+                                                    
+                                                    // Normalizar delta para o caminho mais curto
+                                                    if (delta > 180) {
+                                                      delta -= 360
+                                                    } else if (delta < -180) {
+                                                      delta += 360
+                                                    }
+                                                    
+                                                    // Acumular no ângulo desenrolado
+                                                    unwrappedAngleRef.current += delta
+                                                    
+                                                    lastAngleRef.current = angle
+                                                  }
+                                                  
+                                                  // Calcular rotação total desde o início
+                                                  const totalRotation = unwrappedAngleRef.current - startAngle
+                                                  
+                                                  // Converter para horas: 360 graus = 24 horas, então 15 graus = 1 hora
+                                                  const hoursDelta = totalRotation / 15
+                                                  
+                                                  // Calcular nova hora
+                                                  let newHour24 = startHour24 + hoursDelta
+                                                  
+                                                  // Normalizar para 0-23
+                                                  newHour24 = ((newHour24 % 24) + 24) % 24
+                                                  
+                                                  const finalHour = Math.round(newHour24)
+                                                  
+                                                  // Atualizar sempre que está no range válido
+                                                  if (finalHour >= 0 && finalHour <= 23) {
+                                                    updateTime(finalHour, displayMinutes)
+                                                  }
+                                                }
+                                              } else {
+                                                let newMinute = Math.round(angle / 6)
+                                                if (newMinute >= 60) newMinute = 0
+                                                if (newMinute < 0) newMinute = 0
+                                                updateTime(displayHours, newMinute)
+                                              }
+                                            }
+
+                                            const handleMouseUp = () => {
+                                              setIsDragging(null)
+                                              startHour24Ref.current = null
+                                              startAngleRef.current = null
+                                              lastAngleRef.current = null
+                                              unwrappedAngleRef.current = 0
+                                            }
+
+                                            window.addEventListener('mousemove', handleMouseMove)
+                                            window.addEventListener('mouseup', handleMouseUp)
+
+                                            return () => {
+                                              window.removeEventListener('mousemove', handleMouseMove)
+                                              window.removeEventListener('mouseup', handleMouseUp)
+                                            }
+                                          }, [isDragging, displayHours, displayMinutes, updateTime])
+
+                                          const handleClockClick = (e: React.MouseEvent<HTMLDivElement>) => {
+                                            const rect = e.currentTarget.getBoundingClientRect()
+                                            const centerX = rect.left + rect.width / 2
+                                            const centerY = rect.top + rect.height / 2
+                                            const clickX = e.clientX - centerX
+                                            const clickY = e.clientY - centerY
+                                            
+                                            // Calcular ângulo do clique (em graus)
+                                            // Math.atan2 retorna em radianos, converter para graus
+                                            // +90 para ajustar: atan2 começa à direita (0°), queremos no topo (0°)
+                                            let angle = Math.atan2(clickY, clickX) * (180 / Math.PI) + 90
+                                            // Normalizar para 0-360
+                                            if (angle < 0) angle += 360
+
+                                            if (isSelectingHours) {
+                                              // Cada hora = 30 graus (360/12)
+                                              let newHour12 = Math.round(angle / 30)
+                                              if (newHour12 === 0 || newHour12 === 12) newHour12 = 12
+                                              
+                                              // Converter de 12h para 24h
+                                              // Se estamos na parte da tarde (PM), adicionar 12
+                                              const isPM = displayHours >= 12
+                                              const hour24 = newHour12 === 12 
+                                                ? (isPM ? 12 : 0)
+                                                : (isPM ? newHour12 + 12 : newHour12)
+                                              
+                                              updateTime(hour24, displayMinutes)
+                                            } else {
+                                              // Cada minuto = 6 graus (360/60)
+                                              let newMinute = Math.round(angle / 6)
+                                              // Normalizar para 0-59
+                                              if (newMinute >= 60) newMinute = 0
+                                              if (newMinute < 0) newMinute = 0
+                                              updateTime(displayHours, newMinute)
+                                            }
+                                          }
+                                          
+                                          return (
+                                            <FormItem>
+                                              <FormLabel>Hora</FormLabel>
+                                              <FormControl>
+                                                <Popover>
+                                                  <PopoverTrigger asChild>
+                                                    <Button
+                                                      type='button'
+                                                      variant='outline'
+                                                      className={`${TEXT_INPUT_CLASS} w-full justify-start pl-10 font-normal`}
+                                                    >
+                                                      <Clock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+                                                      {currentValue ? formattedTime : 'Selecione a hora'}
+                                                    </Button>
+                                                  </PopoverTrigger>
+                                                  <PopoverContent className='w-auto p-6' align='start'>
+                                                    <div className='space-y-4'>
+                                                      {/* Relógio Analógico */}
+                                                      <div className='relative w-48 h-48 mx-auto'>
+                                                        <div
+                                                          ref={clockRef}
+                                                          className='relative w-full h-full rounded-full border-4 border-border bg-gradient-to-br from-background to-muted/20 shadow-lg cursor-pointer hover:border-primary/50 transition-colors'
+                                                          onClick={handleClockClick}
+                                                        >
+                                                          {/* Marcações principais das horas */}
+                                                          {Array.from({ length: 12 }).map((_, i) => {
+                                                            // i=0 = 12 horas (topo), i=1 = 1 hora, etc.
+                                                            // Para posicionar: 12 horas no topo = -90 graus
+                                                            // Cada hora = 30 graus
+                                                            const hourNumber = i === 0 ? 12 : i
+                                                            const angle = (i * 30) - 90 // -90 para começar no topo
+                                                            const rad = (angle * Math.PI) / 180
+                                                            const radius = 75 // Ajustado para o relógio menor (192px / 2.56)
+                                                            const centerX = 92 // Centro ajustado um pouco para a esquerda
+                                                            const centerY = 92 // Centro ajustado um pouco para cima
+                                                            const x = centerX + radius * Math.cos(rad)
+                                                            const y = centerY + radius * Math.sin(rad)
+                                                            
+                                                            return (
+                                                              <div
+                                                                key={i}
+                                                                className='absolute text-base font-bold text-foreground select-none'
+                                                                style={{
+                                                                  left: `${x}px`,
+                                                                  top: `${y}px`,
+                                                                  transform: 'translate(-50%, -50%)',
+                                                                }}
+                                                              >
+                                                                {hourNumber}
+                                                              </div>
+                                                            )
+                                                          })}
+
+                                                          {/* Marcações dos minutos (pequenos pontos) */}
+                                                          {Array.from({ length: 60 }).map((_, i) => {
+                                                            if (i % 5 === 0) return null // Já desenhado nas horas
+                                                            const angle = (i * 6) - 90
+                                                            const rad = (angle * Math.PI) / 180
+                                                            const radius = 90 // Encostado à borda (192px / 2 = 96, menos 4px de borda = 92, usando 90 para ficar próximo)
+                                                            const centerX = 92 // Centro ajustado um pouco para a esquerda
+                                                            const centerY = 92 // Centro ajustado um pouco para cima
+                                                            const x = centerX + radius * Math.cos(rad)
+                                                            const y = centerY + radius * Math.sin(rad)
+                                                            
+                                                            return (
+                                                              <div
+                                                                key={i}
+                                                                className='absolute w-1 h-1 rounded-full bg-muted-foreground/30'
+                                                                style={{
+                                                                  left: `${x}px`,
+                                                                  top: `${y}px`,
+                                                                  transform: 'translate(-50%, -50%)',
+                                                                }}
+                                                              />
+                                                            )
+                                                          })}
+
+                                                          {/* Ponteiro das horas */}
+                                                          <div
+                                                            className='absolute bg-foreground transition-transform duration-300 ease-out z-20 cursor-grab active:cursor-grabbing'
+                                                            style={{
+                                                              left: '50%',
+                                                              top: '50%',
+                                                              width: isSelectingHours ? '4px' : '2px',
+                                                              height: '45px',
+                                                              transform: `translate(-50%, -100%) rotate(${hourAngle + 90}deg)`,
+                                                              transformOrigin: '50% 100%',
+                                                              opacity: isSelectingHours ? 1 : 0.5,
+                                                              borderRadius: '2px 2px 0 0',
+                                                              pointerEvents: isDragging === 'hour' ? 'auto' : 'auto',
+                                                            }}
+                                                            onMouseDown={(e) => handlePointerMouseDown(e, 'hour')}
+                                                          />
+
+                                                          {/* Ponteiro dos minutos */}
+                                                          <div
+                                                            className='absolute bg-foreground transition-transform duration-300 ease-out z-30 cursor-grab active:cursor-grabbing'
+                                                            style={{
+                                                              left: '50%',
+                                                              top: '50%',
+                                                              width: !isSelectingHours ? '3px' : '2px',
+                                                              height: '64px',
+                                                              transform: `translate(-50%, -100%) rotate(${minuteAngle + 90}deg)`,
+                                                              transformOrigin: '50% 100%',
+                                                              opacity: !isSelectingHours ? 1 : 0.5,
+                                                              borderRadius: '2px 2px 0 0',
+                                                              pointerEvents: isDragging === 'minute' ? 'auto' : 'auto',
+                                                            }}
+                                                            onMouseDown={(e) => handlePointerMouseDown(e, 'minute')}
+                                                          />
+
+                                                          {/* Centro do relógio */}
+                                                          <div className='absolute left-1/2 top-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground border-4 border-background shadow-md z-10' />
+                                                        </div>
+                                                      </div>
+
+                                                      {/* Input manual */}
+                                                      <div className='flex items-center justify-center gap-2 pt-2 border-t'>
+                                                        <Input
+                                                          type='number'
+                                                          min={0}
+                                                          max={23}
+                                                          value={displayHours}
+                                                          onChange={(e) => {
+                                                            const val = parseInt(e.target.value) || 0
+                                                            const clamped = Math.max(0, Math.min(23, val))
+                                                            updateTime(clamped, displayMinutes)
+                                                          }}
+                                                          className='w-16 text-center'
+                                                          placeholder='00'
+                                                        />
+                                                        <span className='text-lg font-medium'>:</span>
+                                                        <Input
+                                                          type='number'
+                                                          min={0}
+                                                          max={59}
+                                                          value={displayMinutes}
+                                                          onChange={(e) => {
+                                                            const val = parseInt(e.target.value) || 0
+                                                            const clamped = Math.max(0, Math.min(59, val))
+                                                            updateTime(displayHours, clamped)
+                                                          }}
+                                                          className='w-16 text-center'
+                                                          placeholder='00'
+                                                        />
+                                                      </div>
+                                                    </div>
+                                                  </PopoverContent>
+                                                </Popover>
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )
+                                        }}
+                                      />
+
+                                      <FormField
+                                        control={form.control}
+                                        name={`acidentes.${index}.culpa`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Culpa</FormLabel>
+                                            <FormControl>
+                                              <div className='flex items-center gap-3 rounded-md border border-input bg-background px-4 py-3 h-12'>
+                                                <Switch
+                                                  checked={field.value}
+                                                  onCheckedChange={field.onChange}
+                                                />
+                                                <span className='text-sm font-medium text-foreground'>
+                                                  {field.value ? 'Sim' : 'Não'}
+                                                </span>
+                                              </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+
+                                    <Card className='border-l-4 border-l-primary/50 shadow-sm'>
+                                      <CardHeader className='pb-3'>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='rounded-full bg-primary/10 p-2'>
+                                            <FileText className='h-4 w-4 text-primary' />
+                                          </div>
+                                          <div>
+                                            <CardTitle className='text-base font-semibold'>Descrições</CardTitle>
+                                            <CardDescription className='text-xs'>Detalhes do acidente e danos</CardDescription>
+                                          </div>
+                                        </div>
+                                      </CardHeader>
+                                      <CardContent className='space-y-4'>
+                                        <FormField
+                                          control={form.control}
+                                          name={`acidentes.${index}.descricaoDanos`}
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormLabel>Descrição dos Danos</FormLabel>
+                                              <FormControl>
+                                                <Textarea
+                                                  {...field}
+                                                  placeholder='Descreva detalhadamente os danos ocorridos na viatura'
+                                                  className='min-h-[120px] resize-y'
+                                                />
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+
+                                        <FormField
+                                          control={form.control}
+                                          name={`acidentes.${index}.descricaoAcidente`}
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormLabel>Descrição do Acidente</FormLabel>
+                                              <FormControl>
+                                                <Textarea
+                                                  {...field}
+                                                  placeholder='Descreva detalhadamente o acidente ocorrido'
+                                                  className='min-h-[120px] resize-y'
+                                                />
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                      </CardContent>
+                                    </Card>
+                                  </TabsContent>
+
+                                  <TabsContent value='localizacao' className='space-y-6 mt-0'>
+                                    <Card className='border-l-4 border-l-primary/50 shadow-sm'>
+                                      <CardHeader className='pb-3'>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='rounded-full bg-primary/10 p-2'>
+                                            <MapPin className='h-4 w-4 text-primary' />
+                                          </div>
+                                          <div>
+                                            <CardTitle className='text-base font-semibold'>Localização</CardTitle>
+                                            <CardDescription className='text-xs'>Localização geográfica do acidente</CardDescription>
+                                          </div>
+                                        </div>
+                                      </CardHeader>
+                                      <CardContent className='space-y-4'>
+                                        <div className='grid gap-4 md:grid-cols-2'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`acidentes.${index}.local`}
+                                            render={({ field }) => (
+                                              <FormItem>
+                                                <FormLabel>Local *</FormLabel>
+                                                <FormControl>
+                                                  <Input
+                                                    {...field}
+                                                    placeholder='Local do acidente'
+                                                    className={TEXT_INPUT_CLASS}
+                                                  />
+                                                </FormControl>
+                                                <FormMessage />
+                                              </FormItem>
+                                            )}
+                                          />
+
+                                      <FormField
+                                        control={form.control}
+                                        name={`acidentes.${index}.concelhoId`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Concelho</FormLabel>
+                                            <FormControl>
+                                              <div className='relative'>
+                                                <Autocomplete
+                                                  options={concelhos.map((concelho) => ({
+                                                    value: concelho.id || '',
+                                                    label: concelho.nome,
+                                                  }))}
+                                                  value={field.value}
+                                                  onValueChange={field.onChange}
+                                                  placeholder={
+                                                    isLoadingConcelhos
+                                                      ? 'A carregar...'
+                                                      : 'Selecione o concelho'
+                                                  }
+                                                  emptyText='Nenhum concelho encontrado.'
+                                                  disabled={isLoadingConcelhos}
+                                                  className={SELECT_WITH_ACTIONS_CLASS}
+                                                />
+                                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                                  <Button
+                                                    type='button'
+                                                    variant='outline'
+                                                    size='sm'
+                                                    onClick={() => handleViewConcelho(field.value)}
+                                                    title='Ver Concelho'
+                                                    disabled={!field.value}
+                                                    className='h-8 w-8 p-0'
+                                                  >
+                                                    <Eye className='h-4 w-4' />
+                                                  </Button>
+                                                  <Button
+                                                    type='button'
+                                                    variant='outline'
+                                                    size='sm'
+                                                    onClick={handleCreateConcelho}
+                                                    title='Criar novo concelho'
+                                                    className='h-8 w-8 p-0'
+                                                  >
+                                                    <Plus className='h-4 w-4' />
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+
+                                      <FormField
+                                        control={form.control}
+                                        name={`acidentes.${index}.freguesiaId`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Freguesia</FormLabel>
+                                            <FormControl>
+                                              <div className='relative'>
+                                                <Autocomplete
+                                                  options={freguesias.map((freguesia) => ({
+                                                    value: freguesia.id || '',
+                                                    label: freguesia.nome,
+                                                  }))}
+                                                  value={field.value}
+                                                  onValueChange={field.onChange}
+                                                  placeholder={
+                                                    isLoadingFreguesias
+                                                      ? 'A carregar...'
+                                                      : 'Selecione a freguesia'
+                                                  }
+                                                  emptyText='Nenhuma freguesia encontrada.'
+                                                  disabled={isLoadingFreguesias}
+                                                  className={SELECT_WITH_ACTIONS_CLASS}
+                                                />
+                                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                                  <Button
+                                                    type='button'
+                                                    variant='outline'
+                                                    size='sm'
+                                                    onClick={() => handleViewFreguesia(field.value)}
+                                                    title='Ver Freguesia'
+                                                    disabled={!field.value}
+                                                    className='h-8 w-8 p-0'
+                                                  >
+                                                    <Eye className='h-4 w-4' />
+                                                  </Button>
+                                                  <Button
+                                                    type='button'
+                                                    variant='outline'
+                                                    size='sm'
+                                                    onClick={handleCreateFreguesia}
+                                                    title='Criar nova freguesia'
+                                                    className='h-8 w-8 p-0'
+                                                  >
+                                                    <Plus className='h-4 w-4' />
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+
+                                      <FormField
+                                        control={form.control}
+                                        name={`acidentes.${index}.codigoPostalId`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Código Postal</FormLabel>
+                                            <FormControl>
+                                              <div className='relative'>
+                                                <Autocomplete
+                                                  options={codigosPostais.map((codigo) => ({
+                                                    value: codigo.id || '',
+                                                    label: `${codigo.codigo} - ${codigo.localidade}`,
+                                                  }))}
+                                                  value={field.value}
+                                                  onValueChange={field.onChange}
+                                                  placeholder={
+                                                    isLoadingCodigosPostais
+                                                      ? 'A carregar...'
+                                                      : 'Selecione o código postal'
+                                                  }
+                                                  emptyText='Nenhum código postal encontrado.'
+                                                  disabled={isLoadingCodigosPostais}
+                                                  className={SELECT_WITH_ACTIONS_CLASS}
+                                                />
+                                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                                  <Button
+                                                    type='button'
+                                                    variant='outline'
+                                                    size='sm'
+                                                    onClick={() => handleViewCodigoPostal(field.value)}
+                                                    title='Ver Código Postal'
+                                                    disabled={!field.value}
+                                                    className='h-8 w-8 p-0'
+                                                  >
+                                                    <Eye className='h-4 w-4' />
+                                                  </Button>
+                                                  <Button
+                                                    type='button'
+                                                    variant='outline'
+                                                    size='sm'
+                                                    onClick={handleCreateCodigoPostal}
+                                                    title='Criar novo código postal'
+                                                    className='h-8 w-8 p-0'
+                                                  >
+                                                    <Plus className='h-4 w-4' />
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  </TabsContent>
+
+                                  <TabsContent value='reparacao' className='space-y-6 mt-0'>
+                                    <Card className='border-l-4 border-l-primary/50 shadow-sm'>
+                                      <CardHeader className='pb-3'>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='rounded-full bg-primary/10 p-2'>
+                                            <Wrench className='h-4 w-4 text-primary' />
+                                          </div>
+                                          <div>
+                                            <CardTitle className='text-base font-semibold'>Reparação</CardTitle>
+                                            <CardDescription className='text-xs'>Informações sobre a reparação do veículo</CardDescription>
+                                          </div>
+                                        </div>
+                                      </CardHeader>
+                                      <CardContent className='space-y-4'>
+                                        <FormField
+                                          control={form.control}
+                                          name={`acidentes.${index}.localReparacao`}
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormLabel>Local de Reparação</FormLabel>
+                                              <FormControl>
+                                                <Input
+                                                  {...field}
+                                                  placeholder='Local onde foi feita a reparação'
+                                                  className={TEXT_INPUT_CLASS}
+                                                />
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                      </CardContent>
+                                    </Card>
+                                  </TabsContent>
+                                </Tabs>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

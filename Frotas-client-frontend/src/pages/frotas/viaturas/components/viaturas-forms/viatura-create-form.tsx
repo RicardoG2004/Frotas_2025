@@ -80,6 +80,29 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
         resultado: inspecao.resultado,
         dataProximaInspecao: inspecao.dataProximaInspecao.toISOString(),
       })) ?? [],
+    acidentes:
+      values.acidentes?.map((acidente) => {
+        // Combinar data e hora antes de enviar
+        let dataHoraFinal = acidente.dataHora
+        if (acidente.dataHora && acidente.hora) {
+          const [hours, minutes] = acidente.hora.split(':').map(Number)
+          dataHoraFinal = new Date(acidente.dataHora)
+          dataHoraFinal.setHours(hours || 0, minutes || 0, 0, 0)
+        }
+        return {
+          id: acidente.id,
+          condutorId: acidente.condutorId || '',
+          dataHora: dataHoraFinal.toISOString(),
+          culpa: acidente.culpa,
+          descricaoAcidente: acidente.descricaoAcidente || '',
+          descricaoDanos: acidente.descricaoDanos || '',
+          local: acidente.local || '',
+          concelhoId: acidente.concelhoId || '',
+          freguesiaId: acidente.freguesiaId || '',
+          codigoPostalId: acidente.codigoPostalId || '',
+          localReparacao: acidente.localReparacao || '',
+        }
+      }) ?? [],
   }
 }
 

@@ -148,6 +148,27 @@ const viaturaInspecaoSchema = z
     }
   )
 
+const viaturaAcidenteSchema = z.object({
+  id: z.string().uuid().optional(),
+  condutorId: z
+    .string()
+    .min(1, { message: 'O condutor é obrigatório' })
+    .uuid({ message: 'Selecione o condutor' }),
+  dataHora: z.preprocess(
+    (value) => (value ? new Date(value as string | number | Date) : null),
+    dateWithMessages('A data/hora é obrigatória', 'A data/hora é inválida')
+  ),
+  hora: z.string().optional().default(''),
+  culpa: z.boolean().default(false),
+  descricaoAcidente: z.string().optional().default(''),
+  descricaoDanos: z.string().optional().default(''),
+  local: z.string().min(1, { message: 'O local é obrigatório' }),
+  concelhoId: z.string().uuid().or(z.literal('')).optional().default(''),
+  freguesiaId: z.string().uuid().or(z.literal('')).optional().default(''),
+  codigoPostalId: z.string().uuid().or(z.literal('')).optional().default(''),
+  localReparacao: z.string().optional().default(''),
+})
+
 const uuidOrEmpty = z.string().uuid({ message: 'Selecione um valor válido' }).or(z.literal(''))
 
 export const viaturaPropulsaoOptions = VIATURA_PROPULSAO_TYPES
@@ -255,6 +276,7 @@ const viaturaFormSchemaObject = z.object({
     .optional()
     .default([]),
   inspecoes: z.array(viaturaInspecaoSchema).optional().default([]),
+  acidentes: z.array(viaturaAcidenteSchema).optional().default([]),
 })
 
 export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx) => {
@@ -338,6 +360,7 @@ export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx)
 
 export type ViaturaFormSchemaType = z.infer<typeof viaturaFormSchema>
 export type ViaturaInspecaoFormSchemaType = z.infer<typeof viaturaInspecaoSchema>
+export type ViaturaAcidenteFormSchemaType = z.infer<typeof viaturaAcidenteSchema>
 
 export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   matricula: '',
@@ -399,5 +422,6 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   garantiaIds: [],
   condutorIds: [],
   inspecoes: [],
+  acidentes: [],
 }
 

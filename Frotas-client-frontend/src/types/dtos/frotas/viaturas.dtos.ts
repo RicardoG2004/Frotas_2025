@@ -125,6 +125,7 @@ export interface ViaturaDTO {
     nome?: string
   }>
   inspecoes?: ViaturaInspecaoDTO[]
+  acidentes?: ViaturaAcidenteDTO[]
   createdOn: string
 }
 
@@ -140,6 +141,34 @@ export interface ViaturaInspecaoUpsertDTO {
   dataInspecao: string
   resultado: string
   dataProximaInspecao: string
+}
+
+export interface ViaturaAcidenteDTO {
+  id?: string
+  condutorId: string
+  dataHora: string
+  culpa: boolean
+  descricaoAcidente?: string
+  descricaoDanos?: string
+  local?: string
+  concelhoId?: string
+  freguesiaId?: string
+  codigoPostalId?: string
+  localReparacao?: string
+}
+
+export interface ViaturaAcidenteUpsertDTO {
+  id?: string
+  condutorId: string
+  dataHora: string
+  culpa: boolean
+  descricaoAcidente?: string
+  descricaoDanos?: string
+  local?: string
+  concelhoId?: string
+  freguesiaId?: string
+  codigoPostalId?: string
+  localReparacao?: string
 }
 
 export interface CreateViaturaDTO {
@@ -201,6 +230,7 @@ export interface CreateViaturaDTO {
   garantiaIds: string[]
   condutorIds: string[]
   inspecoes: ViaturaInspecaoUpsertDTO[]
+  acidentes: ViaturaAcidenteUpsertDTO[]
 }
 
 export interface UpdateViaturaDTO extends CreateViaturaDTO {}

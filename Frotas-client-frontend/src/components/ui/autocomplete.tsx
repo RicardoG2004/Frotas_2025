@@ -288,9 +288,9 @@ export function Autocomplete({
                     key={option.value}
                     className={cn(
                       'flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2.5 text-sm',
-                      'transition-colors hover:bg-accent hover:text-accent-foreground',
+                      'transition-colors hover:bg-muted hover:text-foreground',
                       highlightedIndex === index &&
-                        'bg-accent text-accent-foreground'
+                        'bg-muted text-foreground'
                     )}
                     onMouseDown={(e) => {
                       e.preventDefault()
@@ -307,9 +307,9 @@ export function Autocomplete({
                   <div
                     className={cn(
                       'flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2.5 text-sm',
-                      'transition-colors hover:bg-accent hover:text-accent-foreground',
+                      'transition-colors hover:bg-muted hover:text-foreground',
                       highlightedIndex === filteredOptions.length &&
-                        'bg-accent text-accent-foreground'
+                        'bg-muted text-foreground'
                     )}
                     onMouseDown={(e) => {
                       e.preventDefault()
