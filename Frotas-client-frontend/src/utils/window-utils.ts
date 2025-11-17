@@ -618,6 +618,10 @@ export const openEquipamentoCreationWindow = createEntityCreationWindow(
   '/frotas/configuracoes/equipamentos/create'
 )
 
+export const openFuncionarioCreationWindow = createEntityCreationWindow(
+  '/utilitarios/tabelas/configuracoes/funcionarios/create'
+)
+
 // ============================================================================
 // WINDOW VIEW FUNCTIONS
 // ============================================================================
@@ -801,6 +805,11 @@ export const openGarantiaViewWindow = createEntityViewWindow(
 export const openEquipamentoViewWindow = createEntityViewWindow(
   '/frotas/configuracoes/equipamentos/update',
   'equipamentoId'
+)
+
+export const openFuncionarioViewWindow = createEntityViewWindow(
+  '/utilitarios/tabelas/configuracoes/funcionarios/update',
+  'funcionarioId'
 )
 
 // ============================================================================

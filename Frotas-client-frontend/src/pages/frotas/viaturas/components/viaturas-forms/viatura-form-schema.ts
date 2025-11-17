@@ -250,6 +250,10 @@ const viaturaFormSchemaObject = z.object({
   garantiaIds: z
     .array(z.string().uuid({ message: 'Selecione uma garantia válida' }))
     .min(1, { message: 'Selecione pelo menos uma garantia' }),
+  condutorIds: z
+    .array(z.string().uuid({ message: 'Selecione um condutor válido' }))
+    .optional()
+    .default([]),
   inspecoes: z.array(viaturaInspecaoSchema).optional().default([]),
 })
 
@@ -393,6 +397,7 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   documentos: [],
   equipamentoIds: [],
   garantiaIds: [],
+  condutorIds: [],
   inspecoes: [],
 }
 

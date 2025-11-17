@@ -71,6 +71,7 @@ import {
   Printer,
   Loader2,
   FolderPlus,
+  User,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
@@ -100,6 +101,7 @@ import { useGetFornecedoresSelect } from '@/pages/base/fornecedores/queries/forn
 import { useGetSegurosSelect } from '@/pages/frotas/seguros/queries/seguros-queries'
 import { useGetGarantiasSelect } from '@/pages/base/garantias/queries/garantias-queries'
 import { useGetEquipamentosSelect } from '@/pages/frotas/equipamentos/queries/equipamentos-queries'
+import { useGetFuncionariosSelect } from '@/pages/base/funcionarios/queries/funcionarios-queries'
 import { useWindowsStore } from '@/stores/use-windows-store'
 import { cn } from '@/lib/utils'
 import {
@@ -130,6 +132,8 @@ import {
   openSeguroViewWindow,
   openEquipamentoCreationWindow,
   openEquipamentoViewWindow,
+  openFuncionarioCreationWindow,
+  openFuncionarioViewWindow,
   createEntityCreationWindow,
   createEntityViewWindow,
 } from '@/utils/window-utils'
@@ -167,6 +171,7 @@ type ViaturaSelectOptions = {
   seguros: AutocompleteOption[]
   garantias: AutocompleteOption[]
   equipamentos: AutocompleteOption[]
+  funcionarios: AutocompleteOption[]
 }
 
 type ViaturaSelectLoading = {
@@ -185,6 +190,7 @@ type ViaturaSelectLoading = {
   seguros: boolean
   garantias: boolean
   equipamentos: boolean
+  funcionarios: boolean
 }
 
 type FormSectionProps = {
@@ -1343,6 +1349,11 @@ const ViaturaFormContainer = ({
     isLoading: isLoadingEquipamentos,
     refetch: refetchEquipamentos,
   } = useGetEquipamentosSelect()
+  const {
+    data: funcionarios = [],
+    isLoading: isLoadingFuncionarios,
+    refetch: refetchFuncionarios,
+  } = useGetFuncionariosSelect()
 
   const selectOptions: ViaturaSelectOptions = useMemo(
     () => ({
@@ -1361,6 +1372,7 @@ const ViaturaFormContainer = ({
       seguros: buildOptions(seguros),
       garantias: buildOptions(garantias),
       equipamentos: buildOptions(equipamentos),
+      funcionarios: buildOptions(funcionarios),
     }),
     [
       categorias,
@@ -1370,6 +1382,7 @@ const ViaturaFormContainer = ({
       delegacoes,
       equipamentos,
       fornecedores,
+      funcionarios,
       garantias,
       localizacoes,
       marcas,
@@ -1419,14 +1432,17 @@ const ViaturaFormContainer = ({
     seguros: isLoadingSeguros,
   garantias: isLoadingGarantias,
     equipamentos: isLoadingEquipamentos,
+    funcionarios: isLoadingFuncionarios,
   }
 
   const [selectedSeguroId, setSelectedSeguroId] = useState('')
   const segurosSelecionados = form.watch('seguroIds') ?? []
   const [selectedEquipamentoId, setSelectedEquipamentoId] = useState('')
   const [selectedGarantiaId, setSelectedGarantiaId] = useState('')
+  const [selectedCondutorId, setSelectedCondutorId] = useState('')
   const equipamentosSelecionados = form.watch('equipamentoIds') ?? []
   const garantiasSelecionadas = form.watch('garantiaIds') ?? []
+  const condutoresSelecionados = form.watch('condutorIds') ?? []
 
   const segurosMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -1451,6 +1467,14 @@ const ViaturaFormContainer = ({
     })
     return map
   }, [selectOptions.garantias])
+
+  const condutoresMap = useMemo(() => {
+    const map = new Map<string, string>()
+    selectOptions.funcionarios.forEach((option) => {
+      map.set(option.value, option.label)
+    })
+    return map
+  }, [selectOptions.funcionarios])
 
   const segurosSelecionadosDetalhes = useMemo(
     () =>
@@ -1477,6 +1501,15 @@ const ViaturaFormContainer = ({
         label: garantiasMap.get(id) ?? 'Garantia indisponível',
       })),
     [garantiasSelecionadas, garantiasMap]
+  )
+
+  const condutoresSelecionadosDetalhes = useMemo(
+    () =>
+      condutoresSelecionados.map((id) => ({
+        id,
+        label: condutoresMap.get(id) ?? 'Condutor indisponível',
+      })),
+    [condutoresSelecionados, condutoresMap]
   )
 
   const addSeguroToForm = (seguroId: string) => {
@@ -1533,6 +1566,24 @@ const ViaturaFormContainer = ({
     setSelectedGarantiaId('')
   }
 
+  const addCondutorToForm = (condutorId: string) => {
+    if (!condutorId) {
+      return
+    }
+
+    const current = form.getValues('condutorIds') ?? []
+    if (current.includes(condutorId)) {
+      toast.warning('Este condutor já foi adicionado')
+      return
+    }
+
+    form.setValue('condutorIds', [...current, condutorId], {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setSelectedCondutorId('')
+  }
+
   const handleAddEquipamento = () => {
     addEquipamentoToForm(selectedEquipamentoId)
   }
@@ -1543,6 +1594,10 @@ const ViaturaFormContainer = ({
 
   const handleAddGarantia = () => {
     addGarantiaToForm(selectedGarantiaId)
+  }
+
+  const handleAddCondutor = () => {
+    addCondutorToForm(selectedCondutorId)
   }
 
   const getNextInspectionDate = (date: Date) => {
@@ -1615,6 +1670,17 @@ const ViaturaFormContainer = ({
     )
 
     setSelectedGarantiaId((prev) => (prev === garantiaId ? '' : prev))
+  }
+
+  const handleRemoveCondutor = (condutorId: string) => {
+    const current = form.getValues('condutorIds') ?? []
+    form.setValue(
+      'condutorIds',
+      current.filter((id) => id !== condutorId),
+      { shouldDirty: true, shouldValidate: true }
+    )
+
+    setSelectedCondutorId((prev) => (prev === condutorId ? '' : prev))
   }
 
   const handleRemoveInspection = (index: number) => {
@@ -1700,6 +1766,7 @@ const ViaturaFormContainer = ({
       urlImagem2: 'notas',
       equipamentoIds: 'equipamento',
       garantiaIds: 'garantias',
+      condutorIds: 'condutores',
       inspecoes: 'inspecoes',
     },
   })
@@ -1838,6 +1905,14 @@ const ViaturaFormContainer = ({
       openEquipamentoViewWindow,
       equipamentoId,
       'Não foi possível abrir o equipamento selecionado'
+    )
+
+  const handleCreateFuncionario = () => openCreation(openFuncionarioCreationWindow)
+  const handleViewFuncionario = (funcionarioId: string) =>
+    openView(
+      openFuncionarioViewWindow,
+      funcionarioId,
+      'Não foi possível abrir o funcionário selecionado'
     )
 
   const handleCreateGarantia = () => openCreation(openGarantiaCreationWindowFn)
@@ -2063,6 +2138,22 @@ const ViaturaFormContainer = ({
     returnDataKey: `return-data-${parentWindowId}-garantia`,
   })
 
+  useAutoSelectionWithReturnData({
+    windowId: parentWindowId,
+    instanceId,
+    data: funcionarios,
+    setValue: (value: string) => {
+      addCondutorToForm(value)
+    },
+    refetch: refetchFuncionarios,
+    itemName: 'Funcionário',
+    successMessage: 'Condutor selecionado automaticamente',
+    manualSelectionMessage:
+      'Funcionário criado com sucesso. Por favor, selecione-o manualmente.',
+    queryKey: ['funcionarios-select'],
+    returnDataKey: `return-data-${parentWindowId}-funcionario`,
+  })
+
   const placeholder = (loading: boolean, label: string) =>
     loading ? `A carregar ${label}...` : `Selecione ${label}`
 
@@ -2118,6 +2209,10 @@ const ViaturaFormContainer = ({
             <PersistentTabsTrigger value='equipamento'>
               <Wrench className='mr-2 h-4 w-4' />
               Equipamento Extra
+            </PersistentTabsTrigger>
+            <PersistentTabsTrigger value='condutores'>
+              <User className='mr-2 h-4 w-4' />
+              Condutores
             </PersistentTabsTrigger>
           </PersistentTabsList>
 
@@ -4617,6 +4712,189 @@ const ViaturaFormContainer = ({
                                 <h4 className='mt-4 text-sm font-semibold text-foreground'>Sem equipamentos associados</h4>
                                 <p className='mt-2 text-sm text-muted-foreground'>
                                   Adicione equipamentos extra à viatura para registar todos os acessórios relevantes.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </PersistentTabsContent>
+
+          {/* Condutores */}
+          <PersistentTabsContent value='condutores'>
+            <div className='space-y-6'>
+              <Card className='overflow-hidden border-l-4 border-l-primary/20 transition-all duration-200 hover:border-l-primary/40 hover:shadow-md'>
+                <CardHeader className='pb-4'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                      <User className='h-4 w-4' />
+                    </div>
+                    <div>
+                      <CardTitle className='flex items-center gap-2 text-base'>
+                        Condutores
+                      </CardTitle>
+                      <p className='mt-1 text-sm text-muted-foreground'>
+                        Associe funcionários como condutores da viatura
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  <FormField
+                    control={form.control}
+                    name='condutorIds'
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Condutor</FormLabel>
+                        <FormControl>
+                          <div className='space-y-4'>
+                            <div className='flex flex-col gap-3 md:flex-row md:items-center md:gap-4'>
+                              <div className='flex flex-col gap-2 md:flex-row md:items-center md:gap-2 md:flex-1'>
+                                <div className='w-full md:flex-1'>
+                                  <div className='relative'>
+                          <Autocomplete
+                            options={selectOptions.funcionarios}
+                                      value={selectedCondutorId}
+                                      onValueChange={setSelectedCondutorId}
+                                      placeholder={placeholder(
+                                        selectLoading.funcionarios,
+                                        'o condutor'
+                                      )}
+                            disabled={selectLoading.funcionarios}
+                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                    />
+                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={() => handleViewFuncionario(selectedCondutorId)}
+                                        title='Ver Funcionário'
+                                        disabled={!selectedCondutorId}
+                                      className='h-8 w-8 p-0'
+                                      >
+                                        <Eye className='h-4 w-4' />
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleCreateFuncionario}
+                                        title='Criar novo funcionário'
+                                      className='h-8 w-8 p-0'
+                                      >
+                                        <Plus className='h-4 w-4' />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  type='button'
+                                  variant='secondary'
+                                  size='default'
+                                  className='w-full md:w-auto md:min-w-[160px] md:flex-shrink-0 h-12'
+                                  onClick={handleAddCondutor}
+                                  disabled={!selectedCondutorId}
+                                >
+                                  Adicionar
+                                </Button>
+                              </div>
+                            </div>
+                            {condutoresSelecionadosDetalhes.length > 0 ? (
+                              <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
+                                <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                                  <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                                    <CheckSquare className='h-4 w-4 text-primary' />
+                                    Condutores selecionados
+                                    <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                                      {condutoresSelecionadosDetalhes.length}
+                                    </Badge>
+                                  </div>
+                                  <p className='text-xs text-muted-foreground'>
+                                    Revise os condutores associados antes de concluir o registo da viatura.
+                                  </p>
+                                </div>
+
+                                <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
+                                  {condutoresSelecionadosDetalhes.map(({ id, label }) => {
+                                    const condutorIndisponivel = label === 'Condutor indisponível'
+                                    return (
+                                      <div
+                                        key={id}
+                                        className='group flex h-full flex-col justify-between gap-3 rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md'
+                                      >
+                                        <div className='flex items-start gap-3'>
+                                          <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                                            <User className='h-5 w-5' />
+                                          </div>
+                                          <div className='min-w-0 space-y-1'>
+                                            <div className='flex items-start justify-between gap-2'>
+                                              <p className='truncate text-sm font-medium text-foreground'>
+                                                {label}
+                                              </p>
+                                              {condutorIndisponivel && (
+                                                <Badge
+                                                  variant='outline'
+                                                  className='inline-flex items-center rounded-full border-destructive/30 bg-destructive/10 px-2 py-[2px] text-[11px] font-medium text-destructive'
+                                                >
+                                                  Indisponível
+                                                </Badge>
+                                              )}
+                                            </div>
+                                            <p className='text-xs text-muted-foreground'>
+                                              {condutorIndisponivel
+                                                ? 'Este condutor já não está disponível. Considere removê-lo.'
+                                                : 'Condutor associado à viatura com sucesso.'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className='flex flex-wrap justify-end gap-2'>
+                                          <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            onClick={() => handleViewFuncionario(id)}
+                                            title='Ver Funcionário'
+                                            disabled={condutorIndisponivel}
+                                            className={cn(
+                                              'gap-2',
+                                              condutorIndisponivel && 'pointer-events-none opacity-60'
+                                            )}
+                                          >
+                                            <Eye className='h-4 w-4' />
+                                            Ver
+                                          </Button>
+                                          <Button
+                                            type='button'
+                                            variant='ghost'
+                                            size='sm'
+                                            onClick={() => handleRemoveCondutor(id)}
+                                            title='Remover Condutor'
+                                            className='text-destructive hover:text-destructive'
+                                          >
+                                            <Trash2 className='mr-2 h-4 w-4' />
+                                            Remover
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className='rounded-xl border border-dashed border-border/70 bg-muted/5 p-6 text-center shadow-inner'>
+                                <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                                  <User className='h-6 w-6' />
+                                </div>
+                                <h4 className='mt-4 text-sm font-semibold text-foreground'>Sem condutores associados</h4>
+                                <p className='mt-2 text-sm text-muted-foreground'>
+                                  Adicione funcionários como condutores da viatura para registar todos os condutores autorizados.
                                 </p>
                               </div>
                             )}
