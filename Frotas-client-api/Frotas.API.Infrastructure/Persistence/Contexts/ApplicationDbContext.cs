@@ -62,6 +62,9 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<ViaturaGarantia> ViaturaGarantias { get; set; }
     public DbSet<ViaturaSeguro> ViaturaSeguros { get; set; }
     public DbSet<ViaturaInspecao> ViaturaInspecoes { get; set; }
+    public DbSet<ViaturaCondutor> ViaturaCondutores { get; set; }
+    public DbSet<ViaturaAcidente> ViaturaAcidentes { get; set; }
+    public DbSet<ViaturaMulta> ViaturaMultas { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -121,6 +124,40 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Viatura)
         .WithMany(x => x.ViaturaInspecoes)
         .HasForeignKey(x => x.ViaturaId);
+
+      modelBuilder.Entity<ViaturaCondutor>()
+        .HasIndex(x => new { x.ViaturaId, x.FuncionarioId })
+        .IsUnique();
+
+      modelBuilder.Entity<ViaturaCondutor>()
+        .HasOne(x => x.Viatura)
+        .WithMany(x => x.ViaturaCondutores)
+        .HasForeignKey(x => x.ViaturaId);
+
+      modelBuilder.Entity<ViaturaCondutor>()
+        .HasOne(x => x.Funcionario)
+        .WithMany()
+        .HasForeignKey(x => x.FuncionarioId);
+
+      modelBuilder.Entity<ViaturaAcidente>()
+        .HasOne(x => x.Viatura)
+        .WithMany(x => x.ViaturaAcidentes)
+        .HasForeignKey(x => x.ViaturaId);
+
+      modelBuilder.Entity<ViaturaAcidente>()
+        .HasOne(x => x.Funcionario)
+        .WithMany()
+        .HasForeignKey(x => x.FuncionarioId);
+
+      modelBuilder.Entity<ViaturaMulta>()
+        .HasOne(x => x.Viatura)
+        .WithMany(x => x.ViaturaMultas)
+        .HasForeignKey(x => x.ViaturaId);
+
+      modelBuilder.Entity<ViaturaMulta>()
+        .HasOne(x => x.Funcionario)
+        .WithMany()
+        .HasForeignKey(x => x.FuncionarioId);
 
       // query filters
       _ = modelBuilder.AppendGlobalQueryFilter<ISoftDelete>(s => s.DeletedOn == null);

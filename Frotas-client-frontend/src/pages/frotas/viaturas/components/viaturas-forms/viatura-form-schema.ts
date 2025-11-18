@@ -199,99 +199,98 @@ const viaturaFormSchemaObject = z.object({
     .max(3, { message: 'O código do país deve ter no máximo 3 caracteres' })
     .optional()
     .default('PT'),
-  numero: z.coerce.number().nonnegative({ message: 'O número deve ser positivo' }),
+  numero: z.coerce.number().nonnegative({ message: 'O número deve ser positivo' }).optional(),
   anoFabrico: z.coerce
     .number()
     .min(1900, { message: 'Ano inválido' })
-    .max(new Date().getFullYear() + 1, { message: 'Ano inválido' }),
-  mesFabrico: z.coerce.number().int().min(1).max(12),
+    .max(new Date().getFullYear() + 1, { message: 'Ano inválido' })
+    .optional(),
+  mesFabrico: z.coerce.number().int().min(1).max(12).optional(),
   dataAquisicao: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
-    dateWithMessages('A data de aquisição é obrigatória', 'A data de aquisição é inválida')
+    z.date().optional().nullable()
   ),
   dataLivrete: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
-    dateWithMessages('A data do livrete é obrigatória', 'A data do livrete é inválida')
+    z.date().optional().nullable()
   ),
   marcaId: z.string().uuid({ message: 'Selecione a marca' }),
   modeloId: z.string().uuid({ message: 'Selecione o modelo' }),
-  tipoViaturaId: z.string().uuid({ message: 'Selecione o tipo de viatura' }),
-  corId: z.string().uuid({ message: 'Selecione a cor' }),
-  combustivelId: z.string().uuid({ message: 'Selecione o combustível' }),
-  conservatoriaId: z.string().uuid({ message: 'Selecione a conservatória' }),
-  categoriaId: z.string().uuid({ message: 'Selecione a categoria' }),
-  localizacaoId: z.string().uuid({ message: 'Selecione a localização' }),
-  setorId: z.string().uuid({ message: 'Selecione o setor' }),
-  delegacaoId: z.string().uuid({ message: 'Selecione a delegação' }),
+  tipoViaturaId: z.string().uuid().or(z.literal('')).optional().default(''),
+  corId: z.string().uuid().or(z.literal('')).optional().default(''),
+  combustivelId: z.string().uuid().or(z.literal('')).optional().default(''),
+  conservatoriaId: z.string().uuid().or(z.literal('')).optional().default(''),
+  categoriaId: z.string().uuid().or(z.literal('')).optional().default(''),
+  localizacaoId: z.string().uuid().or(z.literal('')).optional().default(''),
+  setorId: z.string().uuid().or(z.literal('')).optional().default(''),
+  delegacaoId: z.string().uuid().or(z.literal('')).optional().default(''),
   tipoPropulsao: z
     .enum(viaturaPropulsaoOptions)
     .or(z.literal(''))
-    .refine((value): value is ViaturaPropulsaoType => value !== '', {
-      message: 'Selecione o tipo de motorização',
-    }),
+    .optional()
+    .default(''),
   entidadeFornecedoraTipo: z
     .enum(['fornecedor', 'terceiro'])
     .or(z.literal(''))
-    .refine((value) => value === '' || value === 'fornecedor' || value === 'terceiro', {
-      message: 'Selecione o tipo de entidade fornecedora',
-    }),
-  terceiroId: uuidOrEmpty,
-  fornecedorId: uuidOrEmpty,
-  custo: z.coerce.number().min(0),
-  despesasIncluidas: z.coerce.number().min(0),
-  consumoMedio: z.coerce.number().min(0),
+    .optional()
+    .default(''),
+  terceiroId: uuidOrEmpty.optional().default(''),
+  fornecedorId: uuidOrEmpty.optional().default(''),
+  custo: z.coerce.number().min(0).optional(),
+  despesasIncluidas: z.coerce.number().min(0).optional(),
+  consumoMedio: z.coerce.number().min(0).optional(),
   autonomia: z.coerce.number().min(0).optional(),
-  nQuadro: z.coerce.number().nonnegative(),
-  nMotor: z.coerce.number().nonnegative(),
+  nQuadro: z.coerce.number().nonnegative().optional(),
+  nMotor: z.coerce.number().nonnegative().optional(),
   cilindrada: z.coerce.number().min(0).optional(),
   capacidadeBateria: z.coerce.number().min(0).optional(),
-  potencia: z.coerce.number().min(0),
-  tara: z.coerce.number().nonnegative(),
-  lotacao: z.coerce.number().nonnegative(),
-  marketing: z.boolean(),
-  mercadorias: z.boolean(),
-  cargaUtil: z.coerce.number().nonnegative(),
-  comprimento: z.coerce.number().nonnegative(),
-  largura: z.coerce.number().nonnegative(),
+  potencia: z.coerce.number().min(0).optional(),
+  tara: z.coerce.number().nonnegative().optional(),
+  lotacao: z.coerce.number().nonnegative().optional(),
+  marketing: z.boolean().optional().default(false),
+  mercadorias: z.boolean().optional().default(false),
+  cargaUtil: z.coerce.number().nonnegative().optional(),
+  comprimento: z.coerce.number().nonnegative().optional(),
+  largura: z.coerce.number().nonnegative().optional(),
   pneusFrente: z.string().optional().default(''),
   pneusTras: z.string().optional().default(''),
   contrato: z.string().optional().default(''),
   dataInicial: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
-    dateWithMessages('A data inicial é obrigatória', 'A data inicial é inválida')
+    z.date().optional().nullable()
   ),
   dataFinal: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
-    dateWithMessages('A data final é obrigatória', 'A data final é inválida')
+    z.date().optional().nullable()
   ),
-  valorTotalContrato: z.coerce.number().min(0),
-  opcaoCompra: z.boolean(),
-  nRendas: z.coerce.number().nonnegative(),
-  valorRenda: z.coerce.number().min(0),
-  valorResidual: z.coerce.number().min(0),
+  valorTotalContrato: z.coerce.number().min(0).optional(),
+  opcaoCompra: z.boolean().optional().default(false),
+  nRendas: z.coerce.number().nonnegative().optional(),
+  valorRenda: z.coerce.number().min(0).optional(),
+  valorResidual: z.coerce.number().min(0).optional(),
   seguroIds: z
     .array(z.string().uuid({ message: 'Selecione um seguro válido' }))
-    .min(1, { message: 'Selecione pelo menos um seguro' }),
+    .optional()
+    .default([]),
   notasAdicionais: z.string().optional().default(''),
   cartaoCombustivel: z.string().optional().default(''),
-  anoImpostoSelo: z.coerce.number().min(1900),
-  anoImpostoCirculacao: z.coerce.number().min(1900),
+  anoImpostoSelo: z.coerce.number().min(1900).optional(),
+  anoImpostoCirculacao: z.coerce.number().min(1900).optional(),
   dataValidadeSelo: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
-    dateWithMessages(
-      'A data de validade do selo é obrigatória',
-      'A data de validade do selo é inválida'
-    )
+    z.date().optional().nullable()
   ),
   urlImagem1: z.string().optional().default(''),
   urlImagem2: z.string().optional().default(''),
   documentos: z.array(viaturaDocumentoSchema).optional().default([]),
   equipamentoIds: z
     .array(z.string().uuid({ message: 'Selecione um equipamento válido' }))
-    .min(1, { message: 'Selecione pelo menos um equipamento' }),
+    .optional()
+    .default([]),
   garantiaIds: z
     .array(z.string().uuid({ message: 'Selecione uma garantia válida' }))
-    .min(1, { message: 'Selecione pelo menos uma garantia' }),
+    .optional()
+    .default([]),
   condutorIds: z
     .array(z.string().uuid({ message: 'Selecione um condutor válido' }))
     .optional()
@@ -302,80 +301,50 @@ const viaturaFormSchemaObject = z.object({
 })
 
 export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx) => {
-  if (data.entidadeFornecedoraTipo === '') {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Selecione o tipo de entidade fornecedora',
-      path: ['entidadeFornecedoraTipo'],
-    })
-  } else if (data.entidadeFornecedoraTipo === 'fornecedor') {
-    if (!data.fornecedorId || data.fornecedorId === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecione o fornecedor',
-        path: ['fornecedorId'],
-      })
-    }
-  } else if (data.entidadeFornecedoraTipo === 'terceiro') {
-    if (!data.terceiroId || data.terceiroId === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecione o outro devedor/credor',
-        path: ['terceiroId'],
-      })
+  // Validação condicional para entidade fornecedora (apenas se preenchida)
+  const entidadeTipo = data.entidadeFornecedoraTipo
+  if (entidadeTipo && typeof entidadeTipo === 'string' && entidadeTipo.trim() !== '') {
+    if (entidadeTipo === 'fornecedor') {
+      if (!data.fornecedorId || data.fornecedorId === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Selecione o fornecedor',
+          path: ['fornecedorId'],
+        })
+      }
+    } else if (entidadeTipo === 'terceiro') {
+      if (!data.terceiroId || data.terceiroId === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Selecione o outro devedor/credor',
+          path: ['terceiroId'],
+        })
+      }
     }
   }
 
+  // Validações condicionais para inspeções (apenas se houver inspeções)
   const inspections = data.inspecoes ?? []
+  if (inspections.length >= 2) {
+    for (let index = 0; index < inspections.length - 1; index += 1) {
+      const current = inspections[index]
+      const next = inspections[index + 1]
 
-  const isElectric = data.tipoPropulsao === 'eletrico'
-  const isHybrid = data.tipoPropulsao === 'hibrido'
-  if (isElectric || isHybrid) {
-    if (data.autonomia === undefined || Number.isNaN(data.autonomia)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Indique a autonomia estimada',
-        path: ['autonomia'],
-      })
-    }
-    if (data.capacidadeBateria === undefined || Number.isNaN(data.capacidadeBateria)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Indique a capacidade da bateria',
-        path: ['capacidadeBateria'],
-      })
-    }
-  }
-  if (!isElectric && (data.cilindrada === undefined || Number.isNaN(data.cilindrada))) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Indique a cilindrada do motor',
-      path: ['cilindrada'],
-    })
-  }
+      if (next.dataInspecao <= current.dataInspecao) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['inspecoes', index + 1, 'dataInspecao'],
+          message: 'As inspeções devem ser registadas por ordem cronológica.',
+        })
+      }
 
-  if (inspections.length < 2) {
-    return
-  }
-
-  for (let index = 0; index < inspections.length - 1; index += 1) {
-    const current = inspections[index]
-    const next = inspections[index + 1]
-
-    if (next.dataInspecao <= current.dataInspecao) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['inspecoes', index + 1, 'dataInspecao'],
-        message: 'As inspeções devem ser registadas por ordem cronológica.',
-      })
-    }
-
-    if (current.dataProximaInspecao.getTime() !== next.dataInspecao.getTime()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['inspecoes', index, 'dataProximaInspecao'],
-        message: 'A data da próxima inspeção deve coincidir com a data da inspeção seguinte.',
-      })
+      if (current.dataProximaInspecao && next.dataInspecao && current.dataProximaInspecao.getTime() !== next.dataInspecao.getTime()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['inspecoes', index, 'dataProximaInspecao'],
+          message: 'A data da próxima inspeção deve coincidir com a data da inspeção seguinte.',
+        })
+      }
     }
   }
 })
