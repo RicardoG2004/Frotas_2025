@@ -37,6 +37,7 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
 
   return {
     matricula: viatura.matricula || '',
+    countryCode: (viatura as any).countryCode || 'PT',
     numero: viatura.numero ?? 0,
     anoFabrico: viatura.anoFabrico ?? new Date().getFullYear(),
     mesFabrico: viatura.mesFabrico ?? new Date().getMonth() + 1,
@@ -160,6 +161,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
 
   return {
     matricula: values.matricula,
+    countryCode: values.countryCode || 'PT',
     numero: values.numero,
     anoFabrico: values.anoFabrico,
     mesFabrico: values.mesFabrico,

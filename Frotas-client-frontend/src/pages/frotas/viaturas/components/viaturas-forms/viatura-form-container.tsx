@@ -23,7 +23,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { LicensePlateInput } from '@/components/ui/license-plate-input'
+import { LicensePlateDisplay } from '@/components/ui/license-plate-display'
+import ReactFlagsSelect from 'react-flags-select'
+import { countries } from '@/data/countries'
+import { formatLicensePlate, getLicensePlateConfig } from '@/data/license-plate-configs'
 import { NumberInput } from '@/components/ui/number-input'
 import { Textarea } from '@/components/ui/textarea'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -1529,7 +1532,7 @@ interface ViaturaFormContainerProps {
   isSubmitting: boolean
 }
 
-function ViaturaFormContainer({
+export function ViaturaFormContainer({
   initialValues,
   isLoadingInitial = false,
   onSubmit,
@@ -1538,6 +1541,20 @@ function ViaturaFormContainer({
   tabKey,
   isSubmitting,
 }: ViaturaFormContainerProps) {
+  // Códigos dos países europeus suportados (apenas os da lista fornecida)
+  const europeanCountryCodes = useMemo(() => ['PT', 'ES', 'FR', 'IT', 'DE', 'NL', 'BE', 'GB', 'AT', 'CH', 'PL', 'CZ', 'SE', 'DK', 'FI', 'LU'], [])
+  
+  // Filtra apenas os países europeus do objeto countries
+  const europeanCountries = useMemo(() => {
+    const filtered: Record<string, string> = {}
+    europeanCountryCodes.forEach((code) => {
+      if (countries[code as keyof typeof countries]) {
+        filtered[code] = countries[code as keyof typeof countries]
+      }
+    })
+    return filtered
+  }, [europeanCountryCodes])
+
   const initialFormValues = useMemo<Partial<ViaturaFormSchemaType>>(() => {
     const documentosBase =
       initialValues?.documentos ??
@@ -2936,28 +2953,6 @@ function ViaturaFormContainer({
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={form.control}
-                          name='matricula'
-                          render={({ field }) => (
-                            <FormItem className='-mt-14 ml-16'>
-                              <FormLabel className='sr-only'>Matrícula</FormLabel>
-                              <FormControl>
-                                <div className='scale-90 origin-left'>
-                                  <LicensePlateInput
-                                    name={field.name}
-                                    value={field.value ?? ''}
-                                    onChange={field.onChange}
-                                    onBlur={field.onBlur}
-                                    ref={field.ref}
-                                    className='shadow-inner drop-shadow-xl'
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
                       </div>
                       <div className='flex flex-col gap-4 md:pr-0'>
                         <FormField
@@ -2994,6 +2989,34 @@ function ViaturaFormContainer({
                                   placeholder='Selecione a data de registo'
                                   className={FIELD_HEIGHT_CLASS}
                                   allowClear
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='countryCode'
+                          render={({ field }) => (
+                            <FormItem className='relative z-50 w-full'>
+                              <FormLabel className='text-sm'>País</FormLabel>
+                              <FormControl>
+                                <ReactFlagsSelect
+                                  selected={field.value || 'PT'}
+                                  onSelect={(code) => {
+                                    // Limpa a matrícula quando o país muda
+                                    if (field.value !== code) {
+                                      form.setValue('matricula', '')
+                                    }
+                                    field.onChange(code)
+                                  }}
+                                  countries={europeanCountryCodes}
+                                  customLabels={europeanCountries}
+                                  searchable
+                                  searchPlaceholder='Procurar país...'
+                                  placeholder='Selecione um país'
+                                  className='flag-select'
                                 />
                               </FormControl>
                               <FormMessage />
@@ -3045,67 +3068,101 @@ function ViaturaFormContainer({
                             </FormItem>
                           )}
                         />
-                      </div>
-                      <div className='md:col-start-2 md:col-span-1 xl:col-start-2 xl:col-span-2 space-y-4 -mt-36'>
-                        <div className='flex items-center gap-3'>
-                          <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary'>
-                            <BatteryCharging className='h-4 w-4' />
-                          </div>
-                          <div>
-                            <h3 className='text-base font-semibold'>Motorização</h3>
-                            <p className='text-sm text-muted-foreground'>
-                              Selecione o tipo de motorização principal da viatura
-                            </p>
-                          </div>
-                        </div>
                         <FormField
                           control={form.control}
-                          name='tipoPropulsao'
-                          render={({ field }) => (
-                            <FormItem className='space-y-4'>
-                              <FormLabel className='sr-only'>Tipo de motorização</FormLabel>
-                              <FormControl>
-                                <ToggleGroup
-                                  type='single'
-                                  value={field.value}
-                                  onValueChange={(value) => {
-                                    if (!value) {
-                                      field.onChange('')
-                                      return
-                                    }
-                                    field.onChange(value)
-                                  }}
-                                  className='grid gap-3 md:grid-cols-3'
-                                >
-                                  {PROPULSAO_OPTIONS.map((option) => (
-                                    <ToggleGroupItem
-                                      key={option.value}
-                                      value={option.value}
-                                      className='flex h-full flex-col items-start gap-3 rounded-xl border border-input bg-background p-4 text-left shadow-sm transition data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary'
-                                    >
-                                      <div className='flex items-start gap-3'>
-                                        <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
-                                          <option.icon className='h-4 w-4' />
-                                        </div>
-                                        <div className='text-left'>
-                                          <p className='text-sm font-semibold leading-tight text-foreground'>
-                                            {option.label}
-                                          </p>
-                                          <p className='mt-1 text-xs leading-snug text-muted-foreground'>
-                                            {option.description}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </ToggleGroupItem>
-                                  ))}
-                                </ToggleGroup>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name='matricula'
+                          render={({ field }) => {
+                            const countryCode = form.watch('countryCode') || 'PT'
+                            const config = getLicensePlateConfig(countryCode)
+                            
+                            const handleMatriculaChange = (value: string) => {
+                              // Formata automaticamente baseado no país
+                              const formatted = formatLicensePlate(value, countryCode)
+                              field.onChange(formatted)
+                            }
+
+                            return (
+                              <FormItem>
+                                <FormLabel className='sr-only'>Matrícula</FormLabel>
+                                <FormControl>
+                                  <div className='flex justify-center py-2'>
+                                    <LicensePlateDisplay
+                                      countryCode={countryCode}
+                                      plateId={field.value ?? ''}
+                                      height={80}
+                                      editable
+                                      onChange={handleMatriculaChange}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                    />
+                                  </div>
+                                </FormControl>
+                                {config && (
+                                  <p className='text-xs text-muted-foreground mt-1 text-center'>
+                                    {config.description}
+                                  </p>
+                                )}
+                                <FormMessage />
+                              </FormItem>
+                            )
+                          }}
                         />
                       </div>
                     </div>
+                  </FormSection>
+
+                  <FormSection
+                    icon={BatteryCharging}
+                    title='Motorização'
+                    description='Selecione o tipo de motorização principal da viatura'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='tipoPropulsao'
+                      render={({ field }) => (
+                        <FormItem className='space-y-4'>
+                          <FormLabel className='sr-only'>Tipo de motorização</FormLabel>
+                          <FormControl>
+                            <ToggleGroup
+                              type='single'
+                              value={field.value}
+                              onValueChange={(value) => {
+                                if (!value) {
+                                  field.onChange('')
+                                  return
+                                }
+                                field.onChange(value)
+                              }}
+                              className='grid gap-3 md:grid-cols-3'
+                            >
+                              {PROPULSAO_OPTIONS.map((option) => (
+                                <ToggleGroupItem
+                                  key={option.value}
+                                  value={option.value}
+                                  className='flex h-full flex-col items-start gap-3 rounded-xl border border-input bg-background p-4 text-left shadow-sm transition data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary'
+                                >
+                                  <div className='flex items-start gap-3'>
+                                    <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+                                      <option.icon className='h-4 w-4' />
+                                    </div>
+                                    <div className='text-left'>
+                                      <p className='text-sm font-semibold leading-tight text-foreground'>
+                                        {option.label}
+                                      </p>
+                                      <p className='mt-1 text-xs leading-snug text-muted-foreground'>
+                                        {option.description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </ToggleGroupItem>
+                              ))}
+                            </ToggleGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </FormSection>
 
                   <div className='grid gap-6 lg:grid-cols-2'>
@@ -7320,7 +7377,5 @@ function ViaturaFormContainer({
     </Form>
   )
 }
-
-export { ViaturaFormContainer }
 
 

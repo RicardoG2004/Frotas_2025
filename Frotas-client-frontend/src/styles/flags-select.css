@@ -48,3 +48,27 @@
 .ReactFlagsSelect-module_label__27pw9 {
   @apply text-foreground;
 }
+
+/* Custom scrollbar for the dropdown options - same as documentation-scroll */
+.ReactFlagsSelect-module_selectOptions__3LNBJ {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary)) transparent;
+}
+
+.ReactFlagsSelect-module_selectOptions__3LNBJ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ReactFlagsSelect-module_selectOptions__3LNBJ::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+.ReactFlagsSelect-module_selectOptions__3LNBJ::-webkit-scrollbar-thumb {
+  background: hsla(var(--primary), 0.35);
+  border-radius: 9999px;
+}
+
+.ReactFlagsSelect-module_selectOptions__3LNBJ::-webkit-scrollbar-thumb:hover {
+  background: hsla(var(--primary), 0.55);
+}

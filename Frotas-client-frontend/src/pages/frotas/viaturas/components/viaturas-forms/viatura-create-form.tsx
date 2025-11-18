@@ -12,6 +12,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
 
   return {
     matricula: values.matricula,
+    countryCode: values.countryCode || 'PT',
     numero: values.numero,
     anoFabrico: values.anoFabrico,
     mesFabrico: values.mesFabrico,

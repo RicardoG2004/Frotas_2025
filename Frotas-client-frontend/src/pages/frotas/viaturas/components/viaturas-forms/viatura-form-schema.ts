@@ -194,6 +194,11 @@ const viaturaFormSchemaObject = z.object({
   matricula: z
     .string({ message: 'A matrícula é obrigatória' })
     .min(1, { message: 'A matrícula é obrigatória' }),
+  countryCode: z
+    .string()
+    .max(3, { message: 'O código do país deve ter no máximo 3 caracteres' })
+    .optional()
+    .default('PT'),
   numero: z.coerce.number().nonnegative({ message: 'O número deve ser positivo' }),
   anoFabrico: z.coerce
     .number()
@@ -382,6 +387,7 @@ export type ViaturaMultaFormSchemaType = z.infer<typeof viaturaMultaSchema>
 
 export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   matricula: '',
+  countryCode: 'PT',
   numero: undefined,
   anoFabrico: undefined,
   mesFabrico: undefined,
