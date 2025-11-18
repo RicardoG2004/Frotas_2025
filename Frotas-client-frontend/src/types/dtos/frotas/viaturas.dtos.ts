@@ -126,6 +126,7 @@ export interface ViaturaDTO {
   }>
   inspecoes?: ViaturaInspecaoDTO[]
   acidentes?: ViaturaAcidenteDTO[]
+  multas?: ViaturaMultaDTO[]
   createdOn: string
 }
 
@@ -169,6 +170,24 @@ export interface ViaturaAcidenteUpsertDTO {
   freguesiaId?: string
   codigoPostalId?: string
   localReparacao?: string
+}
+
+export interface ViaturaMultaDTO {
+  id?: string
+  condutorId: string
+  dataHora: string
+  local: string
+  motivo: string
+  valor: number
+}
+
+export interface ViaturaMultaUpsertDTO {
+  id?: string
+  condutorId: string
+  dataHora: string
+  local: string
+  motivo: string
+  valor: number
 }
 
 export interface CreateViaturaDTO {
@@ -231,6 +250,7 @@ export interface CreateViaturaDTO {
   condutorIds: string[]
   inspecoes: ViaturaInspecaoUpsertDTO[]
   acidentes: ViaturaAcidenteUpsertDTO[]
+  multas: ViaturaMultaUpsertDTO[]
 }
 
 export interface UpdateViaturaDTO extends CreateViaturaDTO {}

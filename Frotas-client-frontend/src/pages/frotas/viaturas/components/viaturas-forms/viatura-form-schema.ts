@@ -169,6 +169,22 @@ const viaturaAcidenteSchema = z.object({
   localReparacao: z.string().optional().default(''),
 })
 
+const viaturaMultaSchema = z.object({
+  id: z.string().uuid().optional(),
+  condutorId: z
+    .string()
+    .min(1, { message: 'O condutor é obrigatório' })
+    .uuid({ message: 'Selecione o condutor' }),
+  dataHora: z.preprocess(
+    (value) => (value ? new Date(value as string | number | Date) : null),
+    dateWithMessages('A data é obrigatória', 'A data é inválida')
+  ),
+  hora: z.string().optional().default(''),
+  local: z.string().min(1, { message: 'O local é obrigatório' }),
+  motivo: z.string().min(1, { message: 'O motivo é obrigatório' }),
+  valor: z.coerce.number().min(0, { message: 'O valor deve ser positivo' }),
+})
+
 const uuidOrEmpty = z.string().uuid({ message: 'Selecione um valor válido' }).or(z.literal(''))
 
 export const viaturaPropulsaoOptions = VIATURA_PROPULSAO_TYPES
@@ -277,6 +293,7 @@ const viaturaFormSchemaObject = z.object({
     .default([]),
   inspecoes: z.array(viaturaInspecaoSchema).optional().default([]),
   acidentes: z.array(viaturaAcidenteSchema).optional().default([]),
+  multas: z.array(viaturaMultaSchema).optional().default([]),
 })
 
 export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx) => {
@@ -361,6 +378,7 @@ export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx)
 export type ViaturaFormSchemaType = z.infer<typeof viaturaFormSchema>
 export type ViaturaInspecaoFormSchemaType = z.infer<typeof viaturaInspecaoSchema>
 export type ViaturaAcidenteFormSchemaType = z.infer<typeof viaturaAcidenteSchema>
+export type ViaturaMultaFormSchemaType = z.infer<typeof viaturaMultaSchema>
 
 export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   matricula: '',
@@ -423,5 +441,6 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   condutorIds: [],
   inspecoes: [],
   acidentes: [],
+  multas: [],
 }
 

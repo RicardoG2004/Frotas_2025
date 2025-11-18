@@ -138,6 +138,20 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
           localReparacao: acidente.localReparacao || '',
         }
       }) ?? [],
+    multas:
+      viatura.multas?.map((multa) => {
+        const dataHora = multa.dataHora ? new Date(multa.dataHora) : new Date()
+        const hora = dataHora ? `${dataHora.getHours().toString().padStart(2, '0')}:${dataHora.getMinutes().toString().padStart(2, '0')}` : ''
+        return {
+          id: multa.id,
+          condutorId: multa.condutorId || '',
+          dataHora,
+          hora,
+          local: multa.local || '',
+          motivo: multa.motivo || '',
+          valor: multa.valor ?? 0,
+        }
+      }) ?? [],
   }
 }
 
@@ -235,6 +249,24 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
           freguesiaId: acidente.freguesiaId || '',
           codigoPostalId: acidente.codigoPostalId || '',
           localReparacao: acidente.localReparacao || '',
+        }
+      }) ?? [],
+    multas:
+      values.multas?.map((multa) => {
+        // Combinar data e hora antes de enviar
+        let dataHoraFinal = multa.dataHora
+        if (multa.dataHora && multa.hora) {
+          const [hours, minutes] = multa.hora.split(':').map(Number)
+          dataHoraFinal = new Date(multa.dataHora)
+          dataHoraFinal.setHours(hours || 0, minutes || 0, 0, 0)
+        }
+        return {
+          id: multa.id,
+          condutorId: multa.condutorId || '',
+          dataHora: dataHoraFinal.toISOString(),
+          local: multa.local || '',
+          motivo: multa.motivo || '',
+          valor: multa.valor || 0,
         }
       }) ?? [],
   }
