@@ -56,6 +56,9 @@ namespace Frotas.API.Domain.Entities.Frotas
     public decimal? Cilindrada { get; set; }
     public decimal? CapacidadeBateria { get; set; }
     public int? Potencia { get; set; }
+    public decimal? EmissoesCO2 { get; set; }
+    public string? PadraoCO2 { get; set; }
+    public decimal? VoltagemTotal { get; set; }
     public int? Tara { get; set; }
     public int? Lotacao { get; set; }
     public bool Marketing { get; set; }

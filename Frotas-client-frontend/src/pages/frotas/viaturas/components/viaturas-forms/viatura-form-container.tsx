@@ -41,6 +41,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -92,6 +99,7 @@ import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
 import { useSubmitErrorTab } from '@/hooks/use-submit-error-tab'
 import { useAutoSelectionWithReturnData } from '@/hooks/use-auto-selection-with-return-data'
+import { calcularIUC } from '@/utils/iuc-calculator'
 import {
   defaultViaturaFormValues,
   viaturaFormSchema,
@@ -282,6 +290,11 @@ const PROPULSAO_OPTIONS = viaturaPropulsaoOptions.map((value) => ({
   value,
   ...PROPULSAO_DETAILS[value],
 }))
+
+const PADRAO_CO2_OPTIONS = [
+  { value: 'NEDC', label: 'NEDC', description: 'Novo Ciclo Europeu de Condução' },
+  { value: 'WLTP', label: 'WLTP', description: 'Procedimento de Teste Mundial Harmonizado para Veículos Ligeiros' },
+] as const
 
 const toNumberValue = (value: unknown) =>
   typeof value === 'number' && !Number.isNaN(value) ? value : undefined
@@ -1910,6 +1923,46 @@ export function ViaturaFormContainer({
     })
     return map
   }, [selectOptions.funcionarios])
+
+  const combustiveisMap = useMemo(() => {
+    const map = new Map<string, string>()
+    selectOptions.combustiveis.forEach((option) => {
+      map.set(option.value, option.label)
+    })
+    return map
+  }, [selectOptions.combustiveis])
+
+  // Campos para cálculo do IUC
+  const combustivelId = form.watch('combustivelId')
+  const anoImpostoCirculacao = form.watch('anoImpostoCirculacao')
+  const dataLivrete = form.watch('dataLivrete')
+  const anoFabrico = form.watch('anoFabrico')
+  const cilindrada = form.watch('cilindrada')
+  const emissoesCO2 = form.watch('emissoesCO2')
+  const padraoCO2 = form.watch('padraoCO2')
+  const voltagemTotal = form.watch('voltagemTotal')
+  const tara = form.watch('tara')
+  const cargaUtil = form.watch('cargaUtil')
+  const mercadorias = form.watch('mercadorias')
+  
+  // Calcular IUC
+  const iucResult = useMemo(() => {
+    const nomeCombustivel = combustivelId ? combustiveisMap.get(combustivelId) : null
+    return calcularIUC(
+      nomeCombustivel,
+      anoImpostoCirculacao || null,
+      dataLivrete || null,
+      anoFabrico || null,
+      cilindrada || null,
+      tipoPropulsao || null,
+      emissoesCO2 || null,
+      (padraoCO2 && (padraoCO2 === 'NEDC' || padraoCO2 === 'WLTP') ? padraoCO2 as 'NEDC' | 'WLTP' : undefined),
+      voltagemTotal || null,
+      tara || null,
+      cargaUtil || null,
+      mercadorias || false
+    )
+  }, [combustivelId, anoImpostoCirculacao, dataLivrete, anoFabrico, cilindrada, tipoPropulsao, emissoesCO2, padraoCO2, voltagemTotal, tara, cargaUtil, mercadorias, combustiveisMap])
 
   const segurosSelecionadosDetalhes = useMemo(
     () =>
@@ -4105,29 +4158,118 @@ export function ViaturaFormContainer({
                           )}
                         />
                         {showElectricFields ? (
-                          <FormField
-                            control={form.control}
-                            name='capacidadeBateria'
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Capacidade da Bateria (kWh)</FormLabel>
-                                <FormControl>
-                                  <NumberInput
-                                    value={toNumberValue(field.value)}
-                                    onValueChange={(nextValue) => field.onChange(nextValue)}
-                                    onBlur={field.onBlur}
-                                    name={field.name}
-                                    ref={field.ref}
-                                    className={TEXT_INPUT_CLASS}
-                                    step={0.1}
-                                    min={0}
-                                    disabled={!motorizacaoSelecionada}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          <>
+                            <FormField
+                              control={form.control}
+                              name='capacidadeBateria'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Capacidade da Bateria (kWh)</FormLabel>
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                      className={TEXT_INPUT_CLASS}
+                                      step={0.1}
+                                      min={0}
+                                      disabled={!motorizacaoSelecionada}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name='voltagemTotal'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Voltagem Total (V)</FormLabel>
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                      className={TEXT_INPUT_CLASS}
+                                      step={0.1}
+                                      min={0}
+                                      disabled={!motorizacaoSelecionada}
+                                      placeholder='Para cálculo IUC elétricos'
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </>
+                        ) : null}
+                        {showCombustivelFields ? (
+                          <>
+                            <FormField
+                              control={form.control}
+                              name='emissoesCO2'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Emissões CO₂ (g/km)</FormLabel>
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                      className={TEXT_INPUT_CLASS}
+                                      step={0.1}
+                                      min={0}
+                                      disabled={!motorizacaoSelecionada}
+                                      placeholder='Para cálculo IUC (matrícula ≥ julho 2007)'
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name='padraoCO2'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Padrão CO₂</FormLabel>
+                                  <FormControl>
+                                    <Select
+                                      value={field.value || undefined}
+                                      onValueChange={(value) => {
+                                        field.onChange(value || '')
+                                      }}
+                                      disabled={!motorizacaoSelecionada || !form.watch('emissoesCO2')}
+                                    >
+                                      <SelectTrigger className={TEXT_INPUT_CLASS}>
+                                        <SelectValue placeholder='Selecione o padrão CO₂' />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {PADRAO_CO2_OPTIONS.map((option) => (
+                                          <SelectItem key={option.value} value={option.value}>
+                                            <div className='flex flex-col'>
+                                              <span className='font-medium'>{option.label}</span>
+                                              <span className='text-xs text-muted-foreground'>
+                                                {option.description}
+                                              </span>
+                                            </div>
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </>
                         ) : null}
                       </div>
                     </FormSection>
@@ -5086,6 +5228,59 @@ export function ViaturaFormContainer({
                     )}
                   />
                       </div>
+                      
+                      {/* Exibição automática do IUC */}
+                      {iucResult.valor !== null ? (
+                        <div className='mt-4 rounded-lg border border-primary/20 bg-primary/5 p-4'>
+                          <div className='flex items-center gap-2'>
+                            <PiggyBank className='h-4 w-4 text-primary' />
+                            <FormLabel className='text-sm font-semibold text-foreground'>
+                              Imposto Único de Circulação (IUC) - 2026
+                            </FormLabel>
+                          </div>
+                          <div className='mt-2'>
+                            {iucResult.valor === 0 ? (
+                              <p className='text-xl font-bold text-green-600 dark:text-green-400'>
+                                Isento
+                              </p>
+                            ) : (
+                              <p className='text-2xl font-bold text-primary'>
+                                {iucResult.valor.toFixed(2)}€
+                              </p>
+                            )}
+                            <p className='mt-1 text-xs text-muted-foreground'>
+                              {iucResult.mensagem}
+                            </p>
+                            {iucResult.detalhes && (
+                              <p className='mt-2 text-xs text-muted-foreground/80 italic'>
+                                {iucResult.detalhes}
+                              </p>
+                            )}
+                            {!iucResult.calculoCompleto && (
+                              <p className='mt-2 text-xs text-amber-600 dark:text-amber-400'>
+                                ⚠️ Cálculo parcial - faltam dados adicionais
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ) : iucResult.mensagem && (
+                        <div className='mt-4 rounded-lg border border-muted bg-muted/30 p-4'>
+                          <div className='flex items-center gap-2'>
+                            <PiggyBank className='h-4 w-4 text-muted-foreground' />
+                            <FormLabel className='text-sm font-medium text-muted-foreground'>
+                              Imposto Único de Circulação (IUC)
+                            </FormLabel>
+                          </div>
+                          <p className='mt-2 text-xs text-muted-foreground'>
+                            {iucResult.mensagem}
+                          </p>
+                          {iucResult.detalhes && (
+                            <p className='mt-2 text-xs text-muted-foreground/80 italic'>
+                              {iucResult.detalhes}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </FormSection>
 
                     <FormSection
