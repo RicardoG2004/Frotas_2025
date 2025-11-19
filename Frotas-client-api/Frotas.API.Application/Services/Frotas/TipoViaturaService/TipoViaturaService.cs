@@ -70,6 +70,9 @@ namespace Frotas.API.Application.Services.Frotas.TipoViaturaService
       }
 
       TipoViatura newTipoViatura = _mapper.Map(request, new TipoViatura());
+      // Calcular categoria de inspeção automaticamente baseado na designação
+      // Porquê: A categoria é derivada da designação, não precisa ser enviada pelo frontend
+      newTipoViatura.CategoriaInspecao = TipoViaturaHelper.MapearDesignacaoParaCategoriaInspecao(request.Designacao);
 
       try
       {
@@ -92,6 +95,9 @@ namespace Frotas.API.Application.Services.Frotas.TipoViaturaService
       }
 
       TipoViatura updatedTipoViatura = _mapper.Map(request, tipoViaturaInDb);
+      // Calcular categoria de inspeção automaticamente baseado na designação
+      // Porquê: A categoria é derivada da designação, não precisa ser enviada pelo frontend
+      updatedTipoViatura.CategoriaInspecao = TipoViaturaHelper.MapearDesignacaoParaCategoriaInspecao(request.Designacao);
 
       try
       {

@@ -88,6 +88,8 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
         dataInspecao: inspecao.dataInspecao.toISOString(),
         resultado: inspecao.resultado,
         dataProximaInspecao: inspecao.dataProximaInspecao.toISOString(),
+        // Codificar documentos da inspeção para string JSON
+        documentos: encodeViaturaDocumentos(inspecao.documentos),
       })) ?? [],
     acidentes:
       values.acidentes?.map((acidente) => {

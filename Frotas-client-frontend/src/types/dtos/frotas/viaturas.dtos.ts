@@ -1,3 +1,5 @@
+import type { CategoriaInspecao } from './tipo-viaturas.dtos'
+
 export const VIATURA_PROPULSAO_TYPES = ['combustao', 'hibrido', 'hibridoPlugIn', 'eletrico'] as const
 export type ViaturaPropulsao = (typeof VIATURA_PROPULSAO_TYPES)[number]
 
@@ -22,6 +24,8 @@ export interface ViaturaDTO {
   tipoViatura?: {
     id?: string
     designacao?: string
+    // Categoria necessária para calcular as datas de inspeção baseado nas regras
+    categoriaInspecao?: CategoriaInspecao
   }
   corId: string
   cor?: {
@@ -135,6 +139,9 @@ export interface ViaturaInspecaoDTO {
   dataInspecao: string
   resultado: string
   dataProximaInspecao: string
+  // Campo para documentos anexados a esta inspeção
+  // Porquê: Permite anexar documentos específicos de cada inspeção (certificados, relatórios, etc.)
+  documentos?: string | null
 }
 
 export interface ViaturaInspecaoUpsertDTO {
@@ -142,6 +149,8 @@ export interface ViaturaInspecaoUpsertDTO {
   dataInspecao: string
   resultado: string
   dataProximaInspecao: string
+  // Campo para enviar documentos anexados a esta inspeção
+  documentos?: string | null
 }
 
 export interface ViaturaAcidenteDTO {

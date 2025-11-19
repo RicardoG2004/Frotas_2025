@@ -31,7 +31,7 @@ const sanitizeDocumento = (documento: unknown): ViaturaDocumentoSchemaType | nul
   return parsed.success ? parsed.data : null
 }
 
-const parseDocumentosPayload = (
+export const parseDocumentosPayload = (
   payload?: string | null | undefined
 ): ViaturaDocumentoSchemaType[] => {
   if (!payload) {
@@ -210,6 +210,9 @@ const viaturaInspecaoSchema = z
         'A data da próxima inspeção é inválida'
       )
     ),
+    // Campo para documentos anexados a esta inspeção
+    // Porquê: Permite anexar documentos específicos de cada inspeção (certificados, relatórios, etc.)
+    documentos: z.array(viaturaDocumentoSchema).optional().default([]),
   })
   .refine(
     (inspection) => inspection.dataProximaInspecao > inspection.dataInspecao,

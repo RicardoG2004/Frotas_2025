@@ -11,6 +11,7 @@ import {
   encodeCondutoresDocumentos,
   parseViaturaDocumentosFromPair,
   parseCondutoresDocumentos,
+  parseDocumentosPayload,
   type ViaturaFormSchemaType,
 } from './viatura-form-schema'
 import {
@@ -125,6 +126,8 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
         dataProximaInspecao: inspecao.dataProximaInspecao
           ? new Date(inspecao.dataProximaInspecao)
           : new Date(),
+        // Parsear documentos da inspeção se existirem
+        documentos: inspecao.documentos ? parseDocumentosPayload(inspecao.documentos) : [],
       })) ?? [],
     acidentes:
       viatura.acidentes?.map((acidente) => {
@@ -239,6 +242,8 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
         dataInspecao: inspecao.dataInspecao.toISOString(),
         resultado: inspecao.resultado,
         dataProximaInspecao: inspecao.dataProximaInspecao.toISOString(),
+        // Codificar documentos da inspeção para string JSON
+        documentos: encodeViaturaDocumentos(inspecao.documentos),
       })) ?? [],
     acidentes:
       values.acidentes?.map((acidente) => {

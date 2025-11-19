@@ -100,7 +100,7 @@ export function TipoViaturasUpdatePage() {
             modalClose={handleClose}
             tipoViaturaId={tipoViaturaId}
             initialData={{
-              designacao: tipoViaturaData?.info?.data?.designacao || '',
+              designacao: (tipoViaturaData?.info?.data?.designacao || '') as 'ligeiro passageiros' | 'ligeiro mercadorias' | 'pesado' | 'motociclo' | 'tratores agricolas',
             }}
           />
         </div>

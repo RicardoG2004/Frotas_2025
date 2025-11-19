@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -56,6 +57,9 @@ namespace Frotas.API.WebApi.Extensions
         {
           options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
           options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+          // Configurar enums para serem serializados como strings em camelCase
+          // Porquê: Permite que o frontend receba valores como "ligeiro" em vez de 0 ou "Ligeiro"
+          options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
         })
         .ConfigureApiBehaviorOptions(options =>
         {

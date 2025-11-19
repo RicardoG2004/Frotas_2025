@@ -32,7 +32,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   PersistentTabs,
   TabsList as PersistentTabsList,
@@ -40,11 +46,12 @@ import {
   TabsContent as PersistentTabsContent,
 } from '@/components/ui/persistent-tabs'
 import { useCreateTipoViatura } from '@/pages/frotas/tipo-viaturas/queries/tipo-viaturas-mutations'
+import { TIPO_VIATURA_DESIGNACOES, type TipoViaturaDesignacao } from '@/utils/tipo-viatura-helper'
 
 const tipoViaturaFormSchema = z.object({
-  designacao: z
-    .string({ message: 'A Designação é obrigatória' })
-    .min(1, { message: 'A Designação é obrigatória' }),
+  designacao: z.enum(TIPO_VIATURA_DESIGNACOES, {
+    message: 'A Designação é obrigatória',
+  }),
 })
 
 type TipoViaturaFormSchemaType = z.infer<typeof tipoViaturaFormSchema>
@@ -98,7 +105,7 @@ const TipoViaturaCreateForm = ({
   const createTipoViaturaMutation = useCreateTipoViatura()
 
   const defaultValues = {
-    designacao: '',
+    designacao: '' as TipoViaturaDesignacao,
   }
 
   const tipoViaturaResolver: Resolver<TipoViaturaFormSchemaType> = async (
@@ -219,6 +226,7 @@ const TipoViaturaCreateForm = ({
 
       const requestData: CreateTipoViaturaDTO = {
         designacao: values.designacao,
+        categoriaInspecao: 'ligeiro', // Valor padrão, será calculado no backend baseado na designação
       }
 
       const response =
@@ -326,11 +334,23 @@ const TipoViaturaCreateForm = ({
                               </Badge>
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                placeholder='Digite a designação do tipo de viatura'
-                                {...field}
-                                className='px-4 py-6 shadow-inner drop-shadow-xl'
-                              />
+                              <Select
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value as TipoViaturaDesignacao)
+                                }}
+                              >
+                                <SelectTrigger className='px-4 py-6 shadow-inner drop-shadow-xl'>
+                                  <SelectValue placeholder='Selecione a designação do tipo de viatura' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {TIPO_VIATURA_DESIGNACOES.map((designacao) => (
+                                    <SelectItem key={designacao} value={designacao}>
+                                      <span className='font-medium capitalize'>{designacao}</span>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </FormControl>
                             <FormMessage />
                           </FormItem>

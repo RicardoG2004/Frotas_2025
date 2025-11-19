@@ -101,6 +101,9 @@ import { useTabManager } from '@/hooks/use-tab-manager'
 import { useSubmitErrorTab } from '@/hooks/use-submit-error-tab'
 import { useAutoSelectionWithReturnData } from '@/hooks/use-auto-selection-with-return-data'
 import { calcularIUC } from '@/utils/iuc-calculator'
+import { calcularProximaInspecao, calcularPrimeiraInspecao } from '@/utils/inspecao-helper'
+import type { CategoriaInspecao } from '@/types/dtos/frotas/tipo-viaturas.dtos'
+import { mapearDesignacaoParaCategoriaInspecao } from '@/utils/tipo-viatura-helper'
 import {
   defaultViaturaFormValues,
   viaturaFormSchema,
@@ -1923,6 +1926,19 @@ export function ViaturaFormContainer({
   const [condutorViewerOpen, setCondutorViewerOpen] = useState(false)
   const [condutorViewerDocumento, setCondutorViewerDocumento] = useState<ViaturaDocumentoFormValue | null>(null)
 
+  // Estado para controlar o diálogo de upload de documentos da inspeção
+  const [inspecaoUploadDialogOpen, setInspecaoUploadDialogOpen] = useState(false)
+  const [inspecaoUploadDialogIndex, setInspecaoUploadDialogIndex] = useState<number | null>(null)
+  const inspecaoUploadFileInputRef = useRef<HTMLInputElement | null>(null)
+  
+  // Estado para controlar a visualização de documentos da inspeção
+  const [inspecaoViewerOpen, setInspecaoViewerOpen] = useState(false)
+  const [inspecaoViewerDocumento, setInspecaoViewerDocumento] = useState<ViaturaDocumentoFormValue | null>(null)
+  
+  // Estado para controlar o diálogo de listagem de documentos da inspeção
+  const [inspecaoDocumentosDialogOpen, setInspecaoDocumentosDialogOpen] = useState(false)
+  const [inspecaoDocumentosDialogIndex, setInspecaoDocumentosDialogIndex] = useState<number | null>(null)
+
   const segurosMap = useMemo(() => {
     const map = new Map<string, string>()
     selectOptions.seguros.forEach((option) => {
@@ -1973,6 +1989,22 @@ export function ViaturaFormContainer({
     })
     return map
   }, [selectOptions.combustiveis])
+
+  // Map criado para lookup rápido: dado um tipoViaturaId, retorna a categoriaInspecao
+  // Porquê usar Map: O(1) lookup time, muito mais rápido que array.find() em loops
+  // useMemo: só recalcula quando tipoViaturas muda, otimiza performance
+  // ATUALIZADO: Agora mapeia baseado na designação do tipo de viatura
+  const tipoViaturasCategoriaMap = useMemo(() => {
+    const map = new Map<string, CategoriaInspecao | undefined>()
+    tipoViaturas.forEach((tipoViatura) => {
+      if (tipoViatura.id && tipoViatura.designacao) {
+        // Mapear designação para categoria de inspeção
+        const categoriaInspecao = mapearDesignacaoParaCategoriaInspecao(tipoViatura.designacao)
+        map.set(tipoViatura.id, categoriaInspecao)
+      }
+    })
+    return map
+  }, [tipoViaturas])
 
   // Campos para cálculo do IUC
   const combustivelId = form.watch('combustivelId')
@@ -2130,41 +2162,132 @@ export function ViaturaFormContainer({
     addCondutorToForm(selectedCondutorId)
   }
 
+  // Função que calcula a próxima data de inspeção baseado nas regras portuguesas
+  // Porquê atualizar: Antes sempre adicionava 1 ano, agora aplica regras corretas
   const getNextInspectionDate = (date: Date) => {
+    // Obter o tipo de viatura selecionado no formulário
+    const tipoViaturaId = form.getValues('tipoViaturaId')
+    // Obter a data de matrícula (necessária para calcular idade do veículo)
+    const dataLivrete = form.getValues('dataLivrete')
+    // Buscar a categoria de inspeção do tipo de viatura selecionado
+    const categoriaInspecao = tipoViaturaId ? tipoViaturasCategoriaMap.get(tipoViaturaId) : undefined
+    
+    // Se temos categoria e data de matrícula, usar as regras específicas
+    if (categoriaInspecao && dataLivrete) {
+      return calcularProximaInspecao(categoriaInspecao, date, dataLivrete)
+    }
+    
+    // Fallback: se não temos categoria ou data de matrícula, usar regra padrão anual
+    // Porquê fallback: Garante que sempre retorna uma data válida, mesmo sem dados completos
     const next = new Date(date.getTime())
     next.setFullYear(next.getFullYear() + 1)
     return next
   }
 
+  // Função chamada quando o utilizador clica para adicionar uma nova inspeção
+  // Porquê atualizar: Agora calcula automaticamente datas baseadas nas regras portuguesas
   const handleAddInspection = () => {
     const inspections = form.getValues('inspecoes') ?? []
     const lastInspection = inspections[inspections.length - 1]
+    // Obter dados necessários para cálculo
+    const tipoViaturaId = form.getValues('tipoViaturaId')
+    const dataLivrete = form.getValues('dataLivrete')
+    const categoriaInspecao = tipoViaturaId ? tipoViaturasCategoriaMap.get(tipoViaturaId) : undefined
+    
+    // Verificar se a data de matrícula está preenchida
+    if (!dataLivrete) {
+      toast.warning('Por favor, preencha a "Data do Livrete" antes de adicionar uma inspeção. Esta informação é necessária para calcular as datas de inspeção corretamente.')
+      return
+    }
 
     if (lastInspection) {
-      if (!(lastInspection.dataProximaInspecao instanceof Date)) {
-        toast.warning('Defina a data da próxima inspeção antes de adicionar uma nova.')
+      // Se já existe uma inspeção anterior, determinar a data da nova inspeção
+      // Porquê: Usar a data da próxima inspeção se existir, senão usar a data da inspeção anterior + 1 ano
+      let dataInspecao: Date
+      
+      if (lastInspection.dataProximaInspecao instanceof Date && !isNaN(lastInspection.dataProximaInspecao.getTime())) {
+        // Se a última inspeção tem data da próxima definida, usar essa data
+        dataInspecao = new Date(lastInspection.dataProximaInspecao)
+      } else if (lastInspection.dataInspecao instanceof Date && !isNaN(lastInspection.dataInspecao.getTime())) {
+        // Se não tem próxima, usar a data da inspeção anterior e calcular a próxima
+        dataInspecao = new Date(lastInspection.dataInspecao)
+        // Adicionar um ano como base, mas será recalculado abaixo
+        dataInspecao.setFullYear(dataInspecao.getFullYear() + 1)
+      } else {
+        // Se não tem nenhuma data válida, usar hoje
+        dataInspecao = new Date()
+      }
+      
+      // Calcular próxima inspeção usando as regras (bienal/anual conforme categoria e idade)
+      const proximaInspecao = categoriaInspecao && dataLivrete
+        ? calcularProximaInspecao(categoriaInspecao, dataInspecao, dataLivrete)
+        : getNextInspectionDate(dataInspecao) // Fallback se não temos dados completos
+      
+      // Garantir que a próxima inspeção é uma Date válida
+      if (!(proximaInspecao instanceof Date) || isNaN(proximaInspecao.getTime())) {
+        toast.error('Erro ao calcular a data da próxima inspeção.')
         return
       }
-
-      const dataInspecao = new Date(lastInspection.dataProximaInspecao)
+      
       appendInspection({
         id: undefined,
         dataInspecao,
-        resultado: '',
-        dataProximaInspecao: getNextInspectionDate(dataInspecao),
+        resultado: 'Pendente', // Valor padrão para passar validação, utilizador pode alterar depois
+        dataProximaInspecao: proximaInspecao,
+        documentos: [], // Array vazio de documentos, utilizador pode adicionar depois
       })
 
-      form.setValue(`inspecoes.${inspections.length - 1}.dataProximaInspecao`, dataInspecao, {
-        shouldDirty: true,
-        shouldValidate: true,
-      })
+      // Se a última inspeção não tinha data da próxima definida, atualizar agora
+      if (!(lastInspection.dataProximaInspecao instanceof Date) || isNaN(lastInspection.dataProximaInspecao.getTime())) {
+        form.setValue(`inspecoes.${inspections.length - 1}.dataProximaInspecao`, dataInspecao, {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      }
     } else {
-      const today = new Date()
+      // Primeira inspeção - calcular baseado na primeira inspeção obrigatória
+      // Porquê: A primeira inspeção tem datas específicas (4 anos para ligeiros, 2 para mercadorias, 1 para pesados)
+      // IMPORTANTE: Se o veículo já é antigo e passou da primeira inspeção, usar HOJE
+      // (não a data histórica, pois o cliente pode não querer registar inspeções antigas)
+      const hoje = new Date()
+      let dataPrimeiraInspecao = hoje
+      
+      // Se temos categoria e data de matrícula, calcular quando deveria ser a primeira inspeção
+      if (categoriaInspecao && dataLivrete) {
+        const primeiraInspecao = calcularPrimeiraInspecao(categoriaInspecao, dataLivrete)
+        // Se a primeira inspeção AINDA NÃO chegou, usar a data calculada
+        // Se a primeira inspeção JÁ PASSOU, usar HOJE (cliente começa a registar a partir de agora)
+        if (primeiraInspecao && primeiraInspecao > hoje) {
+          dataPrimeiraInspecao = primeiraInspecao
+        }
+        // Se primeiraInspecao <= hoje, mantém dataPrimeiraInspecao = hoje (já está definido acima)
+      }
+      
+      // Calcular quando será a próxima inspeção após esta primeira
+      // Porquê: Já preenche automaticamente a próxima data, facilitando para o utilizador
+      // A idade do veículo na data da inspeção será usada para calcular a próxima (bienal vs anual)
+      const proximaInspecao = categoriaInspecao && dataLivrete
+        ? calcularProximaInspecao(categoriaInspecao, dataPrimeiraInspecao, dataLivrete)
+        : getNextInspectionDate(dataPrimeiraInspecao)
+      
+      // Garantir que as datas são objetos Date válidos
+      // Porquê: O schema de validação espera objetos Date, não strings ou null
+      if (!(dataPrimeiraInspecao instanceof Date) || isNaN(dataPrimeiraInspecao.getTime())) {
+        toast.error('Erro ao calcular a data da primeira inspeção. Por favor, verifique a data de matrícula.')
+        return
+      }
+      
+      if (!(proximaInspecao instanceof Date) || isNaN(proximaInspecao.getTime())) {
+        toast.error('Erro ao calcular a data da próxima inspeção. Por favor, verifique a data de matrícula.')
+        return
+      }
+      
       appendInspection({
         id: undefined,
-        dataInspecao: today,
-        resultado: '',
-        dataProximaInspecao: getNextInspectionDate(today),
+        dataInspecao: dataPrimeiraInspecao,
+        resultado: 'Pendente', // Valor padrão para passar validação, utilizador pode alterar depois
+        dataProximaInspecao: proximaInspecao,
+        documentos: [], // Array vazio de documentos, utilizador pode adicionar depois
       })
     }
   }
@@ -2310,6 +2433,118 @@ export function ViaturaFormContainer({
   
   // Função para fazer download de um documento do condutor
   const handleDownloadCondutorDocumento = (documento: ViaturaDocumentoFormValue) => {
+    if (!documento?.dados) return
+
+    if (documento.dados.startsWith('data:')) {
+      const link = document.createElement('a')
+      link.href = documento.dados
+      link.download = documento.nome || 'documento'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else if (documento.dados.startsWith('http://') || documento.dados.startsWith('https://')) {
+      window.open(documento.dados, '_blank')
+    }
+  }
+  
+  // Função para abrir o diálogo de upload de documentos da inspeção
+  const handleOpenInspecaoUploadDialog = (inspecaoIndex: number) => {
+    setInspecaoUploadDialogIndex(inspecaoIndex)
+    setInspecaoUploadDialogOpen(true)
+  }
+  
+  // Função para fechar o diálogo de upload de documentos da inspeção
+  const handleCloseInspecaoUploadDialog = () => {
+    setInspecaoUploadDialogOpen(false)
+    setInspecaoUploadDialogIndex(null)
+    if (inspecaoUploadFileInputRef.current) {
+      inspecaoUploadFileInputRef.current.value = ''
+    }
+  }
+  
+  // Função para processar o upload de ficheiros da inspeção
+  const handleInspecaoFileUpload = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const fileList = event.target.files ? Array.from(event.target.files) : []
+      if (!fileList.length || inspecaoUploadDialogIndex === null) {
+        event.target.value = ''
+        return
+      }
+
+      try {
+        const novosDocumentos = await Promise.all(
+          fileList.map(async (file) => ({
+            nome: file.name || 'documento',
+            dados: await readFileAsDataUrl(file),
+            contentType: file.type || 'application/octet-stream',
+            tamanho: file.size,
+          }))
+        )
+
+        const currentInspecoes = form.getValues('inspecoes') ?? []
+        const inspecaoAtual = currentInspecoes[inspecaoUploadDialogIndex]
+        if (!inspecaoAtual) {
+          event.target.value = ''
+          return
+        }
+
+        const documentosExistentes = inspecaoAtual.documentos ?? []
+        const novosDocumentosCompletos = [...documentosExistentes, ...novosDocumentos]
+
+        form.setValue(
+          `inspecoes.${inspecaoUploadDialogIndex}.documentos`,
+          novosDocumentosCompletos,
+          { shouldDirty: true, shouldValidate: false }
+        )
+
+        toast.success(`${fileList.length} ficheiro(s) anexado(s) com sucesso.`)
+      } catch (error) {
+        toast.error('Não foi possível processar o(s) ficheiro(s).')
+      } finally {
+        event.target.value = ''
+      }
+    },
+    [inspecaoUploadDialogIndex, form]
+  )
+  
+  // Função para remover um documento da inspeção
+  const handleRemoveInspecaoDocumento = (inspecaoIndex: number, documentoIndex: number) => {
+    const currentInspecoes = form.getValues('inspecoes') ?? []
+    const inspecaoAtual = currentInspecoes[inspecaoIndex]
+    if (!inspecaoAtual) return
+
+    const documentos = inspecaoAtual.documentos ?? []
+    const novosDocumentos = documentos.filter((_, index) => index !== documentoIndex)
+    
+    form.setValue(
+      `inspecoes.${inspecaoIndex}.documentos`,
+      novosDocumentos,
+      { shouldDirty: true, shouldValidate: false }
+    )
+    toast.success('Documento removido.')
+  }
+  
+  // Função para abrir o diálogo de documentos da inspeção
+  const handleOpenInspecaoDocumentosDialog = (inspecaoIndex: number) => {
+    setInspecaoDocumentosDialogIndex(inspecaoIndex)
+    setInspecaoDocumentosDialogOpen(true)
+  }
+  
+  // Função para fechar o diálogo de documentos da inspeção
+  const handleCloseInspecaoDocumentosDialog = () => {
+    setInspecaoDocumentosDialogOpen(false)
+    setInspecaoDocumentosDialogIndex(null)
+  }
+  
+  // Função para visualizar um documento da inspeção
+  const handleViewInspecaoDocumento = (documento: ViaturaDocumentoFormValue) => {
+    if (!documento?.dados) return
+    setInspecaoViewerDocumento(documento)
+    setInspecaoViewerOpen(true)
+  }
+  
+  // Função para fazer download de um documento da inspeção
+  const handleDownloadInspecaoDocumento = (documento: ViaturaDocumentoFormValue) => {
     if (!documento?.dados) return
 
     if (documento.dados.startsWith('data:')) {
@@ -5071,126 +5306,241 @@ export function ViaturaFormContainer({
                       </p>
                     </div>
                   ) : (
-                    <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
-                      <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
-                        <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
-                          <ClipboardCheckIcon className='h-4 w-4 text-primary' />
-                          Inspeções registadas
-                          <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
-                            {inspectionFields.length}
-                          </Badge>
+                    <div className='space-y-3'>
+                      <div className='flex items-center justify-between rounded-lg border border-border/60 bg-muted/5 px-3 py-2'>
+                        <div className='flex items-center gap-2'>
+                          <div className='flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                            <ClipboardCheckIcon className='h-3.5 w-3.5' />
+                          </div>
+                          <div>
+                            <h3 className='text-xs font-semibold text-foreground'>
+                              Inspeções Registadas
+                            </h3>
+                            <p className='text-[10px] text-muted-foreground'>
+                              {inspectionFields.length} inspeção{inspectionFields.length !== 1 ? 'ões' : ''} no histórico
+                            </p>
+                          </div>
                         </div>
-                        <p className='text-xs text-muted-foreground'>
-                          Edite as informações conforme necessário e remova inspeções que já não sejam relevantes.
-                        </p>
+                        <Badge variant='secondary' className='rounded-full px-2 py-0.5 text-[10px] font-medium'>
+                          {inspectionFields.length} total
+                        </Badge>
                       </div>
 
-                      <div className='space-y-4'>
+                      <div className='grid gap-2.5 md:grid-cols-2 lg:grid-cols-3'>
                         {inspectionFields.map((inspection, index) => {
                           const inspectionData = inspecoesValues?.[index]
                           const inspeccaoRealizada = formatDateLabel(inspectionData?.dataInspecao)
                           const proximaInspecao = formatDateLabel(inspectionData?.dataProximaInspecao)
+                          const documentos = inspectionData?.documentos || []
+                          const documentosCount = documentos.length
+                          const resultado = inspectionData?.resultado?.toLowerCase() || ''
+                          const isAprovado = resultado.includes('aprovado') || resultado.includes('aprovada')
+                          const isReprovado = resultado.includes('reprovado') || resultado.includes('reprovada') || resultado.includes('rejeitado')
+
+                          // Determinar cor do badge de resultado
+                          const resultadoBadgeVariant = isAprovado
+                            ? 'default'
+                            : isReprovado
+                              ? 'destructive'
+                              : 'secondary'
+
+                          // Determinar se a próxima inspeção está próxima ou atrasada
+                          const hoje = new Date()
+                          const proximaInspecaoDate = inspectionData?.dataProximaInspecao
+                          const isProximaInspecaoProxima =
+                            proximaInspecaoDate &&
+                            proximaInspecaoDate instanceof Date &&
+                            proximaInspecaoDate <= new Date(hoje.getTime() + 30 * 24 * 60 * 60 * 1000) &&
+                            proximaInspecaoDate >= hoje
+                          const isProximaInspecaoAtrasada =
+                            proximaInspecaoDate &&
+                            proximaInspecaoDate instanceof Date &&
+                            proximaInspecaoDate < hoje
 
                           return (
                             <div
                               key={inspection.fieldId}
-                              className='group space-y-5 rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md md:p-5'
+                              className='group relative flex h-full flex-col overflow-hidden rounded-lg border border-border/60 bg-background shadow-sm transition-all duration-200 hover:border-primary/40 hover:shadow-md'
                             >
-                              <div className='flex flex-col gap-3 border-b border-border/60 pb-4 sm:flex-row sm:items-center sm:justify-between'>
-                                <div className='flex items-center gap-3'>
-                                  <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
-                                    <CircleDot className='h-5 w-5' />
-                                  </div>
-                                  <div>
-                                    <p className='text-sm font-semibold text-foreground'>
-                                      Inspeção #{index + 1}
-                                    </p>
-                                    <p className='text-xs text-muted-foreground'>
-                                      {inspeccaoRealizada
-                                        ? `Realizada em ${inspeccaoRealizada}.`
-                                        : 'Data de realização ainda não definida.'}
-                                    </p>
+                              {/* Header com gradiente sutil */}
+                              <div className='relative border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10 px-2.5 py-2'>
+                                <div className='flex items-start justify-between gap-1.5'>
+                                  <div className='flex items-start gap-1.5 flex-1 min-w-0'>
+                                    <div
+                                      className={cn(
+                                        'flex h-6 w-6 flex-shrink-0 items-center justify-center rounded shadow-sm transition-colors',
+                                        isAprovado
+                                          ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                                          : isReprovado
+                                            ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                                            : 'bg-primary/10 text-primary'
+                                      )}
+                                    >
+                                      <ClipboardCheckIcon className='h-3 w-3' />
+                                    </div>
+                                    <div className='min-w-0 flex-1'>
+                                      <div className='flex items-center gap-1 mb-0.5'>
+                                        <h4 className='text-[10px] font-semibold text-foreground truncate'>
+                                          Inspeção #{index + 1}
+                                        </h4>
+                                        {resultado && (
+                                          <Badge
+                                            variant={resultadoBadgeVariant}
+                                            className={cn(
+                                              'rounded-full px-1 py-0 text-[8px] font-medium leading-none',
+                                              isAprovado && 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+                                              isReprovado && 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
+                                            )}
+                                          >
+                                            {inspectionData.resultado}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      {inspeccaoRealizada && (
+                                        <div className='flex items-center gap-0.5 text-[9px] text-muted-foreground'>
+                                          <CalendarDays className='h-2 w-2' />
+                                          <span>Realizada em {inspeccaoRealizada}</span>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                                <Badge
-                                  variant='outline'
-                                  className={cn(
-                                    'inline-flex items-center gap-1 rounded-full border-primary/30 bg-primary/5 px-3 py-[3px] text-[11px] font-medium text-primary',
-                                    !proximaInspecao && 'border-destructive/30 bg-destructive/5 text-destructive'
-                                  )}
-                                >
-                                  <CalendarDays className='h-3.5 w-3.5' />
-                                  {proximaInspecao ? `Próxima: ${proximaInspecao}` : 'Próxima inspeção por agendar'}
-                                </Badge>
                               </div>
 
-                              <div className='grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))]'>
-                                <FormField
-                                  control={form.control}
-                                  name={`inspecoes.${index}.dataInspecao`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Data da inspeção</FormLabel>
-                                      <FormControl>
-                                        <DatePicker
-                                          value={field.value || undefined}
-                                          onChange={field.onChange}
-                                          allowClear
-                                          className={FIELD_HEIGHT_CLASS}
+                              {/* Conteúdo principal */}
+                              <div className='flex-1 flex flex-col space-y-2.5 p-3'>
+                                {/* Campos de edição - em linha */}
+                                <div className='grid grid-cols-3 gap-2'>
+                                  <FormField
+                                    control={form.control}
+                                    name={`inspecoes.${index}.dataInspecao`}
+                                    render={({ field }) => (
+                                      <FormItem className='space-y-0.5'>
+                                        <FormLabel className='text-[9px] font-medium leading-tight text-left'>Data da Inspeção</FormLabel>
+                                        <FormControl>
+                                          <DatePicker
+                                            value={field.value || undefined}
+                                            onChange={field.onChange}
+                                            allowClear
+                                            className='h-7 text-[9px] justify-start px-2.5 [&_svg]:mr-1.5 [&_svg]:h-3.5 [&_svg]:w-3.5'
+                                          />
+                                        </FormControl>
+                                        <FormMessage className='text-[8px]' />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name={`inspecoes.${index}.resultado`}
+                                    render={({ field }) => (
+                                      <FormItem className='space-y-0.5'>
+                                        <FormLabel className='text-[9px] font-medium leading-tight'>Resultado</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            {...field}
+                                            placeholder='Ex.: Aprovado'
+                                            className='h-[1.75rem] text-[9.5px] px-2 py-0.5 shadow-inner'
+                                          />
+                                        </FormControl>
+                                        <FormMessage className='text-[8px]' />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name={`inspecoes.${index}.dataProximaInspecao`}
+                                    render={({ field }) => (
+                                      <FormItem className='space-y-0.5'>
+                                        <FormLabel className='text-[9px] font-medium leading-tight text-left'>Próxima Inspeção</FormLabel>
+                                        <FormControl>
+                                          <DatePicker
+                                            value={field.value || undefined}
+                                            onChange={field.onChange}
+                                            allowClear
+                                            className='h-7 text-[9px] justify-start px-2.5 [&_svg]:mr-1.5 [&_svg]:h-3.5 [&_svg]:w-3.5'
+                                          />
+                                        </FormControl>
+                                        <FormMessage className='text-[8px]' />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+
+                                {/* Informações adicionais - apenas se necessário */}
+                                {(isProximaInspecaoAtrasada || isProximaInspecaoProxima) && proximaInspecao && (
+                                  <div className='space-y-1 pt-1.5 border-t border-border/30 mt-auto'>
+                                    <div
+                                      className={cn(
+                                        'rounded border px-1.5 py-0.5',
+                                        isProximaInspecaoAtrasada
+                                          ? 'border-red-500/30 bg-red-500/5'
+                                          : 'border-amber-500/30 bg-amber-500/5'
+                                      )}
+                                    >
+                                      <div className='flex items-center gap-1'>
+                                        <CalendarDays
+                                          className={cn(
+                                            'h-2.5 w-2.5 flex-shrink-0',
+                                            isProximaInspecaoAtrasada
+                                              ? 'text-red-600 dark:text-red-400'
+                                              : 'text-amber-600 dark:text-amber-400'
+                                          )}
                                         />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name={`inspecoes.${index}.resultado`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Resultado</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          {...field}
-                                          placeholder='Ex.: Aprovado, Reprovado, Com observações'
-                                          className={TEXT_INPUT_CLASS}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name={`inspecoes.${index}.dataProximaInspecao`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Próxima inspeção</FormLabel>
-                                      <FormControl>
-                                        <DatePicker
-                                          value={field.value || undefined}
-                                          onChange={field.onChange}
-                                          allowClear
-                                          className={FIELD_HEIGHT_CLASS}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
+                                        <p
+                                          className={cn(
+                                            'text-[9px] font-medium leading-tight',
+                                            isProximaInspecaoAtrasada
+                                              ? 'text-red-700 dark:text-red-300'
+                                              : 'text-amber-700 dark:text-amber-300'
+                                          )}
+                                        >
+                                          {isProximaInspecaoAtrasada
+                                            ? '⚠️ Atrasada'
+                                            : '⏰ Em breve'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
 
-                              <div className='flex justify-end'>
-                                <Button
-                                  type='button'
-                                  variant='ghost'
-                                  size='sm'
-                                  onClick={() => handleRemoveInspection(index)}
-                                  className='text-destructive hover:text-destructive'
-                                >
-                                  <Trash2 className='mr-2 h-4 w-4' />
-                                  Remover inspeção
-                                </Button>
+                              {/* Footer com ações */}
+                              <div className='border-t border-border/50 bg-muted/20 px-2.5 py-1.5'>
+                                <div className='flex items-center justify-between gap-1'>
+                                  <div className='flex items-center gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={() => handleOpenInspecaoUploadDialog(index)}
+                                      className='h-5 gap-0.5 text-[9px] px-1.5'
+                                    >
+                                      <FileText className='h-2.5 w-2.5' />
+                                      Anexar
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={() => handleOpenInspecaoDocumentosDialog(index)}
+                                      disabled={documentosCount === 0}
+                                      className='h-5 gap-0.5 text-[9px] px-1.5'
+                                    >
+                                      <Eye className='h-2.5 w-2.5' />
+                                      Ver documentos
+                                    </Button>
+                                  </div>
+                                  <Button
+                                    type='button'
+                                    variant='ghost'
+                                    size='sm'
+                                    onClick={() => handleRemoveInspection(index)}
+                                    className='h-5 gap-0.5 text-[9px] px-1.5 text-destructive hover:text-destructive hover:bg-destructive/10'
+                                  >
+                                    <Trash2 className='h-2.5 w-2.5' />
+                                    Remover
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           )
@@ -8085,6 +8435,261 @@ export function ViaturaFormContainer({
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de upload de documentos da inspeção */}
+      <Dialog
+        open={inspecaoUploadDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseInspecaoUploadDialog()
+          }
+        }}
+      >
+        <DialogContent className='sm:max-w-md'>
+          <DialogHeader>
+            <DialogTitle>Anexar Ficheiros à Inspeção</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4 py-4'>
+            {inspecaoUploadDialogIndex !== null && (
+              <div className='space-y-2'>
+                <p className='text-sm text-muted-foreground'>
+                  Inspeção #{inspecaoUploadDialogIndex + 1}
+                </p>
+                <p className='text-sm text-muted-foreground'>
+                  Selecione um ou mais ficheiros para anexar (ex: certificado de inspeção, relatório, etc.)
+                </p>
+                <input
+                  ref={inspecaoUploadFileInputRef}
+                  type='file'
+                  multiple
+                  onChange={handleInspecaoFileUpload}
+                  className='hidden'
+                  accept='*/*'
+                />
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => inspecaoUploadFileInputRef.current?.click()}
+                  className='w-full'
+                >
+                  <FileText className='mr-2 h-4 w-4' />
+                  Selecionar Ficheiros
+                </Button>
+                {inspecaoUploadDialogIndex !== null && (() => {
+                  const inspecoes = form.getValues('inspecoes') ?? []
+                  const inspecaoAtual = inspecoes[inspecaoUploadDialogIndex]
+                  const documentos = inspecaoAtual?.documentos ?? []
+                  return documentos.length > 0 ? (
+                    <div className='mt-4 space-y-2'>
+                      <p className='text-sm font-medium text-foreground'>
+                        Ficheiros anexados ({documentos.length}):
+                      </p>
+                      <div className='max-h-48 space-y-1 overflow-y-auto rounded-md border border-border/50 bg-muted/30 p-2'>
+                        {documentos.map((documento, index) => (
+                          <div
+                            key={index}
+                            className='flex items-center justify-between gap-2 rounded-md bg-background px-2 py-1.5 text-xs'
+                          >
+                            <div className='flex items-center gap-2 min-w-0 flex-1'>
+                              <File className='h-3.5 w-3.5 flex-shrink-0 text-muted-foreground' />
+                              <span className='truncate text-foreground'>{documento.nome}</span>
+                              <span className='text-xs text-muted-foreground'>
+                                ({formatFileSize(documento.tamanho)})
+                              </span>
+                            </div>
+                            <div className='flex items-center gap-1'>
+                              <Button
+                                type='button'
+                                variant='ghost'
+                                size='sm'
+                                onClick={() => handleViewInspecaoDocumento(documento)}
+                                title='Visualizar'
+                                className='h-6 w-6 p-0'
+                              >
+                                <Eye className='h-3 w-3' />
+                              </Button>
+                              <Button
+                                type='button'
+                                variant='ghost'
+                                size='sm'
+                                onClick={() => handleRemoveInspecaoDocumento(inspecaoUploadDialogIndex, index)}
+                                title='Remover'
+                                className='h-6 w-6 p-0 text-destructive hover:text-destructive'
+                              >
+                                <X className='h-3 w-3' />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null
+                })()}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de listagem de documentos da inspeção */}
+      <Dialog
+        open={inspecaoDocumentosDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseInspecaoDocumentosDialog()
+          }
+        }}
+      >
+        <DialogContent className='sm:max-w-md'>
+          <DialogHeader>
+            <DialogTitle>Documentos da Inspeção</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4 py-4'>
+            {inspecaoDocumentosDialogIndex !== null && (() => {
+              const inspecoes = form.getValues('inspecoes') ?? []
+              const inspecaoAtual = inspecoes[inspecaoDocumentosDialogIndex]
+              const documentos = inspecaoAtual?.documentos ?? []
+              
+              if (documentos.length === 0) {
+                return (
+                  <div className='text-center py-8'>
+                    <FileText className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
+                    <p className='text-sm text-muted-foreground'>
+                      Nenhum documento anexado a esta inspeção.
+                    </p>
+                  </div>
+                )
+              }
+              
+              return (
+                <div className='space-y-2'>
+                  <p className='text-sm font-medium text-foreground'>
+                    Documentos anexados ({documentos.length}):
+                  </p>
+                  <div className='max-h-64 space-y-1 overflow-y-auto rounded-md border border-border/50 bg-muted/30 p-2'>
+                    {documentos.map((documento, docIndex) => (
+                      <div
+                        key={docIndex}
+                        className='flex items-center justify-between gap-2 rounded-md bg-background px-2 py-1.5 text-xs'
+                      >
+                        <div className='flex items-center gap-2 min-w-0 flex-1'>
+                          <File className='h-3.5 w-3.5 flex-shrink-0 text-muted-foreground' />
+                          <span className='truncate text-foreground'>{documento.nome}</span>
+                          <span className='text-xs text-muted-foreground flex-shrink-0'>
+                            ({formatFileSize(documento.tamanho)})
+                          </span>
+                        </div>
+                        <div className='flex items-center gap-1'>
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            onClick={() => handleViewInspecaoDocumento(documento)}
+                            title='Visualizar'
+                            className='h-6 w-6 p-0'
+                          >
+                            <Eye className='h-3 w-3' />
+                          </Button>
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            onClick={() => handleDownloadInspecaoDocumento(documento)}
+                            title='Descarregar'
+                            className='h-6 w-6 p-0'
+                          >
+                            <Download className='h-3 w-3' />
+                          </Button>
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            onClick={() => {
+                              handleRemoveInspecaoDocumento(inspecaoDocumentosDialogIndex, docIndex)
+                            }}
+                            title='Remover'
+                            className='h-6 w-6 p-0 text-destructive hover:text-destructive'
+                          >
+                            <X className='h-3 w-3' />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de visualização de documentos da inspeção */}
+      <Dialog
+        open={inspecaoViewerOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setInspecaoViewerOpen(false)
+            setInspecaoViewerDocumento(null)
+          }
+        }}
+      >
+        <DialogContent className='sm:max-w-2xl'>
+          <DialogHeader>
+            <DialogTitle>Visualizar Documento</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4 py-4'>
+            {inspecaoViewerDocumento && (() => {
+              const { nome, dados, contentType } = inspecaoViewerDocumento
+              const isImage = contentType?.startsWith('image/')
+              return (
+                <div className='space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <p className='text-sm font-medium text-foreground'>{nome}</p>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={() => handleDownloadInspecaoDocumento(inspecaoViewerDocumento)}
+                    >
+                      <Download className='mr-2 h-4 w-4' />
+                      Descarregar ficheiro
+                    </Button>
+                  </div>
+                  <div className='max-h-[60vh] overflow-auto rounded-md border border-border/50 bg-muted/30 p-4'>
+                    {isImage ? (
+                      <img
+                        src={dados}
+                        alt={nome}
+                        className='max-w-full h-auto rounded-md'
+                      />
+                    ) : (
+                      <div className='flex flex-col items-center justify-center py-8 text-center'>
+                        <File className='h-12 w-12 text-muted-foreground mb-4' />
+                        <p className='text-sm text-muted-foreground mb-2'>
+                          Pré-visualização não disponível para este tipo de ficheiro.
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
+                          Tipo: {contentType || 'Desconhecido'}
+                        </p>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='sm'
+                          className='mt-4'
+                          onClick={() => handleDownloadInspecaoDocumento(inspecaoViewerDocumento)}
+                        >
+                          <Download className='mr-2 h-4 w-4' />
+                          Descarregar ficheiro
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
         </DialogContent>
       </Dialog>
     </Form>
