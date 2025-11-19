@@ -94,6 +94,7 @@ import {
   Clock,
   Camera,
   X,
+  Plug,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
@@ -278,6 +279,11 @@ const PROPULSAO_DETAILS: Record<
     label: 'Híbrido',
     description: 'Combinação de motor térmico com apoio elétrico.',
     icon: Leaf,
+  },
+  hibridoPlugIn: {
+    label: 'Híbrido Plug-In',
+    description: 'Híbrido com bateria recarregável através de tomada elétrica.',
+    icon: Plug,
   },
   eletrico: {
     label: 'Elétrico',
@@ -1609,9 +1615,12 @@ export function ViaturaFormContainer({
   const [expandedMultas, setExpandedMultas] = useState<Set<string>>(new Set())
   const tipoPropulsao = form.watch('tipoPropulsao')
   const isElectricPropulsion = tipoPropulsao === 'eletrico'
-  const isHybridPropulsion = tipoPropulsao === 'hibrido'
+  const isHybridPropulsion = tipoPropulsao === 'hibrido' || tipoPropulsao === 'hibridoPlugIn'
+  const isPlugInHybrid = tipoPropulsao === 'hibridoPlugIn'
   const showCombustivelFields = !isElectricPropulsion || isHybridPropulsion
-  const showElectricFields = isElectricPropulsion || isHybridPropulsion
+  // Para HEV: não mostrar capacidade bateria, voltagem, autonomia
+  // Para PHEV: mostrar todos os campos elétricos
+  const showElectricFields = isElectricPropulsion || isPlugInHybrid
   const motorizacaoSelecionada = tipoPropulsao === 'combustao' || isElectricPropulsion || isHybridPropulsion
 
   useEffect(() => {
@@ -1645,38 +1654,50 @@ export function ViaturaFormContainer({
     isElectricPropulsion || isHybridPropulsion ? BatteryCharging : Fuel
   const combustivelSectionTitle = isElectricPropulsion
     ? 'Energia e autonomia'
-    : isHybridPropulsion
-      ? 'Combustível e energia'
-      : 'Combustível e consumo'
+    : isPlugInHybrid
+      ? 'Combustível e energia elétrica'
+      : isHybridPropulsion
+        ? 'Combustível e consumo'
+        : 'Combustível e consumo'
   const combustivelSectionDescription = isElectricPropulsion
     ? 'Defina o consumo elétrico e a autonomia estimada'
-    : isHybridPropulsion
-      ? 'Defina os consumos híbridos e a autonomia em modo elétrico'
-      : 'Defina o combustível e o consumo médio estimado'
+    : isPlugInHybrid
+      ? 'Defina os consumos de combustível e elétrico, e a autonomia em modo elétrico'
+      : isHybridPropulsion
+        ? 'Defina o combustível e o consumo médio estimado'
+        : 'Defina o combustível e o consumo médio estimado'
   const consumoMedioLabel = isElectricPropulsion
     ? 'Consumo Médio (kWh/100km)'
-    : isHybridPropulsion
+    : isPlugInHybrid
       ? 'Consumo Médio Combustível (L/100km)'
-      : 'Consumo Médio (L/100km)'
+      : isHybridPropulsion
+        ? 'Consumo Médio (L/100km)'
+        : 'Consumo Médio (L/100km)'
   const combustivelGridClass = isElectricPropulsion
     ? 'grid gap-4'
     : 'grid gap-4 sm:grid-cols-[2fr_1fr]'
   const motorSectionIcon = isElectricPropulsion || isHybridPropulsion ? BatteryCharging : Gauge
   const motorSectionTitle = isElectricPropulsion
     ? 'Bateria e performance'
-    : isHybridPropulsion
-      ? 'Sistema híbrido e performance'
-      : 'Motor e performance'
+    : isPlugInHybrid
+      ? 'Sistema híbrido plug-in e performance'
+      : isHybridPropulsion
+        ? 'Motor e performance'
+        : 'Motor e performance'
   const motorSectionDescription = isElectricPropulsion
     ? 'Informação sobre a potência e capacidade energética da viatura'
-    : isHybridPropulsion
-      ? 'Detalhe as especificações térmicas e elétricas do sistema híbrido'
-      : 'Especificações de potência do conjunto motor'
+    : isPlugInHybrid
+      ? 'Detalhe as especificações do motor térmico e do sistema elétrico'
+      : isHybridPropulsion
+        ? 'Especificações de potência do conjunto motor'
+        : 'Especificações de potência do conjunto motor'
   const potenciaLabel = isElectricPropulsion
     ? 'Potência (kW)'
-    : isHybridPropulsion
-      ? 'Potência combinada (cv)'
-      : 'Potência (cv)'
+    : isPlugInHybrid
+      ? 'Potência Motor Térmico (cv)'
+      : isHybridPropulsion
+        ? 'Potência (cv)'
+        : 'Potência (cv)'
   const identificacaoMecanicaGridClass = isHybridPropulsion
     ? 'grid gap-4'
     : 'grid gap-4 sm:grid-cols-2'
@@ -3187,7 +3208,7 @@ export function ViaturaFormContainer({
                                 }
                                 field.onChange(value)
                               }}
-                              className='grid gap-3 md:grid-cols-3'
+                              className='grid gap-3 md:grid-cols-2'
                             >
                               {PROPULSAO_OPTIONS.map((option) => (
                                 <ToggleGroupItem
@@ -4022,29 +4043,58 @@ export function ViaturaFormContainer({
                           )}
                         />
                         {showElectricFields ? (
-                          <FormField
-                            control={form.control}
-                            name='autonomia'
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Autonomia (km)</FormLabel>
-                                <FormControl>
-                                  <NumberInput
-                                    value={toNumberValue(field.value)}
-                                    onValueChange={(nextValue) => field.onChange(nextValue)}
-                                    onBlur={field.onBlur}
-                                    name={field.name}
-                                    ref={field.ref}
-                                    className={TEXT_INPUT_CLASS}
-                                    step={1}
-                                    min={0}
-                                    disabled={!motorizacaoSelecionada}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          <>
+                            <FormField
+                              control={form.control}
+                              name='autonomia'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    {isPlugInHybrid ? 'Autonomia Elétrica (km)' : 'Autonomia (km)'}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                      className={TEXT_INPUT_CLASS}
+                                      step={1}
+                                      min={0}
+                                      disabled={!motorizacaoSelecionada}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            {isPlugInHybrid ? (
+                              <FormField
+                                control={form.control}
+                                name='consumoEletrico'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Consumo Elétrico (kWh/100km)</FormLabel>
+                                    <FormControl>
+                                      <NumberInput
+                                        value={toNumberValue(field.value)}
+                                        onValueChange={(nextValue) => field.onChange(nextValue)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                        className={TEXT_INPUT_CLASS}
+                                        step={0.1}
+                                        min={0}
+                                        disabled={!motorizacaoSelecionada}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            ) : null}
+                          </>
                         ) : null}
                       </div>
                     </FormSection>
@@ -4182,30 +4232,106 @@ export function ViaturaFormContainer({
                                 </FormItem>
                               )}
                             />
-                            <FormField
-                              control={form.control}
-                              name='voltagemTotal'
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Voltagem Total (V)</FormLabel>
-                                  <FormControl>
-                                    <NumberInput
-                                      value={toNumberValue(field.value)}
-                                      onValueChange={(nextValue) => field.onChange(nextValue)}
-                                      onBlur={field.onBlur}
-                                      name={field.name}
-                                      ref={field.ref}
-                                      className={TEXT_INPUT_CLASS}
-                                      step={0.1}
-                                      min={0}
-                                      disabled={!motorizacaoSelecionada}
-                                      placeholder='Para cálculo IUC elétricos'
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                            {isPlugInHybrid ? (
+                              <>
+                                <FormField
+                                  control={form.control}
+                                  name='potenciaMotorEletrico'
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Potência Motor Elétrico (kW)</FormLabel>
+                                      <FormControl>
+                                        <NumberInput
+                                          value={toNumberValue(field.value)}
+                                          onValueChange={(nextValue) => field.onChange(nextValue)}
+                                          onBlur={field.onBlur}
+                                          name={field.name}
+                                          ref={field.ref}
+                                          className={TEXT_INPUT_CLASS}
+                                          step={0.1}
+                                          min={0}
+                                          disabled={!motorizacaoSelecionada}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name='potenciaCombinada'
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Potência Combinada (cv)</FormLabel>
+                                      <FormControl>
+                                        <NumberInput
+                                          value={toNumberValue(field.value)}
+                                          onValueChange={(nextValue) => field.onChange(nextValue)}
+                                          onBlur={field.onBlur}
+                                          name={field.name}
+                                          ref={field.ref}
+                                          className={TEXT_INPUT_CLASS}
+                                          step={0.1}
+                                          min={0}
+                                          disabled={!motorizacaoSelecionada}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name='tempoCarregamento'
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Tempo de Carregamento (horas)</FormLabel>
+                                      <FormControl>
+                                        <NumberInput
+                                          value={toNumberValue(field.value)}
+                                          onValueChange={(nextValue) => field.onChange(nextValue)}
+                                          onBlur={field.onBlur}
+                                          name={field.name}
+                                          ref={field.ref}
+                                          className={TEXT_INPUT_CLASS}
+                                          step={0.1}
+                                          min={0}
+                                          disabled={!motorizacaoSelecionada}
+                                          placeholder='Tempo de carregamento lento/AC'
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </>
+                            ) : null}
+                            {isElectricPropulsion ? (
+                              <FormField
+                                control={form.control}
+                                name='voltagemTotal'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Voltagem Total (V)</FormLabel>
+                                    <FormControl>
+                                      <NumberInput
+                                        value={toNumberValue(field.value)}
+                                        onValueChange={(nextValue) => field.onChange(nextValue)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                        className={TEXT_INPUT_CLASS}
+                                        step={0.1}
+                                        min={0}
+                                        disabled={!motorizacaoSelecionada}
+                                        placeholder='Para cálculo IUC elétricos'
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            ) : null}
                           </>
                         ) : null}
                         {showCombustivelFields ? (

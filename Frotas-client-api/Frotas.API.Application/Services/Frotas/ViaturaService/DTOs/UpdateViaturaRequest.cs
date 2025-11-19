@@ -39,6 +39,10 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public decimal? Cilindrada { get; set; }
     public decimal? CapacidadeBateria { get; set; }
     public int? Potencia { get; set; }
+    public int? PotenciaMotorEletrico { get; set; }
+    public int? PotenciaCombinada { get; set; }
+    public decimal? ConsumoEletrico { get; set; }
+    public decimal? TempoCarregamento { get; set; }
     public decimal? EmissoesCO2 { get; set; }
     public string? PadraoCO2 { get; set; }
     public decimal? VoltagemTotal { get; set; }

@@ -1,4 +1,4 @@
-export const VIATURA_PROPULSAO_TYPES = ['combustao', 'hibrido', 'eletrico'] as const
+export const VIATURA_PROPULSAO_TYPES = ['combustao', 'hibrido', 'hibridoPlugIn', 'eletrico'] as const
 export type ViaturaPropulsao = (typeof VIATURA_PROPULSAO_TYPES)[number]
 
 export interface ViaturaDTO {
