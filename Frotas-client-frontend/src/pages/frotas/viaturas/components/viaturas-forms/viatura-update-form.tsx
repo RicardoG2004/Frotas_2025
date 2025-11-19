@@ -8,7 +8,9 @@ import { useGetViatura } from '@/pages/frotas/viaturas/queries/viaturas-queries'
 import { useUpdateViatura } from '@/pages/frotas/viaturas/queries/viaturas-mutations'
 import {
   encodeViaturaDocumentos,
+  encodeCondutoresDocumentos,
   parseViaturaDocumentosFromPair,
+  parseCondutoresDocumentos,
   type ViaturaFormSchemaType,
 } from './viatura-form-schema'
 import {
@@ -99,9 +101,10 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
     dataValidadeSelo: viatura.dataValidadeSelo ? new Date(viatura.dataValidadeSelo) : new Date(),
     urlImagem1: viatura.urlImagem1 || '',
     urlImagem2: viatura.urlImagem2 || '',
-    documentos: parseViaturaDocumentosFromPair(viatura.urlImagem1, viatura.urlImagem2).map(
+    documentos: parseViaturaDocumentosFromPair(viatura.urlImagem1, null).map(
       (documento) => ({ ...documento })
     ),
+    condutoresDocumentos: parseCondutoresDocumentos(viatura.urlImagem2),
     equipamentoIds:
       viatura.equipamentoIds && viatura.equipamentoIds.length > 0
         ? [...viatura.equipamentoIds]
@@ -161,6 +164,7 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
 
 const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
   const documentosPayload = encodeViaturaDocumentos(values.documentos)
+  const condutoresDocumentosPayload = encodeCondutoresDocumentos(values.condutoresDocumentos)
 
   return {
     matricula: values.matricula,
@@ -226,7 +230,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     anoImpostoCirculacao: values.anoImpostoCirculacao,
     dataValidadeSelo: values.dataValidadeSelo.toISOString(),
     urlImagem1: documentosPayload,
-    urlImagem2: '',
+    urlImagem2: condutoresDocumentosPayload,
     equipamentoIds: values.equipamentoIds,
     garantiaIds: values.garantiaIds,
     inspecoes:

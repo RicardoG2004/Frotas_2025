@@ -4,11 +4,16 @@ import { handleApiError } from '@/utils/error-handlers'
 import { handleApiResponse } from '@/utils/response-handlers'
 import { ViaturaFormContainer } from './viatura-form-container'
 import { useCreateViatura } from '@/pages/frotas/viaturas/queries/viaturas-mutations'
-import { encodeViaturaDocumentos, type ViaturaFormSchemaType } from './viatura-form-schema'
+import {
+  encodeViaturaDocumentos,
+  encodeCondutoresDocumentos,
+  type ViaturaFormSchemaType,
+} from './viatura-form-schema'
 import { type ViaturaPropulsao } from '@/types/dtos/frotas/viaturas.dtos'
 
 const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
   const documentosPayload = encodeViaturaDocumentos(values.documentos)
+  const condutoresDocumentosPayload = encodeCondutoresDocumentos(values.condutoresDocumentos)
 
   return {
     matricula: values.matricula,
@@ -74,7 +79,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     anoImpostoCirculacao: values.anoImpostoCirculacao,
     dataValidadeSelo: values.dataValidadeSelo.toISOString(),
     urlImagem1: documentosPayload,
-    urlImagem2: '',
+    urlImagem2: condutoresDocumentosPayload,
     equipamentoIds: values.equipamentoIds,
     garantiaIds: values.garantiaIds,
     inspecoes:

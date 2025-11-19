@@ -124,6 +124,77 @@ export const encodeViaturaDocumentos = (
 
 export type ViaturaDocumentoFormValue = ViaturaDocumentoSchemaType
 
+// Tipo para documentos dos condutores: Map<condutorId, documentos[]>
+export type CondutoresDocumentosFormValue = Record<string, ViaturaDocumentoFormValue[]>
+
+// Codificar documentos dos condutores para string JSON
+export const encodeCondutoresDocumentos = (
+  condutoresDocumentos: CondutoresDocumentosFormValue | undefined
+): string => {
+  if (!condutoresDocumentos || Object.keys(condutoresDocumentos).length === 0) {
+    return ''
+  }
+
+  return JSON.stringify({
+    version: DOCUMENTOS_STORAGE_VERSION,
+    condutores: Object.entries(condutoresDocumentos).map(([condutorId, documentos]) => ({
+      condutorId,
+      documentos: documentos.map((documento) => ({
+        nome: documento.nome,
+        dados: documento.dados,
+        contentType: documento.contentType,
+        tamanho: documento.tamanho,
+        pasta: documento.pasta ?? undefined,
+      })),
+    })),
+  })
+}
+
+// Descodificar documentos dos condutores de string JSON
+export const parseCondutoresDocumentos = (
+  payload?: string | null | undefined
+): CondutoresDocumentosFormValue => {
+  if (!payload) {
+    return {}
+  }
+
+  const trimmed = payload.trim()
+  if (!trimmed) {
+    return {}
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed) as {
+      version?: number
+      condutores?: Array<{
+        condutorId: string
+        documentos: unknown[]
+      }>
+    }
+
+    if (
+      parsed &&
+      Array.isArray(parsed.condutores) &&
+      (parsed.version === undefined || parsed.version === DOCUMENTOS_STORAGE_VERSION)
+    ) {
+      const result: CondutoresDocumentosFormValue = {}
+      parsed.condutores.forEach(({ condutorId, documentos }) => {
+        const documentosSanitizados = documentos
+          .map(sanitizeDocumento)
+          .filter((doc): doc is ViaturaDocumentoSchemaType => doc !== null)
+        if (documentosSanitizados.length > 0) {
+          result[condutorId] = documentosSanitizados
+        }
+      })
+      return result
+    }
+  } catch (_error) {
+    // Erro ao fazer parse, retornar objeto vazio
+  }
+
+  return {}
+}
+
 const viaturaInspecaoSchema = z
   .object({
     id: z.string().uuid().optional(),
@@ -302,6 +373,7 @@ const viaturaFormSchemaObject = z.object({
     .array(z.string().uuid({ message: 'Selecione um condutor válido' }))
     .optional()
     .default([]),
+  condutoresDocumentos: z.record(z.string(), z.array(viaturaDocumentoSchema)).optional().default({}),
   inspecoes: z.array(viaturaInspecaoSchema).optional().default([]),
   acidentes: z.array(viaturaAcidenteSchema).optional().default([]),
   multas: z.array(viaturaMultaSchema).optional().default([]),
@@ -428,6 +500,7 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   equipamentoIds: [],
   garantiaIds: [],
   condutorIds: [],
+  condutoresDocumentos: {},
   inspecoes: [],
   acidentes: [],
   multas: [],

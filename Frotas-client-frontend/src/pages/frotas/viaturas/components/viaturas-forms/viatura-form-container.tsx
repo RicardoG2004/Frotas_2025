@@ -1912,6 +1912,16 @@ export function ViaturaFormContainer({
   const equipamentosSelecionados = form.watch('equipamentoIds') ?? []
   const garantiasSelecionadas = form.watch('garantiaIds') ?? []
   const condutoresSelecionados = form.watch('condutorIds') ?? []
+  const condutoresDocumentos = form.watch('condutoresDocumentos') ?? {}
+  
+  // Estado para controlar o diálogo de upload de documentos do condutor
+  const [condutorUploadDialogOpen, setCondutorUploadDialogOpen] = useState(false)
+  const [condutorUploadDialogCondutorId, setCondutorUploadDialogCondutorId] = useState<string | null>(null)
+  const condutorUploadFileInputRef = useRef<HTMLInputElement | null>(null)
+  
+  // Estado para controlar a visualização de documentos do condutor
+  const [condutorViewerOpen, setCondutorViewerOpen] = useState(false)
+  const [condutorViewerDocumento, setCondutorViewerDocumento] = useState<ViaturaDocumentoFormValue | null>(null)
 
   const segurosMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -1944,6 +1954,17 @@ export function ViaturaFormContainer({
     })
     return map
   }, [selectOptions.funcionarios])
+
+  // Mapa para associar funcionários aos seus cargos
+  const condutoresCargosMap = useMemo(() => {
+    const map = new Map<string, string>()
+    funcionarios.forEach((funcionario) => {
+      if (funcionario.id && funcionario.cargo?.designacao) {
+        map.set(funcionario.id, funcionario.cargo.designacao)
+      }
+    })
+    return map
+  }, [funcionarios])
 
   const combustiveisMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -2190,6 +2211,117 @@ export function ViaturaFormContainer({
     )
 
     setSelectedCondutorId((prev) => (prev === condutorId ? '' : prev))
+    
+    // Remover também os documentos associados ao condutor
+    const currentDocumentos = form.getValues('condutoresDocumentos') ?? {}
+    const { [condutorId]: _, ...restDocumentos } = currentDocumentos
+    form.setValue('condutoresDocumentos', restDocumentos, {
+      shouldDirty: true,
+      shouldValidate: false,
+    })
+  }
+  
+  // Função para abrir o diálogo de upload de documentos do condutor
+  const handleOpenCondutorUploadDialog = (condutorId: string) => {
+    setCondutorUploadDialogCondutorId(condutorId)
+    setCondutorUploadDialogOpen(true)
+  }
+  
+  // Função para fechar o diálogo de upload
+  const handleCloseCondutorUploadDialog = () => {
+    setCondutorUploadDialogOpen(false)
+    setCondutorUploadDialogCondutorId(null)
+    if (condutorUploadFileInputRef.current) {
+      condutorUploadFileInputRef.current.value = ''
+    }
+  }
+  
+  // Função para processar o upload de ficheiros do condutor
+  const handleCondutorFileUpload = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const fileList = event.target.files ? Array.from(event.target.files) : []
+      if (!fileList.length || !condutorUploadDialogCondutorId) {
+        event.target.value = ''
+        return
+      }
+
+      try {
+        const novosDocumentos = await Promise.all(
+          fileList.map(async (file) => ({
+            nome: file.name || 'documento',
+            dados: await readFileAsDataUrl(file),
+            contentType: file.type || 'application/octet-stream',
+            tamanho: file.size,
+          }))
+        )
+
+        const currentDocumentos = form.getValues('condutoresDocumentos') ?? {}
+        const documentosExistentes = currentDocumentos[condutorUploadDialogCondutorId] ?? []
+        form.setValue(
+          'condutoresDocumentos',
+          {
+            ...currentDocumentos,
+            [condutorUploadDialogCondutorId]: [...documentosExistentes, ...novosDocumentos],
+          },
+          { shouldDirty: true, shouldValidate: false }
+        )
+
+        toast.success(`${fileList.length} ficheiro(s) anexado(s) com sucesso.`)
+      } catch (error) {
+        toast.error('Não foi possível processar o(s) ficheiro(s).')
+      } finally {
+        event.target.value = ''
+      }
+    },
+    [condutorUploadDialogCondutorId, form]
+  )
+  
+  // Função para remover um documento do condutor
+  const handleRemoveCondutorDocumento = (condutorId: string, documentoIndex: number) => {
+    const currentDocumentos = form.getValues('condutoresDocumentos') ?? {}
+    const documentos = currentDocumentos[condutorId] ?? []
+    const novosDocumentos = documentos.filter((_, index) => index !== documentoIndex)
+    
+    if (novosDocumentos.length === 0) {
+      const { [condutorId]: _, ...restDocumentos } = currentDocumentos
+      form.setValue('condutoresDocumentos', restDocumentos, {
+        shouldDirty: true,
+        shouldValidate: false,
+      })
+    } else {
+      form.setValue(
+        'condutoresDocumentos',
+        {
+          ...currentDocumentos,
+          [condutorId]: novosDocumentos,
+        },
+        { shouldDirty: true, shouldValidate: false }
+      )
+    }
+    toast.success('Documento removido.')
+  }
+  
+  // Função para visualizar um documento do condutor
+  const handleViewCondutorDocumento = (documento: ViaturaDocumentoFormValue) => {
+    if (!documento?.dados) return
+    setCondutorViewerDocumento(documento)
+    setCondutorViewerOpen(true)
+  }
+  
+  // Função para fazer download de um documento do condutor
+  const handleDownloadCondutorDocumento = (documento: ViaturaDocumentoFormValue) => {
+    if (!documento?.dados) return
+
+    if (documento.dados.startsWith('data:')) {
+      const link = document.createElement('a')
+      link.href = documento.dados
+      link.download = documento.nome || 'documento'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else if (documento.dados.startsWith('http://') || documento.dados.startsWith('https://')) {
+      window.open(documento.dados, '_blank')
+    }
   }
 
   const handleRemoveInspection = (index: number) => {
@@ -5902,6 +6034,7 @@ export function ViaturaFormContainer({
                                 <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
                                   {condutoresSelecionadosDetalhes.map(({ id, label }) => {
                                     const condutorIndisponivel = label === 'Condutor indisponível'
+                                    const condutorDocumentos = condutoresDocumentos[id] ?? []
                                     return (
                                       <div
                                         key={id}
@@ -5911,7 +6044,7 @@ export function ViaturaFormContainer({
                                           <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
                                             <User className='h-5 w-5' />
                                           </div>
-                                          <div className='min-w-0 space-y-1'>
+                                          <div className='min-w-0 flex-1 space-y-1'>
                                             <div className='flex items-start justify-between gap-2'>
                                               <p className='truncate text-sm font-medium text-foreground'>
                                                 {label}
@@ -5925,14 +6058,88 @@ export function ViaturaFormContainer({
                                                 </Badge>
                                               )}
                                             </div>
-                                            <p className='text-xs text-muted-foreground'>
-                                              {condutorIndisponivel
-                                                ? 'Este condutor já não está disponível. Considere removê-lo.'
-                                                : 'Condutor associado à viatura com sucesso.'}
-                                            </p>
+                                            {!condutorIndisponivel && condutoresCargosMap.get(id) && (
+                                              <p className='text-xs text-muted-foreground'>
+                                                {condutoresCargosMap.get(id)}
+                                              </p>
+                                            )}
+                                            {condutorIndisponivel && (
+                                              <p className='text-xs text-muted-foreground'>
+                                                Este condutor já não está disponível. Considere removê-lo.
+                                              </p>
+                                            )}
+                                            {condutorDocumentos.length > 0 && (
+                                              <div className='mt-2 space-y-1'>
+                                                <p className='text-xs font-medium text-foreground'>
+                                                  Documentos anexados ({condutorDocumentos.length}):
+                                                </p>
+                                                <div className='space-y-1'>
+                                                  {condutorDocumentos.map((documento, docIndex) => (
+                                                    <div
+                                                      key={docIndex}
+                                                      className='flex items-center justify-between gap-2 rounded-md bg-muted/50 px-2 py-1 text-xs'
+                                                    >
+                                                      <div className='flex items-center gap-1.5 min-w-0 flex-1'>
+                                                        <File className='h-3 w-3 flex-shrink-0 text-muted-foreground' />
+                                                        <span className='truncate text-muted-foreground'>
+                                                          {documento.nome}
+                                                        </span>
+                                                      </div>
+                                                      <div className='flex items-center gap-1'>
+                                                        <Button
+                                                          type='button'
+                                                          variant='ghost'
+                                                          size='sm'
+                                                          onClick={() => handleViewCondutorDocumento(documento)}
+                                                          title='Visualizar'
+                                                          className='h-6 w-6 p-0'
+                                                        >
+                                                          <Eye className='h-3 w-3' />
+                                                        </Button>
+                                                        <Button
+                                                          type='button'
+                                                          variant='ghost'
+                                                          size='sm'
+                                                          onClick={() => handleDownloadCondutorDocumento(documento)}
+                                                          title='Descarregar'
+                                                          className='h-6 w-6 p-0'
+                                                        >
+                                                          <Download className='h-3 w-3' />
+                                                        </Button>
+                                                        <Button
+                                                          type='button'
+                                                          variant='ghost'
+                                                          size='sm'
+                                                          onClick={() => handleRemoveCondutorDocumento(id, docIndex)}
+                                                          title='Remover'
+                                                          className='h-6 w-6 p-0 text-destructive hover:text-destructive'
+                                                        >
+                                                          <X className='h-3 w-3' />
+                                                        </Button>
+                                                      </div>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            )}
                                           </div>
                                         </div>
                                         <div className='flex flex-wrap justify-end gap-2'>
+                                          <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            onClick={() => handleOpenCondutorUploadDialog(id)}
+                                            title='Anexar Ficheiros'
+                                            disabled={condutorIndisponivel}
+                                            className={cn(
+                                              'gap-2',
+                                              condutorIndisponivel && 'pointer-events-none opacity-60'
+                                            )}
+                                          >
+                                            <FileText className='h-4 w-4' />
+                                            Anexar
+                                          </Button>
                                           <Button
                                             type='button'
                                             variant='outline'
@@ -7695,6 +7902,167 @@ export function ViaturaFormContainer({
           </Button>
         </div>
       </form>
+
+      {/* Diálogo de upload de documentos do condutor */}
+      <Dialog
+        open={condutorUploadDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseCondutorUploadDialog()
+          }
+        }}
+      >
+        <DialogContent className='sm:max-w-md'>
+          <DialogHeader>
+            <DialogTitle>Anexar Ficheiros ao Condutor</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4 py-4'>
+            {condutorUploadDialogCondutorId && (
+              <div className='space-y-2'>
+                <p className='text-sm text-muted-foreground'>
+                  Condutor: <span className='font-medium text-foreground'>{condutoresMap.get(condutorUploadDialogCondutorId) ?? 'Desconhecido'}</span>
+                </p>
+                <p className='text-sm text-muted-foreground'>
+                  Selecione um ou mais ficheiros para anexar (ex: carta de condução, documentos de identificação, etc.)
+                </p>
+                <input
+                  ref={condutorUploadFileInputRef}
+                  type='file'
+                  multiple
+                  onChange={handleCondutorFileUpload}
+                  className='hidden'
+                  accept='*/*'
+                />
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => condutorUploadFileInputRef.current?.click()}
+                  className='w-full'
+                >
+                  <FileText className='mr-2 h-4 w-4' />
+                  Selecionar Ficheiros
+                </Button>
+                {condutorUploadDialogCondutorId && condutoresDocumentos[condutorUploadDialogCondutorId] && (
+                  <div className='mt-4 space-y-2'>
+                    <p className='text-sm font-medium text-foreground'>
+                      Ficheiros anexados ({condutoresDocumentos[condutorUploadDialogCondutorId]?.length ?? 0}):
+                    </p>
+                    <div className='max-h-48 space-y-1 overflow-y-auto rounded-md border border-border/50 bg-muted/30 p-2'>
+                      {condutoresDocumentos[condutorUploadDialogCondutorId]?.map((documento, index) => (
+                        <div
+                          key={index}
+                          className='flex items-center justify-between gap-2 rounded-md bg-background px-2 py-1.5 text-xs'
+                        >
+                          <div className='flex items-center gap-2 min-w-0 flex-1'>
+                            <File className='h-3.5 w-3.5 flex-shrink-0 text-muted-foreground' />
+                            <span className='truncate text-foreground'>{documento.nome}</span>
+                            <span className='text-xs text-muted-foreground'>
+                              ({formatFileSize(documento.tamanho)})
+                            </span>
+                          </div>
+                          <div className='flex items-center gap-1'>
+                            <Button
+                              type='button'
+                              variant='ghost'
+                              size='sm'
+                              onClick={() => handleViewCondutorDocumento(documento)}
+                              title='Visualizar'
+                              className='h-6 w-6 p-0'
+                            >
+                              <Eye className='h-3 w-3' />
+                            </Button>
+                            <Button
+                              type='button'
+                              variant='ghost'
+                              size='sm'
+                              onClick={() => handleRemoveCondutorDocumento(condutorUploadDialogCondutorId, index)}
+                              title='Remover'
+                              className='h-6 w-6 p-0 text-destructive hover:text-destructive'
+                            >
+                              <X className='h-3 w-3' />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type='button' variant='outline' onClick={handleCloseCondutorUploadDialog}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de visualização de documentos do condutor */}
+      <Dialog open={condutorViewerOpen} onOpenChange={setCondutorViewerOpen}>
+        <DialogContent className='max-w-4xl max-h-[90vh] p-0'>
+          {condutorViewerDocumento && (
+            <div className='flex flex-col'>
+              <DialogHeader className='px-6 pt-6 pb-4'>
+                <DialogTitle className='truncate'>{condutorViewerDocumento.nome}</DialogTitle>
+              </DialogHeader>
+              <div className='flex items-center justify-center p-6 overflow-auto'>
+                {(() => {
+                  const viewerUrl = getDocumentoViewerUrl(condutorViewerDocumento)
+                  if (!viewerUrl) {
+                    return (
+                      <div className='flex flex-col items-center justify-center gap-4 p-8 text-center'>
+                        <File className='h-16 w-16 text-muted-foreground' />
+                        <p className='text-sm text-muted-foreground'>
+                          Não é possível visualizar este tipo de ficheiro. Por favor, descarregue o ficheiro para o visualizar.
+                        </p>
+                      </div>
+                    )
+                  }
+                  
+                  if (isImageContentType(condutorViewerDocumento.contentType)) {
+                    return (
+                      <img
+                        src={viewerUrl}
+                        alt={condutorViewerDocumento.nome}
+                        className='max-h-[70vh] w-auto object-contain rounded-lg'
+                        style={{ imageOrientation: 'from-image' }}
+                      />
+                    )
+                  }
+                  
+                  if (isPdfContentType(condutorViewerDocumento.contentType, condutorViewerDocumento.nome)) {
+                    return (
+                      <iframe
+                        src={viewerUrl}
+                        title={condutorViewerDocumento.nome}
+                        className='w-full h-[70vh] rounded-lg border'
+                      />
+                    )
+                  }
+                  
+                  return (
+                    <div className='flex flex-col items-center justify-center gap-4 p-8 text-center'>
+                      <File className='h-16 w-16 text-muted-foreground' />
+                      <p className='text-sm text-muted-foreground'>
+                        Visualização não disponível para este tipo de ficheiro.
+                      </p>
+                      <Button
+                        type='button'
+                        variant='outline'
+                        onClick={() => handleDownloadCondutorDocumento(condutorViewerDocumento)}
+                      >
+                        <Download className='mr-2 h-4 w-4' />
+                        Descarregar ficheiro
+                      </Button>
+                    </div>
+                  )
+                })()}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Form>
   )
 }
