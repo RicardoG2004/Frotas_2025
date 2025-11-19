@@ -4906,97 +4906,121 @@ export function ViaturaFormContainer({
                     </div>
                   </FormSection>
 
-                  <FormSection
-                    icon={PiggyBank}
-                    title='Condições financeiras'
-                    description='Detalhes de rendas, opção de compra e valor residual'
-                  >
-                    <div className='grid gap-4 md:grid-cols-3'>
+                  <div className='grid gap-6 md:grid-cols-2'>
+                    <FormSection
+                      icon={PiggyBank}
+                      title='Condições financeiras'
+                      description='Detalhes de rendas, opção de compra e valor residual'
+                    >
+                      <div className='grid gap-4 md:grid-cols-3'>
+                        <FormField
+                          control={form.control}
+                          name='opcaoCompra'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Opção de Compra</FormLabel>
+                              <FormControl>
+                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
+                                  <span className='text-sm text-muted-foreground'>
+                                    {field.value ? 'Disponível' : 'Não disponível'}
+                                  </span>
+                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='nRendas'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nº de Rendas</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='valorRenda'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Valor da Renda (€)</FormLabel>
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.01}
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    <FormField
+                      control={form.control}
+                      name='valorResidual'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Valor Residual Estimado (€)</FormLabel>
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
+                                  className={TEXT_INPUT_CLASS}
+                                  step={0.01}
+                                  min={0}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                      </FormSection>
+
+                    <FormSection
+                      icon={FolderOpen}
+                      title='Documentação'
+                      description='Anexe documentos, imagens e ficheiros relevantes'
+                    >
                       <FormField
                         control={form.control}
-                        name='opcaoCompra'
+                        name='documentos'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Opção de Compra</FormLabel>
                             <FormControl>
-                              <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                                <span className='text-sm text-muted-foreground'>
-                                  {field.value ? 'Disponível' : 'Não disponível'}
-                                </span>
-                                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='nRendas'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nº de Rendas</FormLabel>
-                            <FormControl>
-                              <NumberInput
-                                value={toNumberValue(field.value)}
-                                onValueChange={(nextValue) => field.onChange(nextValue)}
-                                onBlur={field.onBlur}
-                                name={field.name}
-                                ref={field.ref}
-                                className={TEXT_INPUT_CLASS}
-                                min={0}
+                              <DocumentosUploader
+                                value={field.value}
+                                onChange={(next) => field.onChange(next)}
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name='valorRenda'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Valor da Renda (€)</FormLabel>
-                            <FormControl>
-                              <NumberInput
-                                value={toNumberValue(field.value)}
-                                onValueChange={(nextValue) => field.onChange(nextValue)}
-                                onBlur={field.onBlur}
-                                name={field.name}
-                                ref={field.ref}
-                                className={TEXT_INPUT_CLASS}
-                                step={0.01}
-                                min={0}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  <FormField
-                    control={form.control}
-                    name='valorResidual'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Valor Residual Estimado (€)</FormLabel>
-                        <FormControl>
-                              <NumberInput
-                                value={toNumberValue(field.value)}
-                                onValueChange={(nextValue) => field.onChange(nextValue)}
-                                onBlur={field.onBlur}
-                                name={field.name}
-                                ref={field.ref}
-                                className={TEXT_INPUT_CLASS}
-                                step={0.01}
-                                min={0}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                     </FormSection>
+                  </div>
                 </CardContent>
               </Card>
             </div>
