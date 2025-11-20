@@ -107,6 +107,7 @@ export interface CreateSeguroDTO {
   periodicidade: PeriodicidadeSeguro
   metodoPagamento?: MetodoPagamentoSeguro
   dataPagamento?: string
+  documentos?: string
 }
 
 export interface UpdateSeguroDTO extends Omit<CreateSeguroDTO, 'seguradoraId'> {
@@ -130,6 +131,7 @@ export interface SeguroDTO {
   periodicidade: PeriodicidadeSeguro
   metodoPagamento?: MetodoPagamentoSeguro
   dataPagamento?: string
+  documentos?: string
   createdOn?: string
 }
 

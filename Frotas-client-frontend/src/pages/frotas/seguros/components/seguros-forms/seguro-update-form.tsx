@@ -503,6 +503,8 @@ const SeguroUpdateForm = ({
         isSubmitting: true,
       }))
 
+      const documentosPayload = encodeSeguroDocumentos(values.documentos)
+
       const requestData: UpdateSeguroDTO = {
         designacao: values.designacao,
         apolice: values.apolice,
@@ -517,6 +519,7 @@ const SeguroUpdateForm = ({
         periodicidade: values.periodicidade,
         metodoPagamento: values.metodoPagamento,
         dataPagamento: values.dataPagamento?.toISOString(),
+        documentos: documentosPayload || undefined,
       }
 
       const response = await updateSeguroMutation.mutateAsync({
@@ -612,6 +615,116 @@ const SeguroUpdateForm = ({
     contentType: string
     tamanho: number
     pasta?: string | null
+  }
+
+  const DOCUMENTOS_STORAGE_VERSION = 1
+
+  // Função para sanitizar documento
+  const sanitizeDocumento = (documento: unknown): SeguroDocumentoFormValue | null => {
+    if (typeof documento !== 'object' || documento === null) return null
+    const doc = documento as Record<string, unknown>
+    if (
+      typeof doc.nome === 'string' &&
+      typeof doc.dados === 'string' &&
+      typeof doc.contentType === 'string' &&
+      typeof doc.tamanho === 'number'
+    ) {
+      return {
+        nome: doc.nome,
+        dados: doc.dados,
+        contentType: doc.contentType,
+        tamanho: doc.tamanho,
+        pasta: typeof doc.pasta === 'string' ? doc.pasta : null,
+      }
+    }
+    return null
+  }
+
+  // Função para parsear documentos de string JSON
+  const parseSeguroDocumentos = (
+    payload?: string | null | undefined
+  ): SeguroDocumentoFormValue[] => {
+    if (!payload) {
+      return []
+    }
+
+    const trimmed = payload.trim()
+    if (!trimmed) {
+      return []
+    }
+
+    try {
+      const parsed = JSON.parse(trimmed) as {
+        version?: number
+        files?: unknown[]
+      }
+
+      if (
+        parsed &&
+        Array.isArray(parsed.files) &&
+        (parsed.version === undefined || parsed.version === DOCUMENTOS_STORAGE_VERSION)
+      ) {
+        return parsed.files
+          .map(sanitizeDocumento)
+          .filter((doc): doc is SeguroDocumentoFormValue => doc !== null)
+      }
+    } catch (_error) {
+      // Não é JSON, continuar para os formatos legacy
+    }
+
+    if (trimmed.startsWith('data:')) {
+      const matches = trimmed.match(/^data:([^;]+);base64,(.+)$/)
+      if (matches) {
+        const mimeType = matches[1]
+        const base64Data = matches[2]
+        const estimatedSize = Math.round((base64Data.length * 3) / 4)
+        const extension = mimeType.split('/')[1]?.split(';')[0] || 'bin'
+        return [
+          {
+            nome: `documento.${extension}`,
+            dados: trimmed,
+            contentType: mimeType,
+            tamanho: estimatedSize,
+            pasta: null,
+          },
+        ]
+      }
+    }
+
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      const lastSegment = trimmed.split('/').pop()
+      return [
+        {
+          nome: lastSegment && lastSegment.length < 120 ? lastSegment : 'documento',
+          dados: trimmed,
+          contentType: 'application/octet-stream',
+          tamanho: 0,
+          pasta: null,
+        },
+      ]
+    }
+
+    return []
+  }
+
+  // Função para codificar documentos em string JSON
+  const encodeSeguroDocumentos = (
+    documentos: SeguroDocumentoFormValue[] | undefined
+  ): string => {
+    if (!documentos?.length) {
+      return ''
+    }
+
+    return JSON.stringify({
+      version: DOCUMENTOS_STORAGE_VERSION,
+      files: documentos.map((documento) => ({
+        nome: documento.nome,
+        dados: documento.dados,
+        contentType: documento.contentType,
+        tamanho: documento.tamanho,
+        pasta: documento.pasta ?? undefined,
+      })),
+    })
   }
 
   type DocumentosUploaderProps = {
@@ -710,7 +823,16 @@ const SeguroUpdateForm = ({
     value,
     onChange,
   }: DocumentosUploaderProps) => {
-    const documentos = value ?? []
+    // Garantir que value seja sempre um array
+    let documentos: SeguroDocumentoFormValue[] = []
+    if (Array.isArray(value)) {
+      documentos = value
+    } else if (value && typeof value === 'string') {
+      // Se for string, fazer parse
+      documentos = parseSeguroDocumentos(value)
+    } else {
+      documentos = []
+    }
     const [previewIndex, setPreviewIndex] = useState<number | null>(null)
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const documentosRef = useRef<SeguroDocumentoFormValue[]>(documentos)
@@ -1167,11 +1289,11 @@ const SeguroUpdateForm = ({
 
         <div className='space-y-3'>
           <div className='h-[170px] overflow-y-auto px-3 py-2 rounded-2xl border border-border/60 bg-card/60 documentation-scroll'>
-            <div className='grid grid-cols-3 gap-3'>
-              <div className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px]'>
+            <div className='flex flex-wrap gap-3'>
+              <div className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px] w-fit min-w-[120px]'>
                 <div className='flex items-center justify-between gap-3'>
                   <div className='flex items-center gap-3'>
-                    <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary'>
+                    <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary flex-shrink-0'>
                       <FolderOpen className='h-5 w-5' />
                     </div>
                     <div>
@@ -1201,32 +1323,26 @@ const SeguroUpdateForm = ({
               {folderCards.map((card) => (
                 <div
                   key={card.key}
-                  className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px]'
+                  className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px] w-fit min-w-[120px]'
                 >
-                  <div className='flex items-center justify-between gap-3'>
-                    <div className='flex items-center gap-3'>
-                      <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary'>
-                        <FolderOpen className='h-5 w-5' />
-                      </div>
-                      <div>
-                        <p className='text-sm font-semibold text-foreground'>
-                          {card.label}
-                        </p>
-                        <p className='text-[11px] text-muted-foreground whitespace-nowrap'>
-                          {card.count} documento(s)
-                        </p>
-                      </div>
-                    </div>
-                    <Button
+                  <div className='flex items-start gap-3'>
+                    <button
                       type='button'
-                      variant='ghost'
-                      size='icon'
-                      className='h-8 w-8 text-muted-foreground transition hover:text-destructive'
                       onClick={() => handleDeleteFolder(card.folder)}
+                      className='group relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary flex-shrink-0 transition hover:bg-destructive/10 cursor-pointer'
                       title='Eliminar pasta'
                     >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
+                      <FolderOpen className='h-5 w-5 transition-opacity group-hover:opacity-0' />
+                      <Trash2 className='h-5 w-5 text-destructive absolute opacity-0 transition-opacity group-hover:opacity-100' />
+                    </button>
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-sm font-semibold text-foreground break-words'>
+                        {card.label}
+                      </p>
+                      <p className='text-[11px] text-muted-foreground whitespace-nowrap'>
+                        {card.count} documento(s)
+                      </p>
+                    </div>
                   </div>
                   <div className='mt-4 flex flex-wrap gap-2'>
                     <Button

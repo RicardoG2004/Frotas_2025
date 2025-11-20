@@ -14,6 +14,105 @@ import {
   MetodoPagamentoSeguro,
 } from '@/types/dtos/frotas/seguros.dtos'
 
+// Tipo para documentos de seguro
+type SeguroDocumentoFormValue = {
+  nome: string
+  dados: string
+  contentType: string
+  tamanho: number
+  pasta?: string | null
+}
+
+const DOCUMENTOS_STORAGE_VERSION = 1
+
+// Função para sanitizar documento
+const sanitizeDocumento = (documento: unknown): SeguroDocumentoFormValue | null => {
+  if (typeof documento !== 'object' || documento === null) return null
+  const doc = documento as Record<string, unknown>
+  if (
+    typeof doc.nome === 'string' &&
+    typeof doc.dados === 'string' &&
+    typeof doc.contentType === 'string' &&
+    typeof doc.tamanho === 'number'
+  ) {
+    return {
+      nome: doc.nome,
+      dados: doc.dados,
+      contentType: doc.contentType,
+      tamanho: doc.tamanho,
+      pasta: typeof doc.pasta === 'string' ? doc.pasta : null,
+    }
+  }
+  return null
+}
+
+// Função para parsear documentos de string JSON
+const parseSeguroDocumentos = (
+  payload?: string | null | undefined
+): SeguroDocumentoFormValue[] => {
+  if (!payload) {
+    return []
+  }
+
+  const trimmed = payload.trim()
+  if (!trimmed) {
+    return []
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed) as {
+      version?: number
+      files?: unknown[]
+    }
+
+    if (
+      parsed &&
+      Array.isArray(parsed.files) &&
+      (parsed.version === undefined || parsed.version === DOCUMENTOS_STORAGE_VERSION)
+    ) {
+      return parsed.files
+        .map(sanitizeDocumento)
+        .filter((doc): doc is SeguroDocumentoFormValue => doc !== null)
+    }
+  } catch (_error) {
+    // Não é JSON, continuar para os formatos legacy
+  }
+
+  if (trimmed.startsWith('data:')) {
+    const matches = trimmed.match(/^data:([^;]+);base64,(.+)$/)
+    if (matches) {
+      const mimeType = matches[1]
+      const base64Data = matches[2]
+      const estimatedSize = Math.round((base64Data.length * 3) / 4)
+      const extension = mimeType.split('/')[1]?.split(';')[0] || 'bin'
+      return [
+        {
+          nome: `documento.${extension}`,
+          dados: trimmed,
+          contentType: mimeType,
+          tamanho: estimatedSize,
+          pasta: null,
+        },
+      ]
+    }
+  }
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    const lastSegment = trimmed.split('/').pop()
+    return [
+      {
+        nome: lastSegment && lastSegment.length < 120 ? lastSegment : 'documento',
+        dados: trimmed,
+        contentType: 'application/octet-stream',
+        tamanho: 0,
+        pasta: null,
+      },
+    ]
+  }
+
+  return []
+}
+
 // Helper functions to convert string enum names to enum values
 const parsePeriodicidade = (value: any): PeriodicidadeSeguro => {
   if (typeof value === 'number') return value as PeriodicidadeSeguro
@@ -130,7 +229,7 @@ export function SegurosUpdatePage() {
       dataPagamento: seguro.dataPagamento
         ? new Date(seguro.dataPagamento)
         : undefined,
-      documentos: (seguro as any).documentos || [],
+      documentos: parseSeguroDocumentos((seguro as any).documentos),
     }
 
     return processedData

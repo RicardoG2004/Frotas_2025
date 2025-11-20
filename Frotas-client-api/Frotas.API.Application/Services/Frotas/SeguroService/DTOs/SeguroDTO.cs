@@ -21,5 +21,6 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService.DTOs
     public PeriodicidadeSeguro Periodicidade { get; set; }
     public MetodoPagamentoSeguro? MetodoPagamento { get; set; }
     public DateTime? DataPagamento { get; set; }
+    public string? Documentos { get; set; }
   }
 }

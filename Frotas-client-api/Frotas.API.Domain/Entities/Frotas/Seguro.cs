@@ -43,6 +43,8 @@ namespace Frotas.API.Domain.Entities.Frotas
     public PeriodicidadeSeguro Periodicidade { get; set; } = PeriodicidadeSeguro.Anual;
     public MetodoPagamentoSeguro? MetodoPagamento { get; set; }
     public DateTime? DataPagamento { get; set; }
+    // Campo para armazenar documentos anexados ao seguro (JSON com array de documentos)
+    public string? Documentos { get; set; }
     public ICollection<ViaturaSeguro> ViaturaSeguros { get; set; } = new List<ViaturaSeguro>();
   }
 }
