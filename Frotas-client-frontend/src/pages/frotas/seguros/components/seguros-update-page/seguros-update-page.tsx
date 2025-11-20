@@ -37,7 +37,6 @@ const parseMetodoPagamento = (value: any): MetodoPagamentoSeguro | undefined => 
       'transferencia': MetodoPagamentoSeguro.Transferencia,
       'transferência': MetodoPagamentoSeguro.Transferencia,
       'mbway': MetodoPagamentoSeguro.MBWay,
-      'mbway': MetodoPagamentoSeguro.MBWay,
       'multibanco': MetodoPagamentoSeguro.Multibanco,
       'cartaodebito': MetodoPagamentoSeguro.CartaoDebito,
       'cartãodedébito': MetodoPagamentoSeguro.CartaoDebito,
@@ -94,14 +93,15 @@ export function SegurosUpdatePage() {
         seguradoraId: '',
         assistenciaViagem: false,
         cartaVerde: false,
+        riscosCobertos: undefined,
         valorCobertura: 0,
         custoAnual: 0,
-        riscosCobertos: '',
         dataInicial: new Date(),
         dataFinal: new Date(),
         periodicidade: PeriodicidadeSeguro.Anual,
         metodoPagamento: undefined,
         dataPagamento: undefined,
+        documentos: [],
       }
     }
 
@@ -115,9 +115,9 @@ export function SegurosUpdatePage() {
       seguradoraId: seguro.seguradoraId || '',
       assistenciaViagem: Boolean(seguro.assistenciaViagem),
       cartaVerde: Boolean(seguro.cartaVerde),
+      riscosCobertos: seguro.riscosCobertos || undefined,
       valorCobertura: Number(seguro.valorCobertura || 0),
       custoAnual: Number(seguro.custoAnual || 0),
-      riscosCobertos: seguro.riscosCobertos || '',
       dataInicial: seguro.dataInicial
         ? new Date(seguro.dataInicial)
         : new Date(),
@@ -130,6 +130,7 @@ export function SegurosUpdatePage() {
       dataPagamento: seguro.dataPagamento
         ? new Date(seguro.dataPagamento)
         : undefined,
+      documentos: (seguro as any).documentos || [],
     }
 
     return processedData

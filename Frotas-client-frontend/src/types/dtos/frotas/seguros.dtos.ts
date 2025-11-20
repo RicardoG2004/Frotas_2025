@@ -101,7 +101,7 @@ export interface CreateSeguroDTO {
   cartaVerde: boolean
   valorCobertura: number
   custoAnual: number
-  riscosCobertos: string
+  riscosCobertos?: string
   dataInicial: string
   dataFinal: string
   periodicidade: PeriodicidadeSeguro
@@ -124,7 +124,7 @@ export interface SeguroDTO {
   cartaVerde: boolean
   valorCobertura: number
   custoAnual: number
-  riscosCobertos: string
+  riscosCobertos?: string
   dataInicial: string
   dataFinal: string
   periodicidade: PeriodicidadeSeguro

@@ -43,13 +43,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import {
   RadioGroup,
   RadioGroupItem,
 } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
@@ -114,15 +114,13 @@ const seguroFormSchema = z.object({
     .min(1, { message: 'A Seguradora é obrigatória' }),
   assistenciaViagem: z.boolean().default(false),
   cartaVerde: z.boolean().default(false),
+  riscosCobertos: z.string().optional(),
   valorCobertura: z.coerce
     .number({ message: 'O Valor de Cobertura é obrigatório' })
     .min(0, { message: 'O Valor de Cobertura deve ser maior ou igual a 0' }),
   custoAnual: z.coerce
     .number({ message: 'O Custo Anual é obrigatório' })
     .min(0, { message: 'O Custo Anual deve ser maior ou igual a 0' }),
-  riscosCobertos: z
-    .string({ message: 'Os Riscos Cobertos são obrigatórios' })
-    .min(1, { message: 'Os Riscos Cobertos são obrigatórios' }),
   dataInicial: z.date({ message: 'A Data Inicial é obrigatória' }),
   dataFinal: z.date({ message: 'A Data Final é obrigatória' }),
   periodicidade: z.nativeEnum(PeriodicidadeSeguro, {
@@ -205,9 +203,9 @@ const SeguroCreateForm = ({
       seguradoraId: 'identificacao',
       assistenciaViagem: 'coberturas',
       cartaVerde: 'coberturas',
+      riscosCobertos: 'coberturas',
       valorCobertura: 'financeiro',
       custoAnual: 'financeiro',
-      riscosCobertos: 'coberturas',
       dataInicial: 'identificacao',
       dataFinal: 'identificacao',
       periodicidade: 'identificacao',
@@ -223,9 +221,9 @@ const SeguroCreateForm = ({
       seguradoraId: '',
       assistenciaViagem: false,
       cartaVerde: false,
+      riscosCobertos: undefined,
       valorCobertura: undefined as unknown as number,
       custoAnual: undefined as unknown as number,
-      riscosCobertos: '',
       dataInicial: undefined,
       dataFinal: undefined,
       periodicidade: undefined,
@@ -332,7 +330,7 @@ const SeguroCreateForm = ({
     }
   }, [formData, form, formId, hasFormData, isInitialized])
 
-  // Watch only specific fields, excluding riscosCobertos completely
+  // Watch only specific fields
   const watchedFields = useWatch({
     control: form.control,
     name: [
@@ -341,6 +339,7 @@ const SeguroCreateForm = ({
       'seguradoraId',
       'assistenciaViagem',
       'cartaVerde',
+      'riscosCobertos',
       'valorCobertura',
       'custoAnual',
       'dataInicial',
@@ -351,13 +350,12 @@ const SeguroCreateForm = ({
     ] as const,
   })
 
-  // Update state only when watched fields change (not riscosCobertos, valorCobertura, custoAnual)
+  // Update state only when watched fields change (not valorCobertura, custoAnual)
   useEffect(() => {
-    // Don't update state if textarea or number inputs are focused
+    // Don't update state if number inputs are focused
     const activeElement = document.activeElement
     const fieldName = activeElement?.getAttribute('name')
     if (
-      (activeElement?.tagName === 'TEXTAREA' && fieldName === 'riscosCobertos') ||
       (activeElement?.tagName === 'INPUT' && activeElement.getAttribute('type') === 'number' && 
        (fieldName === 'valorCobertura' || fieldName === 'custoAnual'))
     ) {
@@ -369,14 +367,13 @@ const SeguroCreateForm = ({
       const currentActive = document.activeElement
       const currentFieldName = currentActive?.getAttribute('name')
       if (
-        (currentActive?.tagName === 'TEXTAREA' && currentFieldName === 'riscosCobertos') ||
         (currentActive?.tagName === 'INPUT' && currentActive.getAttribute('type') === 'number' && 
          (currentFieldName === 'valorCobertura' || currentFieldName === 'custoAnual'))
       ) {
         return
       }
 
-      const fullValue = form.getValues() // Get all values including riscosCobertos
+      const fullValue = form.getValues()
       const hasChanges = detectFormChanges(fullValue, defaultValues)
 
       if (JSON.stringify(fullValue) !== JSON.stringify(formData)) {
@@ -412,7 +409,7 @@ const SeguroCreateForm = ({
       clearTimeout(updateTimeoutRef)
     }
   }, [
-    watchedFields, // Only triggers when non-riscosCobertos fields change
+    watchedFields,
     defaultValues,
     effectiveWindowId,
     form,
@@ -500,9 +497,9 @@ const SeguroCreateForm = ({
         seguradoraId: values.seguradoraId,
         assistenciaViagem: values.assistenciaViagem,
         cartaVerde: values.cartaVerde,
+        riscosCobertos: values.riscosCobertos,
         valorCobertura: values.valorCobertura,
         custoAnual: values.custoAnual,
-        riscosCobertos: values.riscosCobertos,
         dataInicial: values.dataInicial.toISOString(),
         dataFinal: values.dataFinal.toISOString(),
         periodicidade: values.periodicidade as PeriodicidadeSeguro,
@@ -1843,88 +1840,79 @@ const SeguroCreateForm = ({
                   </CardHeader>
                   <CardContent className='space-y-6'>
                     <div className='grid gap-6 lg:grid-cols-[1.2fr_0.1fr_1.3fr]'>
-                      <FormSection
-                        icon={ShieldCheck}
-                        title='Coberturas'
-                        description='Configure os benefícios e riscos cobertos pelo seguro'
-                        className='h-full'
-                      >
-                        <div className='space-y-4'>
-                          <div className='grid grid-cols-2 gap-4'>
-                            <FormField
-                              control={form.control}
-                              name='assistenciaViagem'
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className='flex items-center gap-2'>
-                                    Assistência em Viagem
-                                  </FormLabel>
-                                  <FormControl>
-                                    <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
-                                      <span className='text-sm text-muted-foreground'>
-                                        {field.value ? 'Incluída' : 'Não incluída'}
-                                      </span>
-                                      <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                        disabled={createSeguroMutation.isPending}
-                                      />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name='cartaVerde'
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className='flex items-center gap-2'>
-                                    Carta Verde
-                                  </FormLabel>
-                                  <FormControl>
-                                    <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
-                                      <span className='text-sm text-muted-foreground'>
-                                        {field.value ? 'Incluída' : 'Não incluída'}
-                                      </span>
-                                      <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                        disabled={createSeguroMutation.isPending}
-                                      />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
+                      <div className='space-y-4'>
+                        <div className='grid grid-cols-2 gap-4'>
                           <FormField
                             control={form.control}
-                            name='riscosCobertos'
+                            name='assistenciaViagem'
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className='flex items-center gap-2'>
-                                  Riscos Cobertos
-                                  <Badge variant='secondary' className='text-xs'>
-                                    Obrigatório
-                                  </Badge>
+                                  Assistência em Viagem
                                 </FormLabel>
                                 <FormControl>
-                                  <Textarea
-                                    placeholder='Descreva os riscos cobertos pelo seguro'
-                                    rows={4}
-                                    {...field}
-                                    className='shadow-inner drop-shadow-xl'
-                                  />
+                                  <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                                    <span className='text-sm text-muted-foreground'>
+                                      {field.value ? 'Incluída' : 'Não incluída'}
+                                    </span>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      disabled={createSeguroMutation.isPending}
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='cartaVerde'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='flex items-center gap-2'>
+                                  Carta Verde
+                                </FormLabel>
+                                <FormControl>
+                                  <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                                    <span className='text-sm text-muted-foreground'>
+                                      {field.value ? 'Incluída' : 'Não incluída'}
+                                    </span>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      disabled={createSeguroMutation.isPending}
+                                    />
+                                  </div>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
                         </div>
-                      </FormSection>
+                        <FormField
+                          control={form.control}
+                          name='riscosCobertos'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className='flex items-center gap-2'>
+                                <FileText className='h-4 w-4' />
+                                Riscos Cobertos
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder='Digite os riscos cobertos pelo seguro (opcional)'
+                                  {...field}
+                                  value={field.value ?? ''}
+                                  className='px-4 py-3 shadow-inner drop-shadow-xl min-h-[200px] resize-y'
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <div></div>
                       <FormSection
                         icon={FolderOpen}
