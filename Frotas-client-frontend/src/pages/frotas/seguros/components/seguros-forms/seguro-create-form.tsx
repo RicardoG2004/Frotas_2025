@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback, type ComponentType, type ChangeEvent, type ReactNode } from 'react'
 import { z } from 'zod'
-import { useForm, type DefaultValues } from 'react-hook-form'
+import { useForm, useWatch, type DefaultValues } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -53,6 +53,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -83,8 +84,6 @@ import {
   Eye,
   Plus,
   Euro,
-  ChevronUp,
-  ChevronDown,
   CalendarDays,
   Building2,
   Repeat,
@@ -128,7 +127,7 @@ const seguroFormSchema = z.object({
   dataFinal: z.date({ message: 'A Data Final é obrigatória' }),
   periodicidade: z.nativeEnum(PeriodicidadeSeguro, {
     message: 'A Periodicidade é obrigatória',
-  }),
+  }).optional(),
   metodoPagamento: z.nativeEnum(MetodoPagamentoSeguro).optional(),
   dataPagamento: z.date().optional().nullable(),
   documentos: z
@@ -229,7 +228,7 @@ const SeguroCreateForm = ({
       riscosCobertos: '',
       dataInicial: undefined,
       dataFinal: undefined,
-      periodicidade: PeriodicidadeSeguro.Anual,
+      periodicidade: undefined,
       metodoPagamento: undefined,
       dataPagamento: undefined,
       documentos: [],
@@ -240,6 +239,19 @@ const SeguroCreateForm = ({
   const seguroResolver: Resolver<SeguroFormSchemaType> = async (values) => {
     const result = seguroFormSchema.safeParse(values)
     if (result.success) {
+      // Validate periodicidade is required
+      if (result.data.periodicidade === undefined || result.data.periodicidade === null) {
+        return {
+          values: {},
+          errors: {
+            periodicidade: {
+              type: 'validation',
+              message: 'A Periodicidade é obrigatória',
+            },
+          },
+        }
+      }
+      
       if (result.data.dataFinal < result.data.dataInicial) {
         return {
           values: {},
@@ -302,17 +314,74 @@ const SeguroCreateForm = ({
 
   useEffect(() => {
     if (isInitialized && hasFormData(formId)) {
+      // Store the currently focused element
+      const activeElement = document.activeElement
+      const wasTextareaFocused = activeElement?.tagName === 'TEXTAREA'
+      const wasInputFocused = activeElement?.tagName === 'INPUT'
+      const wasFocused = wasTextareaFocused || wasInputFocused
+      
+      // Reset form
       form.reset(formData as SeguroFormSchemaType)
+      
+      // Restore focus if it was on a textarea or input
+      if (wasFocused && activeElement) {
+        requestAnimationFrame(() => {
+          (activeElement as HTMLElement).focus()
+        })
+      }
     }
   }, [formData, form, formId, hasFormData, isInitialized])
 
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      const hasChanges = detectFormChanges(value, defaultValues)
+  // Watch only specific fields, excluding riscosCobertos completely
+  const watchedFields = useWatch({
+    control: form.control,
+    name: [
+      'designacao',
+      'apolice',
+      'seguradoraId',
+      'assistenciaViagem',
+      'cartaVerde',
+      'valorCobertura',
+      'custoAnual',
+      'dataInicial',
+      'dataFinal',
+      'periodicidade',
+      'metodoPagamento',
+      'dataPagamento',
+    ] as const,
+  })
 
-      if (JSON.stringify(value) !== JSON.stringify(formData)) {
+  // Update state only when watched fields change (not riscosCobertos, valorCobertura, custoAnual)
+  useEffect(() => {
+    // Don't update state if textarea or number inputs are focused
+    const activeElement = document.activeElement
+    const fieldName = activeElement?.getAttribute('name')
+    if (
+      (activeElement?.tagName === 'TEXTAREA' && fieldName === 'riscosCobertos') ||
+      (activeElement?.tagName === 'INPUT' && activeElement.getAttribute('type') === 'number' && 
+       (fieldName === 'valorCobertura' || fieldName === 'custoAnual'))
+    ) {
+      return
+    }
+
+    const updateTimeoutRef = setTimeout(() => {
+      // Double-check that fields are not focused before updating
+      const currentActive = document.activeElement
+      const currentFieldName = currentActive?.getAttribute('name')
+      if (
+        (currentActive?.tagName === 'TEXTAREA' && currentFieldName === 'riscosCobertos') ||
+        (currentActive?.tagName === 'INPUT' && currentActive.getAttribute('type') === 'number' && 
+         (currentFieldName === 'valorCobertura' || currentFieldName === 'custoAnual'))
+      ) {
+        return
+      }
+
+      const fullValue = form.getValues() // Get all values including riscosCobertos
+      const hasChanges = detectFormChanges(fullValue, defaultValues)
+
+      if (JSON.stringify(fullValue) !== JSON.stringify(formData)) {
         setFormState(formId, {
-          formData: value as SeguroFormSchemaType,
+          formData: fullValue as SeguroFormSchemaType,
           isDirty: hasChanges,
           isValid: form.formState.isValid,
           isSubmitting: form.formState.isSubmitting,
@@ -323,24 +392,27 @@ const SeguroCreateForm = ({
         if (effectiveWindowId) {
           updateCreateFormData(
             effectiveWindowId,
-            value,
+            fullValue,
             setWindowHasFormData,
             defaultValues
           )
 
-          if (value.designacao && value.designacao !== formData?.designacao) {
+          if (fullValue.designacao && fullValue.designacao !== formData?.designacao) {
             updateCreateWindowTitle(
               effectiveWindowId,
-              value.designacao || 'Novo Seguro',
+              fullValue.designacao || 'Novo Seguro',
               updateWindowState
             )
           }
         }
       }
-    })
+    }, 300) // Debounce state updates
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(updateTimeoutRef)
+    }
   }, [
+    watchedFields, // Only triggers when non-riscosCobertos fields change
     defaultValues,
     effectiveWindowId,
     form,
@@ -433,7 +505,7 @@ const SeguroCreateForm = ({
         riscosCobertos: values.riscosCobertos,
         dataInicial: values.dataInicial.toISOString(),
         dataFinal: values.dataFinal.toISOString(),
-        periodicidade: values.periodicidade,
+        periodicidade: values.periodicidade as PeriodicidadeSeguro,
         metodoPagamento: values.metodoPagamento,
         dataPagamento: values.dataPagamento?.toISOString(),
       }
@@ -1481,87 +1553,6 @@ const SeguroCreateForm = ({
     )
   }
 
-  const renderCurrencyInput = (
-    field: any,
-    placeholder: string,
-    step: number = 0.01
-  ) => {
-    const stepDecimals = step.toString().includes('.')
-      ? step.toString().split('.')[1]?.length ?? 0
-      : 0
-
-    const formatDisplayValue = (value: any) => {
-      if (
-        value === undefined ||
-        value === null ||
-        (typeof value === 'string' && value.trim() === '')
-      ) {
-        return ''
-      }
-      return value
-    }
-
-    const adjustValue = (delta: number) => {
-      const current =
-        typeof field.value === 'number'
-          ? field.value
-          : parseFloat(field.value || '0') || 0
-      const newValue = Math.max(
-        0,
-        parseFloat((current + delta).toFixed(stepDecimals))
-      )
-      field.onChange(newValue)
-    }
-
-    return (
-      <div className='relative'>
-        <Input
-          type='number'
-          step={step}
-          min='0'
-          placeholder={placeholder}
-          value={formatDisplayValue(field.value)}
-          onChange={(event) => {
-            const value = event.target.value
-            if (value === '') {
-              field.onChange('')
-              return
-            }
-            const parsed = parseFloat(value)
-            if (!Number.isNaN(parsed)) {
-              field.onChange(parsed)
-            }
-          }}
-          onWheel={(event) => {
-            event.preventDefault()
-            const delta = event.deltaY < 0 ? step : -step
-            adjustValue(delta)
-          }}
-          className='px-4 py-6 pr-12 shadow-inner drop-shadow-xl'
-        />
-        <div className='absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5'>
-          <Button
-            type='button'
-            variant='ghost'
-            size='icon'
-            className='h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors'
-            onClick={() => adjustValue(step)}
-          >
-            <ChevronUp className='h-3 w-3' />
-          </Button>
-          <Button
-            type='button'
-            variant='ghost'
-            size='icon'
-            className='h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors'
-            onClick={() => adjustValue(-step)}
-          >
-            <ChevronDown className='h-3 w-3' />
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className='space-y-4'>
@@ -1737,7 +1728,7 @@ const SeguroCreateForm = ({
                             <FormControl>
                               <div className='pt-2'>
                                 <RadioGroup
-                                  value={field.value?.toString()}
+                                  value={field.value !== undefined ? field.value.toString() : undefined}
                                   onValueChange={(value) => {
                                     field.onChange(Number(value) as PeriodicidadeSeguro)
                                   }}
@@ -1995,10 +1986,20 @@ const SeguroCreateForm = ({
                               </Badge>
                             </FormLabel>
                             <FormControl>
-                              {renderCurrencyInput(
-                                field,
-                                'Valor total coberto pelo seguro'
-                              )}
+                              <Input
+                                type='number'
+                                step='0.01'
+                                min='0'
+                                placeholder='Valor total coberto pelo seguro'
+                                {...field}
+                                name='valorCobertura'
+                                value={field.value ?? ''}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value === '' ? undefined : parseFloat(value) || 0)
+                                }}
+                                className='shadow-inner drop-shadow-xl'
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -2016,10 +2017,20 @@ const SeguroCreateForm = ({
                               </Badge>
                             </FormLabel>
                             <FormControl>
-                              {renderCurrencyInput(
-                                field,
-                                'Custo anual do seguro'
-                              )}
+                              <Input
+                                type='number'
+                                step='0.01'
+                                min='0'
+                                placeholder='Custo anual do seguro'
+                                {...field}
+                                name='custoAnual'
+                                value={field.value ?? ''}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value === '' ? undefined : parseFloat(value) || 0)
+                                }}
+                                className='shadow-inner drop-shadow-xl'
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -2099,6 +2110,9 @@ const SeguroCreateForm = ({
                                       <DialogTitle className='text-base'>
                                         Selecione o Método de Pagamento
                                       </DialogTitle>
+                                      <DialogDescription>
+                                        Escolha o método de pagamento utilizado para este seguro.
+                                      </DialogDescription>
                                     </DialogHeader>
                                     <div className='flex flex-col gap-1.5 py-2 max-h-[60vh] overflow-y-auto'>
                                       {Object.entries(

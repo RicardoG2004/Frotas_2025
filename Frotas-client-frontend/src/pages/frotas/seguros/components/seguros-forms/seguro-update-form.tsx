@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback, type ComponentType, type ChangeEvent, type ReactNode } from 'react'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -48,18 +48,12 @@ import {
   RadioGroupItem,
 } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -89,8 +83,6 @@ import {
   Eye,
   Plus,
   Euro,
-  ChevronUp,
-  ChevronDown,
   CalendarDays,
   Building2,
   Repeat,
@@ -210,7 +202,7 @@ const SeguroUpdateForm = ({
   })
   const { handleError } = useSubmitErrorTab<SeguroFormSchemaType>({
     setActiveTab,
-      fieldToTabMap: {
+    fieldToTabMap: {
       default: 'identificacao',
       designacao: 'identificacao',
       apolice: 'identificacao',
@@ -268,6 +260,12 @@ const SeguroUpdateForm = ({
   })
 
   const initialValuesRef = useRef(initialData)
+  const hasResetFormRef = useRef(false)
+
+  // Update ref when initialData changes
+  useEffect(() => {
+    initialValuesRef.current = initialData
+  }, [initialData])
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -294,22 +292,119 @@ const SeguroUpdateForm = ({
   ])
 
   useEffect(() => {
-    if (isInitialized && hasFormData(formId)) {
-      form.reset(formData as SeguroFormSchemaType)
-    } else {
-      form.reset(initialData)
+    // Only reset form once when initialData is first loaded with valid data
+    // Don't reset if formData changes (that's from user input)
+    if (!hasResetFormRef.current && initialData.designacao) {
+      hasResetFormRef.current = true
+      // Get formData from store only once at initialization
+      const storedFormData = hasFormData(formId) ? formData : null
+      
+      // Store the currently focused element
+      const activeElement = document.activeElement
+      const wasTextareaFocused = activeElement?.tagName === 'TEXTAREA'
+      const wasInputFocused = activeElement?.tagName === 'INPUT'
+      const wasFocused = wasTextareaFocused || wasInputFocused
+      
+      if (isInitialized && storedFormData) {
+        // Merge formData with initialData, but prioritize initialData for enum fields
+        const mergedData = {
+          ...initialData,
+          ...(storedFormData as SeguroFormSchemaType),
+          // Always use initialData for enum fields if they exist
+          periodicidade:
+            initialData.periodicidade !== undefined &&
+            initialData.periodicidade !== null
+              ? initialData.periodicidade
+              : (storedFormData as SeguroFormSchemaType)?.periodicidade !== undefined &&
+                (storedFormData as SeguroFormSchemaType)?.periodicidade !== null
+              ? Number((storedFormData as SeguroFormSchemaType).periodicidade)
+              : PeriodicidadeSeguro.Anual,
+          metodoPagamento:
+            initialData.metodoPagamento !== undefined &&
+            initialData.metodoPagamento !== null
+              ? initialData.metodoPagamento
+              : (storedFormData as SeguroFormSchemaType)?.metodoPagamento !== undefined &&
+                (storedFormData as SeguroFormSchemaType)?.metodoPagamento !== null
+              ? Number((storedFormData as SeguroFormSchemaType).metodoPagamento)
+              : undefined,
+        }
+        
+        // Reset form
+        form.reset(mergedData)
+        
+        // Restore focus if it was on a textarea or input
+        if (wasFocused && activeElement) {
+          requestAnimationFrame(() => {
+            (activeElement as HTMLElement).focus()
+          })
+        }
+      } else {
+        // Reset form
+        form.reset(initialData)
+        
+        // Restore focus if it was on a textarea or input
+        if (wasFocused && activeElement) {
+          requestAnimationFrame(() => {
+            (activeElement as HTMLElement).focus()
+          })
+        }
+      }
     }
-  }, [formData, form, formId, hasFormData, initialData, isInitialized])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData.designacao, isInitialized])
 
+  // Watch only specific fields, excluding riscosCobertos completely
+  const watchedFields = useWatch({
+    control: form.control,
+    name: [
+      'designacao',
+      'apolice',
+      'seguradoraId',
+      'assistenciaViagem',
+      'cartaVerde',
+      'valorCobertura',
+      'custoAnual',
+      'dataInicial',
+      'dataFinal',
+      'periodicidade',
+      'metodoPagamento',
+      'dataPagamento',
+    ] as const,
+  })
+
+  // Update state only when watched fields change (not riscosCobertos, valorCobertura, custoAnual)
   useEffect(() => {
-    const subscription = form.watch((value) => {
+    // Don't update state if textarea or number inputs are focused
+    const activeElement = document.activeElement
+    const fieldName = activeElement?.getAttribute('name')
+    if (
+      (activeElement?.tagName === 'TEXTAREA' && fieldName === 'riscosCobertos') ||
+      (activeElement?.tagName === 'INPUT' && activeElement.getAttribute('type') === 'number' && 
+       (fieldName === 'valorCobertura' || fieldName === 'custoAnual'))
+    ) {
+      return
+    }
+
+    const updateTimeoutRef = setTimeout(() => {
+      // Double-check that fields are not focused before updating
+      const currentActive = document.activeElement
+      const currentFieldName = currentActive?.getAttribute('name')
+      if (
+        (currentActive?.tagName === 'TEXTAREA' && currentFieldName === 'riscosCobertos') ||
+        (currentActive?.tagName === 'INPUT' && currentActive.getAttribute('type') === 'number' && 
+         (currentFieldName === 'valorCobertura' || currentFieldName === 'custoAnual'))
+      ) {
+        return
+      }
+
+      const fullValue = form.getValues() // Get all values including riscosCobertos
       const hasChanges = detectUpdateFormChanges(
-        value,
+        fullValue,
         initialValuesRef.current
       )
 
       setFormState(formId, {
-        formData: value as SeguroFormSchemaType,
+        formData: fullValue as SeguroFormSchemaType,
         isDirty: hasChanges,
         isValid: form.formState.isValid,
         isSubmitting: form.formState.isSubmitting,
@@ -321,14 +416,17 @@ const SeguroUpdateForm = ({
         updateWindowFormData(effectiveWindowId, hasChanges, setWindowHasFormData)
         updateUpdateWindowTitle(
           effectiveWindowId,
-          value.designacao || 'Seguro',
+          fullValue.designacao || 'Seguro',
           updateWindowState
         )
       }
-    })
+    }, 300) // Debounce state updates
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(updateTimeoutRef)
+    }
   }, [
+    watchedFields, // Only triggers when non-riscosCobertos fields change
     effectiveWindowId,
     form,
     formId,
@@ -1465,87 +1563,6 @@ const SeguroUpdateForm = ({
     )
   }
 
-  const renderCurrencyInput = (
-    field: any,
-    placeholder: string,
-    step: number = 0.01
-  ) => {
-    const stepDecimals = step.toString().includes('.')
-      ? step.toString().split('.')[1]?.length ?? 0
-      : 0
-
-    const formatDisplayValue = (value: any) => {
-      if (
-        value === undefined ||
-        value === null ||
-        (typeof value === 'string' && value.trim() === '')
-      ) {
-        return ''
-      }
-      return value
-    }
-
-    const adjustValue = (delta: number) => {
-      const current =
-        typeof field.value === 'number'
-          ? field.value
-          : parseFloat(field.value || '0') || 0
-      const newValue = Math.max(
-        0,
-        parseFloat((current + delta).toFixed(stepDecimals))
-      )
-      field.onChange(newValue)
-    }
-
-    return (
-      <div className='relative'>
-        <Input
-          type='number'
-          step={step}
-          min='0'
-          placeholder={placeholder}
-          value={formatDisplayValue(field.value)}
-          onChange={(event) => {
-            const value = event.target.value
-            if (value === '') {
-              field.onChange('')
-              return
-            }
-            const parsed = parseFloat(value)
-            if (!Number.isNaN(parsed)) {
-              field.onChange(parsed)
-            }
-          }}
-          onWheel={(event) => {
-            event.preventDefault()
-            const delta = event.deltaY < 0 ? step : -step
-            adjustValue(delta)
-          }}
-          className='px-4 py-6 pr-12 shadow-inner drop-shadow-xl'
-        />
-        <div className='absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5'>
-          <Button
-            type='button'
-            variant='ghost'
-            size='icon'
-            className='h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors'
-            onClick={() => adjustValue(step)}
-          >
-            <ChevronUp className='h-3 w-3' />
-          </Button>
-          <Button
-            type='button'
-            variant='ghost'
-            size='icon'
-            className='h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors'
-            onClick={() => adjustValue(-step)}
-          >
-            <ChevronDown className='h-3 w-3' />
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className='space-y-4'>
@@ -1647,65 +1664,65 @@ const SeguroUpdateForm = ({
                       />
                     </div>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                      <FormField
-                        control={form.control}
-                        name='seguradoraId'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className='flex items-center gap-2'>
-                              <ShieldCheck className='h-4 w-4' />
-                              Seguradora
-                              <Badge variant='secondary' className='text-xs'>
-                                Obrigatório
-                              </Badge>
-                            </FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={seguradorasData.map((seguradora) => ({
-                                    value: seguradora.id || '',
-                                    label: seguradora.descricao || '',
-                                  }))}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder={
-                                    isLoadingSeguradoras
-                                      ? 'A carregar seguradoras...'
-                                      : 'Selecione a seguradora'
-                                  }
-                                  emptyText='Nenhuma seguradora encontrada.'
-                                  disabled={isLoadingSeguradoras}
-                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewSeguradora}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Seguradora'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateSeguradora}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Nova Seguradora'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
-                                </div>
+                    <FormField
+                      control={form.control}
+                      name='seguradoraId'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='flex items-center gap-2'>
+                            <ShieldCheck className='h-4 w-4' />
+                            Seguradora
+                            <Badge variant='secondary' className='text-xs'>
+                              Obrigatório
+                            </Badge>
+                          </FormLabel>
+                          <FormControl>
+                            <div className='relative'>
+                              <Autocomplete
+                                options={seguradorasData.map((seguradora) => ({
+                                  value: seguradora.id || '',
+                                  label: seguradora.descricao || '',
+                                }))}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder={
+                                  isLoadingSeguradoras
+                                    ? 'A carregar seguradoras...'
+                                    : 'Selecione a seguradora'
+                                }
+                                emptyText='Nenhuma seguradora encontrada.'
+                                disabled={isLoadingSeguradoras}
+                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                              />
+                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleViewSeguradora}
+                                  className='h-8 w-8 p-0'
+                                  title='Ver Seguradora'
+                                  disabled={!field.value}
+                                >
+                                  <Eye className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  onClick={handleCreateSeguradora}
+                                  className='h-8 w-8 p-0'
+                                  title='Criar Nova Seguradora'
+                                >
+                                  <Plus className='h-4 w-4' />
+                                </Button>
                               </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       <FormField
                         control={form.control}
                         name='periodicidade'
@@ -1721,7 +1738,12 @@ const SeguroUpdateForm = ({
                             <FormControl>
                               <div className='pt-4'>
                                 <RadioGroup
-                                  value={field.value?.toString()}
+                                  value={
+                                    field.value !== undefined &&
+                                    field.value !== null
+                                      ? field.value.toString()
+                                      : PeriodicidadeSeguro.Anual.toString()
+                                  }
                                   onValueChange={(value) => {
                                     field.onChange(Number(value) as PeriodicidadeSeguro)
                                   }}
@@ -1844,78 +1866,78 @@ const SeguroUpdateForm = ({
                       >
                         <div className='space-y-4'>
                           <div className='grid grid-cols-2 gap-4'>
-                            <FormField
-                              control={form.control}
-                              name='assistenciaViagem'
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className='flex items-center gap-2'>
-                                    Assistência em Viagem
-                                  </FormLabel>
-                                  <FormControl>
-                                    <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
-                                      <span className='text-sm text-muted-foreground'>
-                                        {field.value ? 'Incluída' : 'Não incluída'}
-                                      </span>
-                                      <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                        disabled={updateSeguroMutation.isPending}
-                                      />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                      <FormField
+                        control={form.control}
+                        name='assistenciaViagem'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='flex items-center gap-2'>
+                              Assistência em Viagem
+                            </FormLabel>
+                            <FormControl>
+                              <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                                <span className='text-sm text-muted-foreground'>
+                                  {field.value ? 'Incluída' : 'Não incluída'}
+                                </span>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  disabled={updateSeguroMutation.isPending}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='cartaVerde'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='flex items-center gap-2'>
+                              Carta Verde
+                            </FormLabel>
+                            <FormControl>
+                              <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                                <span className='text-sm text-muted-foreground'>
+                                  {field.value ? 'Incluída' : 'Não incluída'}
+                                </span>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  disabled={updateSeguroMutation.isPending}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name='riscosCobertos'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='flex items-center gap-2'>
+                            Riscos Cobertos
+                            <Badge variant='secondary' className='text-xs'>
+                              Obrigatório
+                            </Badge>
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder='Descreva os riscos cobertos pelo seguro'
+                              rows={4}
+                              {...field}
+                              className='shadow-inner drop-shadow-xl'
                             />
-                            <FormField
-                              control={form.control}
-                              name='cartaVerde'
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className='flex items-center gap-2'>
-                                    Carta Verde
-                                  </FormLabel>
-                                  <FormControl>
-                                    <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
-                                      <span className='text-sm text-muted-foreground'>
-                                        {field.value ? 'Incluída' : 'Não incluída'}
-                                      </span>
-                                      <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                        disabled={updateSeguroMutation.isPending}
-                                      />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <FormField
-                            control={form.control}
-                            name='riscosCobertos'
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className='flex items-center gap-2'>
-                                  Riscos Cobertos
-                                  <Badge variant='secondary' className='text-xs'>
-                                    Obrigatório
-                                  </Badge>
-                                </FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder='Descreva os riscos cobertos pelo seguro'
-                                    rows={4}
-                                    {...field}
-                                    className='shadow-inner drop-shadow-xl'
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                         </div>
                       </FormSection>
                       <div></div>
@@ -1979,10 +2001,20 @@ const SeguroUpdateForm = ({
                               </Badge>
                             </FormLabel>
                             <FormControl>
-                              {renderCurrencyInput(
-                                field,
-                                'Valor total coberto pelo seguro'
-                              )}
+                              <Input
+                                type='number'
+                                step='0.01'
+                                min='0'
+                                placeholder='Valor total coberto pelo seguro'
+                                {...field}
+                                name='valorCobertura'
+                                value={field.value ?? ''}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value === '' ? undefined : parseFloat(value) || 0)
+                                }}
+                                className='shadow-inner drop-shadow-xl'
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -2000,10 +2032,20 @@ const SeguroUpdateForm = ({
                               </Badge>
                             </FormLabel>
                             <FormControl>
-                              {renderCurrencyInput(
-                                field,
-                                'Custo anual do seguro'
-                              )}
+                              <Input
+                                type='number'
+                                step='0.01'
+                                min='0'
+                                placeholder='Custo anual do seguro'
+                                {...field}
+                                name='custoAnual'
+                                value={field.value ?? ''}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value === '' ? undefined : parseFloat(value) || 0)
+                                }}
+                                className='shadow-inner drop-shadow-xl'
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -2029,9 +2071,12 @@ const SeguroUpdateForm = ({
                             return iconMap[iconName] || MoreHorizontal
                           }
 
-                          const selectedMethod = field.value
-                            ? MetodoPagamentoSeguroConfig[field.value]
-                            : null
+                          const selectedMethod =
+                            field.value !== undefined && field.value !== null
+                              ? MetodoPagamentoSeguroConfig[
+                                  Number(field.value) as MetodoPagamentoSeguro
+                                ]
+                              : null
 
                           const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -2083,6 +2128,9 @@ const SeguroUpdateForm = ({
                                       <DialogTitle className='text-base'>
                                         Selecione o Método de Pagamento
                                       </DialogTitle>
+                                      <DialogDescription>
+                                        Escolha o método de pagamento utilizado para este seguro.
+                                      </DialogDescription>
                                     </DialogHeader>
                                     <div className='flex flex-col gap-1.5 py-2 max-h-[60vh] overflow-y-auto'>
                                       {Object.entries(
@@ -2091,7 +2139,10 @@ const SeguroUpdateForm = ({
                                         const value =
                                           Number(key) as MetodoPagamentoSeguro
                                         const Icon = getIcon(config.icon)
-                                        const isSelected = field.value === value
+                                        const isSelected =
+                                          field.value !== undefined &&
+                                          field.value !== null &&
+                                          Number(field.value) === value
 
                                         return (
                                           <button

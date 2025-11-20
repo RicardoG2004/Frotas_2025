@@ -14,6 +14,47 @@ import {
   MetodoPagamentoSeguro,
 } from '@/types/dtos/frotas/seguros.dtos'
 
+// Helper functions to convert string enum names to enum values
+const parsePeriodicidade = (value: any): PeriodicidadeSeguro => {
+  if (typeof value === 'number') return value as PeriodicidadeSeguro
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase()
+    if (lower === 'mensal' || lower === '0') return PeriodicidadeSeguro.Mensal
+    if (lower === 'trimestral' || lower === '1') return PeriodicidadeSeguro.Trimestral
+    if (lower === 'anual' || lower === '2') return PeriodicidadeSeguro.Anual
+  }
+  return PeriodicidadeSeguro.Anual
+}
+
+const parseMetodoPagamento = (value: any): MetodoPagamentoSeguro | undefined => {
+  if (value === undefined || value === null || value === '') return undefined
+  if (typeof value === 'number') return value as MetodoPagamentoSeguro
+  if (typeof value === 'string') {
+    // Handle both camelCase and lowercase
+    const normalized = value.replace(/\s+/g, '').toLowerCase()
+    // Map string names to enum values
+    const mapping: Record<string, MetodoPagamentoSeguro> = {
+      'transferencia': MetodoPagamentoSeguro.Transferencia,
+      'transferência': MetodoPagamentoSeguro.Transferencia,
+      'mbway': MetodoPagamentoSeguro.MBWay,
+      'mbway': MetodoPagamentoSeguro.MBWay,
+      'multibanco': MetodoPagamentoSeguro.Multibanco,
+      'cartaodebito': MetodoPagamentoSeguro.CartaoDebito,
+      'cartãodedébito': MetodoPagamentoSeguro.CartaoDebito,
+      'cartaocredito': MetodoPagamentoSeguro.CartaoCredito,
+      'cartãodecrédito': MetodoPagamentoSeguro.CartaoCredito,
+      'paypal': MetodoPagamentoSeguro.PayPal,
+      'applepay': MetodoPagamentoSeguro.ApplePay,
+      'googlepay': MetodoPagamentoSeguro.GooglePay,
+      'dinheiro': MetodoPagamentoSeguro.Dinheiro,
+      'cheque': MetodoPagamentoSeguro.Cheque,
+      'outro': MetodoPagamentoSeguro.Outro,
+    }
+    return mapping[normalized]
+  }
+  return undefined
+}
+
 export function SegurosUpdatePage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -45,6 +86,7 @@ export function SegurosUpdatePage() {
 
   const initialData = useMemo(() => {
     const seguro = seguroData?.info?.data
+    
     if (!seguro) {
       return {
         designacao: '',
@@ -63,7 +105,11 @@ export function SegurosUpdatePage() {
       }
     }
 
-    return {
+    // Use helper functions to parse enum values (handles both string and number)
+    const metodoPagamentoValue = parseMetodoPagamento(seguro.metodoPagamento)
+    const periodicidadeValue = parsePeriodicidade(seguro.periodicidade)
+
+    const processedData = {
       designacao: seguro.designacao || '',
       apolice: seguro.apolice || '',
       seguradoraId: seguro.seguradoraId || '',
@@ -76,14 +122,17 @@ export function SegurosUpdatePage() {
         ? new Date(seguro.dataInicial)
         : new Date(),
       dataFinal: seguro.dataFinal ? new Date(seguro.dataFinal) : new Date(),
-      periodicidade: seguro.periodicidade ?? PeriodicidadeSeguro.Anual,
-      metodoPagamento: seguro.metodoPagamento
-        ? (seguro.metodoPagamento as MetodoPagamentoSeguro)
-        : undefined,
+      periodicidade: periodicidadeValue as PeriodicidadeSeguro,
+      metodoPagamento:
+        metodoPagamentoValue !== undefined
+          ? (metodoPagamentoValue as MetodoPagamentoSeguro)
+          : undefined,
       dataPagamento: seguro.dataPagamento
         ? new Date(seguro.dataPagamento)
         : undefined,
     }
+
+    return processedData
   }, [seguroData])
 
   if (isLoading) {

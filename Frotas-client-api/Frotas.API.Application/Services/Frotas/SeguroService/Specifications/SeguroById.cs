@@ -3,14 +3,14 @@ using Frotas.API.Domain.Entities.Frotas;
 
 namespace Frotas.API.Application.Services.Frotas.SeguroService.Specifications
 {
-  public class SeguroMatchName : Specification<Seguro>
+  public class SeguroById : Specification<Seguro>
   {
-    public SeguroMatchName(string designacao)
+    public SeguroById(Guid id)
     {
       // include navigation properties
       _ = Query.Include(x => x.Seguradora);
 
-      Query.Where(x => x.Designacao == designacao);
+      Query.Where(x => x.Id == id);
     }
   }
 }

@@ -51,7 +51,8 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService
     {
       try
       {
-        SeguroDTO dto = await _repository.GetByIdAsync<Seguro, SeguroDTO, Guid>(id);
+        SeguroById specification = new(id);
+        SeguroDTO dto = await _repository.GetByIdAsync<Seguro, SeguroDTO, Guid>(id, specification);
         return Response<SeguroDTO>.Success(dto);
       }
       catch (Exception ex)

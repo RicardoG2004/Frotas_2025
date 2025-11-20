@@ -7,6 +7,9 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService.Specifications
   {
     public SeguroSearchList(string? keyword = "")
     {
+      // include navigation properties
+      _ = Query.Include(x => x.Seguradora);
+
       // filters
       if (!string.IsNullOrEmpty(keyword))
       {

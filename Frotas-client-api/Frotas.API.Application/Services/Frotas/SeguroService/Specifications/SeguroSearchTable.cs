@@ -9,6 +9,9 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService.Specifications
   {
     public SeguroSearchTable(List<TableFilter> filters, string? dynamicOrder = "")
     {
+      // include navigation properties
+      _ = Query.Include(x => x.Seguradora);
+
       // filters
       if (filters != null && filters.Count != 0)
       {
