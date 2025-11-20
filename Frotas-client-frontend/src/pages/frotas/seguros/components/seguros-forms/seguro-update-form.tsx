@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback, type ComponentType, type ChangeEvent, type ReactNode } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
@@ -63,7 +63,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import {
   PersistentTabs,
   TabsList as PersistentTabsList,
@@ -88,7 +99,16 @@ import {
   Wallet,
   Banknote,
   MoreHorizontal,
+  FolderOpen,
+  File,
+  Download,
+  Printer,
+  Trash2,
+  Loader2,
+  FolderPlus,
+  type LucideIcon,
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const seguroFormSchema = z.object({
   designacao: z
@@ -118,6 +138,18 @@ const seguroFormSchema = z.object({
   }),
   metodoPagamento: z.nativeEnum(MetodoPagamentoSeguro).optional(),
   dataPagamento: z.date().optional().nullable(),
+  documentos: z
+    .array(
+      z.object({
+        nome: z.string().min(1),
+        dados: z.string().min(1),
+        contentType: z.string().min(1),
+        tamanho: z.number().nonnegative(),
+        pasta: z.string().max(120).optional().nullable(),
+      })
+    )
+    .optional()
+    .default([]),
 })
 
 type SeguroFormSchemaType = z.infer<typeof seguroFormSchema>
@@ -439,6 +471,998 @@ const SeguroUpdateForm = ({
         isSubmitting: false,
       }))
     }
+  }
+
+  // Componente FormSection
+  type FormSectionProps = {
+    icon: LucideIcon
+    title: string
+    description: string
+    children: ReactNode
+    className?: string
+  }
+
+  const FormSection = ({
+    icon: Icon,
+    title,
+    description,
+    children,
+    className,
+  }: FormSectionProps) => (
+    <div
+      className={cn(
+        'flex h-full flex-col rounded-xl border border-border bg-card p-4 shadow-sm md:p-5',
+        className
+      )}
+    >
+      <div className='flex items-start gap-3'>
+        <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+          <Icon className='h-4 w-4' />
+        </div>
+        <div>
+          <h3 className='text-base font-semibold leading-tight text-foreground'>
+            {title}
+          </h3>
+          <p className='text-sm text-muted-foreground'>{description}</p>
+        </div>
+      </div>
+      <div className='mt-4 flex-1 space-y-4'>{children}</div>
+    </div>
+  )
+
+  // Tipos e funções auxiliares para documentos (mesmas do create-form)
+  type SeguroDocumentoFormValue = {
+    nome: string
+    dados: string
+    contentType: string
+    tamanho: number
+    pasta?: string | null
+  }
+
+  type DocumentosUploaderProps = {
+    value?: SeguroDocumentoFormValue[]
+    onChange: (documentos: SeguroDocumentoFormValue[]) => void
+  }
+
+  const readFileAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result)
+        } else {
+          reject(new Error('Não foi possível ler o ficheiro.'))
+        }
+      }
+      reader.onerror = () => reject(reader.error ?? new Error('Erro ao ler o ficheiro.'))
+      reader.readAsDataURL(file)
+    })
+
+  const formatFileSize = (bytes?: number) => {
+    if (bytes === undefined || bytes === null) {
+      return '0 Bytes'
+    }
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100} ${sizes[i]}`
+  }
+
+  const isImageContentType = (contentType: string) =>
+    contentType.startsWith('image/')
+  const isPdfContentType = (contentType: string, nome?: string) => {
+    if (contentType === 'application/pdf') {
+      return true
+    }
+    return nome?.toLowerCase().endsWith('.pdf') ?? false
+  }
+
+  const FOLDER_FILTER_ALL = '__folder_all__'
+  const FOLDER_FILTER_NONE = '__folder_none__'
+
+  const normalizeFolderName = (folder?: string | null) => {
+    const trimmed = folder?.trim()
+    return trimmed && trimmed.length > 0 ? trimmed : undefined
+  }
+
+  const getDocumentoViewerUrl = (
+    documento?: SeguroDocumentoFormValue | null
+  ) => {
+    if (!documento?.dados) return null
+    if (documento.dados.startsWith('data:')) return documento.dados
+    if (
+      documento.dados.startsWith('http://') ||
+      documento.dados.startsWith('https://')
+    ) {
+      return documento.dados
+    }
+    return null
+  }
+
+  const convertDataUrlToBlobUrl = (dataUrl: string) => {
+    try {
+      const match = dataUrl.match(/^data:(.*?)(;base64)?,(.*)$/)
+      if (!match) return null
+      const mimeType = match[1] || 'application/octet-stream'
+      const isBase64 = !!match[2]
+      const data = match[3] ?? ''
+      const byteCharacters = isBase64 ? atob(data) : decodeURIComponent(data)
+      const byteArrays = new Uint8Array(byteCharacters.length)
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteArrays[i] = byteCharacters.charCodeAt(i)
+      }
+      const blob = new Blob([byteArrays], { type: mimeType })
+      return URL.createObjectURL(blob)
+    } catch {
+      return null
+    }
+  }
+
+  type ProcessingDocumento = {
+    id: string
+    nome: string
+    dados: string
+    contentType: string
+    tamanho: number
+    previewUrl: string
+    file: File
+    pasta?: string
+  }
+
+  // Componente DocumentosUploader simplificado (mesmo do create-form)
+  const DocumentosUploader = ({
+    value,
+    onChange,
+  }: DocumentosUploaderProps) => {
+    const documentos = value ?? []
+    const [previewIndex, setPreviewIndex] = useState<number | null>(null)
+    const fileInputRef = useRef<HTMLInputElement | null>(null)
+    const documentosRef = useRef<SeguroDocumentoFormValue[]>(documentos)
+    const cancelledProcessingIdsRef = useRef<Set<string>>(new Set())
+    const [manualFolders, setManualFolders] = useState<string[]>([])
+    const [selectedFolder, setSelectedFolder] = useState<string>(FOLDER_FILTER_NONE)
+    const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false)
+    const [folderNameInput, setFolderNameInput] = useState('')
+    const [pendingFolderForUpload, setPendingFolderForUpload] = useState<
+      string | undefined
+    >(undefined)
+    const [processingDocumentos, setProcessingDocumentos] = useState<
+      ProcessingDocumento[]
+    >([])
+    const [isFolderViewerOpen, setIsFolderViewerOpen] = useState(false)
+    const [folderViewerFolder, setFolderViewerFolder] = useState<string | null>(
+      null
+    )
+    const processingDocumentosRef = useRef<ProcessingDocumento[]>(
+      processingDocumentos
+    )
+
+    useEffect(() => {
+      documentosRef.current = documentos
+    }, [documentos])
+
+    useEffect(() => {
+      processingDocumentosRef.current = processingDocumentos
+    }, [processingDocumentos])
+
+    useEffect(() => {
+      return () => {
+        processingDocumentosRef.current.forEach((doc) => {
+          URL.revokeObjectURL(doc.previewUrl)
+        })
+      }
+    }, [])
+
+    const folderOptions = useMemo(() => {
+      const folderSet = new Set<string>(manualFolders)
+      documentos.forEach((documento) => {
+        const normalized = normalizeFolderName(documento.pasta ?? undefined)
+        if (normalized) {
+          folderSet.add(normalized)
+        }
+      })
+      processingDocumentos.forEach((documento) => {
+        const normalized = normalizeFolderName(documento.pasta)
+        if (normalized) {
+          folderSet.add(normalized)
+        }
+      })
+      return Array.from(folderSet).sort((a, b) =>
+        a.localeCompare(b, 'pt-PT')
+      )
+    }, [documentos, manualFolders, processingDocumentos])
+
+    const folderCounts = useMemo(() => {
+      const counts = new Map<string, number>()
+      const increment = (folderKey?: string) => {
+        const key = folderKey ?? FOLDER_FILTER_NONE
+        counts.set(key, (counts.get(key) ?? 0) + 1)
+      }
+      documentos.forEach((documento) => {
+        increment(normalizeFolderName(documento.pasta ?? undefined))
+      })
+      processingDocumentos.forEach((documento) => {
+        increment(normalizeFolderName(documento.pasta))
+      })
+      return counts
+    }, [documentos, processingDocumentos])
+
+    useEffect(() => {
+      if (
+        selectedFolder !== FOLDER_FILTER_ALL &&
+        selectedFolder !== FOLDER_FILTER_NONE &&
+        !folderOptions.includes(selectedFolder)
+      ) {
+        setSelectedFolder(FOLDER_FILTER_ALL)
+      }
+    }, [folderOptions, selectedFolder])
+
+    const resolveCurrentFolder = useCallback(() => {
+      if (
+        selectedFolder === FOLDER_FILTER_ALL ||
+        selectedFolder === FOLDER_FILTER_NONE
+      ) {
+        return undefined
+      }
+      return selectedFolder
+    }, [selectedFolder])
+
+    const handleSelectFolderValue = useCallback((folder?: string) => {
+      if (!folder) {
+        setSelectedFolder(FOLDER_FILTER_NONE)
+        return
+      }
+      setSelectedFolder(folder)
+    }, [])
+
+    const handleOpenFolderDialog = useCallback(() => {
+      setFolderNameInput('')
+      setIsFolderDialogOpen(true)
+    }, [])
+
+    const handleConfirmCreateFolder = useCallback(() => {
+      const normalized = normalizeFolderName(folderNameInput)
+      if (!normalized) {
+        toast.error('Indique um nome para a pasta.')
+        return
+      }
+      setManualFolders((prev) => {
+        if (prev.includes(normalized)) {
+          return prev
+        }
+        return [...prev, normalized]
+      })
+      setSelectedFolder(normalized)
+      setIsFolderDialogOpen(false)
+      setFolderNameInput('')
+      toast.success(`Pasta "${normalized}" criada.`)
+    }, [folderNameInput])
+
+    const handleCloseFolderDialog = useCallback(() => {
+      setIsFolderDialogOpen(false)
+      setFolderNameInput('')
+    }, [])
+
+    const handleRequestUploadForFolder = useCallback(
+      (folder?: string) => {
+        if (!folder) {
+          toast.error('Selecione uma pasta existente para anexar ficheiros.')
+          return
+        }
+        handleSelectFolderValue(folder)
+        setPendingFolderForUpload(folder)
+        fileInputRef.current?.click()
+      },
+      [handleSelectFolderValue]
+    )
+
+    const handleOpenFolderViewer = useCallback(
+      (folder?: string | null) => {
+        const normalized = folder
+          ? normalizeFolderName(folder) ?? null
+          : null
+        handleSelectFolderValue(normalized ?? undefined)
+        setFolderViewerFolder(normalized)
+        setIsFolderViewerOpen(true)
+      },
+      [handleSelectFolderValue]
+    )
+
+    const convertFilesToDocumentos = useCallback(async (files: File[]) => {
+      if (!files.length) {
+        return []
+      }
+
+      return Promise.all(
+        files.map(async (file) => ({
+          nome: file.name || 'documento',
+          dados: await readFileAsDataUrl(file),
+          contentType: file.type || 'application/octet-stream',
+          tamanho: file.size,
+        }))
+      )
+    }, [])
+
+    const appendDocumentos = useCallback(
+      (novos: SeguroDocumentoFormValue[]) => {
+        if (novos.length === 0) return
+        onChange([...documentosRef.current, ...novos])
+      },
+      [onChange]
+    )
+
+    const handleInputChange = useCallback(
+      async (event: ChangeEvent<HTMLInputElement>) => {
+        const fileList = event.target.files
+          ? Array.from(event.target.files)
+          : []
+        if (!fileList.length) {
+          event.target.value = ''
+          return
+        }
+
+        const targetFolder = pendingFolderForUpload ?? resolveCurrentFolder()
+
+        const tempDocs: ProcessingDocumento[] = fileList.map((file) => ({
+          id: crypto.randomUUID
+            ? crypto.randomUUID()
+            : Math.random().toString(36).slice(2),
+          nome: file.name || 'documento',
+          dados: '',
+          contentType: file.type || 'application/octet-stream',
+          tamanho: file.size,
+          previewUrl: URL.createObjectURL(file),
+          file,
+          pasta: targetFolder,
+        }))
+
+        setProcessingDocumentos((prev) => [...prev, ...tempDocs])
+
+        tempDocs.forEach((tempDoc) => {
+          convertFilesToDocumentos([tempDoc.file])
+            .then((novos) => {
+              if (!novos.length) return
+              if (cancelledProcessingIdsRef.current.has(tempDoc.id)) {
+                return
+              }
+              appendDocumentos([
+                {
+                  ...novos[0],
+                  pasta: tempDoc.pasta,
+                },
+              ])
+            })
+            .catch(() => {
+              toast.error(
+                `Não foi possível processar o ficheiro ${tempDoc.nome}.`
+              )
+            })
+            .finally(() => {
+              setProcessingDocumentos((prev) =>
+                prev.filter((doc) => doc.id !== tempDoc.id)
+              )
+              cancelledProcessingIdsRef.current.delete(tempDoc.id)
+              URL.revokeObjectURL(tempDoc.previewUrl)
+            })
+        })
+
+        event.target.value = ''
+        setPendingFolderForUpload(undefined)
+      },
+      [
+        appendDocumentos,
+        convertFilesToDocumentos,
+        pendingFolderForUpload,
+        resolveCurrentFolder,
+      ]
+    )
+
+    const handleAddClick = useCallback(() => {
+      handleSelectFolderValue(undefined)
+      setPendingFolderForUpload(undefined)
+      fileInputRef.current?.click()
+    }, [handleSelectFolderValue])
+
+    const [confirmDeleteFolder, setConfirmDeleteFolder] = useState<
+      string | null
+    >(null)
+    const handleDeleteFolder = useCallback((folderName: string) => {
+      const normalized = normalizeFolderName(folderName)
+      if (!normalized) return
+      setConfirmDeleteFolder(normalized)
+    }, [])
+
+    const folderCards = useMemo(
+      () =>
+        folderOptions.map((folder) => ({
+          key: folder,
+          folder,
+          label: folder,
+          description: 'Clique para ver e gerir os documentos desta pasta',
+          count: folderCounts.get(folder) ?? 0,
+        })),
+      [folderCounts, folderOptions]
+    )
+
+    const unassignedDocuments = useMemo(
+      () =>
+        documentos
+          .map((documento, index) => ({ documento, index }))
+          .filter(
+            ({ documento }) =>
+              !normalizeFolderName(documento.pasta ?? undefined)
+          ),
+      [documentos]
+    )
+    const unassignedProcessingDocumentos = useMemo(
+      () =>
+        processingDocumentos.filter(
+          (documento) => !normalizeFolderName(documento.pasta)
+        ),
+      [processingDocumentos]
+    )
+    const folderViewerDocuments = useMemo(() => {
+      if (folderViewerFolder === null) {
+        return documentos
+          .map((documento, index) => ({ documento, index }))
+          .filter(
+            ({ documento }) =>
+              !normalizeFolderName(documento.pasta ?? undefined)
+          )
+      }
+      return documentos
+        .map((documento, index) => ({ documento, index }))
+        .filter(
+          ({ documento }) =>
+            normalizeFolderName(documento.pasta ?? undefined) ===
+            folderViewerFolder
+        )
+    }, [documentos, folderViewerFolder])
+
+    const folderViewerProcessingDocumentos = useMemo(() => {
+      if (folderViewerFolder === null) {
+        return processingDocumentos.filter(
+          (documento) => !normalizeFolderName(documento.pasta ?? undefined)
+        )
+      }
+      return processingDocumentos.filter(
+        (documento) =>
+          normalizeFolderName(documento.pasta ?? undefined) ===
+          folderViewerFolder
+      )
+    }, [processingDocumentos, folderViewerFolder])
+    const unassignedCount =
+      unassignedDocuments.length + unassignedProcessingDocumentos.length
+
+    const handleRemove = useCallback(
+      (index: number) => {
+        const next = documentosRef.current.filter((_, i) => i !== index)
+        onChange(next)
+      },
+      [onChange]
+    )
+
+    const handleDownload = useCallback(
+      (documento: SeguroDocumentoFormValue) => {
+        if (!documento?.dados) return
+
+        if (documento.dados.startsWith('data:')) {
+          const link = document.createElement('a')
+          link.href = documento.dados
+          link.download = documento.nome || 'documento'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          return
+        }
+
+        if (
+          documento.dados.startsWith('http://') ||
+          documento.dados.startsWith('https://')
+        ) {
+          window.open(documento.dados, '_blank', 'noopener,noreferrer')
+        }
+      },
+      []
+    )
+
+    const handleOpenInNewTab = useCallback(
+      (documento: SeguroDocumentoFormValue) => {
+        const viewerUrl = getDocumentoViewerUrl(documento)
+        if (!viewerUrl) return
+        window.open(viewerUrl, '_blank', 'noopener,noreferrer')
+      },
+      []
+    )
+
+    const handlePrint = useCallback(
+      (documento: SeguroDocumentoFormValue) => {
+        const viewerUrl = getDocumentoViewerUrl(documento)
+        if (!viewerUrl) return
+
+        if (!viewerUrl.startsWith('data:')) {
+          toast.warning(
+            'Para imprimir este tipo de ficheiro, utilize o botão "Abrir num separador" e imprima a partir do navegador.'
+          )
+          handleOpenInNewTab(documento)
+          return
+        }
+
+        const blobUrl = convertDataUrlToBlobUrl(viewerUrl)
+        if (!blobUrl) {
+          toast.error('Não foi possível preparar o ficheiro para impressão.')
+          return
+        }
+
+        const iframe = document.createElement('iframe')
+        iframe.style.position = 'fixed'
+        iframe.style.right = '-9999px'
+        iframe.style.bottom = '0'
+        iframe.style.width = '0'
+        iframe.style.height = '0'
+        iframe.style.border = '0'
+        iframe.src = blobUrl
+        document.body.appendChild(iframe)
+
+        const cleanUp = () => {
+          setTimeout(() => {
+            iframe.remove()
+            URL.revokeObjectURL(blobUrl)
+          }, 500)
+        }
+
+        iframe.onload = () => {
+          try {
+            iframe.contentWindow?.focus()
+            iframe.contentWindow?.print()
+          } catch {
+            toast.error(
+              'O navegador bloqueou a impressão automática. Utilize o botão "Abrir num separador".'
+            )
+          } finally {
+            cleanUp()
+          }
+        }
+      },
+      [handleOpenInNewTab]
+    )
+
+    const previewDocumento =
+      previewIndex !== null ? documentos.at(previewIndex) ?? null : null
+    const canUploadFromToolbar = selectedFolder !== FOLDER_FILTER_ALL
+
+    return (
+      <div className='space-y-3'>
+        <div className='flex items-center gap-2'>
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            className='h-8 px-2 text-xs font-medium'
+            disabled={!canUploadFromToolbar}
+            title={
+              canUploadFromToolbar
+                ? 'Anexar ficheiro à pasta selecionada'
+                : 'Selecione ou crie uma pasta antes de anexar ficheiros.'
+            }
+            onClick={handleAddClick}
+          >
+            <Plus className='mr-1 h-3 w-3' aria-hidden />
+            Anexar ficheiro
+          </Button>
+          <Button
+            type='button'
+            variant='default'
+            size='sm'
+            className='h-8 gap-2 px-2 text-xs font-medium'
+            onClick={handleOpenFolderDialog}
+          >
+            <FolderPlus className='h-3 w-3' />
+            Criar pasta
+          </Button>
+          <input
+            ref={fileInputRef}
+            type='file'
+            className='hidden'
+            multiple
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className='space-y-3'>
+          <div className='h-[170px] overflow-y-auto px-3 py-2 rounded-2xl border border-border/60 bg-card/60 documentation-scroll'>
+            <div className='grid grid-cols-3 gap-3'>
+              <div className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px]'>
+                <div className='flex items-center justify-between gap-3'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary'>
+                      <FolderOpen className='h-5 w-5' />
+                    </div>
+                    <div>
+                      <p className='text-sm font-semibold text-foreground'>
+                        Sem pasta
+                      </p>
+                      <p className='text-[11px] text-muted-foreground whitespace-nowrap'>
+                        {unassignedCount} documento(s)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className='mt-4 flex flex-wrap gap-2'>
+                  <Button
+                    type='button'
+                    size='sm'
+                    variant='secondary'
+                    className='gap-2 text-xs'
+                    onClick={() => handleOpenFolderViewer(null)}
+                  >
+                    <FolderOpen className='h-3 w-3' />
+                    Ver documentos
+                  </Button>
+                </div>
+              </div>
+
+              {folderCards.map((card) => (
+                <div
+                  key={card.key}
+                  className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px]'
+                >
+                  <div className='flex items-center justify-between gap-3'>
+                    <div className='flex items-center gap-3'>
+                      <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary'>
+                        <FolderOpen className='h-5 w-5' />
+                      </div>
+                      <div>
+                        <p className='text-sm font-semibold text-foreground'>
+                          {card.label}
+                        </p>
+                        <p className='text-[11px] text-muted-foreground whitespace-nowrap'>
+                          {card.count} documento(s)
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='icon'
+                      className='h-8 w-8 text-muted-foreground transition hover:text-destructive'
+                      onClick={() => handleDeleteFolder(card.folder)}
+                      title='Eliminar pasta'
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
+                  <div className='mt-4 flex flex-wrap gap-2'>
+                    <Button
+                      type='button'
+                      size='sm'
+                      variant='secondary'
+                      className='gap-2 text-xs'
+                      onClick={() => handleOpenFolderViewer(card.folder)}
+                    >
+                      <FolderOpen className='h-3 w-3' />
+                      Ver documentos
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <AlertDialog
+          open={confirmDeleteFolder !== null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setConfirmDeleteFolder(null)
+            }
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Tem a certeza?</AlertDialogTitle>
+              <AlertDialogDescription>
+                {confirmDeleteFolder
+                  ? `A pasta "${confirmDeleteFolder}" será eliminada e os seus ficheiros passarão para "Sem pasta".`
+                  : null}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => {
+                  setConfirmDeleteFolder(null)
+                }}
+              >
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  const normalized = normalizeFolderName(confirmDeleteFolder)
+                  if (!normalized) {
+                    setConfirmDeleteFolder(null)
+                    return
+                  }
+
+                  const updatedDocs = documentosRef.current.map((documento) =>
+                    documento.pasta === normalized
+                      ? { ...documento, pasta: undefined }
+                      : documento
+                  )
+                  onChange(updatedDocs)
+
+                  setProcessingDocumentos((prev) =>
+                    prev.map((documento) =>
+                      documento.pasta === normalized
+                        ? { ...documento, pasta: undefined }
+                        : documento
+                    )
+                  )
+
+                  setManualFolders((prev) =>
+                    prev.filter((folder) => folder !== normalized)
+                  )
+                  if (selectedFolder === normalized) {
+                    setSelectedFolder(FOLDER_FILTER_NONE)
+                  }
+                  toast.success(
+                    `Pasta "${normalized}" removida. Os ficheiros passaram para "Sem pasta".`
+                  )
+                  setConfirmDeleteFolder(null)
+                }}
+              >
+                Eliminar pasta
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <Dialog
+          open={isFolderViewerOpen}
+          onOpenChange={(open) => {
+            setIsFolderViewerOpen(open)
+            if (!open) {
+              setFolderViewerFolder(null)
+              setPendingFolderForUpload(undefined)
+            }
+          }}
+        >
+          <DialogContent className='max-w-4xl'>
+            <DialogHeader>
+              <DialogTitle className='text-lg font-semibold'>
+                Documentos na pasta {folderViewerFolder ?? 'Sem pasta'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className='space-y-4'>
+              {folderViewerDocuments.length > 0 ? (
+                <div className='grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))]'>
+                  {folderViewerDocuments.map(({ documento, index }) => {
+                    const handleOpenDocumento = () => {
+                      setPreviewIndex(index)
+                    }
+
+                    return (
+                      <div
+                        key={`${documento.nome}-${index}`}
+                        className='group relative rounded-xl border border-border/40 bg-card shadow-sm ring-1 ring-transparent transition hover:border-primary/40 hover:shadow-md hover:ring-primary/10'
+                      >
+                        <button
+                          type='button'
+                          onClick={handleOpenDocumento}
+                          className='flex h-28 w-full flex-col items-center justify-center gap-2 px-3 text-center text-xs font-medium text-foreground'
+                        >
+                          <div className='flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary/20 group-hover:text-primary-foreground'>
+                            <File className='h-4 w-4' aria-hidden />
+                          </div>
+                          <span className='line-clamp-2 max-w-[130px] text-[11px] leading-tight text-primary'>
+                            {documento.nome}
+                          </span>
+                          <span className='text-[10px] text-muted-foreground'>
+                            {formatFileSize(documento.tamanho)}
+                          </span>
+                        </button>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='icon'
+                          className='absolute right-1 top-1 h-6 w-6 text-muted-foreground transition hover:text-destructive'
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            handleRemove(index)
+                          }}
+                          title='Remover'
+                        >
+                          <Trash2 className='h-3 w-3' />
+                        </Button>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className='text-xs text-muted-foreground'>
+                  Ainda não existem documentos nesta pasta. Utilize o botão
+                  abaixo para anexar novos ficheiros.
+                </p>
+              )}
+
+              {folderViewerProcessingDocumentos.length > 0 ? (
+                <div className='rounded-lg border border-dashed border-border/60 bg-muted/30 p-3'>
+                  <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                    Em processamento
+                  </p>
+                  <div className='mt-2 grid grid-cols-2 gap-2 sm:grid-cols-[repeat(auto-fill,minmax(160px,1fr))]'>
+                    {folderViewerProcessingDocumentos.map((documento) => (
+                      <div
+                        key={documento.id}
+                        className='flex flex-col items-center justify-center rounded-lg border border-border/40 bg-background/80 p-3 text-center text-xs text-muted-foreground'
+                      >
+                        <Loader2 className='mb-2 h-4 w-4 animate-spin text-primary' />
+                        <span className='line-clamp-2 text-[11px] text-foreground'>
+                          {documento.nome}
+                        </span>
+                        <span className='text-[10px] text-muted-foreground'>
+                          {formatFileSize(documento.tamanho)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+            <DialogFooter className='mt-4'>
+              <Button
+                type='button'
+                onClick={() =>
+                  handleRequestUploadForFolder(folderViewerFolder ?? undefined)
+                }
+                disabled={!folderViewerFolder}
+              >
+                <Plus className='mr-2 h-4 w-4' />
+                Anexar ficheiros
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={isFolderDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              handleCloseFolderDialog()
+            } else {
+              setIsFolderDialogOpen(true)
+            }
+          }}
+        >
+          <DialogContent className='sm:max-w-md'>
+            <DialogHeader>
+              <DialogTitle>Criar nova pasta</DialogTitle>
+            </DialogHeader>
+            <div className='space-y-2'>
+              <Label
+                htmlFor='new-folder-name'
+                className='text-xs font-medium text-muted-foreground'
+              >
+                Nome da pasta
+              </Label>
+              <Input
+                id='new-folder-name'
+                placeholder='Ex: Contratos, seguros...'
+                value={folderNameInput}
+                onChange={(event) => setFolderNameInput(event.target.value)}
+                autoFocus
+              />
+            </div>
+            <DialogFooter className='pt-2'>
+              <Button
+                type='button'
+                variant='ghost'
+                onClick={handleCloseFolderDialog}
+              >
+                Cancelar
+              </Button>
+              <Button type='button' onClick={handleConfirmCreateFolder}>
+                Criar pasta
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {previewDocumento ? (
+          <Dialog
+            open
+            onOpenChange={(open) => {
+              if (!open) {
+                setPreviewIndex(null)
+              }
+            }}
+          >
+            <DialogContent className='max-w-5xl'>
+              <DialogHeader>
+                <DialogTitle className='flex flex-col gap-1'>
+                  <span>{previewDocumento.nome}</span>
+                  <span className='text-xs font-normal text-muted-foreground'>
+                    {formatFileSize(previewDocumento.tamanho)} ·{' '}
+                    {previewDocumento.contentType}
+                  </span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className='flex flex-wrap gap-2 border-b border-border/60 pb-3'>
+                <Button
+                  type='button'
+                  size='sm'
+                  variant='secondary'
+                  className='gap-2 text-xs'
+                  onClick={() => handleDownload(previewDocumento)}
+                >
+                  <Download className='h-3 w-3' />
+                  Descarregar
+                </Button>
+                <Button
+                  type='button'
+                  size='sm'
+                  variant='outline'
+                  className='gap-2 text-xs'
+                  onClick={() => handlePrint(previewDocumento)}
+                >
+                  <Printer className='h-3 w-3' />
+                  Imprimir
+                </Button>
+              </div>
+              <div className='h-[70vh] rounded-lg border border-border/60 bg-muted/40'>
+                {(() => {
+                  const viewerUrl = getDocumentoViewerUrl(previewDocumento)
+                  if (!viewerUrl) {
+                    return (
+                      <div className='flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm text-muted-foreground'>
+                        <File className='h-8 w-8 text-muted-foreground/70' />
+                        <span>
+                          Não foi possível gerar uma pré-visualização para este
+                          documento.
+                        </span>
+                      </div>
+                    )
+                  }
+
+                  if (isImageContentType(previewDocumento.contentType)) {
+                    return (
+                      <img
+                        src={viewerUrl}
+                        alt={previewDocumento.nome}
+                        className='h-full w-full rounded-lg object-contain'
+                      />
+                    )
+                  }
+
+                  if (
+                    isPdfContentType(
+                      previewDocumento.contentType,
+                      previewDocumento.nome
+                    )
+                  ) {
+                    return (
+                      <iframe
+                        title={previewDocumento.nome}
+                        src={viewerUrl}
+                        className='h-full w-full rounded-lg'
+                      />
+                    )
+                  }
+
+                  return (
+                    <iframe
+                      title={previewDocumento.nome}
+                      src={viewerUrl}
+                      className='h-full w-full rounded-lg'
+                    />
+                  )
+                })()}
+              </div>
+            </DialogContent>
+          </Dialog>
+        ) : null}
+      </div>
+    )
   }
 
   const renderCurrencyInput = (
@@ -811,79 +1835,113 @@ const SeguroUpdateForm = ({
                     </div>
                   </CardHeader>
                   <CardContent className='space-y-6'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                      <FormField
-                        control={form.control}
-                        name='assistenciaViagem'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className='flex items-center gap-2'>
-                              Assistência em Viagem
-                            </FormLabel>
-                            <FormControl>
-                              <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
-                                <span className='text-sm text-muted-foreground'>
-                                  {field.value ? 'Incluída' : 'Não incluída'}
-                                </span>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                  disabled={updateSeguroMutation.isPending}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='cartaVerde'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className='flex items-center gap-2'>
-                              Carta Verde
-                            </FormLabel>
-                            <FormControl>
-                              <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
-                                <span className='text-sm text-muted-foreground'>
-                                  {field.value ? 'Incluída' : 'Não incluída'}
-                                </span>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                  disabled={updateSeguroMutation.isPending}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name='riscosCobertos'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className='flex items-center gap-2'>
-                            Riscos Cobertos
-                            <Badge variant='secondary' className='text-xs'>
-                              Obrigatório
-                            </Badge>
-                          </FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder='Descreva os riscos cobertos pelo seguro'
-                              rows={4}
-                              {...field}
-                              className='shadow-inner drop-shadow-xl'
+                    <div className='grid gap-6 lg:grid-cols-[1.2fr_0.1fr_1.3fr]'>
+                      <FormSection
+                        icon={ShieldCheck}
+                        title='Coberturas'
+                        description='Configure os benefícios e riscos cobertos pelo seguro'
+                        className='h-full'
+                      >
+                        <div className='space-y-4'>
+                          <div className='grid grid-cols-2 gap-4'>
+                            <FormField
+                              control={form.control}
+                              name='assistenciaViagem'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className='flex items-center gap-2'>
+                                    Assistência em Viagem
+                                  </FormLabel>
+                                  <FormControl>
+                                    <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                                      <span className='text-sm text-muted-foreground'>
+                                        {field.value ? 'Incluída' : 'Não incluída'}
+                                      </span>
+                                      <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        disabled={updateSeguroMutation.isPending}
+                                      />
+                                    </div>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                            <FormField
+                              control={form.control}
+                              name='cartaVerde'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className='flex items-center gap-2'>
+                                    Carta Verde
+                                  </FormLabel>
+                                  <FormControl>
+                                    <div className='w-full rounded-lg border border-input bg-background px-4 py-3.5 shadow-inner drop-shadow-xl flex items-center justify-between'>
+                                      <span className='text-sm text-muted-foreground'>
+                                        {field.value ? 'Incluída' : 'Não incluída'}
+                                      </span>
+                                      <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        disabled={updateSeguroMutation.isPending}
+                                      />
+                                    </div>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name='riscosCobertos'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='flex items-center gap-2'>
+                                  Riscos Cobertos
+                                  <Badge variant='secondary' className='text-xs'>
+                                    Obrigatório
+                                  </Badge>
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder='Descreva os riscos cobertos pelo seguro'
+                                    rows={4}
+                                    {...field}
+                                    className='shadow-inner drop-shadow-xl'
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </FormSection>
+                      <div></div>
+                      <FormSection
+                        icon={FolderOpen}
+                        title='Documentação'
+                        description='Anexe documentos, imagens e ficheiros relevantes'
+                        className='h-full'
+                      >
+                        <FormField
+                          control={form.control}
+                          name='documentos'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <DocumentosUploader
+                                  value={field.value}
+                                  onChange={(next) => field.onChange(next)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </FormSection>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
