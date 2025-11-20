@@ -1,5 +1,11 @@
 import { SeguradoraDTO } from '@/types/dtos/frotas/seguradoras.dtos'
 
+export enum PeriodicidadeSeguro {
+  Mensal = 0,
+  Trimestral = 1,
+  Anual = 2,
+}
+
 export interface CreateSeguroDTO {
   designacao: string
   apolice: string
@@ -11,6 +17,7 @@ export interface CreateSeguroDTO {
   riscosCobertos: string
   dataInicial: string
   dataFinal: string
+  periodicidade: PeriodicidadeSeguro
 }
 
 export interface UpdateSeguroDTO extends Omit<CreateSeguroDTO, 'seguradoraId'> {
@@ -31,6 +38,7 @@ export interface SeguroDTO {
   riscosCobertos: string
   dataInicial: string
   dataFinal: string
+  periodicidade: PeriodicidadeSeguro
   createdOn?: string
 }
 

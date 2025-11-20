@@ -1,5 +1,6 @@
 using Frotas.API.Application.Common.Marker;
 using Frotas.API.Application.Services.Frotas.SeguradoraService.DTOs;
+using Frotas.API.Domain.Entities.Frotas;
 
 namespace Frotas.API.Application.Services.Frotas.SeguroService.DTOs
 {
@@ -17,5 +18,6 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService.DTOs
     public string RiscosCobertos { get; set; }
     public DateTime DataInicial { get; set; }
     public DateTime DataFinal { get; set; }
+    public PeriodicidadeSeguro Periodicidade { get; set; }
   }
 }

@@ -3,7 +3,10 @@ import { z } from 'zod'
 import { useForm, type DefaultValues } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { CreateSeguroDTO } from '@/types/dtos/frotas/seguros.dtos'
+import {
+  CreateSeguroDTO,
+  PeriodicidadeSeguro,
+} from '@/types/dtos/frotas/seguros.dtos'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
 import { useCreateSeguro } from '@/pages/frotas/seguros/queries/seguros-mutations'
@@ -38,6 +41,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -79,13 +87,10 @@ const seguroFormSchema = z.object({
   riscosCobertos: z
     .string({ message: 'Os Riscos Cobertos são obrigatórios' })
     .min(1, { message: 'Os Riscos Cobertos são obrigatórios' }),
-  dataInicial: z.date({
-    required_error: 'A Data Inicial é obrigatória',
-    invalid_type_error: 'Selecione uma data válida',
-  }),
-  dataFinal: z.date({
-    required_error: 'A Data Final é obrigatória',
-    invalid_type_error: 'Selecione uma data válida',
+  dataInicial: z.date({ message: 'A Data Inicial é obrigatória' }),
+  dataFinal: z.date({ message: 'A Data Final é obrigatória' }),
+  periodicidade: z.nativeEnum(PeriodicidadeSeguro, {
+    message: 'A Periodicidade é obrigatória',
   }),
 })
 
@@ -143,7 +148,7 @@ const SeguroCreateForm = ({
   })
   const { handleError } = useSubmitErrorTab<SeguroFormSchemaType>({
     setActiveTab,
-    fieldToTabMap: {
+      fieldToTabMap: {
       default: 'identificacao',
       designacao: 'identificacao',
       apolice: 'identificacao',
@@ -155,6 +160,7 @@ const SeguroCreateForm = ({
       riscosCobertos: 'coberturas',
       dataInicial: 'identificacao',
       dataFinal: 'identificacao',
+      periodicidade: 'identificacao',
     },
   })
 
@@ -170,6 +176,7 @@ const SeguroCreateForm = ({
       riscosCobertos: '',
       dataInicial: undefined,
       dataFinal: undefined,
+      periodicidade: PeriodicidadeSeguro.Anual,
     }),
     []
   )
@@ -370,6 +377,7 @@ const SeguroCreateForm = ({
         riscosCobertos: values.riscosCobertos,
         dataInicial: values.dataInicial.toISOString(),
         dataFinal: values.dataFinal.toISOString(),
+        periodicidade: values.periodicidade,
       }
 
       const response = await createSeguroMutation.mutateAsync(requestData)
@@ -604,65 +612,131 @@ const SeguroCreateForm = ({
                         )}
                       />
                     </div>
-                    <FormField
-                      control={form.control}
-                      name='seguradoraId'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className='flex items-center gap-2'>
-                            <ShieldCheck className='h-4 w-4' />
-                            Seguradora
-                            <Badge variant='secondary' className='text-xs'>
-                              Obrigatório
-                            </Badge>
-                          </FormLabel>
-                          <FormControl>
-                            <div className='relative'>
-                              <Autocomplete
-                                options={seguradorasData.map((seguradora) => ({
-                                  value: seguradora.id || '',
-                                  label: seguradora.descricao || '',
-                                }))}
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                placeholder={
-                                  isLoadingSeguradoras
-                                    ? 'A carregar seguradoras...'
-                                    : 'Selecione a seguradora'
-                                }
-                                emptyText='Nenhuma seguradora encontrada.'
-                                disabled={isLoadingSeguradoras}
-                                className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
-                              />
-                              <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleViewSeguradora}
-                                  className='h-8 w-8 p-0'
-                                  title='Ver Seguradora'
-                                  disabled={!field.value}
-                                >
-                                  <Eye className='h-4 w-4' />
-                                </Button>
-                                <Button
-                                  type='button'
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={handleCreateSeguradora}
-                                  className='h-8 w-8 p-0'
-                                  title='Criar Nova Seguradora'
-                                >
-                                  <Plus className='h-4 w-4' />
-                                </Button>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <FormField
+                        control={form.control}
+                        name='seguradoraId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='flex items-center gap-2'>
+                              <ShieldCheck className='h-4 w-4' />
+                              Seguradora
+                              <Badge variant='secondary' className='text-xs'>
+                                Obrigatório
+                              </Badge>
+                            </FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Autocomplete
+                                  options={seguradorasData.map((seguradora) => ({
+                                    value: seguradora.id || '',
+                                    label: seguradora.descricao || '',
+                                  }))}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder={
+                                    isLoadingSeguradoras
+                                      ? 'A carregar seguradoras...'
+                                      : 'Selecione a seguradora'
+                                  }
+                                  emptyText='Nenhuma seguradora encontrada.'
+                                  disabled={isLoadingSeguradoras}
+                                  className='px-4 py-5 pr-32 shadow-inner drop-shadow-xl'
+                                />
+                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleViewSeguradora}
+                                    className='h-8 w-8 p-0'
+                                    title='Ver Seguradora'
+                                    disabled={!field.value}
+                                  >
+                                    <Eye className='h-4 w-4' />
+                                  </Button>
+                                  <Button
+                                    type='button'
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={handleCreateSeguradora}
+                                    className='h-8 w-8 p-0'
+                                    title='Criar Nova Seguradora'
+                                  >
+                                    <Plus className='h-4 w-4' />
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='periodicidade'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='flex items-center gap-2 mt-1'>
+                              <Shield className='h-4 w-4' />
+                              Periodicidade
+                              <Badge variant='secondary' className='text-xs'>
+                                Obrigatório
+                              </Badge>
+                            </FormLabel>
+                            <FormControl>
+                              <div className='pt-2'>
+                                <RadioGroup
+                                  value={field.value?.toString()}
+                                  onValueChange={(value) => {
+                                    field.onChange(Number(value) as PeriodicidadeSeguro)
+                                  }}
+                                  className='flex gap-4'
+                                >
+                                  <div className='flex items-center space-x-2'>
+                                    <RadioGroupItem
+                                      value={PeriodicidadeSeguro.Mensal.toString()}
+                                      id='periodicidade-mensal'
+                                    />
+                                    <Label
+                                      htmlFor='periodicidade-mensal'
+                                      className='cursor-pointer font-normal'
+                                    >
+                                      Mensal
+                                    </Label>
+                                  </div>
+                                  <div className='flex items-center space-x-2'>
+                                    <RadioGroupItem
+                                      value={PeriodicidadeSeguro.Trimestral.toString()}
+                                      id='periodicidade-trimestral'
+                                    />
+                                    <Label
+                                      htmlFor='periodicidade-trimestral'
+                                      className='cursor-pointer font-normal'
+                                    >
+                                      Trimestral
+                                    </Label>
+                                  </div>
+                                  <div className='flex items-center space-x-2'>
+                                    <RadioGroupItem
+                                      value={PeriodicidadeSeguro.Anual.toString()}
+                                      id='periodicidade-anual'
+                                    />
+                                    <Label
+                                      htmlFor='periodicidade-anual'
+                                      className='cursor-pointer font-normal'
+                                    >
+                                      Anual
+                                    </Label>
+                                  </div>
+                                </RadioGroup>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <FormField
                         control={form.control}

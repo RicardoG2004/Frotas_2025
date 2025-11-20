@@ -1,6 +1,7 @@
 using FluentValidation;
 using Frotas.API.Application.Common.Marker;
 using Frotas.API.Application.Utility;
+using Frotas.API.Domain.Entities.Frotas;
 
 namespace Frotas.API.Application.Services.Frotas.SeguroService.DTOs
 {
@@ -16,6 +17,7 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService.DTOs
     public required string RiscosCobertos { get; set; }
     public required DateTime DataInicial { get; set; }
     public required DateTime DataFinal { get; set; }
+    public required PeriodicidadeSeguro Periodicidade { get; set; }
   }
 
   public class CreateSeguroValidator : AbstractValidator<CreateSeguroRequest>

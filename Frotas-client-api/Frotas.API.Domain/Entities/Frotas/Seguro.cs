@@ -4,6 +4,13 @@ using Frotas.API.Domain.Entities.Common;
 
 namespace Frotas.API.Domain.Entities.Frotas
 {
+  public enum PeriodicidadeSeguro
+  {
+    Mensal = 0,
+    Trimestral = 1,
+    Anual = 2
+  }
+
   [Table("Seguro", Schema = "Frotas")]
   public class Seguro : AuditableEntity
   {
@@ -18,6 +25,7 @@ namespace Frotas.API.Domain.Entities.Frotas
     public string RiscosCobertos { get; set; }
     public DateTime DataInicial { get; set; }
     public DateTime DataFinal { get; set; }
+    public PeriodicidadeSeguro Periodicidade { get; set; } = PeriodicidadeSeguro.Anual;
     public ICollection<ViaturaSeguro> ViaturaSeguros { get; set; } = new List<ViaturaSeguro>();
   }
 }

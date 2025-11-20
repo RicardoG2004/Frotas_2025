@@ -9,6 +9,7 @@ import { Breadcrumbs } from '@/components/shared/breadcrumbs'
 import { PageHead } from '@/components/shared/page-head'
 import { useGetSeguro } from '@/pages/frotas/seguros/queries/seguros-queries'
 import { SeguroUpdateForm } from '@/pages/frotas/seguros/components/seguros-forms/seguro-update-form'
+import { PeriodicidadeSeguro } from '@/types/dtos/frotas/seguros.dtos'
 
 export function SegurosUpdatePage() {
   const navigate = useNavigate()
@@ -53,6 +54,7 @@ export function SegurosUpdatePage() {
         riscosCobertos: '',
         dataInicial: new Date(),
         dataFinal: new Date(),
+        periodicidade: PeriodicidadeSeguro.Anual,
       }
     }
 
@@ -69,6 +71,7 @@ export function SegurosUpdatePage() {
         ? new Date(seguro.dataInicial)
         : new Date(),
       dataFinal: seguro.dataFinal ? new Date(seguro.dataFinal) : new Date(),
+      periodicidade: seguro.periodicidade ?? PeriodicidadeSeguro.Anual,
     }
   }, [seguroData])
 
