@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { z } from 'zod'
 import { useForm, type DefaultValues } from 'react-hook-form'
 import { type Resolver } from 'react-hook-form'
@@ -6,6 +6,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   CreateSeguroDTO,
   PeriodicidadeSeguro,
+  MetodoPagamentoSeguro,
+  MetodoPagamentoSeguroConfig,
 } from '@/types/dtos/frotas/seguros.dtos'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
@@ -49,6 +51,13 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
   PersistentTabs,
   TabsList as PersistentTabsList,
   TabsTrigger as PersistentTabsTrigger,
@@ -64,6 +73,14 @@ import {
   Euro,
   ChevronUp,
   ChevronDown,
+  CalendarDays,
+  Building2,
+  Repeat,
+  Smartphone,
+  CreditCard,
+  Wallet,
+  Banknote,
+  MoreHorizontal,
 } from 'lucide-react'
 
 const seguroFormSchema = z.object({
@@ -92,6 +109,8 @@ const seguroFormSchema = z.object({
   periodicidade: z.nativeEnum(PeriodicidadeSeguro, {
     message: 'A Periodicidade é obrigatória',
   }),
+  metodoPagamento: z.nativeEnum(MetodoPagamentoSeguro).optional(),
+  dataPagamento: z.date().optional().nullable(),
 })
 
 type SeguroFormSchemaType = z.infer<typeof seguroFormSchema>
@@ -161,6 +180,8 @@ const SeguroCreateForm = ({
       dataInicial: 'identificacao',
       dataFinal: 'identificacao',
       periodicidade: 'identificacao',
+      metodoPagamento: 'financeiro',
+      dataPagamento: 'financeiro',
     },
   })
 
@@ -177,6 +198,8 @@ const SeguroCreateForm = ({
       dataInicial: undefined,
       dataFinal: undefined,
       periodicidade: PeriodicidadeSeguro.Anual,
+      metodoPagamento: undefined,
+      dataPagamento: undefined,
     }),
     []
   )
@@ -378,6 +401,8 @@ const SeguroCreateForm = ({
         dataInicial: values.dataInicial.toISOString(),
         dataFinal: values.dataFinal.toISOString(),
         periodicidade: values.periodicidade,
+        metodoPagamento: values.metodoPagamento,
+        dataPagamento: values.dataPagamento?.toISOString(),
       }
 
       const response = await createSeguroMutation.mutateAsync(requestData)
@@ -936,6 +961,172 @@ const SeguroCreateForm = ({
                                 field,
                                 'Custo anual do seguro'
                               )}
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <FormField
+                        control={form.control}
+                        name='metodoPagamento'
+                        render={({ field }) => {
+                          const getIcon = (iconName: string) => {
+                            const iconMap: Record<string, ComponentType<any>> = {
+                              Building2,
+                              Repeat,
+                              Smartphone,
+                              CreditCard,
+                              Wallet,
+                              Banknote,
+                              FileText,
+                              MoreHorizontal,
+                            }
+                            return iconMap[iconName] || MoreHorizontal
+                          }
+
+                          const selectedMethod = field.value
+                            ? MetodoPagamentoSeguroConfig[field.value]
+                            : null
+
+                          const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+                          return (
+                            <FormItem>
+                              <FormLabel className='flex items-center gap-2'>
+                                <Euro className='h-4 w-4' />
+                                Método de Pagamento
+                              </FormLabel>
+                              <FormControl>
+                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      className='w-full justify-start px-4 py-6 shadow-inner drop-shadow-xl'
+                                    >
+                                      {selectedMethod ? (
+                                        <div className='flex items-center gap-3'>
+                                          {selectedMethod.image ? (
+                                            <img
+                                              src={selectedMethod.image}
+                                              alt={selectedMethod.label}
+                                              className='w-8 h-8 object-contain'
+                                            />
+                                          ) : (
+                                            <div
+                                              className={`w-8 h-8 rounded-full ${selectedMethod.color} flex items-center justify-center text-white`}
+                                            >
+                                              {(() => {
+                                                const Icon = getIcon(
+                                                  selectedMethod.icon
+                                                )
+                                                return <Icon className='h-4 w-4' />
+                                              })()}
+                                            </div>
+                                          )}
+                                          <span>{selectedMethod.label}</span>
+                                        </div>
+                                      ) : (
+                                        <span className='text-muted-foreground'>
+                                          Selecione o método de pagamento
+                                        </span>
+                                      )}
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className='max-w-md'>
+                                    <DialogHeader>
+                                      <DialogTitle className='text-base'>
+                                        Selecione o Método de Pagamento
+                                      </DialogTitle>
+                                    </DialogHeader>
+                                    <div className='flex flex-col gap-1.5 py-2 max-h-[60vh] overflow-y-auto'>
+                                      {Object.entries(
+                                        MetodoPagamentoSeguroConfig
+                                      ).map(([key, config]) => {
+                                        const value =
+                                          Number(key) as MetodoPagamentoSeguro
+                                        const Icon = getIcon(config.icon)
+                                        const isSelected = field.value === value
+
+                                        return (
+                                          <button
+                                            key={key}
+                                            type='button'
+                                            onClick={() => {
+                                              field.onChange(
+                                                isSelected ? undefined : value
+                                              )
+                                              setIsDialogOpen(false)
+                                            }}
+                                            className={`
+                                              relative flex items-center gap-2 px-2 py-1.5 rounded border transition-all
+                                              ${
+                                                isSelected
+                                                  ? 'border-primary bg-primary/10'
+                                                  : 'border-input bg-background hover:border-primary/50 hover:bg-primary/5'
+                                              }
+                                            `}
+                                          >
+                                            {config.image ? (
+                                              <div className='w-6 h-6 flex items-center justify-center flex-shrink-0'>
+                                                <img
+                                                  src={config.image}
+                                                  alt={config.label}
+                                                  className='w-full h-full object-contain'
+                                                />
+                                              </div>
+                                            ) : (
+                                              <div
+                                                className={`w-6 h-6 rounded-full ${config.color} flex items-center justify-center text-white flex-shrink-0`}
+                                              >
+                                                <Icon className='h-3 w-3' />
+                                              </div>
+                                            )}
+                                            <span
+                                              className={`text-xs font-medium flex-1 text-left ${
+                                                isSelected
+                                                  ? 'text-primary'
+                                                  : 'text-muted-foreground'
+                                              }`}
+                                            >
+                                              {config.label}
+                                            </span>
+                                            {isSelected && (
+                                              <div className='flex-shrink-0'>
+                                                <ShieldCheck className='h-3 w-3 text-primary' />
+                                              </div>
+                                            )}
+                                          </button>
+                                        )
+                                      })}
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )
+                        }}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='dataPagamento'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='flex items-center gap-2'>
+                              <CalendarDays className='h-4 w-4' />
+                              Data de Pagamento
+                            </FormLabel>
+                            <FormControl>
+                              <DatePicker
+                                value={field.value || undefined}
+                                onChange={(date) => field.onChange(date)}
+                                placeholder='Selecione a data de pagamento'
+                                allowClear
+                                className='h-12'
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

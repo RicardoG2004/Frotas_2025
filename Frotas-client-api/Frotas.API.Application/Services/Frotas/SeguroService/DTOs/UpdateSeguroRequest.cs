@@ -18,6 +18,8 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService.DTOs
     public required DateTime DataInicial { get; set; }
     public required DateTime DataFinal { get; set; }
     public required PeriodicidadeSeguro Periodicidade { get; set; }
+    public MetodoPagamentoSeguro? MetodoPagamento { get; set; }
+    public DateTime? DataPagamento { get; set; }
   }
 
   public class UpdateSeguroValidator : AbstractValidator<UpdateSeguroRequest>

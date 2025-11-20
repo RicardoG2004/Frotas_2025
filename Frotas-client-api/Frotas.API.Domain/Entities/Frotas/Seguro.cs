@@ -11,6 +11,21 @@ namespace Frotas.API.Domain.Entities.Frotas
     Anual = 2
   }
 
+  public enum MetodoPagamentoSeguro
+  {
+    Transferencia = 0,
+    MBWay = 2,
+    Multibanco = 3,
+    CartaoDebito = 4,
+    CartaoCredito = 5,
+    PayPal = 6,
+    ApplePay = 7,
+    GooglePay = 8,
+    Dinheiro = 9,
+    Cheque = 10,
+    Outro = 11
+  }
+
   [Table("Seguro", Schema = "Frotas")]
   public class Seguro : AuditableEntity
   {
@@ -26,6 +41,8 @@ namespace Frotas.API.Domain.Entities.Frotas
     public DateTime DataInicial { get; set; }
     public DateTime DataFinal { get; set; }
     public PeriodicidadeSeguro Periodicidade { get; set; } = PeriodicidadeSeguro.Anual;
+    public MetodoPagamentoSeguro? MetodoPagamento { get; set; }
+    public DateTime? DataPagamento { get; set; }
     public ICollection<ViaturaSeguro> ViaturaSeguros { get; set; } = new List<ViaturaSeguro>();
   }
 }
