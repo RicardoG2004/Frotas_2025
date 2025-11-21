@@ -51,9 +51,22 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     const [displayValue, setDisplayValue] = React.useState<string>('')
     const [isFocused, setIsFocused] = React.useState(false)
 
+    const roundToDecimals = React.useCallback(
+      (value: number, decimals: number = 2) => {
+        const factor = Math.pow(10, decimals)
+        return Math.round(value * factor) / factor
+      },
+      []
+    )
+
     const clampValue = React.useCallback(
       (nextValue: number) => {
         let result = nextValue
+
+        // Arredondar para 2 casas decimais se step for menor que 1 (tem decimais)
+        if (step < 1) {
+          result = roundToDecimals(result, 2)
+        }
 
         if (typeof min === 'number') {
           result = Math.max(min, result)
@@ -65,7 +78,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
         return result
       },
-      [min, max]
+      [min, max, step, roundToDecimals]
     )
 
     const numericValue =
@@ -82,21 +95,30 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     }, [])
 
     React.useEffect(() => {
-      const desired = numericValue !== undefined ? String(numericValue) : ''
+      let desired: string
+      if (numericValue !== undefined) {
+        // Se o campo está focado, mostrar o valor exato que o usuário está digitando
+        // Caso contrário, formatar com 2 casas decimais
+        if (inputRef.current === document.activeElement && isIntermediateValue(displayValue)) {
+          return
+        }
+        
+        // Formatar com 2 casas decimais se step < 1, caso contrário mostrar como inteiro
+        if (step < 1) {
+          desired = roundToDecimals(numericValue, 2).toFixed(2).replace('.', ',')
+        } else {
+          desired = String(Math.round(numericValue))
+        }
+      } else {
+        desired = ''
+      }
 
       if (displayValue === desired) {
         return
       }
 
-      if (
-        inputRef.current === document.activeElement &&
-        isIntermediateValue(displayValue)
-      ) {
-        return
-      }
-
       setDisplayValue(desired)
-    }, [numericValue, displayValue, isIntermediateValue])
+    }, [numericValue, displayValue, isIntermediateValue, step, roundToDecimals])
 
     const emitValue = React.useCallback(
       (next: number | undefined) => {
@@ -106,83 +128,105 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
         if (typeof next === 'number' && !Number.isNaN(next)) {
           const clamped = clampValue(next)
-          onValueChange(clamped)
-          setDisplayValue(String(clamped))
+          // Garantir que o valor emitido está arredondado corretamente
+          const rounded = step < 1 ? roundToDecimals(clamped, 2) : clamped
+          onValueChange(rounded)
+          // Formatar o display value com 2 casas decimais se step < 1
+          if (step < 1) {
+            setDisplayValue(rounded.toFixed(2).replace('.', ','))
+          } else {
+            setDisplayValue(String(Math.round(rounded)))
+          }
           return
         }
 
         onValueChange(undefined)
         setDisplayValue('')
       },
-      [clampValue, onValueChange]
+      [clampValue, onValueChange, step, roundToDecimals]
     )
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const rawValue = event.target.value
+    const handleChange = React.useCallback(
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const rawValue = event.target.value
 
-      const numberPattern = /^-?\d*(?:[.,]\d*)?$/
-      if (!numberPattern.test(rawValue)) {
-        return
-      }
+        const numberPattern = /^-?\d*(?:[.,]\d*)?$/
+        if (!numberPattern.test(rawValue)) {
+          return
+        }
 
-      setDisplayValue(rawValue)
+        setDisplayValue(rawValue)
 
-      const normalized = rawValue.replace(',', '.')
+        const normalized = rawValue.replace(',', '.')
 
-      if (rawValue === '' || rawValue === '-' || rawValue === '-.' || rawValue === '.') {
-        onValueChange?.(undefined)
-        return
-      }
+        if (rawValue === '' || rawValue === '-' || rawValue === '-.' || rawValue === '.') {
+          onValueChange?.(undefined)
+          return
+        }
 
-      const parsed = Number(normalized)
-
-      if (Number.isNaN(parsed)) {
-        return
-      }
-
-      onValueChange?.(parsed)
-    }
-
-    const handleInternalBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(false)
-      if (
-        displayValue === '' ||
-        displayValue === '-' ||
-        displayValue === '-.' ||
-        displayValue === '.'
-      ) {
-        emitValue(undefined)
-      } else {
-        const normalized = displayValue.replace(',', '.')
         const parsed = Number(normalized)
 
-        if (!Number.isNaN(parsed)) {
-          emitValue(parsed)
+        if (Number.isNaN(parsed)) {
+          return
         }
-      }
 
-      onBlur?.(event)
-    }
+        // Arredondar valores durante a digitação também para evitar problemas de precisão
+        const rounded = step < 1 ? roundToDecimals(parsed, 2) : parsed
+        onValueChange?.(rounded)
+      },
+      [step, roundToDecimals, onValueChange]
+    )
+
+    const handleInternalBlur = React.useCallback(
+      (event: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(false)
+        if (
+          displayValue === '' ||
+          displayValue === '-' ||
+          displayValue === '-.' ||
+          displayValue === '.'
+        ) {
+          emitValue(undefined)
+        } else {
+          const normalized = displayValue.replace(',', '.')
+          const parsed = Number(normalized)
+
+          if (!Number.isNaN(parsed)) {
+            // Arredondar para 2 casas decimais antes de emitir se step < 1
+            const rounded = step < 1 ? roundToDecimals(parsed, 2) : parsed
+            emitValue(rounded)
+          }
+        }
+
+        onBlur?.(event)
+      },
+      [displayValue, step, roundToDecimals, emitValue, onBlur]
+    )
 
     const handleInternalFocus = (event: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true)
       props.onFocus?.(event)
     }
 
-    const resolveCurrentValue = () => {
+    const resolveCurrentValue = React.useCallback(() => {
       if (typeof numericValue === 'number') {
         return numericValue
       }
 
       const parsed = Number(displayValue.replace(',', '.'))
       return Number.isNaN(parsed) ? 0 : parsed
-    }
+    }, [numericValue, displayValue])
 
-    const handleStep = (direction: 1 | -1) => {
-      const current = resolveCurrentValue()
-      const next = current + direction * step
-      emitValue(next)
-    }
+    const handleStep = React.useCallback(
+      (direction: 1 | -1) => {
+        const current = resolveCurrentValue()
+        const next = current + direction * step
+        // Arredondar imediatamente após o cálculo para evitar erros de precisão
+        const rounded = step < 1 ? roundToDecimals(next, 2) : next
+        emitValue(rounded)
+      },
+      [step, roundToDecimals, emitValue, resolveCurrentValue]
+    )
 
     const handleWheel = (event: React.WheelEvent<HTMLInputElement>) => {
       if (disabled) {

@@ -43,6 +43,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { NumberInput } from '@/components/ui/number-input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   RadioGroup,
@@ -1993,17 +1994,13 @@ const SeguroCreateForm = ({
                               </Badge>
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                type='number'
-                                step='0.01'
-                                min='0'
+                              <NumberInput
+                                step={0.01}
+                                min={0}
                                 placeholder='Valor total coberto pelo seguro'
-                                {...field}
-                                name='valorCobertura'
-                                value={field.value ?? ''}
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value === '' ? undefined : parseFloat(value) || 0)
+                                value={field.value ?? undefined}
+                                onValueChange={(value) => {
+                                  field.onChange(value ?? 0)
                                 }}
                                 className='shadow-inner drop-shadow-xl'
                               />
@@ -2024,17 +2021,13 @@ const SeguroCreateForm = ({
                               </Badge>
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                type='number'
-                                step='0.01'
-                                min='0'
+                              <NumberInput
+                                step={0.01}
+                                min={0}
                                 placeholder='Custo anual do seguro'
-                                {...field}
-                                name='custoAnual'
-                                value={field.value ?? ''}
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value === '' ? undefined : parseFloat(value) || 0)
+                                value={field.value ?? undefined}
+                                onValueChange={(value) => {
+                                  field.onChange(value ?? 0)
                                 }}
                                 className='shadow-inner drop-shadow-xl'
                               />

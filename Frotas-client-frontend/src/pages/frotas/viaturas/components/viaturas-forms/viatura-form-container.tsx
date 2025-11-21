@@ -3302,48 +3302,48 @@ export function ViaturaFormContainer({
       >
         <PersistentTabs defaultValue='identificacao' className='w-full' tabKey={tabKey}>
           <PersistentTabsList>
-            <PersistentTabsTrigger value='identificacao'>
-              <Car className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='identificacao' className='h-9 px-3 py-1.5'>
+              <Car className='mr-1.5 h-3.5 w-3.5' />
               Identificação
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='caracterizacao'>
-              <Settings className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='caracterizacao' className='h-9 px-3 py-1.5'>
+              <Settings className='mr-1.5 h-3.5 w-3.5' />
               Caraterização
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='locacao'>
-              <MapPin className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='locacao' className='h-9 px-3 py-1.5'>
+              <MapPin className='mr-1.5 h-3.5 w-3.5' />
               Locação
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='inspecoes'>
-              <ClipboardCheckIcon className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='inspecoes' className='h-9 px-3 py-1.5'>
+              <ClipboardCheckIcon className='mr-1.5 h-3.5 w-3.5' />
               Inspeções
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='seguros'>
-              <ShieldCheck className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='seguros' className='h-9 px-3 py-1.5'>
+              <ShieldCheck className='mr-1.5 h-3.5 w-3.5' />
               Seguros
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='garantias'>
-              <ShieldPlus className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='garantias' className='h-9 px-3 py-1.5'>
+              <ShieldPlus className='mr-1.5 h-3.5 w-3.5' />
               Garantias
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='notas'>
-              <FileText className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='notas' className='h-9 px-3 py-1.5'>
+              <FileText className='mr-1.5 h-3.5 w-3.5' />
               Notas
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='equipamento'>
-              <Wrench className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='equipamento' className='h-9 px-3 py-1.5'>
+              <Wrench className='mr-1.5 h-3.5 w-3.5' />
               Equipamento Extra
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='condutores'>
-              <User className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='condutores' className='h-9 px-3 py-1.5'>
+              <User className='mr-1.5 h-3.5 w-3.5' />
               Condutores
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='acidentes'>
-              <AlertTriangle className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='acidentes' className='h-9 px-3 py-1.5'>
+              <AlertTriangle className='mr-1.5 h-3.5 w-3.5' />
               Danos/Acidentes
             </PersistentTabsTrigger>
-            <PersistentTabsTrigger value='multas'>
-              <FileText className='mr-2 h-4 w-4' />
+            <PersistentTabsTrigger value='multas' className='h-9 px-3 py-1.5'>
+              <FileText className='mr-1.5 h-3.5 w-3.5' />
               Multas
             </PersistentTabsTrigger>
           </PersistentTabsList>

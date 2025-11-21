@@ -30,8 +30,7 @@ namespace Frotas.API.Application.Services.Frotas.SeguroService.DTOs
       _ = RuleFor(x => x.Designacao).NotEmpty();
       _ = RuleFor(x => x.Apolice).NotEmpty();
       _ = RuleFor(x => x.SeguradoraId).NotEmpty();
-      _ = RuleFor(x => x.AssistenciaViagem).NotEmpty();
-      _ = RuleFor(x => x.CartaVerde).NotEmpty();
+      // AssistenciaViagem e CartaVerde podem ser false, não precisam de validação
       _ = RuleFor(x => x.ValorCobertura).NotEmpty();
       _ = RuleFor(x => x.CustoAnual).NotEmpty();
       _ = RuleFor(x => x.RiscosCobertos).NotEmpty();
