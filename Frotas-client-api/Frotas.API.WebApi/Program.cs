@@ -10,6 +10,9 @@ WebApplication app = builder.Build(); // Create the App
 app.UseCors("defaultPolicy"); // CORS policy (default - allow any orgin)
 app.UseHttpsRedirection();
 
+// Permitir servir ficheiros estáticos da pasta wwwroot
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthentication();

@@ -204,6 +204,35 @@ export class SegurosClient extends BaseApiClient {
       }
     })
   }
+
+  public async uploadDocumento(
+    file: File,
+    seguroId?: string,
+    pasta?: string | null
+  ): Promise<ResponseApi<GSResponse<string>>> {
+    return this.withRetry(async () => {
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        if (seguroId) {
+          formData.append('seguroId', seguroId)
+        }
+        if (pasta) {
+          formData.append('pasta', pasta)
+        }
+
+        const response = await this.httpClient.uploadFile<GSResponse<string>>(
+          state.URL,
+          '/client/frotas/documentos/upload',
+          formData
+        )
+
+        return response
+      } catch (error) {
+        throw new SeguroError('Falha ao fazer upload do documento', undefined, error)
+      }
+    })
+  }
 }
 
 

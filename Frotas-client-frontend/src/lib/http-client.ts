@@ -286,6 +286,35 @@ export class HttpClient {
     }
   }
 
+  public uploadFile = async <T>(
+    baseUrl: string,
+    url: string,
+    formData: FormData
+  ): Promise<ResponseApi<T>> => {
+    try {
+      const response = await this.withTokenRenewal(() => {
+        // Obter headers atualizados (incluindo token renovado) dentro do callback
+        const headers = this.getHeaders(formData)
+        // Para FormData, remover Content-Type se foi definido - o navegador define automaticamente
+        delete headers['Content-Type']
+        
+        return axios.post(`${baseUrl}${url}`, formData, {
+          headers: headers,
+          timeout: 120000, // 2 minutos para uploads
+        })
+      })
+
+      return {
+        info: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) throw handleErrorAxios(error)
+      else throw handleError(error)
+    }
+  }
+
   public deleteRequestWithBody = async <TBody, TResponse>(
     baseUrl: string,
     url: string,
@@ -298,6 +327,35 @@ export class HttpClient {
           data: body,
         })
       )
+
+      return {
+        info: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) throw handleErrorAxios(error)
+      else throw handleError(error)
+    }
+  }
+
+  public uploadFile = async <T>(
+    baseUrl: string,
+    url: string,
+    formData: FormData
+  ): Promise<ResponseApi<T>> => {
+    try {
+      const { token } = useAuthStore.getState()
+      
+      const response = await axios.post(`${baseUrl}${url}`, formData, {
+        headers: {
+          tenant: 'root',
+          'Accept-Language': 'en-US',
+          'X-API-Key': this.apiKey,
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        timeout: 120000, // 2 minutos para uploads
+      })
 
       return {
         info: response.data,

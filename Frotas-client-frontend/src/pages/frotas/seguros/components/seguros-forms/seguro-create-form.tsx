@@ -12,6 +12,8 @@ import {
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
 import { useCreateSeguro } from '@/pages/frotas/seguros/queries/seguros-mutations'
+import { SegurosService } from '@/lib/services/frotas/seguros-service'
+import state from '@/states/state'
 import { useGetSeguradorasSelect } from '@/pages/frotas/seguradoras/queries/seguradoras-queries'
 import { handleApiError } from '@/utils/error-handlers'
 import { handleApiResponse } from '@/utils/response-handlers'
@@ -118,10 +120,18 @@ const seguroFormSchema = z.object({
   riscosCobertos: z.string().optional(),
   valorCobertura: z.coerce
     .number({ message: 'O Valor de Cobertura é obrigatório' })
-    .min(0, { message: 'O Valor de Cobertura deve ser maior ou igual a 0' }),
+    .nullable()
+    .refine((val) => val === null || val >= 0, {
+      message: 'O Valor de Cobertura deve ser maior ou igual a 0',
+    })
+    .transform((val) => val ?? 0),
   custoAnual: z.coerce
     .number({ message: 'O Custo Anual é obrigatório' })
-    .min(0, { message: 'O Custo Anual deve ser maior ou igual a 0' }),
+    .nullable()
+    .refine((val) => val === null || val >= 0, {
+      message: 'O Custo Anual deve ser maior ou igual a 0',
+    })
+    .transform((val) => val ?? 0),
   dataInicial: z.date({ message: 'A Data Inicial é obrigatória' }),
   dataFinal: z.date({ message: 'A Data Final é obrigatória' }),
   periodicidade: z.nativeEnum(PeriodicidadeSeguro, {
@@ -635,20 +645,6 @@ const SeguroCreateForm = ({
     onChange: (documentos: SeguroDocumentoFormValue[]) => void
   }
 
-  const readFileAsDataUrl = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result)
-        } else {
-          reject(new Error('Não foi possível ler o ficheiro.'))
-        }
-      }
-      reader.onerror = () => reject(reader.error ?? new Error('Erro ao ler o ficheiro.'))
-      reader.readAsDataURL(file)
-    })
-
   const formatFileSize = (bytes?: number) => {
     if (bytes === undefined || bytes === null) {
       return '0 Bytes'
@@ -681,12 +677,19 @@ const SeguroCreateForm = ({
     documento?: SeguroDocumentoFormValue | null
   ) => {
     if (!documento?.dados) return null
+    // Se for base64 (data:), retornar como está
     if (documento.dados.startsWith('data:')) return documento.dados
+    // Se for URL completa, retornar como está
     if (
       documento.dados.startsWith('http://') ||
       documento.dados.startsWith('https://')
     ) {
       return documento.dados
+    }
+    // Se for caminho relativo, construir URL completa
+    if (documento.dados.startsWith('uploads/')) {
+      const baseUrl = state.URL.replace(/\/$/, '')
+      return `${baseUrl}/${documento.dados}`
     }
     return null
   }
@@ -880,18 +883,44 @@ const SeguroCreateForm = ({
       [handleSelectFolderValue]
     )
 
-    const convertFilesToDocumentos = useCallback(async (files: File[]) => {
+    const convertFilesToDocumentos = useCallback(async (
+      files: File[],
+      pasta?: string
+    ) => {
       if (!files.length) {
         return []
       }
 
+      const seguroService = SegurosService('seguro')
+
       return Promise.all(
-        files.map(async (file) => ({
-          nome: file.name || 'documento',
-          dados: await readFileAsDataUrl(file),
-          contentType: file.type || 'application/octet-stream',
-          tamanho: file.size,
-        }))
+        files.map(async (file) => {
+          try {
+            // Fazer upload do ficheiro para o servidor (sem seguroId pois ainda não existe)
+            const uploadResponse = await seguroService.uploadDocumento(
+              file,
+              undefined, // Não há seguroId ainda
+              pasta ?? null
+            )
+
+            if (!uploadResponse.info?.data) {
+              throw new Error('Resposta de upload inválida')
+            }
+
+            const caminho = uploadResponse.info.data
+
+            return {
+              nome: file.name || 'documento',
+              dados: caminho, // Guardar apenas o caminho
+              contentType: file.type || 'application/octet-stream',
+              tamanho: file.size,
+              pasta: pasta ?? null,
+            }
+          } catch (error) {
+            console.error('Erro ao fazer upload:', error)
+            throw error
+          }
+        })
       )
     }, [])
 
@@ -931,22 +960,18 @@ const SeguroCreateForm = ({
         setProcessingDocumentos((prev) => [...prev, ...tempDocs])
 
         tempDocs.forEach((tempDoc) => {
-          convertFilesToDocumentos([tempDoc.file])
+          convertFilesToDocumentos([tempDoc.file], tempDoc.pasta)
             .then((novos) => {
               if (!novos.length) return
               if (cancelledProcessingIdsRef.current.has(tempDoc.id)) {
                 return
               }
-              appendDocumentos([
-                {
-                  ...novos[0],
-                  pasta: tempDoc.pasta,
-                },
-              ])
+              appendDocumentos(novos)
             })
-            .catch(() => {
+            .catch((error) => {
+              console.error('Erro ao fazer upload:', error)
               toast.error(
-                `Não foi possível processar o ficheiro ${tempDoc.nome}.`
+                `Não foi possível fazer upload do ficheiro ${tempDoc.nome}.`
               )
             })
             .finally(() => {
@@ -1058,6 +1083,7 @@ const SeguroCreateForm = ({
       (documento: SeguroDocumentoFormValue) => {
         if (!documento?.dados) return
 
+        // Se for base64 (formato legacy)
         if (documento.dados.startsWith('data:')) {
           const link = document.createElement('a')
           link.href = documento.dados
@@ -1068,11 +1094,20 @@ const SeguroCreateForm = ({
           return
         }
 
+        // Se for URL completa
         if (
           documento.dados.startsWith('http://') ||
           documento.dados.startsWith('https://')
         ) {
           window.open(documento.dados, '_blank', 'noopener,noreferrer')
+          return
+        }
+
+        // Se for caminho relativo (novo formato)
+        if (documento.dados.startsWith('uploads/')) {
+          const baseUrl = state.URL.replace(/\/$/, '')
+          const downloadUrl = `${baseUrl}/client/frotas/documentos/download/${documento.dados}`
+          window.open(downloadUrl, '_blank', 'noopener,noreferrer')
         }
       },
       []
@@ -2000,7 +2035,7 @@ const SeguroCreateForm = ({
                                 placeholder='Valor total coberto pelo seguro'
                                 value={field.value ?? undefined}
                                 onValueChange={(value) => {
-                                  field.onChange(value ?? 0)
+                                  field.onChange(value ?? null)
                                 }}
                                 className='shadow-inner drop-shadow-xl'
                               />
@@ -2027,7 +2062,7 @@ const SeguroCreateForm = ({
                                 placeholder='Custo anual do seguro'
                                 value={field.value ?? undefined}
                                 onValueChange={(value) => {
-                                  field.onChange(value ?? 0)
+                                  field.onChange(value ?? null)
                                 }}
                                 className='shadow-inner drop-shadow-xl'
                               />

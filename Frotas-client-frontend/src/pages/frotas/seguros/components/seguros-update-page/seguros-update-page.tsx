@@ -110,6 +110,21 @@ const parseSeguroDocumentos = (
     ]
   }
 
+  // Suporte para caminhos relativos (novo formato)
+  if (trimmed.startsWith('uploads/')) {
+    const segments = trimmed.split('/')
+    const fileName = segments[segments.length - 1] || 'documento'
+    return [
+      {
+        nome: fileName,
+        dados: trimmed,
+        contentType: 'application/octet-stream',
+        tamanho: 0,
+        pasta: segments.length > 3 ? segments[segments.length - 2] : null,
+      },
+    ]
+  }
+
   return []
 }
 

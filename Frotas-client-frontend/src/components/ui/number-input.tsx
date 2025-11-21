@@ -81,8 +81,11 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       [min, max, step, roundToDecimals]
     )
 
+    // Tratar null e undefined como valores vazios
     const numericValue =
-      typeof value === 'number' && !Number.isNaN(value) ? value : undefined
+      typeof value === 'number' && !Number.isNaN(value) && value !== null
+        ? value
+        : undefined
 
     const isIntermediateValue = React.useCallback((raw: string) => {
       return (
@@ -95,14 +98,13 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     }, [])
 
     React.useEffect(() => {
+      // Se o campo está focado, não atualizar o displayValue para permitir que o utilizador escreva/apague
+      if (inputRef.current === document.activeElement) {
+        return
+      }
+
       let desired: string
-      if (numericValue !== undefined) {
-        // Se o campo está focado, mostrar o valor exato que o usuário está digitando
-        // Caso contrário, formatar com 2 casas decimais
-        if (inputRef.current === document.activeElement && isIntermediateValue(displayValue)) {
-          return
-        }
-        
+      if (numericValue !== undefined && numericValue !== null) {
         // Formatar com 2 casas decimais se step < 1, caso contrário mostrar como inteiro
         if (step < 1) {
           desired = roundToDecimals(numericValue, 2).toFixed(2).replace('.', ',')
@@ -118,7 +120,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       }
 
       setDisplayValue(desired)
-    }, [numericValue, displayValue, isIntermediateValue, step, roundToDecimals])
+    }, [numericValue, displayValue, step, roundToDecimals])
 
     const emitValue = React.useCallback(
       (next: number | undefined) => {
@@ -152,6 +154,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
         const numberPattern = /^-?\d*(?:[.,]\d*)?$/
         if (!numberPattern.test(rawValue)) {
+          // Se não corresponde ao padrão, manter o valor atual
           return
         }
 
@@ -167,6 +170,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         const parsed = Number(normalized)
 
         if (Number.isNaN(parsed)) {
+          // Se não é um número válido mas passou o padrão, não fazer nada
           return
         }
 
