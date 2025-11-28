@@ -3590,13 +3590,10 @@ export function ViaturaFormContainer({
                           <FormControl>
                             <ToggleGroup
                               type='single'
-                              value={field.value}
+                              value={field.value || undefined}
                               onValueChange={(value) => {
-                                if (!value) {
-                                  field.onChange('')
-                                  return
-                                }
-                                field.onChange(value)
+                                // Permite deselecionar: se clicar novamente no item selecionado, value será undefined
+                                field.onChange(value || '')
                               }}
                               className='grid gap-3 md:grid-cols-2'
                             >

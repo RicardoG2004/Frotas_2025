@@ -17,6 +17,7 @@ using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
 using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
 using Frotas.API.Application.Services.Base.FuncionarioService.DTOs;
+using Frotas.API.Domain.Entities.Frotas;
 
 namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
 {
@@ -38,6 +39,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public CorDTO Cor { get; set; }
     public Guid CombustivelId { get; set; }
     public CombustivelDTO Combustivel { get; set; }
+    public TipoPropulsao? TipoPropulsao { get; set; }
     public Guid ConservatoriaId { get; set; }
     public ConservatoriaDTO Conservatoria { get; set; }
     public Guid CategoriaId { get; set; }

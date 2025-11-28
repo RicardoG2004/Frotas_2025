@@ -26,11 +26,41 @@ interface ViaturaUpdateFormProps {
   viaturaId: string
 }
 
-const normalizePropulsao = (tipo?: ViaturaPropulsao | null): ViaturaPropulsao => {
-  if (tipo && (VIATURA_PROPULSAO_TYPES as readonly string[]).includes(tipo)) {
-    return tipo
+const normalizePropulsao = (tipo?: ViaturaPropulsao | null): string => {
+  if (!tipo) {
+    return '' // Retorna string vazia quando não há valor
   }
-  return 'combustao'
+  
+  // Converter para string e normalizar
+  const tipoStr = String(tipo).trim()
+  if (!tipoStr) {
+    return ''
+  }
+  
+  // Mapear os valores do backend (Combustao, Hibrido, etc.) para os valores do frontend
+  // O backend retorna o enum como string: "Combustao", "Hibrido", "Eletrico", "HibridoPlugIn"
+  const tipoLower = tipoStr.toLowerCase()
+  
+  // Mapeamento direto de valores do backend para frontend
+  if (tipoLower === 'combustao' || tipoStr === '0' || tipoStr === 'Combustao') {
+    return 'combustao'
+  }
+  if (tipoLower === 'hibrido' || tipoStr === '1' || tipoStr === 'Hibrido') {
+    return 'hibrido'
+  }
+  if (tipoLower === 'eletrico' || tipoStr === '2' || tipoStr === 'Eletrico') {
+    return 'eletrico'
+  }
+  if (tipoLower === 'hibridoplugin' || tipoLower === 'hibridoplug-in' || tipoStr === '3' || tipoStr === 'HibridoPlugIn') {
+    return 'hibridoPlugIn'
+  }
+  
+  // Se o valor já está no formato correto do frontend, retornar diretamente
+  if ((VIATURA_PROPULSAO_TYPES as readonly string[]).includes(tipoStr as any)) {
+    return tipoStr
+  }
+  
+  return '' // Retorna string vazia se não for reconhecido
 }
 
 const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
