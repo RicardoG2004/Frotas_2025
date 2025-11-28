@@ -3,17 +3,33 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Breadcrumbs } from '@/components/shared/breadcrumbs'
 import { PageHead } from '@/components/shared/page-head'
+import { useFormsStore } from '@/stores/use-forms-store'
+import { useWindowsStore } from '@/stores/use-windows-store'
+import { handleWindowClose } from '@/utils/window-utils'
 import { ViaturaUpdateForm } from '../viaturas-forms/viatura-update-form'
 
 export function ViaturasUpdatePage() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { removeFormState } = useFormsStore()
+  const { windows, removeWindow } = useWindowsStore()
   const searchParams = new URLSearchParams(location.search)
   const viaturaId = searchParams.get('viaturaId') || ''
   const instanceId = searchParams.get('instanceId') || 'default'
+  const formId = instanceId
 
   const handleClose = () => {
-    navigate('/frotas/viaturas')
+    // Remove form data from the form store
+    removeFormState(formId)
+
+    // Find the current window and remove it
+    const currentWindow = windows.find(
+      (w) => w.path === location.pathname && w.instanceId === instanceId
+    )
+
+    if (currentWindow) {
+      handleWindowClose(currentWindow.id, navigate, removeWindow)
+    }
   }
 
   return (

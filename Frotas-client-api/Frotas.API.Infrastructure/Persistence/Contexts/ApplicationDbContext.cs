@@ -149,6 +149,21 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .WithMany()
         .HasForeignKey(x => x.FuncionarioId);
 
+      modelBuilder.Entity<ViaturaAcidente>()
+        .HasOne(x => x.Concelho)
+        .WithMany()
+        .HasForeignKey(x => x.ConcelhoId);
+
+      modelBuilder.Entity<ViaturaAcidente>()
+        .HasOne(x => x.Freguesia)
+        .WithMany()
+        .HasForeignKey(x => x.FreguesiaId);
+
+      modelBuilder.Entity<ViaturaAcidente>()
+        .HasOne(x => x.CodigoPostal)
+        .WithMany()
+        .HasForeignKey(x => x.CodigoPostalId);
+
       modelBuilder.Entity<ViaturaMulta>()
         .HasOne(x => x.Viatura)
         .WithMany(x => x.ViaturaMultas)

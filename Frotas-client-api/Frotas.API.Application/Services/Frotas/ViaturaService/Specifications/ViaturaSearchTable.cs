@@ -53,9 +53,11 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.Specifications
               }
               break;
             case "marca.designacao":
+            case "marca.nome":
               _ = Query.Where(x => x.Marca != null && x.Marca.Nome.Contains(filter.Value));
               break;
             case "modelo.designacao":
+            case "modelo.nome":
               _ = Query.Where(x => x.Modelo != null && x.Modelo.Nome.Contains(filter.Value));
               break;
             case "tipoviatura.designacao":

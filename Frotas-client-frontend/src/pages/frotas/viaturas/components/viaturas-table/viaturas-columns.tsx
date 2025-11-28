@@ -3,13 +3,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnDef } from '@/components/shared/data-table-types'
 import { ViaturasCellAction } from './viaturas-cell-actions'
 
-const formatDate = (value?: string) => {
-  if (!value) return '-'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '-'
-  return new Intl.DateTimeFormat('pt-PT').format(date)
-}
-
 export const columns: DataTableColumnDef<ViaturaDTO>[] = [
   {
     id: 'select',
@@ -45,39 +38,18 @@ export const columns: DataTableColumnDef<ViaturaDTO>[] = [
     cell: ({ row }) => row.original.matricula || '-',
   },
   {
-    accessorKey: 'marca.designacao',
+    accessorKey: 'marca.nome',
     header: 'Marca',
-    sortKey: 'marca.designacao',
+    sortKey: 'marca.nome',
     enableSorting: true,
-    cell: ({ row }) => row.original.marca?.designacao || '-',
+    cell: ({ row }) => row.original.marca?.nome || '-',
   },
   {
-    accessorKey: 'modelo.designacao',
+    accessorKey: 'modelo.nome',
     header: 'Modelo',
-    sortKey: 'modelo.designacao',
+    sortKey: 'modelo.nome',
     enableSorting: true,
-    cell: ({ row }) => row.original.modelo?.designacao || '-',
-  },
-  {
-    accessorKey: 'numero',
-    header: 'Número',
-    sortKey: 'numero',
-    enableSorting: true,
-    cell: ({ row }) => row.original.numero ?? '-',
-  },
-  {
-    accessorKey: 'localizacao.designacao',
-    header: 'Localização',
-    sortKey: 'localizacao.designacao',
-    enableSorting: true,
-    cell: ({ row }) => row.original.localizacao?.designacao || '-',
-  },
-  {
-    accessorKey: 'dataAquisicao',
-    header: 'Aquisição',
-    sortKey: 'dataAquisicao',
-    enableSorting: true,
-    cell: ({ row }) => formatDate(row.original.dataAquisicao),
+    cell: ({ row }) => row.original.modelo?.nome || '-',
   },
   {
     id: 'actions',

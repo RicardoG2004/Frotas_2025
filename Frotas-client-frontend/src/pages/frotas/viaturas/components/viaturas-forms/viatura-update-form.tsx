@@ -8,7 +8,6 @@ import { useGetViatura } from '@/pages/frotas/viaturas/queries/viaturas-queries'
 import { useUpdateViatura } from '@/pages/frotas/viaturas/queries/viaturas-mutations'
 import {
   encodeViaturaDocumentos,
-  encodeCondutoresDocumentos,
   parseViaturaDocumentosFromPair,
   parseCondutoresDocumentos,
   parseDocumentosPayload,
@@ -48,22 +47,22 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
     dataLivrete: viatura.dataLivrete ? new Date(viatura.dataLivrete) : new Date(),
     marcaId: viatura.marcaId || '',
     modeloId: viatura.modeloId || '',
-    tipoViaturaId: viatura.tipoViaturaId || '',
-    corId: viatura.corId || '',
-    combustivelId: viatura.combustivelId || '',
+    tipoViaturaId: viatura.tipoViaturaId || null,
+    corId: viatura.corId || null,
+    combustivelId: viatura.combustivelId || null,
     tipoPropulsao: normalizePropulsao(viatura.tipoPropulsao),
-    conservatoriaId: viatura.conservatoriaId || '',
-    categoriaId: viatura.categoriaId || '',
-    localizacaoId: viatura.localizacaoId || '',
-    setorId: viatura.setorId || '',
-    delegacaoId: viatura.delegacaoId || '',
+    conservatoriaId: viatura.conservatoriaId || null,
+    categoriaId: viatura.categoriaId || null,
+    localizacaoId: viatura.localizacaoId || null,
+    setorId: viatura.setorId || null,
+    delegacaoId: viatura.delegacaoId || null,
     entidadeFornecedoraTipo,
     custo: viatura.custo ?? 0,
     despesasIncluidas: viatura.despesasIncluidas ?? 0,
     consumoMedio: viatura.consumoMedio ?? 0,
     autonomia: viatura.autonomia ?? undefined,
-    terceiroId: viatura.terceiroId ?? '',
-    fornecedorId: viatura.fornecedorId ?? '',
+    terceiroId: viatura.terceiroId || null,
+    fornecedorId: viatura.fornecedorId || null,
     nQuadro: viatura.nQuadro ?? 0,
     nMotor: viatura.nMotor ?? 0,
     cilindrada: viatura.cilindrada ?? undefined,
@@ -166,126 +165,156 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
 }
 
 const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
-  const documentosPayload = encodeViaturaDocumentos(values.documentos)
-  const condutoresDocumentosPayload = encodeCondutoresDocumentos(values.condutoresDocumentos)
+  // Normalize tipoPropulsao: empty string to null, otherwise convert to enum
+  const tipoPropulsao =
+    !values.tipoPropulsao || values.tipoPropulsao.trim() === ''
+      ? null
+      : (values.tipoPropulsao as ViaturaPropulsao)
+
+  // Normalize entidadeFornecedoraTipo: empty string to null
+  const entidadeFornecedoraTipo =
+    !values.entidadeFornecedoraTipo || values.entidadeFornecedoraTipo.trim() === ''
+      ? null
+      : (values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro')
 
   return {
     matricula: values.matricula,
     countryCode: values.countryCode || 'PT',
-    numero: values.numero,
-    anoFabrico: values.anoFabrico,
-    mesFabrico: values.mesFabrico,
-    dataAquisicao: values.dataAquisicao.toISOString(),
-    dataLivrete: values.dataLivrete.toISOString(),
+    numero: values.numero ?? null,
+    anoFabrico: values.anoFabrico ?? null,
+    mesFabrico: values.mesFabrico ?? null,
+    dataAquisicao: values.dataAquisicao?.toISOString() ?? null,
+    dataLivrete: values.dataLivrete?.toISOString() ?? null,
     marcaId: values.marcaId,
     modeloId: values.modeloId,
-    tipoViaturaId: values.tipoViaturaId,
-    corId: values.corId,
-    combustivelId: values.combustivelId,
-    tipoPropulsao: values.tipoPropulsao as ViaturaPropulsao,
-    conservatoriaId: values.conservatoriaId,
-    categoriaId: values.categoriaId,
-    localizacaoId: values.localizacaoId,
-    setorId: values.setorId,
-    delegacaoId: values.delegacaoId,
-    custo: values.custo,
-    despesasIncluidas: values.despesasIncluidas,
-    consumoMedio: values.consumoMedio,
+    tipoViaturaId: values.tipoViaturaId ?? null,
+    corId: values.corId ?? null,
+    combustivelId: values.combustivelId ?? null,
+    tipoPropulsao,
+    conservatoriaId: values.conservatoriaId ?? null,
+    categoriaId: values.categoriaId ?? null,
+    localizacaoId: values.localizacaoId ?? null,
+    setorId: values.setorId ?? null,
+    delegacaoId: values.delegacaoId ?? null,
+    custo: values.custo ?? null,
+    despesasIncluidas: values.despesasIncluidas ?? null,
+    consumoMedio: values.consumoMedio ?? null,
     autonomia: values.autonomia ?? null,
-    entidadeFornecedoraTipo: values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro',
-    terceiroId:
-      values.entidadeFornecedoraTipo === 'terceiro' && values.terceiroId
-        ? values.terceiroId
-        : null,
-    fornecedorId:
-      values.entidadeFornecedoraTipo === 'fornecedor' && values.fornecedorId
-        ? values.fornecedorId
-        : null,
-    nQuadro: values.nQuadro,
-    nMotor: values.nMotor,
+    entidadeFornecedoraTipo,
+    terceiroId: values.terceiroId ?? null,
+    fornecedorId: values.fornecedorId ?? null,
+    nQuadro: values.nQuadro ?? null,
+    nMotor: values.nMotor ?? null,
     cilindrada: values.cilindrada ?? null,
-    potencia: values.potencia,
+    potencia: values.potencia ?? null,
     capacidadeBateria: values.capacidadeBateria ?? null,
     emissoesCO2: values.emissoesCO2 ?? null,
-    padraoCO2: values.padraoCO2 || null,
+    padraoCO2: values.padraoCO2 && values.padraoCO2.trim() !== '' ? values.padraoCO2 : null,
     voltagemTotal: values.voltagemTotal ?? null,
-    tara: values.tara,
-    lotacao: values.lotacao,
-    marketing: values.marketing,
-    mercadorias: values.mercadorias,
-    cargaUtil: values.cargaUtil,
-    comprimento: values.comprimento,
-    largura: values.largura,
+    tara: values.tara ?? null,
+    lotacao: values.lotacao ?? null,
+    marketing: values.marketing ?? false,
+    mercadorias: values.mercadorias ?? false,
+    cargaUtil: values.cargaUtil ?? null,
+    comprimento: values.comprimento ?? null,
+    largura: values.largura ?? null,
     pneusFrente: values.pneusFrente || '',
     pneusTras: values.pneusTras || '',
     contrato: values.contrato || '',
-    dataInicial: values.dataInicial.toISOString(),
-    dataFinal: values.dataFinal.toISOString(),
-    valorTotalContrato: values.valorTotalContrato,
-    opcaoCompra: values.opcaoCompra,
-    nRendas: values.nRendas,
-    valorRenda: values.valorRenda,
-    valorResidual: values.valorResidual,
-    seguroIds: values.seguroIds,
+    dataInicial: values.dataInicial?.toISOString() ?? null,
+    dataFinal: values.dataFinal?.toISOString() ?? null,
+    valorTotalContrato: values.valorTotalContrato ?? null,
+    opcaoCompra: values.opcaoCompra ?? false,
+    nRendas: values.nRendas ?? null,
+    valorRenda: values.valorRenda ?? null,
+    valorResidual: values.valorResidual ?? null,
+    seguroIds: values.seguroIds ?? [],
     notasAdicionais: values.notasAdicionais || '',
     cartaoCombustivel: values.cartaoCombustivel || '',
-    anoImpostoSelo: values.anoImpostoSelo,
-    anoImpostoCirculacao: values.anoImpostoCirculacao,
-    dataValidadeSelo: values.dataValidadeSelo.toISOString(),
-    urlImagem1: documentosPayload,
-    urlImagem2: condutoresDocumentosPayload,
-    equipamentoIds: values.equipamentoIds,
-    garantiaIds: values.garantiaIds,
+    anoImpostoSelo: values.anoImpostoSelo ?? null,
+    anoImpostoCirculacao: values.anoImpostoCirculacao ?? null,
+    dataValidadeSelo: values.dataValidadeSelo?.toISOString() ?? null,
+    equipamentoIds: values.equipamentoIds ?? [],
+    garantiaIds: values.garantiaIds ?? [],
+    condutorIds: values.condutorIds ?? [],
     inspecoes:
-      values.inspecoes?.map((inspecao) => ({
-        id: inspecao.id,
-        dataInspecao: inspecao.dataInspecao.toISOString(),
-        resultado: inspecao.resultado,
-        dataProximaInspecao: inspecao.dataProximaInspecao.toISOString(),
-        // Codificar documentos da inspeção para string JSON
-        documentos: encodeViaturaDocumentos(inspecao.documentos),
-      })) ?? [],
+      values.inspecoes
+        ?.filter(
+          (inspecao) =>
+            inspecao.dataInspecao &&
+            inspecao.dataProximaInspecao &&
+            inspecao.resultado &&
+            inspecao.resultado.trim() !== ''
+        )
+        .map((inspecao) => ({
+          id: inspecao.id || undefined,
+          dataInspecao: inspecao.dataInspecao.toISOString(),
+          resultado: inspecao.resultado,
+          dataProximaInspecao: inspecao.dataProximaInspecao.toISOString(),
+          // Codificar documentos da inspeção para string JSON
+          documentos: encodeViaturaDocumentos(inspecao.documentos) || null,
+        })) ?? [],
     acidentes:
-      values.acidentes?.map((acidente) => {
-        // Combinar data e hora antes de enviar
-        let dataHoraFinal = acidente.dataHora
-        if (acidente.dataHora && acidente.hora) {
-          const [hours, minutes] = acidente.hora.split(':').map(Number)
-          dataHoraFinal = new Date(acidente.dataHora)
-          dataHoraFinal.setHours(hours || 0, minutes || 0, 0, 0)
-        }
-        return {
-          id: acidente.id,
-          condutorId: acidente.condutorId || '',
-          dataHora: dataHoraFinal.toISOString(),
-          culpa: acidente.culpa,
-          descricaoAcidente: acidente.descricaoAcidente || '',
-          descricaoDanos: acidente.descricaoDanos || '',
-          local: acidente.local || '',
-          concelhoId: acidente.concelhoId || '',
-          freguesiaId: acidente.freguesiaId || '',
-          codigoPostalId: acidente.codigoPostalId || '',
-          localReparacao: acidente.localReparacao || '',
-        }
-      }) ?? [],
+      values.acidentes
+        ?.filter(
+          (acidente) =>
+            acidente.condutorId &&
+            acidente.condutorId.trim() !== '' &&
+            acidente.dataHora &&
+            acidente.local &&
+            acidente.local.trim() !== ''
+        )
+        .map((acidente) => {
+          // Combinar data e hora antes de enviar
+          let dataHoraFinal = acidente.dataHora
+          if (acidente.dataHora && acidente.hora) {
+            const [hours, minutes] = acidente.hora.split(':').map(Number)
+            dataHoraFinal = new Date(acidente.dataHora)
+            dataHoraFinal.setHours(hours || 0, minutes || 0, 0, 0)
+          }
+          return {
+            id: acidente.id || undefined,
+            funcionarioId: acidente.condutorId,
+            dataHora: dataHoraFinal.toISOString(),
+            culpa: acidente.culpa,
+            descricaoAcidente: acidente.descricaoAcidente || '',
+            descricaoDanos: acidente.descricaoDanos || '',
+            local: acidente.local,
+            concelhoId: acidente.concelhoId && acidente.concelhoId.trim() !== '' ? acidente.concelhoId : null,
+            freguesiaId: acidente.freguesiaId && acidente.freguesiaId.trim() !== '' ? acidente.freguesiaId : null,
+            codigoPostalId: acidente.codigoPostalId && acidente.codigoPostalId.trim() !== '' ? acidente.codigoPostalId : null,
+            localReparacao: acidente.localReparacao || '',
+          }
+        }) ?? [],
     multas:
-      values.multas?.map((multa) => {
-        // Combinar data e hora antes de enviar
-        let dataHoraFinal = multa.dataHora
-        if (multa.dataHora && multa.hora) {
-          const [hours, minutes] = multa.hora.split(':').map(Number)
-          dataHoraFinal = new Date(multa.dataHora)
-          dataHoraFinal.setHours(hours || 0, minutes || 0, 0, 0)
-        }
-        return {
-          id: multa.id,
-          condutorId: multa.condutorId || '',
-          dataHora: dataHoraFinal.toISOString(),
-          local: multa.local || '',
-          motivo: multa.motivo || '',
-          valor: multa.valor || 0,
-        }
-      }) ?? [],
+      values.multas
+        ?.filter(
+          (multa) =>
+            multa.condutorId &&
+            multa.condutorId.trim() !== '' &&
+            multa.dataHora &&
+            multa.local &&
+            multa.local.trim() !== '' &&
+            multa.motivo &&
+            multa.motivo.trim() !== ''
+        )
+        .map((multa) => {
+          // Combinar data e hora antes de enviar
+          let dataHoraFinal = multa.dataHora
+          if (multa.dataHora && multa.hora) {
+            const [hours, minutes] = multa.hora.split(':').map(Number)
+            dataHoraFinal = new Date(multa.dataHora)
+            dataHoraFinal.setHours(hours || 0, minutes || 0, 0, 0)
+          }
+          return {
+            id: multa.id || undefined,
+            funcionarioId: multa.condutorId,
+            dataHora: dataHoraFinal.toISOString(),
+            local: multa.local,
+            motivo: multa.motivo,
+            valor: multa.valor || 0,
+          }
+        }) ?? [],
   }
 }
 
@@ -303,7 +332,7 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
     try {
       const response = await updateMutation.mutateAsync({
         id: viaturaId,
-        data: mapFormValuesToPayload(values),
+        data: mapFormValuesToPayload(values) as any,
       })
       const result = handleApiResponse(
         response,
@@ -326,7 +355,7 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
         tabKey={`viatura-update-${viaturaId}`}
         submitLabel='Guardar alterações'
         onSubmit={handleSubmit}
-        onCancel={() => navigate('/frotas/viaturas')}
+        onCancel={() => navigate(-1)}
         isSubmitting={updateMutation.isPending}
         isLoadingInitial
       />

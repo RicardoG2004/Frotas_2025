@@ -233,5 +233,34 @@ export class ViaturasClient extends BaseApiClient {
       }
     })
   }
+
+  public async uploadDocumento(
+    file: File,
+    viaturaId?: string,
+    pasta?: string | null
+  ): Promise<ResponseApi<GSResponse<string>>> {
+    return this.withRetry(async () => {
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        if (viaturaId) {
+          formData.append('viaturaId', viaturaId)
+        }
+        if (pasta) {
+          formData.append('pasta', pasta)
+        }
+
+        const response = await this.httpClient.uploadFile<GSResponse<string>>(
+          state.URL,
+          '/client/frotas/documentos/upload',
+          formData
+        )
+
+        return response
+      } catch (error) {
+        throw new ViaturaError('Falha ao fazer upload do documento', undefined, error)
+      }
+    })
+  }
 }
 

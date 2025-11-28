@@ -259,7 +259,59 @@ const viaturaMultaSchema = z.object({
   valor: z.coerce.number().min(0, { message: 'O valor deve ser positivo' }),
 })
 
-const uuidOrEmpty = z.string().uuid({ message: 'Selecione um valor válido' }).or(z.literal(''))
+// Campo UUID opcional - aceita null, undefined, string vazia, ou UUID válido
+const optionalUuidField = z.preprocess(
+  (val) => {
+    if (val === '' || val === null || val === undefined) {
+      return null
+    }
+    if (typeof val === 'string') {
+      const trimmed = val.trim()
+      return trimmed === '' ? null : trimmed
+    }
+    return val
+  },
+  z.union([z.literal(null), z.string().uuid()]).nullable().optional().default(null)
+)
+
+const uuidOrEmpty = optionalUuidField
+
+const requiredUuidField = (message: string) =>
+  z.preprocess(
+    (val) => {
+      // Normalize: convert null/undefined to empty string, trim whitespace
+      if (val === null || val === undefined) {
+        return ''
+      }
+      const str = String(val)
+      return str.trim()
+    },
+    z
+      .string({ required_error: message, invalid_type_error: message })
+      .superRefine((val, ctx) => {
+        // First check: must not be empty
+        if (!val || val.length === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.too_small,
+            minimum: 1,
+            type: 'string',
+            inclusive: true,
+            message,
+          })
+          return // Stop validation here if empty
+        }
+        // Second check: must be valid UUID (only if not empty)
+        const uuidRegex =
+          /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+        if (!uuidRegex.test(val)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.invalid_string,
+            validation: 'uuid',
+            message,
+          })
+        }
+      })
+  )
 
 export const viaturaPropulsaoOptions = VIATURA_PROPULSAO_TYPES
 export type ViaturaPropulsaoType = ViaturaPropulsao
@@ -273,13 +325,22 @@ const viaturaFormSchemaObject = z.object({
     .max(3, { message: 'O código do país deve ter no máximo 3 caracteres' })
     .optional()
     .default('PT'),
-  numero: z.coerce.number().nonnegative({ message: 'O número deve ser positivo' }).optional(),
-  anoFabrico: z.coerce
-    .number()
-    .min(1900, { message: 'Ano inválido' })
-    .max(new Date().getFullYear() + 1, { message: 'Ano inválido' })
-    .optional(),
-  mesFabrico: z.coerce.number().int().min(1).max(12).optional(),
+  numero: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative({ message: 'O número deve ser positivo' }).optional()
+  ),
+  anoFabrico: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z
+      .number()
+      .min(1900, { message: 'Ano inválido' })
+      .max(new Date().getFullYear() + 1, { message: 'Ano inválido' })
+      .optional()
+  ),
+  mesFabrico: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().int().min(1).max(12).optional()
+  ),
   dataAquisicao: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
     z.date().optional().nullable()
@@ -288,16 +349,16 @@ const viaturaFormSchemaObject = z.object({
     (value) => (value ? new Date(value as string | number | Date) : null),
     z.date().optional().nullable()
   ),
-  marcaId: z.string().uuid({ message: 'Selecione a marca' }),
-  modeloId: z.string().uuid({ message: 'Selecione o modelo' }),
-  tipoViaturaId: z.string().uuid().or(z.literal('')).optional().default(''),
-  corId: z.string().uuid().or(z.literal('')).optional().default(''),
-  combustivelId: z.string().uuid().or(z.literal('')).optional().default(''),
-  conservatoriaId: z.string().uuid().or(z.literal('')).optional().default(''),
-  categoriaId: z.string().uuid().or(z.literal('')).optional().default(''),
-  localizacaoId: z.string().uuid().or(z.literal('')).optional().default(''),
-  setorId: z.string().uuid().or(z.literal('')).optional().default(''),
-  delegacaoId: z.string().uuid().or(z.literal('')).optional().default(''),
+  marcaId: requiredUuidField('Selecione a marca'),
+  modeloId: requiredUuidField('Selecione o modelo'),
+  tipoViaturaId: optionalUuidField,
+  corId: optionalUuidField,
+  combustivelId: optionalUuidField,
+  conservatoriaId: optionalUuidField,
+  categoriaId: optionalUuidField,
+  localizacaoId: optionalUuidField,
+  setorId: optionalUuidField,
+  delegacaoId: optionalUuidField,
   tipoPropulsao: z
     .enum(viaturaPropulsaoOptions)
     .or(z.literal(''))
@@ -308,31 +369,91 @@ const viaturaFormSchemaObject = z.object({
     .or(z.literal(''))
     .optional()
     .default(''),
-  terceiroId: uuidOrEmpty.optional().default(''),
-  fornecedorId: uuidOrEmpty.optional().default(''),
-  custo: z.coerce.number().min(0).optional(),
-  despesasIncluidas: z.coerce.number().min(0).optional(),
-  consumoMedio: z.coerce.number().min(0).optional(),
-  autonomia: z.coerce.number().min(0).optional(),
-  nQuadro: z.coerce.number().nonnegative().optional(),
-  nMotor: z.coerce.number().nonnegative().optional(),
-  cilindrada: z.coerce.number().min(0).optional(),
-  capacidadeBateria: z.coerce.number().min(0).optional(),
-  potencia: z.coerce.number().min(0).optional(),
-  potenciaMotorEletrico: z.coerce.number().min(0).optional(),
-  potenciaCombinada: z.coerce.number().min(0).optional(),
-  consumoEletrico: z.coerce.number().min(0).optional(),
-  tempoCarregamento: z.coerce.number().min(0).optional(),
-  emissoesCO2: z.coerce.number().min(0).optional(),
+  terceiroId: uuidOrEmpty,
+  fornecedorId: uuidOrEmpty,
+  custo: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  despesasIncluidas: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  consumoMedio: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  autonomia: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  nQuadro: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
+  nMotor: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
+  cilindrada: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  capacidadeBateria: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  potencia: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  potenciaMotorEletrico: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  potenciaCombinada: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  consumoEletrico: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  tempoCarregamento: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  emissoesCO2: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
   padraoCO2: z.enum(['NEDC', 'WLTP']).or(z.literal('')).optional().default(''),
-  voltagemTotal: z.coerce.number().min(0).optional(),
-  tara: z.coerce.number().nonnegative().optional(),
-  lotacao: z.coerce.number().nonnegative().optional(),
+  voltagemTotal: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  tara: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
+  lotacao: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
   marketing: z.boolean().optional().default(false),
   mercadorias: z.boolean().optional().default(false),
-  cargaUtil: z.coerce.number().nonnegative().optional(),
-  comprimento: z.coerce.number().nonnegative().optional(),
-  largura: z.coerce.number().nonnegative().optional(),
+  cargaUtil: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
+  comprimento: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
+  largura: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
   pneusFrente: z.string().optional().default(''),
   pneusTras: z.string().optional().default(''),
   contrato: z.string().optional().default(''),
@@ -344,19 +465,59 @@ const viaturaFormSchemaObject = z.object({
     (value) => (value ? new Date(value as string | number | Date) : null),
     z.date().optional().nullable()
   ),
-  valorTotalContrato: z.coerce.number().min(0).optional(),
+  valorTotalContrato: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
   opcaoCompra: z.boolean().optional().default(false),
-  nRendas: z.coerce.number().nonnegative().optional(),
-  valorRenda: z.coerce.number().min(0).optional(),
-  valorResidual: z.coerce.number().min(0).optional(),
+  nRendas: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().nonnegative().optional()
+  ),
+  valorRenda: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
+  valorResidual: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0).optional()
+  ),
   seguroIds: z
     .array(z.string().uuid({ message: 'Selecione um seguro válido' }))
     .optional()
     .default([]),
   notasAdicionais: z.string().optional().default(''),
   cartaoCombustivel: z.string().optional().default(''),
-  anoImpostoSelo: z.coerce.number().min(1900).optional(),
-  anoImpostoCirculacao: z.coerce.number().min(1900).optional(),
+  anoImpostoSelo: z.preprocess(
+    (val) => {
+      if (val === '' || val === null || val === undefined || val === 0) {
+        return undefined
+      }
+      const num = Number(val)
+      return isNaN(num) || num === 0 ? undefined : num
+    },
+    z
+      .number()
+      .optional()
+      .refine((val) => val === undefined || val >= 1900, {
+        message: 'Ano inválido',
+      })
+  ),
+  anoImpostoCirculacao: z.preprocess(
+    (val) => {
+      if (val === '' || val === null || val === undefined || val === 0) {
+        return undefined
+      }
+      const num = Number(val)
+      return isNaN(num) || num === 0 ? undefined : num
+    },
+    z
+      .number()
+      .optional()
+      .refine((val) => val === undefined || val >= 1900, {
+        message: 'Ano inválido',
+      })
+  ),
   dataValidadeSelo: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
     z.date().optional().nullable()
@@ -382,54 +543,9 @@ const viaturaFormSchemaObject = z.object({
   multas: z.array(viaturaMultaSchema).optional().default([]),
 })
 
-export const viaturaFormSchema = viaturaFormSchemaObject.superRefine((data, ctx) => {
-  // Validação condicional para entidade fornecedora (apenas se preenchida)
-  const entidadeTipo = data.entidadeFornecedoraTipo
-  if (entidadeTipo && typeof entidadeTipo === 'string' && entidadeTipo.trim() !== '') {
-    if (entidadeTipo === 'fornecedor') {
-      if (!data.fornecedorId || data.fornecedorId === '') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Selecione o fornecedor',
-          path: ['fornecedorId'],
-        })
-      }
-    } else if (entidadeTipo === 'terceiro') {
-      if (!data.terceiroId || data.terceiroId === '') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Selecione o outro devedor/credor',
-          path: ['terceiroId'],
-        })
-      }
-    }
-  }
-
-  // Validações condicionais para inspeções (apenas se houver inspeções)
-  const inspections = data.inspecoes ?? []
-  if (inspections.length >= 2) {
-    for (let index = 0; index < inspections.length - 1; index += 1) {
-      const current = inspections[index]
-      const next = inspections[index + 1]
-
-      if (next.dataInspecao <= current.dataInspecao) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['inspecoes', index + 1, 'dataInspecao'],
-          message: 'As inspeções devem ser registadas por ordem cronológica.',
-        })
-      }
-
-      if (current.dataProximaInspecao && next.dataInspecao && current.dataProximaInspecao.getTime() !== next.dataInspecao.getTime()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['inspecoes', index, 'dataProximaInspecao'],
-          message: 'A data da próxima inspeção deve coincidir com a data da inspeção seguinte.',
-        })
-      }
-    }
-  }
-})
+// Schema sem validações condicionais - apenas matricula, marcaId e modeloId são obrigatórios
+// Todos os outros campos são opcionais e podem ficar vazios
+export const viaturaFormSchema = viaturaFormSchemaObject
 
 export type ViaturaFormSchemaType = z.infer<typeof viaturaFormSchema>
 export type ViaturaInspecaoFormSchemaType = z.infer<typeof viaturaInspecaoSchema>
@@ -446,18 +562,18 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   dataLivrete: undefined,
   marcaId: '',
   modeloId: '',
-  tipoViaturaId: '',
-  corId: '',
-  combustivelId: '',
-  conservatoriaId: '',
-  categoriaId: '',
-  localizacaoId: '',
-  setorId: '',
-  delegacaoId: '',
+  tipoViaturaId: null,
+  corId: null,
+  combustivelId: null,
+  conservatoriaId: null,
+  categoriaId: null,
+  localizacaoId: null,
+  setorId: null,
+  delegacaoId: null,
   tipoPropulsao: '',
   entidadeFornecedoraTipo: '',
-  terceiroId: '',
-  fornecedorId: '',
+  terceiroId: null,
+  fornecedorId: null,
   custo: undefined,
   despesasIncluidas: undefined,
   consumoMedio: undefined,

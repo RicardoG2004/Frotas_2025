@@ -17,8 +17,5 @@ namespace Frotas.API.Domain.Entities.Frotas
   public class TipoViatura : AuditableEntity
   {
     public string Designacao { get; set; }
-    // Campo que armazena a categoria de inspeção deste tipo de viatura
-    // Valor padrão Ligeiro para manter compatibilidade com registos existentes
-    public CategoriaInspecao CategoriaInspecao { get; set; } = CategoriaInspecao.Ligeiro;
   }
 }

@@ -78,7 +78,10 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       SyncEquipamentos(newViatura, request.EquipamentoIds);
       SyncGarantias(newViatura, request.GarantiaIds);
       SyncSeguros(newViatura, request.SeguroIds);
+      SyncCondutores(newViatura, request.CondutorIds);
       SyncInspecoes(newViatura, request.Inspecoes);
+      SyncAcidentes(newViatura, request.Acidentes);
+      SyncMultas(newViatura, request.Multas);
 
       try
       {
@@ -113,7 +116,10 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       SyncEquipamentos(updatedViatura, request.EquipamentoIds);
       SyncGarantias(updatedViatura, request.GarantiaIds);
       SyncSeguros(updatedViatura, request.SeguroIds);
+      SyncCondutores(updatedViatura, request.CondutorIds);
       SyncInspecoes(updatedViatura, request.Inspecoes);
+      SyncAcidentes(updatedViatura, request.Acidentes);
+      SyncMultas(updatedViatura, request.Multas);
 
       try
       {
@@ -286,6 +292,34 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     }
   }
 
+  private static void SyncCondutores(Viatura viatura, ICollection<Guid> condutorIds)
+  {
+    condutorIds ??= new List<Guid>();
+    viatura.ViaturaCondutores ??= new List<ViaturaCondutor>();
+
+    HashSet<Guid> desiredIds = condutorIds.ToHashSet();
+    List<ViaturaCondutor> toRemove = viatura.ViaturaCondutores
+      .Where(vc => !desiredIds.Contains(vc.FuncionarioId))
+      .ToList();
+
+    foreach (ViaturaCondutor item in toRemove)
+    {
+      _ = viatura.ViaturaCondutores.Remove(item);
+    }
+
+    HashSet<Guid> existingIds = viatura.ViaturaCondutores
+      .Select(vc => vc.FuncionarioId)
+      .ToHashSet();
+
+    foreach (Guid condutorId in desiredIds)
+    {
+      if (!existingIds.Contains(condutorId))
+      {
+        viatura.ViaturaCondutores.Add(new ViaturaCondutor { FuncionarioId = condutorId });
+      }
+    }
+  }
+
   private static void SyncInspecoes(
     Viatura viatura,
     ICollection<ViaturaInspecaoUpsertDTO> inspeccoesRequest
@@ -325,15 +359,148 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
         }
       }
 
-      viatura.ViaturaInspecoes.Add(
-        new ViaturaInspecao
+      var newInspecao = new ViaturaInspecao
+      {
+        Id = requestInspecao.Id ?? Guid.NewGuid(),
+        DataInspecao = requestInspecao.DataInspecao,
+        Resultado = requestInspecao.Resultado,
+        DataProximaInspecao = requestInspecao.DataProximaInspecao,
+      };
+      if (viatura.Id != Guid.Empty)
+      {
+        newInspecao.ViaturaId = viatura.Id;
+      }
+      viatura.ViaturaInspecoes.Add(newInspecao);
+    }
+  }
+
+  private static void SyncAcidentes(
+    Viatura viatura,
+    ICollection<ViaturaAcidenteUpsertDTO> acidentesRequest
+  )
+  {
+    acidentesRequest ??= new List<ViaturaAcidenteUpsertDTO>();
+    viatura.ViaturaAcidentes ??= new List<ViaturaAcidente>();
+
+    HashSet<Guid> incomingIds = acidentesRequest
+      .Where(a => a.Id.HasValue)
+      .Select(a => a.Id!.Value)
+      .ToHashSet();
+
+    List<ViaturaAcidente> toRemove = viatura.ViaturaAcidentes
+      .Where(acidente => !incomingIds.Contains(acidente.Id))
+      .ToList();
+
+    foreach (ViaturaAcidente acidente in toRemove)
+    {
+      _ = viatura.ViaturaAcidentes.Remove(acidente);
+    }
+
+    foreach (ViaturaAcidenteUpsertDTO requestAcidente in acidentesRequest)
+    {
+      if (requestAcidente.Id.HasValue)
+      {
+        ViaturaAcidente? existing = viatura.ViaturaAcidentes.FirstOrDefault(
+          acidente => acidente.Id == requestAcidente.Id.Value
+        );
+
+        if (existing != null)
         {
-          Id = requestInspecao.Id ?? Guid.NewGuid(),
-          DataInspecao = requestInspecao.DataInspecao,
-          Resultado = requestInspecao.Resultado,
-          DataProximaInspecao = requestInspecao.DataProximaInspecao,
+          existing.FuncionarioId = requestAcidente.FuncionarioId;
+          existing.DataHora = requestAcidente.DataHora;
+          existing.Hora = requestAcidente.Hora;
+          existing.Culpa = requestAcidente.Culpa;
+          existing.DescricaoAcidente = requestAcidente.DescricaoAcidente;
+          existing.DescricaoDanos = requestAcidente.DescricaoDanos;
+          existing.Local = requestAcidente.Local;
+          existing.ConcelhoId = requestAcidente.ConcelhoId;
+          existing.FreguesiaId = requestAcidente.FreguesiaId;
+          existing.CodigoPostalId = requestAcidente.CodigoPostalId;
+          existing.LocalReparacao = requestAcidente.LocalReparacao;
+          continue;
         }
-      );
+      }
+
+      var newAcidente = new ViaturaAcidente
+      {
+        Id = requestAcidente.Id ?? Guid.NewGuid(),
+        FuncionarioId = requestAcidente.FuncionarioId,
+        DataHora = requestAcidente.DataHora,
+        Hora = requestAcidente.Hora,
+        Culpa = requestAcidente.Culpa,
+        DescricaoAcidente = requestAcidente.DescricaoAcidente,
+        DescricaoDanos = requestAcidente.DescricaoDanos,
+        Local = requestAcidente.Local,
+        ConcelhoId = requestAcidente.ConcelhoId,
+        FreguesiaId = requestAcidente.FreguesiaId,
+        CodigoPostalId = requestAcidente.CodigoPostalId,
+        LocalReparacao = requestAcidente.LocalReparacao,
+      };
+      if (viatura.Id != Guid.Empty)
+      {
+        newAcidente.ViaturaId = viatura.Id;
+      }
+      viatura.ViaturaAcidentes.Add(newAcidente);
+    }
+  }
+
+  private static void SyncMultas(
+    Viatura viatura,
+    ICollection<ViaturaMultaUpsertDTO> multasRequest
+  )
+  {
+    multasRequest ??= new List<ViaturaMultaUpsertDTO>();
+    viatura.ViaturaMultas ??= new List<ViaturaMulta>();
+
+    HashSet<Guid> incomingIds = multasRequest
+      .Where(m => m.Id.HasValue)
+      .Select(m => m.Id!.Value)
+      .ToHashSet();
+
+    List<ViaturaMulta> toRemove = viatura.ViaturaMultas
+      .Where(multa => !incomingIds.Contains(multa.Id))
+      .ToList();
+
+    foreach (ViaturaMulta multa in toRemove)
+    {
+      _ = viatura.ViaturaMultas.Remove(multa);
+    }
+
+    foreach (ViaturaMultaUpsertDTO requestMulta in multasRequest)
+    {
+      if (requestMulta.Id.HasValue)
+      {
+        ViaturaMulta? existing = viatura.ViaturaMultas.FirstOrDefault(
+          multa => multa.Id == requestMulta.Id.Value
+        );
+
+        if (existing != null)
+        {
+          existing.FuncionarioId = requestMulta.FuncionarioId;
+          existing.DataHora = requestMulta.DataHora;
+          existing.Hora = requestMulta.Hora;
+          existing.Local = requestMulta.Local;
+          existing.Motivo = requestMulta.Motivo;
+          existing.Valor = requestMulta.Valor;
+          continue;
+        }
+      }
+
+      var newMulta = new ViaturaMulta
+      {
+        Id = requestMulta.Id ?? Guid.NewGuid(),
+        FuncionarioId = requestMulta.FuncionarioId,
+        DataHora = requestMulta.DataHora,
+        Hora = requestMulta.Hora,
+        Local = requestMulta.Local,
+        Motivo = requestMulta.Motivo,
+        Valor = requestMulta.Valor,
+      };
+      if (viatura.Id != Guid.Empty)
+      {
+        newMulta.ViaturaId = viatura.Id;
+      }
+      viatura.ViaturaMultas.Add(newMulta);
     }
   }
 
@@ -346,7 +513,13 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     }
 
     request.EntidadeFornecedoraTipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
-    if (request.EntidadeFornecedoraTipo == "fornecedor")
+    if (string.IsNullOrWhiteSpace(request.EntidadeFornecedoraTipo))
+    {
+      // Se não há tipo definido, limpar ambos os IDs
+      request.TerceiroId = null;
+      request.FornecedorId = null;
+    }
+    else if (request.EntidadeFornecedoraTipo == "fornecedor")
     {
       request.TerceiroId = null;
     }
@@ -364,7 +537,13 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     }
 
     request.EntidadeFornecedoraTipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
-    if (request.EntidadeFornecedoraTipo == "fornecedor")
+    if (string.IsNullOrWhiteSpace(request.EntidadeFornecedoraTipo))
+    {
+      // Se não há tipo definido, limpar ambos os IDs
+      request.TerceiroId = null;
+      request.FornecedorId = null;
+    }
+    else if (request.EntidadeFornecedoraTipo == "fornecedor")
     {
       request.TerceiroId = null;
     }
@@ -374,9 +553,14 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     }
   }
 
-  private static string NormalizeEntidadeFornecedoraTipo(string? tipo)
+  private static string? NormalizeEntidadeFornecedoraTipo(string? tipo)
   {
-    return string.Equals(tipo?.Trim(), "terceiro", StringComparison.OrdinalIgnoreCase)
+    if (string.IsNullOrWhiteSpace(tipo))
+    {
+      return null;
+    }
+
+    return string.Equals(tipo.Trim(), "terceiro", StringComparison.OrdinalIgnoreCase)
       ? "terceiro"
       : "fornecedor";
   }

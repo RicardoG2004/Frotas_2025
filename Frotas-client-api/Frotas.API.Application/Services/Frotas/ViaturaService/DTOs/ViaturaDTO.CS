@@ -16,6 +16,7 @@ using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
 using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
 using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
 using Frotas.API.Application.Services.Base.ConservatoriaService.DTOs;
+using Frotas.API.Application.Services.Base.FuncionarioService.DTOs;
 
 namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
 {
@@ -91,7 +92,11 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public ICollection<Guid> GarantiaIds { get; set; } = new List<Guid>();
     public ICollection<EquipamentoDTO> Equipamentos { get; set; } = new List<EquipamentoDTO>();
     public ICollection<GarantiaDTO> Garantias { get; set; } = new List<GarantiaDTO>();
+    public ICollection<Guid> CondutorIds { get; set; } = new List<Guid>();
+    public ICollection<FuncionarioDTO> Condutores { get; set; } = new List<FuncionarioDTO>();
     public ICollection<ViaturaInspecaoDTO> Inspecoes { get; set; } = new List<ViaturaInspecaoDTO>();
+    public ICollection<ViaturaAcidenteDTO> Acidentes { get; set; } = new List<ViaturaAcidenteDTO>();
+    public ICollection<ViaturaMultaDTO> Multas { get; set; } = new List<ViaturaMultaDTO>();
     public DateTime CreatedOn { get; set; }
   }
 }

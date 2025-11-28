@@ -11,7 +11,8 @@ namespace Frotas.API.WebApi.Controllers.Frotas
   public class DocumentosController : ControllerBase
   {
     private readonly IWebHostEnvironment _environment;
-    private const string UPLOAD_BASE_PATH = "uploads/seguros";
+    private const string UPLOAD_BASE_PATH_SEGUROS = "uploads/seguros";
+    private const string UPLOAD_BASE_PATH_VIATURAS = "uploads/viaturas";
 
     public DocumentosController(IWebHostEnvironment environment)
     {
@@ -23,6 +24,7 @@ namespace Frotas.API.WebApi.Controllers.Frotas
     public async Task<IActionResult> UploadDocumento(
       [FromForm] IFormFile file,
       [FromForm] string? seguroId = null,
+      [FromForm] string? viaturaId = null,
       [FromForm] string? pasta = null
     )
     {
@@ -31,6 +33,33 @@ namespace Frotas.API.WebApi.Controllers.Frotas
         if (file == null || file.Length == 0)
         {
           return BadRequest(ResponseWrapper.Fail("Ficheiro não fornecido"));
+        }
+
+        // Validar que apenas um ID é fornecido
+        var idsCount = (string.IsNullOrEmpty(seguroId) ? 0 : 1) + (string.IsNullOrEmpty(viaturaId) ? 0 : 1);
+        if (idsCount > 1)
+        {
+          return BadRequest(ResponseWrapper.Fail("Apenas um ID pode ser fornecido (seguroId ou viaturaId)"));
+        }
+
+        // Determinar o caminho base e o ID
+        string uploadBasePath;
+        string? entityId = null;
+        
+        if (!string.IsNullOrEmpty(seguroId))
+        {
+          uploadBasePath = UPLOAD_BASE_PATH_SEGUROS;
+          entityId = seguroId;
+        }
+        else if (!string.IsNullOrEmpty(viaturaId))
+        {
+          uploadBasePath = UPLOAD_BASE_PATH_VIATURAS;
+          entityId = viaturaId;
+        }
+        else
+        {
+          // Por padrão, usar seguros se nenhum ID for fornecido (compatibilidade)
+          uploadBasePath = UPLOAD_BASE_PATH_SEGUROS;
         }
 
         // Validar tamanho do ficheiro (máximo 10MB)
@@ -46,12 +75,12 @@ namespace Frotas.API.WebApi.Controllers.Frotas
         
         // Criar caminho baseado na estrutura de pastas
         var wwwrootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
-        var basePath = Path.Combine(wwwrootPath, UPLOAD_BASE_PATH);
+        var basePath = Path.Combine(wwwrootPath, uploadBasePath);
         
-        // Se houver seguroId, incluir na estrutura de pastas
-        if (!string.IsNullOrEmpty(seguroId) && Guid.TryParse(seguroId, out var seguroGuid))
+        // Se houver entityId, incluir na estrutura de pastas
+        if (!string.IsNullOrEmpty(entityId) && Guid.TryParse(entityId, out var entityGuid))
         {
-          basePath = Path.Combine(basePath, seguroGuid.ToString());
+          basePath = Path.Combine(basePath, entityGuid.ToString());
         }
         
         // Se houver pasta definida pelo utilizador, incluir na estrutura
@@ -81,11 +110,11 @@ namespace Frotas.API.WebApi.Controllers.Frotas
         }
 
         // Criar caminho relativo para guardar na base de dados (relativo a wwwroot)
-        var relativePathParts = new List<string> { UPLOAD_BASE_PATH };
+        var relativePathParts = new List<string> { uploadBasePath };
         
-        if (!string.IsNullOrEmpty(seguroId) && Guid.TryParse(seguroId, out _))
+        if (!string.IsNullOrEmpty(entityId) && Guid.TryParse(entityId, out _))
         {
-          relativePathParts.Add(seguroId);
+          relativePathParts.Add(entityId);
         }
         
         if (!string.IsNullOrWhiteSpace(pasta))
@@ -118,8 +147,11 @@ namespace Frotas.API.WebApi.Controllers.Frotas
         var fullPath = Path.Combine(wwwrootPath, filePath);
 
         // Verificar se o ficheiro existe e está dentro do diretório permitido
-        var baseUploadPath = Path.Combine(wwwrootPath, UPLOAD_BASE_PATH);
-        if (!fullPath.StartsWith(baseUploadPath, StringComparison.OrdinalIgnoreCase) || !System.IO.File.Exists(fullPath))
+        var baseUploadPathSeguros = Path.Combine(wwwrootPath, UPLOAD_BASE_PATH_SEGUROS);
+        var baseUploadPathViaturas = Path.Combine(wwwrootPath, UPLOAD_BASE_PATH_VIATURAS);
+        var isInSegurosPath = fullPath.StartsWith(baseUploadPathSeguros, StringComparison.OrdinalIgnoreCase);
+        var isInViaturasPath = fullPath.StartsWith(baseUploadPathViaturas, StringComparison.OrdinalIgnoreCase);
+        if ((!isInSegurosPath && !isInViaturasPath) || !System.IO.File.Exists(fullPath))
         {
           return NotFound(ResponseWrapper.Fail("Ficheiro não encontrado"));
         }
@@ -148,8 +180,11 @@ namespace Frotas.API.WebApi.Controllers.Frotas
         var fullPath = Path.Combine(wwwrootPath, filePath);
 
         // Verificar se o ficheiro existe e está dentro do diretório permitido
-        var baseUploadPath = Path.Combine(wwwrootPath, UPLOAD_BASE_PATH);
-        if (!fullPath.StartsWith(baseUploadPath, StringComparison.OrdinalIgnoreCase) || !System.IO.File.Exists(fullPath))
+        var baseUploadPathSeguros = Path.Combine(wwwrootPath, UPLOAD_BASE_PATH_SEGUROS);
+        var baseUploadPathViaturas = Path.Combine(wwwrootPath, UPLOAD_BASE_PATH_VIATURAS);
+        var isInSegurosPath = fullPath.StartsWith(baseUploadPathSeguros, StringComparison.OrdinalIgnoreCase);
+        var isInViaturasPath = fullPath.StartsWith(baseUploadPathViaturas, StringComparison.OrdinalIgnoreCase);
+        if ((!isInSegurosPath && !isInViaturasPath) || !System.IO.File.Exists(fullPath))
         {
           return NotFound(ResponseWrapper.Fail("Ficheiro não encontrado"));
         }

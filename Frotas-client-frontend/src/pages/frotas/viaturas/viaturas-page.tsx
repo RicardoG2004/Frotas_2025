@@ -30,8 +30,8 @@ export function ViaturasPage() {
     return (
       <div className='px-4 pb-24 pt-4 md:mx-0 md:my-4 md:mr-4 md:rounded-xl md:px-8 md:pb-8 md:pt-28'>
         <DataTableSkeleton
-          columnCount={7}
-          filterableColumnCount={4}
+          columnCount={5}
+          filterableColumnCount={3}
           searchableColumnCount={1}
         />
       </div>

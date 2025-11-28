@@ -134,6 +134,7 @@ import { useGetFreguesiasSelect } from '@/pages/base/freguesias/queries/freguesi
 import { useGetCodigosPostaisSelect } from '@/pages/base/codigospostais/queries/codigospostais-queries'
 import { useWindowsStore } from '@/stores/use-windows-store'
 import { cn } from '@/lib/utils'
+import { ViaturasService } from '@/lib/services/frotas/viaturas-service'
 import {
   useCurrentWindowId,
   openMarcaCreationWindow,
@@ -318,6 +319,7 @@ const formatDateLabel = (value: Date | string | null | undefined) => {
 type DocumentosUploaderProps = {
   value?: ViaturaDocumentoFormValue[]
   onChange: (documentos: ViaturaDocumentoFormValue[]) => void
+  viaturaId?: string
 }
 
 const readFileAsDataUrl = (file: File) =>
@@ -763,7 +765,7 @@ type ProcessingDocumento = {
   pasta?: string
 }
 
-const DocumentosUploader = ({ value, onChange }: DocumentosUploaderProps) => {
+const DocumentosUploader = ({ value, onChange, viaturaId }: DocumentosUploaderProps) => {
   const documentos = value ?? []
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -903,20 +905,46 @@ const DocumentosUploader = ({ value, onChange }: DocumentosUploaderProps) => {
     [handleSelectFolderValue]
   )
 
-  const convertFilesToDocumentos = useCallback(async (files: File[]) => {
+  const convertFilesToDocumentos = useCallback(async (
+    files: File[],
+    pasta?: string
+  ) => {
     if (!files.length) {
       return []
     }
 
+    const viaturaService = ViaturasService('viatura')
+
     return Promise.all(
-      files.map(async (file) => ({
-        nome: file.name || 'documento',
-        dados: await readFileAsDataUrl(file),
-        contentType: file.type || 'application/octet-stream',
-        tamanho: file.size,
-      }))
+      files.map(async (file) => {
+        try {
+          // Fazer upload do ficheiro para o servidor
+          const uploadResponse = await viaturaService.uploadDocumento(
+            file,
+            viaturaId, // viaturaId pode ser undefined se for criação
+            pasta ?? null
+          )
+
+          if (!uploadResponse.info?.data) {
+            throw new Error('Resposta de upload inválida')
+          }
+
+          const caminho = uploadResponse.info.data
+
+          return {
+            nome: file.name || 'documento',
+            dados: caminho, // Guardar apenas o caminho
+            contentType: file.type || 'application/octet-stream',
+            tamanho: file.size,
+            pasta: pasta ?? null,
+          }
+        } catch (error) {
+          console.error('Erro ao fazer upload:', error)
+          throw error
+        }
+      })
     )
-  }, [])
+  }, [viaturaId])
 
   const appendDocumentos = useCallback(
     (novos: ViaturaDocumentoFormValue[]) => {
@@ -950,18 +978,13 @@ const DocumentosUploader = ({ value, onChange }: DocumentosUploaderProps) => {
       setProcessingDocumentos((prev) => [...prev, ...tempDocs])
 
       tempDocs.forEach((tempDoc) => {
-        convertFilesToDocumentos([tempDoc.file])
+        convertFilesToDocumentos([tempDoc.file], tempDoc.pasta)
           .then((novos) => {
             if (!novos.length) return
             if (cancelledProcessingIdsRef.current.has(tempDoc.id)) {
               return
             }
-            appendDocumentos([
-              {
-                ...novos[0],
-                pasta: tempDoc.pasta,
-              },
-            ])
+            appendDocumentos(novos)
           })
           .catch(() => {
             toast.error(`Não foi possível processar o ficheiro ${tempDoc.nome}.`)
@@ -1630,21 +1653,21 @@ export function ViaturaFormContainer({
     if (entidadeFornecedoraTipo === 'fornecedor') {
       const currentTerceiro = form.getValues('terceiroId')
       if (currentTerceiro) {
-        form.setValue('terceiroId', '', { shouldDirty: true, shouldValidate: true })
+        form.setValue('terceiroId', null, { shouldDirty: true, shouldValidate: true })
       }
     } else if (entidadeFornecedoraTipo === 'terceiro') {
       const currentFornecedor = form.getValues('fornecedorId')
       if (currentFornecedor) {
-        form.setValue('fornecedorId', '', { shouldDirty: true, shouldValidate: true })
+        form.setValue('fornecedorId', null, { shouldDirty: true, shouldValidate: true })
       }
     } else {
       const currentFornecedor = form.getValues('fornecedorId')
       const currentTerceiro = form.getValues('terceiroId')
       if (currentFornecedor) {
-        form.setValue('fornecedorId', '', { shouldDirty: true, shouldValidate: true })
+        form.setValue('fornecedorId', null, { shouldDirty: true, shouldValidate: true })
       }
       if (currentTerceiro) {
-        form.setValue('terceiroId', '', { shouldDirty: true, shouldValidate: true })
+        form.setValue('terceiroId', null, { shouldDirty: true, shouldValidate: true })
       }
     }
   }, [entidadeFornecedoraTipo, form])
@@ -5929,6 +5952,7 @@ export function ViaturaFormContainer({
                               <DocumentosUploader
                                 value={field.value}
                                 onChange={(next) => field.onChange(next)}
+                                viaturaId={initialValues?.id}
                               />
                             </FormControl>
                             <FormMessage />

@@ -13,12 +13,12 @@ export interface ViaturaDTO {
   marcaId: string
   marca?: {
     id?: string
-    designacao?: string
+    nome?: string
   }
   modeloId: string
   modelo?: {
     id?: string
-    designacao?: string
+    nome?: string
   }
   tipoViaturaId: string
   tipoViatura?: {

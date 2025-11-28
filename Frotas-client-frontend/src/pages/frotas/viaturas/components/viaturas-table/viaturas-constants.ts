@@ -9,18 +9,13 @@ export const filterFields: DataTableFilterField<ViaturaDTO>[] = [
   },
   {
     label: 'Marca',
-    value: 'marca.designacao',
+    value: 'marca.nome',
     order: 2,
   },
   {
     label: 'Modelo',
-    value: 'modelo.designacao',
+    value: 'modelo.nome',
     order: 3,
-  },
-  {
-    label: 'Localização',
-    value: 'localizacao.designacao',
-    order: 4,
   },
 ]
 
