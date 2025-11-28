@@ -74,7 +74,15 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       }
 
       NormalizeEntidadeFornecedora(request);
+      
+      // Normalizar todos os foreign keys opcionais: converter Guid.Empty para null
+      NormalizeOptionalForeignKeys(request);
+      
       Viatura newViatura = _mapper.Map<CreateViaturaRequest, Viatura>(request);
+      
+      // Aplicar normalização após o mapeamento também
+      NormalizeOptionalForeignKeysOnEntity(newViatura);
+      
       SyncEquipamentos(newViatura, request.EquipamentoIds);
       SyncGarantias(newViatura, request.GarantiaIds);
       SyncSeguros(newViatura, request.SeguroIds);
@@ -112,24 +120,78 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       }
 
       NormalizeEntidadeFornecedora(request);
-      Viatura updatedViatura = _mapper.Map(request, viaturaInDb);
-      SyncEquipamentos(updatedViatura, request.EquipamentoIds);
-      SyncGarantias(updatedViatura, request.GarantiaIds);
-      SyncSeguros(updatedViatura, request.SeguroIds);
-      SyncCondutores(updatedViatura, request.CondutorIds);
-      SyncInspecoes(updatedViatura, request.Inspecoes);
-      SyncAcidentes(updatedViatura, request.Acidentes);
-      SyncMultas(updatedViatura, request.Multas);
+      
+      NormalizeEntidadeFornecedora(request);
+      
+      // Normalizar todos os foreign keys opcionais: converter Guid.Empty para null
+      NormalizeOptionalForeignKeys(request);
+      
+      // Mapear o request diretamente para a entidade já carregada
+      // Isso mantém as navegações no contexto do Entity Framework
+      _mapper.Map(request, viaturaInDb);
+      
+      // Garantir que null seja aplicado para MarcaId e ModeloId e limpar navegações
+      viaturaInDb.MarcaId = request.MarcaId;
+      viaturaInDb.ModeloId = request.ModeloId;
+      
+      // Aplicar normalização após o mapeamento também
+      NormalizeOptionalForeignKeysOnEntity(viaturaInDb);
+      
+      // Limpar todas as navegações quando os IDs forem null
+      ClearNavigationPropertiesWhenNull(viaturaInDb);
+      
+      SyncEquipamentos(viaturaInDb, request.EquipamentoIds);
+      SyncGarantias(viaturaInDb, request.GarantiaIds);
+      SyncSeguros(viaturaInDb, request.SeguroIds);
+      SyncCondutores(viaturaInDb, request.CondutorIds);
+      SyncInspecoes(viaturaInDb, request.Inspecoes);
+      SyncAcidentes(viaturaInDb, request.Acidentes);
+      SyncMultas(viaturaInDb, request.Multas);
 
       try
       {
-        Viatura response = await _repository.UpdateAsync<Viatura, Guid>(updatedViatura);
+        // Log antes do update
+        string marcaLog = viaturaInDb.MarcaId?.ToString() ?? "null";
+        string modeloLog = viaturaInDb.ModeloId?.ToString() ?? "null";
+        
+        // Usar a entidade já carregada e rastreada pelo Entity Framework
+        // Marcar como modificada explicitamente
+        Viatura response = await _repository.UpdateAsync<Viatura, Guid>(viaturaInDb);
+        
+        // Log antes do SaveChanges
+        string marcaLogAfter = response.MarcaId?.ToString() ?? "null";
+        string modeloLogAfter = response.ModeloId?.ToString() ?? "null";
+        
         _ = await _repository.SaveChangesAsync();
         return Response<Guid>.Success(response.Id);
       }
       catch (Exception ex)
       {
-        return Response<Guid>.Fail(ex.Message);
+        string errorMessage = "Erro ao salvar viatura: " + ex.Message;
+        string fullDetails = $"Tipo: {ex.GetType().Name}, Mensagem: {ex.Message}";
+        
+        if (ex.InnerException != null)
+        {
+          errorMessage += " | Inner Exception: " + ex.InnerException.Message;
+          fullDetails += $", Inner Tipo: {ex.InnerException.GetType().Name}, Inner Mensagem: {ex.InnerException.Message}";
+          
+          // Verificar se é um erro do Entity Framework
+          if (ex.InnerException is Microsoft.EntityFrameworkCore.DbUpdateException dbEx)
+          {
+            fullDetails += $", DbUpdateException: {dbEx.Message}";
+            if (dbEx.InnerException != null)
+            {
+              fullDetails += $", DbUpdate Inner: {dbEx.InnerException.Message}";
+            }
+          }
+        }
+        
+        if (!string.IsNullOrEmpty(ex.StackTrace))
+        {
+          fullDetails += $", StackTrace (primeiros 300 chars): {ex.StackTrace.Substring(0, Math.Min(300, ex.StackTrace.Length))}";
+        }
+        
+        return Response<Guid>.Fail(fullDetails);
       }
     }
 
@@ -512,19 +574,43 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       return;
     }
 
-    request.EntidadeFornecedoraTipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
+    string? tipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
+    
+    // Verificar se o tipo corresponde ao ID preenchido
+    if (!string.IsNullOrWhiteSpace(tipo))
+    {
+      if (tipo == "fornecedor")
+      {
+        // Se o tipo é "fornecedor" mas não tem FornecedorId válido, limpar o tipo
+        if (!request.FornecedorId.HasValue || request.FornecedorId == Guid.Empty)
+        {
+          tipo = null;
+        }
+        else
+        {
+          request.TerceiroId = null;
+        }
+      }
+      else if (tipo == "terceiro")
+      {
+        // Se o tipo é "terceiro" mas não tem TerceiroId válido, limpar o tipo
+        if (!request.TerceiroId.HasValue || request.TerceiroId == Guid.Empty)
+        {
+          tipo = null;
+        }
+        else
+        {
+          request.FornecedorId = null;
+        }
+      }
+    }
+    
+    request.EntidadeFornecedoraTipo = tipo;
+    
+    // Se não há tipo definido após normalização, limpar ambos os IDs
     if (string.IsNullOrWhiteSpace(request.EntidadeFornecedoraTipo))
     {
-      // Se não há tipo definido, limpar ambos os IDs
       request.TerceiroId = null;
-      request.FornecedorId = null;
-    }
-    else if (request.EntidadeFornecedoraTipo == "fornecedor")
-    {
-      request.TerceiroId = null;
-    }
-    else
-    {
       request.FornecedorId = null;
     }
   }
@@ -536,19 +622,43 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       return;
     }
 
-    request.EntidadeFornecedoraTipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
+    string? tipo = NormalizeEntidadeFornecedoraTipo(request.EntidadeFornecedoraTipo);
+    
+    // Verificar se o tipo corresponde ao ID preenchido
+    if (!string.IsNullOrWhiteSpace(tipo))
+    {
+      if (tipo == "fornecedor")
+      {
+        // Se o tipo é "fornecedor" mas não tem FornecedorId válido, limpar o tipo
+        if (!request.FornecedorId.HasValue || request.FornecedorId == Guid.Empty)
+        {
+          tipo = null;
+        }
+        else
+        {
+          request.TerceiroId = null;
+        }
+      }
+      else if (tipo == "terceiro")
+      {
+        // Se o tipo é "terceiro" mas não tem TerceiroId válido, limpar o tipo
+        if (!request.TerceiroId.HasValue || request.TerceiroId == Guid.Empty)
+        {
+          tipo = null;
+        }
+        else
+        {
+          request.FornecedorId = null;
+        }
+      }
+    }
+    
+    request.EntidadeFornecedoraTipo = tipo;
+    
+    // Se não há tipo definido após normalização, limpar ambos os IDs
     if (string.IsNullOrWhiteSpace(request.EntidadeFornecedoraTipo))
     {
-      // Se não há tipo definido, limpar ambos os IDs
       request.TerceiroId = null;
-      request.FornecedorId = null;
-    }
-    else if (request.EntidadeFornecedoraTipo == "fornecedor")
-    {
-      request.TerceiroId = null;
-    }
-    else
-    {
       request.FornecedorId = null;
     }
   }
@@ -560,9 +670,98 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       return null;
     }
 
-    return string.Equals(tipo.Trim(), "terceiro", StringComparison.OrdinalIgnoreCase)
-      ? "terceiro"
-      : "fornecedor";
+    string trimmed = tipo.Trim();
+    
+    // Se for explicitamente "terceiro", retornar "terceiro"
+    if (string.Equals(trimmed, "terceiro", StringComparison.OrdinalIgnoreCase))
+    {
+      return "terceiro";
+    }
+    
+    // Se for explicitamente "fornecedor", retornar "fornecedor"
+    if (string.Equals(trimmed, "fornecedor", StringComparison.OrdinalIgnoreCase))
+    {
+      return "fornecedor";
+    }
+    
+    // Qualquer outro valor é tratado como null (vazio)
+    return null;
+  }
+
+  private static void NormalizeOptionalForeignKeys(UpdateViaturaRequest request)
+  {
+    if (request == null) return;
+
+    // Converter Guid.Empty para null em todos os foreign keys opcionais
+    request.MarcaId = request.MarcaId.HasValue && request.MarcaId.Value != Guid.Empty ? request.MarcaId : null;
+    request.ModeloId = request.ModeloId.HasValue && request.ModeloId.Value != Guid.Empty ? request.ModeloId : null;
+    request.TipoViaturaId = request.TipoViaturaId.HasValue && request.TipoViaturaId.Value != Guid.Empty ? request.TipoViaturaId : null;
+    request.CorId = request.CorId.HasValue && request.CorId.Value != Guid.Empty ? request.CorId : null;
+    request.CombustivelId = request.CombustivelId.HasValue && request.CombustivelId.Value != Guid.Empty ? request.CombustivelId : null;
+    request.ConservatoriaId = request.ConservatoriaId.HasValue && request.ConservatoriaId.Value != Guid.Empty ? request.ConservatoriaId : null;
+    request.CategoriaId = request.CategoriaId.HasValue && request.CategoriaId.Value != Guid.Empty ? request.CategoriaId : null;
+    request.LocalizacaoId = request.LocalizacaoId.HasValue && request.LocalizacaoId.Value != Guid.Empty ? request.LocalizacaoId : null;
+    request.SetorId = request.SetorId.HasValue && request.SetorId.Value != Guid.Empty ? request.SetorId : null;
+    request.DelegacaoId = request.DelegacaoId.HasValue && request.DelegacaoId.Value != Guid.Empty ? request.DelegacaoId : null;
+    request.TerceiroId = request.TerceiroId.HasValue && request.TerceiroId.Value != Guid.Empty ? request.TerceiroId : null;
+    request.FornecedorId = request.FornecedorId.HasValue && request.FornecedorId.Value != Guid.Empty ? request.FornecedorId : null;
+  }
+
+  private static void NormalizeOptionalForeignKeys(CreateViaturaRequest request)
+  {
+    if (request == null) return;
+
+    // Converter Guid.Empty para null em todos os foreign keys opcionais
+    request.MarcaId = request.MarcaId.HasValue && request.MarcaId.Value != Guid.Empty ? request.MarcaId : null;
+    request.ModeloId = request.ModeloId.HasValue && request.ModeloId.Value != Guid.Empty ? request.ModeloId : null;
+    request.TipoViaturaId = request.TipoViaturaId.HasValue && request.TipoViaturaId.Value != Guid.Empty ? request.TipoViaturaId : null;
+    request.CorId = request.CorId.HasValue && request.CorId.Value != Guid.Empty ? request.CorId : null;
+    request.CombustivelId = request.CombustivelId.HasValue && request.CombustivelId.Value != Guid.Empty ? request.CombustivelId : null;
+    request.ConservatoriaId = request.ConservatoriaId.HasValue && request.ConservatoriaId.Value != Guid.Empty ? request.ConservatoriaId : null;
+    request.CategoriaId = request.CategoriaId.HasValue && request.CategoriaId.Value != Guid.Empty ? request.CategoriaId : null;
+    request.LocalizacaoId = request.LocalizacaoId.HasValue && request.LocalizacaoId.Value != Guid.Empty ? request.LocalizacaoId : null;
+    request.SetorId = request.SetorId.HasValue && request.SetorId.Value != Guid.Empty ? request.SetorId : null;
+    request.DelegacaoId = request.DelegacaoId.HasValue && request.DelegacaoId.Value != Guid.Empty ? request.DelegacaoId : null;
+    request.TerceiroId = request.TerceiroId.HasValue && request.TerceiroId.Value != Guid.Empty ? request.TerceiroId : null;
+    request.FornecedorId = request.FornecedorId.HasValue && request.FornecedorId.Value != Guid.Empty ? request.FornecedorId : null;
+  }
+
+  private static void NormalizeOptionalForeignKeysOnEntity(Viatura viatura)
+  {
+    if (viatura == null) return;
+
+    // Converter Guid.Empty para null em todos os foreign keys opcionais
+    viatura.MarcaId = viatura.MarcaId.HasValue && viatura.MarcaId.Value != Guid.Empty ? viatura.MarcaId : null;
+    viatura.ModeloId = viatura.ModeloId.HasValue && viatura.ModeloId.Value != Guid.Empty ? viatura.ModeloId : null;
+    viatura.TipoViaturaId = viatura.TipoViaturaId.HasValue && viatura.TipoViaturaId.Value != Guid.Empty ? viatura.TipoViaturaId : null;
+    viatura.CorId = viatura.CorId.HasValue && viatura.CorId.Value != Guid.Empty ? viatura.CorId : null;
+    viatura.CombustivelId = viatura.CombustivelId.HasValue && viatura.CombustivelId.Value != Guid.Empty ? viatura.CombustivelId : null;
+    viatura.ConservatoriaId = viatura.ConservatoriaId.HasValue && viatura.ConservatoriaId.Value != Guid.Empty ? viatura.ConservatoriaId : null;
+    viatura.CategoriaId = viatura.CategoriaId.HasValue && viatura.CategoriaId.Value != Guid.Empty ? viatura.CategoriaId : null;
+    viatura.LocalizacaoId = viatura.LocalizacaoId.HasValue && viatura.LocalizacaoId.Value != Guid.Empty ? viatura.LocalizacaoId : null;
+    viatura.SetorId = viatura.SetorId.HasValue && viatura.SetorId.Value != Guid.Empty ? viatura.SetorId : null;
+    viatura.DelegacaoId = viatura.DelegacaoId.HasValue && viatura.DelegacaoId.Value != Guid.Empty ? viatura.DelegacaoId : null;
+    viatura.TerceiroId = viatura.TerceiroId.HasValue && viatura.TerceiroId.Value != Guid.Empty ? viatura.TerceiroId : null;
+    viatura.FornecedorId = viatura.FornecedorId.HasValue && viatura.FornecedorId.Value != Guid.Empty ? viatura.FornecedorId : null;
+  }
+
+  private static void ClearNavigationPropertiesWhenNull(Viatura viatura)
+  {
+    if (viatura == null) return;
+
+    // Limpar todas as navegações quando os IDs forem null
+    if (viatura.MarcaId == null) viatura.Marca = null;
+    if (viatura.ModeloId == null) viatura.Modelo = null;
+    if (viatura.TipoViaturaId == null) viatura.TipoViatura = null;
+    if (viatura.CorId == null) viatura.Cor = null;
+    if (viatura.CombustivelId == null) viatura.Combustivel = null;
+    if (viatura.ConservatoriaId == null) viatura.Conservatoria = null;
+    if (viatura.CategoriaId == null) viatura.Categoria = null;
+    if (viatura.LocalizacaoId == null) viatura.Localizacao = null;
+    if (viatura.SetorId == null) viatura.Setor = null;
+    if (viatura.DelegacaoId == null) viatura.Delegacao = null;
+    if (viatura.TerceiroId == null) viatura.Terceiro = null;
+    if (viatura.FornecedorId == null) viatura.Fornecedor = null;
   }
   }
 }

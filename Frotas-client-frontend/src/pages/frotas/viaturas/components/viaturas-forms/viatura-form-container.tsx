@@ -1571,7 +1571,7 @@ interface ViaturaFormContainerProps {
   initialValues?: Partial<ViaturaFormSchemaType>
   isLoadingInitial?: boolean
   onSubmit: (values: ViaturaFormSchemaType) => Promise<void>
-  onCancel: () => void
+  onCancel?: () => void
   submitLabel: string
   tabKey: string
   isSubmitting: boolean
@@ -8286,15 +8286,17 @@ export function ViaturaFormContainer({
         </PersistentTabs>
 
         <div className='flex flex-col gap-2 pt-4 md:flex-row md:justify-end'>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={onCancel}
-            className='w-full md:w-auto'
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
+          {onCancel && (
+            <Button
+              type='button'
+              variant='outline'
+              onClick={onCancel}
+              className='w-full md:w-auto'
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+          )}
           <Button type='submit' className='w-full md:w-auto' disabled={isSubmitting}>
             {isSubmitting ? 'A guardar...' : submitLabel}
           </Button>

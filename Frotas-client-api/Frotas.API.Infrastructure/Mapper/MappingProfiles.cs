@@ -291,6 +291,8 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<UpdateViaturaRequest, Viatura>()
         .ForMember(dest => dest.Marca, opt => opt.Ignore())
         .ForMember(dest => dest.Modelo, opt => opt.Ignore())
+        .ForMember(dest => dest.MarcaId, opt => opt.MapFrom(src => src.MarcaId))
+        .ForMember(dest => dest.ModeloId, opt => opt.MapFrom(src => src.ModeloId))
         .ForMember(dest => dest.TipoViatura, opt => opt.Ignore())
         .ForMember(dest => dest.Cor, opt => opt.Ignore())
         .ForMember(dest => dest.Combustivel, opt => opt.Ignore())

@@ -171,11 +171,42 @@ export class ViaturasClient extends BaseApiClient {
 
         return response
       } catch (error) {
-        throw new ViaturaError(
-          'Falha ao atualizar viatura',
-          undefined,
-          error
-        )
+        // Log completo do erro para debug
+        console.error('[UpdateViatura Client] Erro capturado:', error)
+        
+        // Extrair mensagem detalhada do erro do backend
+        let errorMessage = 'Falha ao atualizar viatura'
+        let errorData: any = null
+        
+        // Verificar se é BaseApiError
+        if (error && typeof error === 'object' && 'name' in error && error.name === 'BaseApiError') {
+          const baseError = error as any
+          errorData = baseError.data
+          
+          if (errorData) {
+            console.error('[UpdateViatura Client] Dados do backend:', errorData)
+            
+            // Tentar extrair mensagens do backend
+            if (errorData.messages && typeof errorData.messages === 'object') {
+              const messages: Record<string, string[]> = errorData.messages
+              const allMessages = Object.entries(messages)
+                .flatMap(([key, values]) => values.map(v => `${key}: ${v}`))
+              if (allMessages.length > 0) {
+                errorMessage = allMessages.join('; ')
+              }
+            } else if (errorData.message) {
+              errorMessage = errorData.message
+            }
+          }
+        }
+        
+        // Se ainda não temos uma mensagem detalhada, usar a mensagem do erro
+        if (errorMessage === 'Falha ao atualizar viatura' && error instanceof Error) {
+          errorMessage = error.message || errorMessage
+        }
+        
+        console.error('[UpdateViatura Client] Mensagem final:', errorMessage)
+        throw new ViaturaError(errorMessage, undefined, error)
       }
     })
   }

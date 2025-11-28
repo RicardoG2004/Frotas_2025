@@ -22,10 +22,10 @@ namespace Frotas.API.Domain.Entities.Frotas
     public int? MesFabrico { get; set; }
     public DateTime? DataAquisicao { get; set; }
     public DateTime? DataLivrete { get; set; }
-    public Guid MarcaId { get; set; }
-    public Marca Marca { get; set; }
-    public Guid ModeloId { get; set; }
-    public Modelo Modelo { get; set; }
+    public Guid? MarcaId { get; set; }
+    public Marca? Marca { get; set; }
+    public Guid? ModeloId { get; set; }
+    public Modelo? Modelo { get; set; }
     public Guid? TipoViaturaId { get; set; }
     public TipoViatura? TipoViatura { get; set; }
     public Guid? CorId { get; set; }

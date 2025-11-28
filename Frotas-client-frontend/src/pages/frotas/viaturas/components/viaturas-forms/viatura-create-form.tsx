@@ -1,9 +1,12 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from '@/utils/toast-utils'
 import { handleApiError } from '@/utils/error-handlers'
 import { handleApiResponse } from '@/utils/response-handlers'
 import { ViaturaFormContainer } from './viatura-form-container'
 import { useCreateViatura } from '@/pages/frotas/viaturas/queries/viaturas-mutations'
+import { useFormsStore } from '@/stores/use-forms-store'
+import { useWindowsStore } from '@/stores/use-windows-store'
+import { handleWindowClose } from '@/utils/window-utils'
 import {
   encodeViaturaDocumentos,
   type ViaturaFormSchemaType,
@@ -16,23 +19,23 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     !values.tipoPropulsao || values.tipoPropulsao.trim() === ''
       ? null
       : (values.tipoPropulsao as ViaturaPropulsao)
-
+ 
   // Normalize entidadeFornecedoraTipo: empty string to null
   const entidadeFornecedoraTipo =
     !values.entidadeFornecedoraTipo || values.entidadeFornecedoraTipo.trim() === ''
       ? null
-      : (values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro')
+      : (values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro')                           
 
   return {
-    matricula: values.matricula,
+    matricula: values.matricula || '',
     countryCode: values.countryCode || 'PT',
-    numero: values.numero,
-    anoFabrico: values.anoFabrico,
-    mesFabrico: values.mesFabrico,
+    numero: values.numero ?? null,
+    anoFabrico: values.anoFabrico ?? null,
+    mesFabrico: values.mesFabrico ?? null,
     dataAquisicao: values.dataAquisicao?.toISOString() ?? null,
     dataLivrete: values.dataLivrete?.toISOString() ?? null,
-    marcaId: values.marcaId,
-    modeloId: values.modeloId,
+    marcaId: values.marcaId || '00000000-0000-0000-0000-000000000000',
+    modeloId: values.modeloId || '00000000-0000-0000-0000-000000000000',
     tipoViaturaId: values.tipoViaturaId || null,
     corId: values.corId || null,
     combustivelId: values.combustivelId || null,
@@ -171,7 +174,14 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
 
 const ViaturaCreateForm = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { removeFormState } = useFormsStore()
+  const { windows, removeWindow } = useWindowsStore()
   const viaturaMutation = useCreateViatura()
+  
+  const searchParams = new URLSearchParams(location.search)
+  const instanceId = searchParams.get('instanceId') || 'default'
+  const formId = instanceId
 
   const handleSubmit = async (values: ViaturaFormSchemaType) => {
     try {
@@ -186,7 +196,20 @@ const ViaturaCreateForm = () => {
       )
 
       if (result.success) {
-        navigate('/frotas/viaturas', { replace: true })
+        // Remove form data from the form store
+        removeFormState(formId)
+
+        // Find the current window and close it properly
+        const currentWindow = windows.find(
+          (w) => w.path === location.pathname && w.instanceId === instanceId
+        )
+
+        if (currentWindow) {
+          handleWindowClose(currentWindow.id, navigate, removeWindow)
+        } else {
+          // Fallback se não encontrar a janela
+          navigate('/frotas/viaturas', { replace: true })
+        }
       }
     } catch (error) {
       toast.error(handleApiError(error, 'Erro ao criar viatura'))
@@ -198,7 +221,7 @@ const ViaturaCreateForm = () => {
       tabKey='viatura-create'
       submitLabel='Guardar Viatura'
       onSubmit={handleSubmit}
-      onCancel={() => navigate(-1)}
+      onCancel={undefined}
       isSubmitting={viaturaMutation.isPending}
     />
   )

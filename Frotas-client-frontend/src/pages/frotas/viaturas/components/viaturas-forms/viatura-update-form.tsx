@@ -1,11 +1,14 @@
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from '@/utils/toast-utils'
 import { handleApiError } from '@/utils/error-handlers'
 import { handleApiResponse } from '@/utils/response-handlers'
 import { ViaturaFormContainer } from './viatura-form-container'
 import { useGetViatura } from '@/pages/frotas/viaturas/queries/viaturas-queries'
 import { useUpdateViatura } from '@/pages/frotas/viaturas/queries/viaturas-mutations'
+import { useFormsStore } from '@/stores/use-forms-store'
+import { useWindowsStore } from '@/stores/use-windows-store'
+import { handleWindowClose } from '@/utils/window-utils'
 import {
   encodeViaturaDocumentos,
   parseViaturaDocumentosFromPair,
@@ -45,8 +48,8 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
     mesFabrico: viatura.mesFabrico ?? new Date().getMonth() + 1,
     dataAquisicao: viatura.dataAquisicao ? new Date(viatura.dataAquisicao) : new Date(),
     dataLivrete: viatura.dataLivrete ? new Date(viatura.dataLivrete) : new Date(),
-    marcaId: viatura.marcaId || '',
-    modeloId: viatura.modeloId || '',
+    marcaId: viatura.marcaId || null,
+    modeloId: viatura.modeloId || null,
     tipoViaturaId: viatura.tipoViaturaId || null,
     corId: viatura.corId || null,
     combustivelId: viatura.combustivelId || null,
@@ -178,15 +181,15 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
       : (values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro')
 
   return {
-    matricula: values.matricula,
+    matricula: values.matricula || '',
     countryCode: values.countryCode || 'PT',
     numero: values.numero ?? null,
     anoFabrico: values.anoFabrico ?? null,
     mesFabrico: values.mesFabrico ?? null,
     dataAquisicao: values.dataAquisicao?.toISOString() ?? null,
     dataLivrete: values.dataLivrete?.toISOString() ?? null,
-    marcaId: values.marcaId,
-    modeloId: values.modeloId,
+    marcaId: (values.marcaId && typeof values.marcaId === 'string' && values.marcaId.trim() !== '') ? values.marcaId : null,
+    modeloId: (values.modeloId && typeof values.modeloId === 'string' && values.modeloId.trim() !== '') ? values.modeloId : null,
     tipoViaturaId: values.tipoViaturaId ?? null,
     corId: values.corId ?? null,
     combustivelId: values.combustivelId ?? null,
@@ -320,8 +323,15 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
 
 const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { removeFormState } = useFormsStore()
+  const { windows, removeWindow } = useWindowsStore()
   const viaturaQuery = useGetViatura(viaturaId)
   const updateMutation = useUpdateViatura()
+  
+  const searchParams = new URLSearchParams(location.search)
+  const instanceId = searchParams.get('instanceId') || 'default'
+  const formId = instanceId
 
   const initialValues = useMemo(() => {
     const dto = viaturaQuery.data?.info?.data
@@ -330,9 +340,26 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
 
   const handleSubmit = async (values: ViaturaFormSchemaType) => {
     try {
+      const payload = mapFormValuesToPayload(values)
+      
+      // Garantir que marcaId e modeloId sejam null quando vazios
+      if (payload.marcaId === '' || payload.marcaId === undefined) {
+        payload.marcaId = null
+      }
+      if (payload.modeloId === '' || payload.modeloId === undefined) {
+        payload.modeloId = null
+      }
+      
+      console.log('[UpdateViatura] Payload a enviar:', {
+        id: viaturaId,
+        marcaId: payload.marcaId,
+        modeloId: payload.modeloId,
+        matricula: payload.matricula,
+      })
+      
       const response = await updateMutation.mutateAsync({
         id: viaturaId,
-        data: mapFormValuesToPayload(values) as any,
+        data: payload as any,
       })
       const result = handleApiResponse(
         response,
@@ -342,10 +369,72 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
       )
 
       if (result.success) {
-        navigate('/frotas/viaturas', { replace: true })
+        // Remove form data from the form store
+        removeFormState(formId)
+
+        // Find the current window and close it properly
+        const currentWindow = windows.find(
+          (w) => w.path === location.pathname && w.instanceId === instanceId
+        )
+
+        if (currentWindow) {
+          handleWindowClose(currentWindow.id, navigate, removeWindow)
+        } else {
+          // Fallback se não encontrar a janela
+          navigate('/frotas/viaturas', { replace: true })
+        }
       }
     } catch (error) {
-      toast.error(handleApiError(error, 'Erro ao atualizar viatura'))
+      console.error('[UpdateViatura Form] Erro completo:', error)
+      
+      // Tentar extrair informações detalhadas do erro
+      let errorDetails: any = null
+      
+      if (error && typeof error === 'object') {
+        // Se for ViaturaError, verificar o originalError
+        if ('name' in error && error.name === 'ViaturaError') {
+          const viaturaError = error as any
+          console.error('[UpdateViatura Form] ViaturaError originalError:', viaturaError.originalError)
+          
+          if (viaturaError.originalError) {
+            // Se o erro original for BaseApiError
+            if (viaturaError.originalError.name === 'BaseApiError') {
+              const baseError = viaturaError.originalError as any
+              errorDetails = baseError.data
+              console.error('[UpdateViatura Form] BaseApiError data:', errorDetails)
+            } else {
+              errorDetails = viaturaError.originalError
+            }
+          }
+        }
+        
+        // Logar estrutura completa do erro
+        console.error('[UpdateViatura Form] Estrutura do erro:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
+      }
+      
+      const errorMessage = handleApiError(error, 'Erro ao atualizar viatura')
+      console.error('[UpdateViatura Form] Mensagem de erro extraída:', errorMessage)
+      
+      // Se tivermos detalhes do backend, logar
+      if (errorDetails) {
+        console.error('[UpdateViatura Form] Detalhes do backend:', JSON.stringify(errorDetails, null, 2))
+        
+        // Tentar extrair mensagens do backend
+        if (errorDetails.messages) {
+          const messages = errorDetails.messages
+          if (typeof messages === 'object') {
+            const allMessages = Object.entries(messages)
+              .flatMap(([key, values]: [string, any]) => 
+                Array.isArray(values) ? values.map((v: string) => `${key}: ${v}`) : [`${key}: ${values}`]
+              )
+            if (allMessages.length > 0) {
+              console.error('[UpdateViatura Form] Mensagens do backend:', allMessages.join('\n'))
+            }
+          }
+        }
+      }
+      
+      toast.error(errorMessage)
     }
   }
 
@@ -355,7 +444,7 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
         tabKey={`viatura-update-${viaturaId}`}
         submitLabel='Guardar alterações'
         onSubmit={handleSubmit}
-        onCancel={() => navigate(-1)}
+        onCancel={undefined}
         isSubmitting={updateMutation.isPending}
         isLoadingInitial
       />
@@ -375,7 +464,7 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
       tabKey={`viatura-update-${viaturaId}`}
       submitLabel='Guardar alterações'
       onSubmit={handleSubmit}
-      onCancel={() => navigate('/frotas/viaturas')}
+      onCancel={undefined}
       isSubmitting={updateMutation.isPending}
       initialValues={initialValues}
     />

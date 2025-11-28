@@ -259,7 +259,7 @@ const viaturaMultaSchema = z.object({
   valor: z.coerce.number().min(0, { message: 'O valor deve ser positivo' }),
 })
 
-// Campo UUID opcional - aceita null, undefined, string vazia, ou UUID válido
+// Campo UUID opcional - aceita qualquer string ou null, sem validação de formato
 const optionalUuidField = z.preprocess(
   (val) => {
     if (val === '' || val === null || val === undefined) {
@@ -271,7 +271,7 @@ const optionalUuidField = z.preprocess(
     }
     return val
   },
-  z.union([z.literal(null), z.string().uuid()]).nullable().optional().default(null)
+  z.string().nullable().optional().default(null)
 )
 
 const uuidOrEmpty = optionalUuidField
@@ -317,9 +317,7 @@ export const viaturaPropulsaoOptions = VIATURA_PROPULSAO_TYPES
 export type ViaturaPropulsaoType = ViaturaPropulsao
 
 const viaturaFormSchemaObject = z.object({
-  matricula: z
-    .string({ message: 'A matrícula é obrigatória' })
-    .min(1, { message: 'A matrícula é obrigatória' }),
+  matricula: z.string().optional().default(''),
   countryCode: z
     .string()
     .max(3, { message: 'O código do país deve ter no máximo 3 caracteres' })
@@ -331,15 +329,11 @@ const viaturaFormSchemaObject = z.object({
   ),
   anoFabrico: z.preprocess(
     (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
-    z
-      .number()
-      .min(1900, { message: 'Ano inválido' })
-      .max(new Date().getFullYear() + 1, { message: 'Ano inválido' })
-      .optional()
+    z.number().optional().nullable()
   ),
   mesFabrico: z.preprocess(
     (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
-    z.number().int().min(1).max(12).optional()
+    z.number().optional().nullable()
   ),
   dataAquisicao: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
@@ -349,8 +343,8 @@ const viaturaFormSchemaObject = z.object({
     (value) => (value ? new Date(value as string | number | Date) : null),
     z.date().optional().nullable()
   ),
-  marcaId: requiredUuidField('Selecione a marca'),
-  modeloId: requiredUuidField('Selecione o modelo'),
+  marcaId: optionalUuidField,
+  modeloId: optionalUuidField,
   tipoViaturaId: optionalUuidField,
   corId: optionalUuidField,
   combustivelId: optionalUuidField,

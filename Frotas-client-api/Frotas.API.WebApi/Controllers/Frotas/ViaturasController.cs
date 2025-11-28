@@ -1,19 +1,29 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using Frotas.API.Application.Common.Wrapper;
 using Frotas.API.Application.Services.Frotas.ViaturaService;
 using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ViaturaService.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Frotas.API.WebApi.Controllers.Frotas
 {
   [Route("client/frotas/viaturas")]
   [ApiController]
-  public class ViaturasController(IViaturaService viaturaService) : ControllerBase
+  public class ViaturasController : ControllerBase
   {
-    private readonly IViaturaService _viaturaService = viaturaService;
+    private readonly IViaturaService _viaturaService;
+    private readonly ILogger<ViaturasController> _logger;
+
+    public ViaturasController(IViaturaService viaturaService, ILogger<ViaturasController> logger)
+    {
+      _viaturaService = viaturaService;
+      _logger = logger;
+    }
 
     [Authorize(Roles = "client")]
     [HttpGet]
@@ -62,12 +72,64 @@ namespace Frotas.API.WebApi.Controllers.Frotas
     {
       try
       {
+        // Log do request recebido
+        _logger.LogInformation($"[UpdateViatura] Recebido request para atualizar viatura {id}. Matricula: {request.Matricula}, MarcaId: {request.MarcaId?.ToString() ?? "null"}, ModeloId: {request.ModeloId?.ToString() ?? "null"}");
+        
+        if (!ModelState.IsValid)
+        {
+          var errorMessages = new Dictionary<string, List<string>>();
+          foreach (var (key, value) in ModelState)
+          {
+            errorMessages[key] = value.Errors.Select(e => e.ErrorMessage).ToList();
+          }
+          
+          _logger.LogWarning($"[UpdateViatura] ModelState inválido. Erros: {JsonSerializer.Serialize(errorMessages)}");
+          
+          return BadRequest(new Response<Guid>
+          {
+            Status = ResponseStatus.Failure,
+            Messages = errorMessages
+          });
+        }
+
         Response<Guid> result = await _viaturaService.UpdateViaturaAsync(request, id);
+        
+        if (result.Status == ResponseStatus.Failure)
+        {
+          _logger.LogError($"[UpdateViatura] Falha ao atualizar viatura {id}. Erro: {JsonSerializer.Serialize(result.Messages)}");
+          return BadRequest(result);
+        }
+        
+        _logger.LogInformation($"[UpdateViatura] Viatura {id} atualizada com sucesso.");
         return Ok(result);
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        string errorMessage = ex.Message;
+        string fullStackTrace = ex.StackTrace ?? "";
+        
+        if (ex.InnerException != null)
+        {
+          errorMessage += " | Inner: " + ex.InnerException.Message;
+          if (!string.IsNullOrEmpty(ex.InnerException.StackTrace))
+          {
+            fullStackTrace += "\n\nInner StackTrace:\n" + ex.InnerException.StackTrace;
+          }
+        }
+        
+        _logger.LogError(ex, $"[UpdateViatura] Exceção ao atualizar viatura {id}. Mensagem: {errorMessage}");
+        
+        var errorResponse = new Response<Guid>
+        {
+          Status = ResponseStatus.Failure,
+          Messages = new Dictionary<string, List<string>>
+          {
+            { "Error", new List<string> { errorMessage } },
+            { "StackTrace", new List<string> { fullStackTrace.Substring(0, Math.Min(500, fullStackTrace.Length)) } }
+          }
+        };
+        
+        return BadRequest(errorResponse);
       }
     }
 

@@ -15,8 +15,8 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public int? MesFabrico { get; set; }
     public DateTime? DataAquisicao { get; set; }
     public DateTime? DataLivrete { get; set; }
-    public Guid MarcaId { get; set; }
-    public Guid ModeloId { get; set; }
+    public Guid? MarcaId { get; set; }
+    public Guid? ModeloId { get; set; }
     public Guid? TipoViaturaId { get; set; }
     public Guid? CorId { get; set; }
     public Guid? CombustivelId { get; set; }
@@ -83,8 +83,6 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     {
       // Campos obrigatórios
       _ = RuleFor(x => x.Matricula).NotEmpty();
-      _ = RuleFor(x => x.MarcaId).NotEmpty();
-      _ = RuleFor(x => x.ModeloId).NotEmpty();
 
       // Validações condicionais apenas quando os campos são preenchidos
       _ = RuleFor(x => x.AnoFabrico)
@@ -151,31 +149,9 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
         .GreaterThanOrEqualTo(1900)
         .When(x => x.AnoImpostoCirculacao.HasValue && x.AnoImpostoCirculacao.Value > 0);
 
-      // Validação condicional para entidade fornecedora (apenas se preenchida)
-      _ = RuleFor(x => x)
-        .Custom((request, context) =>
-        {
-          if (string.IsNullOrWhiteSpace(request.EntidadeFornecedoraTipo))
-          {
-            return;
-          }
-
-          string? tipo = request.EntidadeFornecedoraTipo?.Trim();
-          if (string.Equals(tipo, "fornecedor", StringComparison.OrdinalIgnoreCase))
-          {
-            if (!request.FornecedorId.HasValue || request.FornecedorId == Guid.Empty)
-            {
-              context.AddFailure(nameof(request.FornecedorId), "Selecione o fornecedor.");
-            }
-          }
-          else if (string.Equals(tipo, "terceiro", StringComparison.OrdinalIgnoreCase))
-          {
-            if (!request.TerceiroId.HasValue || request.TerceiroId == Guid.Empty)
-            {
-              context.AddFailure(nameof(request.TerceiroId), "Selecione o outro devedor/credor.");
-            }
-          }
-        });
+      // Validação condicional para entidade fornecedora removida
+      // A normalização no service já garante que o tipo e os IDs sejam consistentes
+      // Se o tipo estiver definido mas o ID não estiver, a normalização limpa o tipo
 
       // Validação condicional para datas (apenas se preenchidas)
       _ = RuleFor(x => x.DataFinal)
