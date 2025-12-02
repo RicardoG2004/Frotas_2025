@@ -11,8 +11,6 @@ import { useWindowsStore } from '@/stores/use-windows-store'
 import { handleWindowClose } from '@/utils/window-utils'
 import {
   encodeViaturaDocumentos,
-  parseViaturaDocumentosFromPair,
-  parseCondutoresDocumentos,
   parseDocumentosPayload,
   type ViaturaFormSchemaType,
 } from './viatura-form-schema'
@@ -64,11 +62,23 @@ const normalizePropulsao = (tipo?: ViaturaPropulsao | null): string => {
 }
 
 const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
-  const entidadeFornecedoraTipo =
-    viatura.entidadeFornecedoraTipo?.toLowerCase() === 'terceiro' ||
-    (!viatura.fornecedorId && viatura.terceiroId)
-      ? 'terceiro'
-      : 'fornecedor'
+  console.log('[UpdateViatura] Dados do backend:', {
+    entidadeFornecedoraTipo: viatura.entidadeFornecedoraTipo,
+    terceiroId: viatura.terceiroId,
+    fornecedorId: viatura.fornecedorId,
+  })
+  
+  // Apenas define o tipo se vier explicitamente do backend
+  let entidadeFornecedoraTipo: 'fornecedor' | 'terceiro' | '' = ''
+  
+  if (viatura.entidadeFornecedoraTipo?.toLowerCase() === 'terceiro') {
+    entidadeFornecedoraTipo = 'terceiro'
+  } else if (viatura.entidadeFornecedoraTipo?.toLowerCase() === 'fornecedor') {
+    entidadeFornecedoraTipo = 'fornecedor'
+  }
+  // Se entidadeFornecedoraTipo for null/undefined no backend, fica vazio
+  
+  console.log('[UpdateViatura] Valor mapeado para o form:', entidadeFornecedoraTipo)
 
   return {
     matricula: viatura.matricula || '',
@@ -127,17 +137,13 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
         : viatura.seguros
             ?.map((seguro) => seguro.id)
             .filter((id): id is string => typeof id === 'string') ?? [],
+    documentos: viatura.documentos ? parseDocumentosPayload(viatura.documentos) : [],
     notasAdicionais: viatura.notasAdicionais || '',
     cartaoCombustivel: viatura.cartaoCombustivel || '',
     anoImpostoSelo: viatura.anoImpostoSelo ?? new Date().getFullYear(),
     anoImpostoCirculacao: viatura.anoImpostoCirculacao ?? new Date().getFullYear(),
     dataValidadeSelo: viatura.dataValidadeSelo ? new Date(viatura.dataValidadeSelo) : new Date(),
-    urlImagem1: viatura.urlImagem1 || '',
-    urlImagem2: viatura.urlImagem2 || '',
-    documentos: parseViaturaDocumentosFromPair(viatura.urlImagem1, null).map(
-      (documento) => ({ ...documento })
-    ),
-    condutoresDocumentos: parseCondutoresDocumentos(viatura.urlImagem2),
+    imagem: viatura.imagem ? parseDocumentosPayload(viatura.imagem) : [],
     equipamentoIds:
       viatura.equipamentoIds && viatura.equipamentoIds.length > 0
         ? [...viatura.equipamentoIds]
@@ -262,11 +268,13 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     valorRenda: values.valorRenda ?? null,
     valorResidual: values.valorResidual ?? null,
     seguroIds: values.seguroIds ?? [],
+    documentos: encodeViaturaDocumentos(values.documentos) || null,
     notasAdicionais: values.notasAdicionais || '',
     cartaoCombustivel: values.cartaoCombustivel || '',
     anoImpostoSelo: values.anoImpostoSelo ?? null,
     anoImpostoCirculacao: values.anoImpostoCirculacao ?? null,
     dataValidadeSelo: values.dataValidadeSelo?.toISOString() ?? null,
+    imagem: encodeViaturaDocumentos(values.imagem) || null,
     equipamentoIds: values.equipamentoIds ?? [],
     garantiaIds: values.garantiaIds ?? [],
     condutorIds: values.condutorIds ?? [],
@@ -385,6 +393,8 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
         marcaId: payload.marcaId,
         modeloId: payload.modeloId,
         matricula: payload.matricula,
+        documentos: payload.documentos,
+        imagem: payload.imagem,
       })
       
       const response = await updateMutation.mutateAsync({

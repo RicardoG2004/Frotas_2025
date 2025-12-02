@@ -316,6 +316,26 @@ const requiredUuidField = (message: string) =>
 export const viaturaPropulsaoOptions = VIATURA_PROPULSAO_TYPES
 export type ViaturaPropulsaoType = ViaturaPropulsao
 
+// Helper function to filter invalid UUIDs from arrays
+const filterValidUuids = (val: unknown): string[] => {
+  if (!val || !Array.isArray(val)) {
+    return []
+  }
+  // Filtrar valores inválidos: apenas manter UUIDs válidos
+  return val.filter((item) => {
+    if (!item || typeof item !== 'string') {
+      return false
+    }
+    const trimmed = item.trim()
+    if (trimmed === '' || trimmed === 'null' || trimmed === 'undefined') {
+      return false
+    }
+    // Verificar se é um UUID válido usando regex básico
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+    return uuidRegex.test(trimmed)
+  })
+}
+
 const viaturaFormSchemaObject = z.object({
   matricula: z.string().optional().default(''),
   countryCode: z
@@ -476,10 +496,10 @@ const viaturaFormSchemaObject = z.object({
     (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
     z.number().min(0).optional()
   ),
-  seguroIds: z
-    .array(z.string().uuid({ message: 'Selecione um seguro válido' }))
-    .optional()
-    .default([]),
+  seguroIds: z.preprocess(
+    filterValidUuids,
+    z.array(z.string().uuid({ message: 'Selecione um seguro válido' })).optional().default([])
+  ),
   notasAdicionais: z.string().optional().default(''),
   cartaoCombustivel: z.string().optional().default(''),
   anoImpostoSelo: z.preprocess(
@@ -516,21 +536,20 @@ const viaturaFormSchemaObject = z.object({
     (value) => (value ? new Date(value as string | number | Date) : null),
     z.date().optional().nullable()
   ),
-  urlImagem1: z.string().optional().default(''),
-  urlImagem2: z.string().optional().default(''),
+  imagem: z.array(viaturaDocumentoSchema).optional().default([]),
   documentos: z.array(viaturaDocumentoSchema).optional().default([]),
-  equipamentoIds: z
-    .array(z.string().uuid({ message: 'Selecione um equipamento válido' }))
-    .optional()
-    .default([]),
-  garantiaIds: z
-    .array(z.string().uuid({ message: 'Selecione uma garantia válida' }))
-    .optional()
-    .default([]),
-  condutorIds: z
-    .array(z.string().uuid({ message: 'Selecione um condutor válido' }))
-    .optional()
-    .default([]),
+  equipamentoIds: z.preprocess(
+    filterValidUuids,
+    z.array(z.string().uuid({ message: 'Selecione um equipamento válido' })).optional().default([])
+  ),
+  garantiaIds: z.preprocess(
+    filterValidUuids,
+    z.array(z.string().uuid({ message: 'Selecione uma garantia válida' })).optional().default([])
+  ),
+  condutorIds: z.preprocess(
+    filterValidUuids,
+    z.array(z.string().uuid({ message: 'Selecione um condutor válido' })).optional().default([])
+  ),
   condutoresDocumentos: z.record(z.string(), z.array(viaturaDocumentoSchema)).optional().default({}),
   inspecoes: z.array(viaturaInspecaoSchema).optional().default([]),
   acidentes: z.array(viaturaAcidenteSchema).optional().default([]),
@@ -607,8 +626,7 @@ export const defaultViaturaFormValues: Partial<ViaturaFormSchemaType> = {
   anoImpostoSelo: undefined,
   anoImpostoCirculacao: undefined,
   dataValidadeSelo: undefined,
-  urlImagem1: '',
-  urlImagem2: '',
+  imagem: [],
   documentos: [],
   equipamentoIds: [],
   garantiaIds: [],

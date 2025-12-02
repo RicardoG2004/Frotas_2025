@@ -87,8 +87,8 @@ namespace Frotas.API.Domain.Entities.Frotas
     public int? AnoImpostoSelo { get; set; }
     public int? AnoImpostoCirculacao { get; set; }
     public DateTime? DataValidadeSelo { get; set; }
-    public string? URLImagem1 { get; set; }
-    public string? URLImagem2 { get; set; }
+    public string? Imagem { get; set; }
+    public string? Documentos { get; set; }
     public ICollection<ViaturaEquipamento> ViaturaEquipamentos { get; set; } =
       new List<ViaturaEquipamento>();
     public ICollection<ViaturaGarantia> ViaturaGarantias { get; set; } = new List<ViaturaGarantia>();

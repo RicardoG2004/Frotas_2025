@@ -266,7 +266,10 @@ namespace Frotas.API.Infrastructure.Mapper
         )
         .ForMember(
           dest => dest.EntidadeFornecedoraTipo,
-          opt => opt.MapFrom(src => src.FornecedorId.HasValue ? "fornecedor" : "terceiro")
+          opt => opt.MapFrom(src => 
+            src.FornecedorId.HasValue ? "fornecedor" : 
+            src.TerceiroId.HasValue ? "terceiro" : 
+            null)
         );
       _ = CreateMap<CreateViaturaRequest, Viatura>()
         .ForMember(dest => dest.Marca, opt => opt.Ignore())

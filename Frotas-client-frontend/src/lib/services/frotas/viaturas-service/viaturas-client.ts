@@ -124,30 +124,93 @@ export class ViaturasClient extends BaseApiClient {
   ): Promise<ResponseApi<GSResponse<string>>> {
     return this.withRetry(async () => {
       try {
+        console.log('[CreateViatura Client] Enviando payload:', {
+          matricula: data.matricula,
+          marcaId: data.marcaId,
+          modeloId: data.modeloId,
+        })
+        
         const response = await this.httpClient.postRequest<
           CreateViaturaDTO,
           GSResponse<string>
         >(state.URL, '/client/frotas/viaturas', data)
 
+        console.log('[CreateViatura Client] Resposta recebida:', response)
+
         if (!response.info) {
-          console.error('Formato de resposta inválido:', response)
+          console.error('[CreateViatura Client] Formato de resposta inválido:', response)
           throw new ViaturaError('Formato de resposta inválido')
+        }
+
+        // Verificar se a resposta indica falha (status pode ser enum, número ou string)
+        const status = response.info.status
+        const isFailure = status === 2 || 
+                         status === 'failure' || 
+                         status === 'Failure' ||
+                         (typeof status === 'string' && status.toLowerCase() === 'failure')
+        
+        if (isFailure) {
+          console.error('[CreateViatura Client] Resposta indica falha:', response.info)
+          const errorMessage = response.info.messages 
+            ? Object.values(response.info.messages).flat().join('; ')
+            : 'Falha ao criar viatura'
+          throw new ViaturaError(errorMessage, undefined, response.info)
         }
 
         return response
       } catch (error) {
-        if (error instanceof BaseApiError && error.data) {
-          return {
-            info: error.data as GSResponse<string>,
-            status: error.statusCode || 400,
-            statusText: error.message,
+        console.error('[CreateViatura Client] Erro capturado:', error)
+        
+        // Extrair mensagem detalhada do erro do backend
+        let errorMessage = 'Falha ao criar viatura'
+        let originalErrorData: unknown = undefined
+
+        if (error && typeof error === 'object') {
+          // Se for BaseApiError com dados do backend
+          if ('response' in error && error.response && typeof error.response === 'object') {
+            const axiosError = error as any
+            if (axiosError.response?.data) {
+              const backendData = axiosError.response.data
+              originalErrorData = backendData
+              console.error('[CreateViatura Client] Erro do backend:', backendData)
+
+              // Tentar extrair mensagens do backend
+              if (backendData.messages && typeof backendData.messages === 'object') {
+                const messages: Record<string, string[]> = backendData.messages
+                const allMessages = Object.entries(messages)
+                  .flatMap(([key, values]) => values.map(v => `${key}: ${v}`))
+                if (allMessages.length > 0) {
+                  errorMessage = allMessages.join('; ')
+                }
+              } else if (backendData.message) {
+                errorMessage = backendData.message
+              } else if (typeof backendData === 'string') {
+                errorMessage = backendData
+              }
+            }
+          } else if ('data' in error) {
+            // Caso o erro já seja um BaseApiError com a propriedade 'data'
+            const baseApiError = error as any
+            originalErrorData = baseApiError.data
+            if (baseApiError.data && typeof baseApiError.data === 'object' && 'messages' in baseApiError.data) {
+              const messages: Record<string, string[]> = baseApiError.data.messages
+              const allMessages = Object.entries(messages)
+                .flatMap(([key, values]) => values.map(v => `${key}: ${v}`))
+              if (allMessages.length > 0) {
+                errorMessage = allMessages.join('; ')
+              }
+            } else if (baseApiError.message) {
+              errorMessage = baseApiError.message
+            }
           }
         }
 
+        // Preservar o erro original para debug
+        console.error('[CreateViatura Client] Erro final a lançar:', errorMessage)
         throw new ViaturaError(
-          'Falha ao criar viatura',
+          errorMessage,
           undefined,
-          error
+          originalErrorData
         )
       }
     })

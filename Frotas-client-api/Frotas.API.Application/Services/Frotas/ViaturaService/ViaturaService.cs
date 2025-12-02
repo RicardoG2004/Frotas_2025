@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Frotas.API.Application.Common;
+using Frotas.API.Application.Common.Logging;
 using Frotas.API.Application.Common.Wrapper;
 using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ViaturaService.Filters;
@@ -16,11 +17,13 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
   {
     private readonly IRepositoryAsync _repository;
     private readonly IMapper _mapper;
+    private readonly AppLogger _appLogger;
 
-    public ViaturaService(IRepositoryAsync repository, IMapper mapper)
+    public ViaturaService(IRepositoryAsync repository, IMapper mapper, AppLogger appLogger)
     {
       _repository = repository;
       _mapper = mapper;
+      _appLogger = appLogger;
     }
 
     public async Task<Response<IEnumerable<ViaturaDTO>>> GetViaturasAsync(string keyword = "")
@@ -93,13 +96,41 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
       try
       {
+        // Log antes do create
+        string marcaLog = newViatura.MarcaId?.ToString() ?? "null";
+        string modeloLog = newViatura.ModeloId?.ToString() ?? "null";
+        _appLogger.LogDebugWithMessage($"[CreateViatura Service] Preparando para salvar viatura. Matricula: {newViatura.Matricula}, MarcaId: {marcaLog}, ModeloId: {modeloLog}");
+        
         Viatura response = await _repository.CreateAsync<Viatura, Guid>(newViatura);
-        _ = await _repository.SaveChangesAsync();
-        return Response<Guid>.Success(response.Id);
+        
+        // Verificar quantas entidades foram salvas
+        int rowsAffected = await _repository.SaveChangesAsync();
+        _appLogger.LogDebugWithMessage($"[CreateViatura Service] SaveChangesAsync retornou {rowsAffected} linhas afetadas. ID da viatura: {response.Id}");
+        
+        // Verificar se a viatura foi realmente salva consultando o banco novamente
+        ViaturaWithDetalhesSpecification verifySpec = new(response.Id);
+        Viatura? savedViatura = await _repository.GetByIdAsync<Viatura, Guid>(response.Id, verifySpec);
+        
+        if (savedViatura != null)
+        {
+          _appLogger.LogSuccess($"[CreateViatura Service] Viatura criada e verificada com sucesso. ID: {response.Id}, Matricula: {savedViatura.Matricula}, Linhas afetadas: {rowsAffected}");
+          return Response<Guid>.Success(response.Id);
+        }
+        else
+        {
+          _appLogger.LogErrorWithMessage($"[CreateViatura Service] Viatura não foi encontrada após o salvamento. ID: {response.Id}, Linhas afetadas: {rowsAffected}");
+          return Response<Guid>.Fail("Viatura não foi encontrada após o salvamento");
+        }
       }
       catch (Exception ex)
       {
-        return Response<Guid>.Fail(ex.Message);
+        string errorMessage = ex.Message;
+        if (ex.InnerException != null)
+        {
+          errorMessage += " | Inner: " + ex.InnerException.Message;
+        }
+        _appLogger.LogErrorWithException($"[CreateViatura Service] Exceção ao criar viatura: {errorMessage}", ex);
+        return Response<Guid>.Fail(errorMessage);
       }
     }
 

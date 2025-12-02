@@ -39,24 +39,29 @@ const DatePickerButton = React.forwardRef<
     value?: Date | null
     placeholder?: string
   }
->(({ className, value, placeholder, ...props }, ref) => (
-  <Button
-    ref={ref}
-    type='button'
-    variant='outline'
-    className={cn(
-      'h-12 w-full justify-start px-4 text-left font-normal shadow-inner',
-      !value && 'text-muted-foreground',
-      className
-    )}
-    {...props}
-  >
-    <CalendarIcon className='mr-2 h-4 w-4' />
-    {value
-      ? format(value, 'PPP', { locale: pt })
-      : placeholder || 'Selecione uma data'}
-  </Button>
-))
+>(({ className, value, placeholder, ...props }, ref) => {
+  // Check if value is a valid date (not null, is a Date, and has a valid timestamp)
+  const isValidDate = value instanceof Date && !isNaN(value.getTime()) && value.getFullYear() > 1
+  
+  return (
+    <Button
+      ref={ref}
+      type='button'
+      variant='outline'
+      className={cn(
+        'h-12 w-full justify-start px-4 text-left font-normal shadow-inner',
+        !isValidDate && 'text-muted-foreground',
+        className
+      )}
+      {...props}
+    >
+      <CalendarIcon className='mr-2 h-4 w-4' />
+      {isValidDate
+        ? format(value, 'PPP', { locale: pt })
+        : placeholder || 'Selecione uma data'}
+    </Button>
+  )
+})
 DatePickerButton.displayName = 'DatePickerButton'
 
 export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
@@ -74,8 +79,10 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
     ref
   ) => {
     const [open, setOpen] = React.useState(false)
+    // Initialize currentMonth with value only if it's a valid date
+    const isValidValue = value instanceof Date && !isNaN(value.getTime()) && value.getFullYear() > 1
     const [currentMonth, setCurrentMonth] = React.useState<Date>(
-      value || new Date()
+      isValidValue ? value : new Date()
     )
 
     const handleClose = React.useCallback(() => {
@@ -187,7 +194,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
 
             <Calendar
               mode='single'
-              selected={value}
+              selected={isValidValue ? value : undefined}
               onSelect={(date) => {
                 onChange?.(date)
                 handleClose()

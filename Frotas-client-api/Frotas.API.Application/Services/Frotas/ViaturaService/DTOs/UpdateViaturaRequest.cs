@@ -69,6 +69,8 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public int? AnoImpostoSelo { get; set; }
     public int? AnoImpostoCirculacao { get; set; }
     public DateTime? DataValidadeSelo { get; set; }
+    public string? Imagem { get; set; }
+    public string? Documentos { get; set; }
     public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
     public ICollection<Guid> GarantiaIds { get; set; } = new List<Guid>();
     public ICollection<Guid> CondutorIds { get; set; } = new List<Guid>();

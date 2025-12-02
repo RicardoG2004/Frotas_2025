@@ -78,7 +78,7 @@ export interface ViaturaDTO {
     id?: string
     nome?: string
   }
-  entidadeFornecedoraTipo: 'fornecedor' | 'terceiro'
+  entidadeFornecedoraTipo: 'fornecedor' | 'terceiro' | null
   nQuadro: number
   nMotor: number
   cilindrada: number | null
@@ -110,8 +110,8 @@ export interface ViaturaDTO {
   anoImpostoSelo: number
   anoImpostoCirculacao: number
   dataValidadeSelo: string
-  urlImagem1: string
-  urlImagem2: string
+  imagem?: string | null
+  documentos?: string | null
   cartaoCombustivel?: string
   equipamentoIds: string[]
   equipamentos?: Array<{
@@ -223,7 +223,7 @@ export interface CreateViaturaDTO {
   autonomia?: number | null
   terceiroId: string | null
   fornecedorId: string | null
-  entidadeFornecedoraTipo: 'fornecedor' | 'terceiro'
+  entidadeFornecedoraTipo: 'fornecedor' | 'terceiro' | null
   nQuadro: number
   nMotor: number
   cilindrada: number | null
@@ -247,13 +247,13 @@ export interface CreateViaturaDTO {
   valorRenda: number
   valorResidual: number
   seguroIds: string[]
+  documentos?: string | null
   notasAdicionais: string
   cartaoCombustivel?: string
   anoImpostoSelo: number
   anoImpostoCirculacao: number
   dataValidadeSelo: string
-  urlImagem1: string
-  urlImagem2: string
+  imagem?: string | null
   equipamentoIds: string[]
   garantiaIds: string[]
   condutorIds: string[]

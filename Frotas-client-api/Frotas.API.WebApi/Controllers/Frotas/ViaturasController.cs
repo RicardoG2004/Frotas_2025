@@ -57,12 +57,55 @@ namespace Frotas.API.WebApi.Controllers.Frotas
     {
       try
       {
+        // Log do request recebido
+        _logger.LogInformation($"[CreateViatura] Recebido request para criar viatura. Matricula: {request.Matricula}, MarcaId: {request.MarcaId?.ToString() ?? "null"}, ModeloId: {request.ModeloId?.ToString() ?? "null"}");
+        
+        if (!ModelState.IsValid)
+        {
+          var errorMessages = new Dictionary<string, List<string>>();
+          foreach (var (key, value) in ModelState)
+          {
+            errorMessages[key] = value.Errors.Select(e => e.ErrorMessage).ToList();
+          }
+          
+          _logger.LogWarning($"[CreateViatura] ModelState inválido. Erros: {JsonSerializer.Serialize(errorMessages)}");
+          
+          return BadRequest(new Response<Guid>
+          {
+            Status = ResponseStatus.Failure,
+            Messages = errorMessages
+          });
+        }
+
         Response<Guid> result = await _viaturaService.CreateViaturaAsync(request);
+        
+        if (result.Status == ResponseStatus.Failure)
+        {
+          _logger.LogError($"[CreateViatura] Falha ao criar viatura. Erro: {JsonSerializer.Serialize(result.Messages)}");
+          return BadRequest(result);
+        }
+        
+        _logger.LogInformation($"[CreateViatura] Viatura criada com sucesso. ID: {result.Data}");
         return Ok(result);
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        string errorMessage = ex.Message;
+        if (ex.InnerException != null)
+        {
+          errorMessage += " | Inner: " + ex.InnerException.Message;
+        }
+        
+        _logger.LogError(ex, $"[CreateViatura] Exceção ao criar viatura. Mensagem: {errorMessage}");
+        
+        return BadRequest(new Response<Guid>
+        {
+          Status = ResponseStatus.Failure,
+          Messages = new Dictionary<string, List<string>>
+          {
+            { "Error", new List<string> { errorMessage } }
+          }
+        });
       }
     }
 

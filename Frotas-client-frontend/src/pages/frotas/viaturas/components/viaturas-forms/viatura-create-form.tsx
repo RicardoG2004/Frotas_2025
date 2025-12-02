@@ -34,8 +34,8 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     mesFabrico: values.mesFabrico ?? null,
     dataAquisicao: values.dataAquisicao?.toISOString() ?? null,
     dataLivrete: values.dataLivrete?.toISOString() ?? null,
-    marcaId: values.marcaId || '00000000-0000-0000-0000-000000000000',
-    modeloId: values.modeloId || '00000000-0000-0000-0000-000000000000',
+    marcaId: (values.marcaId && typeof values.marcaId === 'string' && values.marcaId.trim() !== '') ? values.marcaId : null,
+    modeloId: (values.modeloId && typeof values.modeloId === 'string' && values.modeloId.trim() !== '') ? values.modeloId : null,
     tipoViaturaId: values.tipoViaturaId || null,
     corId: values.corId || null,
     combustivelId: values.combustivelId || null,
@@ -84,11 +84,13 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     valorRenda: values.valorRenda,
     valorResidual: values.valorResidual,
     seguroIds: values.seguroIds,
+    documentos: encodeViaturaDocumentos(values.documentos) || null,
     notasAdicionais: values.notasAdicionais || '',
     cartaoCombustivel: values.cartaoCombustivel || '',
     anoImpostoSelo: values.anoImpostoSelo,
     anoImpostoCirculacao: values.anoImpostoCirculacao,
     dataValidadeSelo: values.dataValidadeSelo?.toISOString() ?? null,
+    imagem: encodeViaturaDocumentos(values.imagem) || null,
     equipamentoIds: values.equipamentoIds,
     garantiaIds: values.garantiaIds,
     inspecoes:
@@ -185,17 +187,48 @@ const ViaturaCreateForm = () => {
 
   const handleSubmit = async (values: ViaturaFormSchemaType) => {
     try {
+      const payload = mapFormValuesToPayload(values)
+      
+      // Garantir que marcaId e modeloId sejam null quando vazios
+      if (payload.marcaId === '' || payload.marcaId === undefined || payload.marcaId === '00000000-0000-0000-0000-000000000000') {
+        payload.marcaId = null
+      }
+      if (payload.modeloId === '' || payload.modeloId === undefined || payload.modeloId === '00000000-0000-0000-0000-000000000000') {
+        payload.modeloId = null
+      }
+      
+      console.log('[CreateViatura Form] Payload a enviar:', {
+        matricula: payload.matricula,
+        marcaId: payload.marcaId,
+        modeloId: payload.modeloId,
+        tipoPropulsao: payload.tipoPropulsao,
+        entidadeFornecedoraTipo: payload.entidadeFornecedoraTipo,
+        terceiroId: payload.terceiroId,
+        fornecedorId: payload.fornecedorId,
+        documentos: payload.documentos,
+        imagem: payload.imagem,
+      })
+      
       const response = await viaturaMutation.mutateAsync(
-        mapFormValuesToPayload(values) as any
+        payload as any
       )
+      
+      console.log('[CreateViatura Form] Resposta recebida:', response)
+      console.log('[CreateViatura Form] Resposta info (GSResponse):', response.info)
+      console.log('[CreateViatura Form] Dados da viatura:', response.info?.data)
+      console.log('[CreateViatura Form] Status HTTP:', response.status)
+      
       const result = handleApiResponse(
         response,
         'Viatura criada com sucesso',
         'Erro ao criar viatura',
         'Viatura criada com avisos'
       )
+      
+      console.log('[CreateViatura Form] Resultado do handleApiResponse:', result)
+      console.log('[CreateViatura Form] ID da viatura criada:', result.data)
 
-      if (result.success) {
+      if (result.success && result.data) {
         // Remove form data from the form store
         removeFormState(formId)
 

@@ -58,7 +58,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public TerceiroDTO? Terceiro { get; set; }
     public Guid? FornecedorId { get; set; }
     public FornecedorDTO? Fornecedor { get; set; }
-    public string EntidadeFornecedoraTipo { get; set; } = "fornecedor";
+    public string? EntidadeFornecedoraTipo { get; set; }
     public int NQuadro { get; set; }
     public int NMotor { get; set; }
     public decimal Cilindrada { get; set; }
@@ -90,6 +90,9 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public int AnoImpostoSelo { get; set; }
     public int AnoImpostoCirculacao { get; set; }
     public DateTime DataValidadeSelo { get; set; }
+    public string? Imagem { get; set; }
+    public string? Documentos { get; set; }
+    public string? CartaoCombustivel { get; set; }
     public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
     public ICollection<Guid> GarantiaIds { get; set; } = new List<Guid>();
     public ICollection<EquipamentoDTO> Equipamentos { get; set; } = new List<EquipamentoDTO>();

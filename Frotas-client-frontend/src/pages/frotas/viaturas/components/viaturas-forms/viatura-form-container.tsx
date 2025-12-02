@@ -108,7 +108,6 @@ import {
   defaultViaturaFormValues,
   viaturaFormSchema,
   viaturaPropulsaoOptions,
-  parseViaturaDocumentosFromPair,
   type ViaturaFormSchemaType,
   type ViaturaPropulsaoType,
   type ViaturaDocumentoFormValue,
@@ -135,6 +134,7 @@ import { useGetCodigosPostaisSelect } from '@/pages/base/codigospostais/queries/
 import { useWindowsStore } from '@/stores/use-windows-store'
 import { cn } from '@/lib/utils'
 import { ViaturasService } from '@/lib/services/frotas/viaturas-service'
+import state from '@/states/state'
 import {
   useCurrentWindowId,
   openMarcaCreationWindow,
@@ -366,6 +366,7 @@ const normalizeFolderName = (folder?: string | null) => {
 type FotoViaturaUploaderProps = {
   value: ViaturaDocumentoFormValue[]
   onChange: (documentos: ViaturaDocumentoFormValue[]) => void
+  viaturaId?: string
 }
 
 const fixImageOrientation = async (file: File): Promise<string> => {
@@ -551,7 +552,7 @@ const getOrientationFromArrayBuffer = (arrayBuffer: ArrayBuffer): number => {
   return 1 // Orientação padrão
 }
 
-const FotoViaturaUploader = ({ value, onChange }: FotoViaturaUploaderProps) => {
+const FotoViaturaUploader = ({ value, onChange, viaturaId }: FotoViaturaUploaderProps) => {
   const documentos = value ?? []
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [processingFile, setProcessingFile] = useState<File | null>(null)
@@ -564,9 +565,17 @@ const FotoViaturaUploader = ({ value, onChange }: FotoViaturaUploaderProps) => {
   }, [documentos])
 
   const fotoUrl = useMemo(() => {
-    if (processingPreviewUrl) return processingPreviewUrl
-    if (!fotoPrincipal?.dados) return null
-    return getDocumentoViewerUrl(fotoPrincipal)
+    if (processingPreviewUrl) {
+      console.log('[FotoViaturaUploader] Usando preview temporário:', processingPreviewUrl)
+      return processingPreviewUrl
+    }
+    if (!fotoPrincipal?.dados) {
+      console.log('[FotoViaturaUploader] Nenhuma foto encontrada')
+      return null
+    }
+    const url = getDocumentoViewerUrl(fotoPrincipal)
+    console.log('[FotoViaturaUploader] URL da foto:', url, 'dados:', fotoPrincipal.dados)
+    return url
   }, [fotoPrincipal, processingPreviewUrl])
 
   useEffect(() => {
@@ -578,15 +587,42 @@ const FotoViaturaUploader = ({ value, onChange }: FotoViaturaUploaderProps) => {
   }, [processingPreviewUrl])
 
   const convertFileToDocumento = useCallback(async (file: File) => {
-    // Corrigir orientação da imagem antes de converter
-    const dadosCorrigidos = await fixImageOrientation(file)
-    return {
-      nome: file.name || 'foto-viatura.jpg',
-      dados: dadosCorrigidos,
-      contentType: file.type || 'image/jpeg',
-      tamanho: file.size,
+    const viaturaService = ViaturasService('viatura')
+    
+    try {
+      console.log('[FotoViaturaUploader] Iniciando upload...', {
+        fileName: file.name,
+        viaturaId: viaturaId || 'undefined (criação)',
+      })
+      
+      // Fazer upload do ficheiro para o servidor
+      const uploadResponse = await viaturaService.uploadDocumento(
+        file,
+        viaturaId, // viaturaId pode ser undefined se for criação
+        null // Sem pasta para imagem principal
+      )
+
+      console.log('[FotoViaturaUploader] Upload resposta:', uploadResponse)
+
+      if (!uploadResponse.info?.data) {
+        throw new Error('Resposta de upload inválida')
+      }
+
+      const caminho = uploadResponse.info.data
+      
+      console.log('[FotoViaturaUploader] Upload sucesso! Caminho:', caminho)
+
+      return {
+        nome: file.name || 'foto-viatura.jpg',
+        dados: caminho, // Guardar apenas o caminho
+        contentType: file.type || 'image/jpeg',
+        tamanho: file.size,
+      }
+    } catch (error) {
+      console.error('[FotoViaturaUploader] Erro ao fazer upload:', error)
+      throw error
     }
-  }, [])
+  }, [viaturaId])
 
   const handleInputChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -611,11 +647,15 @@ const FotoViaturaUploader = ({ value, onChange }: FotoViaturaUploaderProps) => {
       try {
         const novoDocumento = await convertFileToDocumento(file)
         
+        console.log('[FotoViaturaUploader] Novo documento criado:', novoDocumento)
+        
         // Remover foto anterior se existir
         const outrosDocumentos = documentos.filter((doc) => !isImageContentType(doc.contentType))
         
         // Adicionar nova foto como primeiro documento
-        onChange([novoDocumento, ...outrosDocumentos])
+        const novosDocumentos = [novoDocumento, ...outrosDocumentos]
+        console.log('[FotoViaturaUploader] Atualizando documentos:', novosDocumentos)
+        onChange(novosDocumentos)
         toast.success('Foto adicionada com sucesso.')
       } catch (error) {
         toast.error('Não foi possível processar a imagem.')
@@ -728,9 +768,16 @@ const FotoViaturaUploader = ({ value, onChange }: FotoViaturaUploaderProps) => {
 
 const getDocumentoViewerUrl = (documento?: ViaturaDocumentoFormValue | null) => {
   if (!documento?.dados) return null
+  // Se for base64 (data:), retornar como está
   if (documento.dados.startsWith('data:')) return documento.dados
+  // Se for URL completa, retornar como está
   if (documento.dados.startsWith('http://') || documento.dados.startsWith('https://')) {
     return documento.dados
+  }
+  // Se for caminho relativo, construir URL completa
+  if (documento.dados.startsWith('uploads/')) {
+    const baseUrl = state.URL.replace(/\/$/, '')
+    return `${baseUrl}/${documento.dados}`
   }
   return null
 }
@@ -918,6 +965,12 @@ const DocumentosUploader = ({ value, onChange, viaturaId }: DocumentosUploaderPr
     return Promise.all(
       files.map(async (file) => {
         try {
+          console.log('[DocumentosUploader] Iniciando upload...', {
+            fileName: file.name,
+            viaturaId: viaturaId || 'undefined (criação)',
+            pasta: pasta || 'sem pasta',
+          })
+          
           // Fazer upload do ficheiro para o servidor
           const uploadResponse = await viaturaService.uploadDocumento(
             file,
@@ -925,11 +978,15 @@ const DocumentosUploader = ({ value, onChange, viaturaId }: DocumentosUploaderPr
             pasta ?? null
           )
 
+          console.log('[DocumentosUploader] Upload resposta:', uploadResponse)
+
           if (!uploadResponse.info?.data) {
             throw new Error('Resposta de upload inválida')
           }
 
           const caminho = uploadResponse.info.data
+          
+          console.log('[DocumentosUploader] Upload sucesso! Caminho:', caminho)
 
           return {
             nome: file.name || 'documento',
@@ -939,7 +996,7 @@ const DocumentosUploader = ({ value, onChange, viaturaId }: DocumentosUploaderPr
             pasta: pasta ?? null,
           }
         } catch (error) {
-          console.error('Erro ao fazer upload:', error)
+          console.error('[DocumentosUploader] Erro ao fazer upload:', error)
           throw error
         }
       })
@@ -1087,8 +1144,19 @@ const DocumentosUploader = ({ value, onChange, viaturaId }: DocumentosUploaderPr
       return
     }
 
-    if (documento.dados.startsWith('http://') || documento.dados.startsWith('https://')) {
+    if (
+      documento.dados.startsWith('http://') ||
+      documento.dados.startsWith('https://')
+    ) {
       window.open(documento.dados, '_blank', 'noopener,noreferrer')
+      return
+    }
+
+    // Se for caminho relativo (novo formato)
+    if (documento.dados.startsWith('uploads/')) {
+      const baseUrl = state.URL.replace(/\/$/, '')
+      const downloadUrl = `${baseUrl}/client/frotas/documentos/download/${documento.dados}`
+      window.open(downloadUrl, '_blank', 'noopener,noreferrer')
     }
   }, [])
 
@@ -1601,14 +1669,9 @@ export function ViaturaFormContainer({
   }, [europeanCountryCodes])
 
   const initialFormValues = useMemo<Partial<ViaturaFormSchemaType>>(() => {
-    const documentosBase =
-      initialValues?.documentos ??
-      parseViaturaDocumentosFromPair(initialValues?.urlImagem1, initialValues?.urlImagem2)
-
     return {
       ...defaultViaturaFormValues,
       ...initialValues,
-      documentos: documentosBase?.map((documento) => ({ ...documento })) ?? [],
     }
   }, [initialValues])
 
@@ -3403,7 +3466,7 @@ export function ViaturaFormContainer({
                       <div className='flex flex-col gap-4'>
                         <FormField
                           control={form.control}
-                          name='documentos'
+                          name='imagem'
                           render={({ field }) => (
                             <FormItem className='mt-8'>
                               <FormLabel className='sr-only'>Foto da Viatura</FormLabel>
@@ -5256,8 +5319,8 @@ export function ViaturaFormContainer({
 
                     <FormSection
                       icon={FolderOpen}
-                      title='Documentação'
-                      description='Anexe documentos, imagens e ficheiros relevantes'
+                      title='Documentação do Contrato'
+                      description='Anexe documentos do contrato de locação (contratos, faturas, etc.)'
                     >
                       <FormField
                         control={form.control}
@@ -5268,6 +5331,7 @@ export function ViaturaFormContainer({
                               <DocumentosUploader
                                 value={field.value}
                                 onChange={(next) => field.onChange(next)}
+                                viaturaId={initialValues?.id}
                               />
                             </FormControl>
                             <FormMessage />
@@ -5933,29 +5997,6 @@ export function ViaturaFormContainer({
                           )}
                         </div>
                       )}
-                    </FormSection>
-
-                    <FormSection
-                      icon={FolderOpen}
-                      title='Documentação'
-                      description='Anexe documentos, imagens e ficheiros relevantes'
-                    >
-                      <FormField
-                        control={form.control}
-                        name='documentos'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <DocumentosUploader
-                                value={field.value}
-                                onChange={(next) => field.onChange(next)}
-                                viaturaId={initialValues?.id}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </FormSection>
                   </div>
                 </CardContent>

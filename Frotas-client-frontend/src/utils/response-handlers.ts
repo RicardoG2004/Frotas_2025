@@ -54,18 +54,44 @@ export const handleApiResponse = <T>(
     messages = response.info.messages || {}
   }
 
-  // Handle status that might be undefined or a number
-  const statusValue = status !== undefined ? status : null
+  // Normalize status value to handle both enum/numeric values and string values (camelCase from backend)
+  const normalizeStatus = (statusValue: any): 'success' | 'partialSuccess' | 'failure' | null => {
+    if (statusValue === null || statusValue === undefined) {
+      return null
+    }
 
-  // Handle new response structure with status field
-  switch (statusValue) {
-    case ResponseStatus.Success:
-    case 0: // Handle numeric value
+    // Handle numeric enum values (0, 1, 2)
+    if (typeof statusValue === 'number') {
+      if (statusValue === ResponseStatus.Success || statusValue === 0) return 'success'
+      if (statusValue === ResponseStatus.PartialSuccess || statusValue === 1) return 'partialSuccess'
+      if (statusValue === ResponseStatus.Failure || statusValue === 2) return 'failure'
+    }
+
+    // Handle enum values directly
+    if (statusValue === ResponseStatus.Success) return 'success'
+    if (statusValue === ResponseStatus.PartialSuccess) return 'partialSuccess'
+    if (statusValue === ResponseStatus.Failure) return 'failure'
+
+    // Handle string values (camelCase from backend JSON serialization)
+    if (typeof statusValue === 'string') {
+      const normalized = statusValue.toLowerCase().trim()
+      if (normalized === 'success' || normalized === '0') return 'success'
+      if (normalized === 'partialsuccess' || normalized === 'partial-success' || normalized === '1') return 'partialSuccess'
+      if (normalized === 'failure' || normalized === '2') return 'failure'
+    }
+
+    return null
+  }
+
+  const normalizedStatus = normalizeStatus(status)
+
+  // Handle response based on normalized status
+  switch (normalizedStatus) {
+    case 'success':
       toast.success(successMessage)
       return { success: true, data: data as T }
 
-    case ResponseStatus.PartialSuccess:
-    case 1: // Handle numeric value
+    case 'partialSuccess':
       const partialMessage = getPartialSuccessMessage(
         response as ResponseApi<ApiResponseInfo>,
         partialSuccessMessage
@@ -73,8 +99,7 @@ export const handleApiResponse = <T>(
       toast.partialSuccess(partialMessage)
       return { success: true, data: data as T, isPartialSuccess: true }
 
-    case ResponseStatus.Failure:
-    case 2: // Handle numeric value
+    case 'failure':
       const errorMsg = getErrorMessage(
         response as ResponseApi<ApiResponseInfo>,
         errorMessage
@@ -83,14 +108,14 @@ export const handleApiResponse = <T>(
       return { success: false }
 
     default:
-      // Log for debugging
+      // Log for debugging when status cannot be normalized
       console.warn('Status de resposta desconhecido:', {
         status,
-        statusValue,
+        normalizedStatus,
         responseInfo: response.info,
         fullResponse: response,
       })
-      // Try to determine success from HTTP status code
+      // Try to determine success from HTTP status code as fallback
       if (response.status >= 200 && response.status < 300) {
         toast.success(successMessage)
         return { success: true, data: data as T }
