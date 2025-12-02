@@ -695,7 +695,7 @@ const FotoViaturaUploader = ({ value, onChange, viaturaId }: FotoViaturaUploader
         className={cn(
           'relative flex aspect-square w-full max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg transition-all duration-200',
           fotoUrl
-            ? 'border border-border bg-card shadow-sm hover:shadow-md'
+            ? 'border-2 border-border bg-card shadow-sm hover:border-red-400/70 hover:shadow-[0_0_20px_rgba(248,113,113,0.3)] hover:scale-105'
             : 'border border-border/60 bg-muted/20 hover:border-primary/50 hover:bg-muted/30'
         )}
       >
@@ -711,7 +711,7 @@ const FotoViaturaUploader = ({ value, onChange, viaturaId }: FotoViaturaUploader
             <img
               src={fotoUrl}
               alt='Foto da viatura'
-              className='h-full w-full object-contain cursor-zoom-in'
+              className='h-full w-full object-contain cursor-pointer'
               style={{ imageOrientation: 'from-image' }}
               onClick={handleImageClick}
             />
@@ -1643,6 +1643,7 @@ interface ViaturaFormContainerProps {
   submitLabel: string
   tabKey: string
   isSubmitting: boolean
+  viaturaId?: string
 }
 
 export function ViaturaFormContainer({
@@ -1653,6 +1654,7 @@ export function ViaturaFormContainer({
   submitLabel,
   tabKey,
   isSubmitting,
+  viaturaId,
 }: ViaturaFormContainerProps) {
   // Códigos dos países europeus suportados (apenas os da lista fornecida)
   const europeanCountryCodes = useMemo(() => ['PT', 'ES', 'FR', 'IT', 'DE', 'NL', 'BE', 'GB', 'AT', 'CH', 'PL', 'CZ', 'SE', 'DK', 'FI', 'LU'], [])
@@ -3474,6 +3476,7 @@ export function ViaturaFormContainer({
                                 <FotoViaturaUploader
                                   value={field.value ?? []}
                                   onChange={field.onChange}
+                                  viaturaId={viaturaId}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -3745,7 +3748,7 @@ export function ViaturaFormContainer({
                                 <div className='relative'>
                             <Autocomplete
                                     options={selectOptions.conservatorias}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                     placeholder={placeholder(
                                       selectLoading.conservatorias,
@@ -3793,7 +3796,7 @@ export function ViaturaFormContainer({
                                 <div className='relative'>
                             <Autocomplete
                                     options={selectOptions.categorias}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                     placeholder={placeholder(
                                       selectLoading.categorias,
@@ -3851,7 +3854,7 @@ export function ViaturaFormContainer({
                                 <div className='relative'>
                             <Autocomplete
                                     options={selectOptions.marcas}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                     placeholder={placeholder(selectLoading.marcas, 'a marca')}
                                     disabled={selectLoading.marcas}
@@ -3896,7 +3899,7 @@ export function ViaturaFormContainer({
                                 <div className='relative'>
                             <Autocomplete
                                     options={selectOptions.modelos}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                     placeholder={placeholder(selectLoading.modelos, 'o modelo')}
                                     disabled={selectLoading.modelos}
@@ -3941,7 +3944,7 @@ export function ViaturaFormContainer({
                                 <div className='relative'>
                             <Autocomplete
                                     options={selectOptions.tipoViaturas}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                     placeholder={placeholder(
                                       selectLoading.tipoViaturas,
@@ -3989,7 +3992,7 @@ export function ViaturaFormContainer({
                                 <div className='relative'>
                             <Autocomplete
                                     options={selectOptions.cores}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                     placeholder={placeholder(selectLoading.cores, 'a cor')}
                                     disabled={selectLoading.cores}
@@ -4042,9 +4045,9 @@ export function ViaturaFormContainer({
                           <FormLabel>Localização</FormLabel>
                           <FormControl>
                               <div className='relative'>
-                            <Autocomplete
+                              <Autocomplete
                               options={selectOptions.localizacoes}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.localizacoes,
@@ -4090,9 +4093,9 @@ export function ViaturaFormContainer({
                           <FormLabel>Setor</FormLabel>
                           <FormControl>
                               <div className='relative'>
-                            <Autocomplete
+                              <Autocomplete
                               options={selectOptions.setores}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.setores,
@@ -4138,9 +4141,9 @@ export function ViaturaFormContainer({
                           <FormLabel>Delegação</FormLabel>
                           <FormControl>
                               <div className='relative'>
-                            <Autocomplete
+                              <Autocomplete
                               options={selectOptions.delegacoes}
-                              value={field.value}
+                              value={field.value ?? ''}
                               onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.delegacoes,
@@ -4321,7 +4324,7 @@ export function ViaturaFormContainer({
                               <div className='relative'>
                                 <Autocomplete
                                   options={selectOptions.fornecedores}
-                                  value={field.value}
+                                  value={field.value ?? ''}
                                   onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.fornecedores,
@@ -4369,9 +4372,9 @@ export function ViaturaFormContainer({
                             <FormLabel className='sr-only'>Outros Devedores/Credores</FormLabel>
                             <FormControl>
                               <div className='relative'>
-                                <Autocomplete
+                                  <Autocomplete
                                   options={selectOptions.terceiros}
-                                  value={field.value}
+                                  value={field.value ?? ''}
                                   onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.terceiros,
@@ -4429,7 +4432,7 @@ export function ViaturaFormContainer({
                                   <div className='relative'>
                                     <Autocomplete
                                       options={selectOptions.combustiveis}
-                                      value={field.value}
+                                      value={field.value ?? ''}
                                       onValueChange={field.onChange}
                                       placeholder={placeholder(
                                         selectLoading.combustiveis,
@@ -5145,7 +5148,7 @@ export function ViaturaFormContainer({
                               <div className='relative'>
                                 <Autocomplete
                                   options={selectOptions.fornecedores}
-                                  value={field.value}
+                                  value={field.value ?? ''}
                                   onValueChange={field.onChange}
                                   placeholder={placeholder(
                                     selectLoading.fornecedores,
@@ -5331,7 +5334,7 @@ export function ViaturaFormContainer({
                               <DocumentosUploader
                                 value={field.value}
                                 onChange={(next) => field.onChange(next)}
-                                viaturaId={initialValues?.id}
+                                viaturaId={viaturaId}
                               />
                             </FormControl>
                             <FormMessage />

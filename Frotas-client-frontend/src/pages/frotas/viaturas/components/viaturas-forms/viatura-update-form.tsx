@@ -487,6 +487,7 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
         onCancel={undefined}
         isSubmitting={updateMutation.isPending}
         isLoadingInitial
+        viaturaId={viaturaId}
       />
     )
   }
@@ -507,6 +508,7 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
       onCancel={undefined}
       isSubmitting={updateMutation.isPending}
       initialValues={initialValues}
+      viaturaId={viaturaId}
     />
   )
 }
