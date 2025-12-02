@@ -695,7 +695,7 @@ const FotoViaturaUploader = ({ value, onChange, viaturaId }: FotoViaturaUploader
         className={cn(
           'relative flex aspect-square w-full max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-lg transition-all duration-200',
           fotoUrl
-            ? 'border-2 border-border bg-card shadow-sm hover:border-red-400/70 hover:shadow-[0_0_20px_rgba(248,113,113,0.3)] hover:scale-105'
+            ? 'border-2 border-border bg-card shadow-sm hover:border-red-500/60 hover:shadow-[0_0_20px_rgba(220,38,38,0.35)] hover:scale-105'
             : 'border border-border/60 bg-muted/20 hover:border-primary/50 hover:bg-muted/30'
         )}
       >
@@ -1295,28 +1295,22 @@ const DocumentosUploader = ({ value, onChange, viaturaId }: DocumentosUploaderPr
                 key={card.key}
                 className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px]'
               >
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center gap-3'>
-                    <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary'>
-                      <FolderOpen className='h-5 w-5' />
-                    </div>
-                    <div>
-                      <p className='text-sm font-semibold text-foreground'>{card.label}</p>
-                      <p className='text-[11px] text-muted-foreground whitespace-nowrap'>
-                        {card.count} documento(s)
-                      </p>
-                    </div>
-                  </div>
-                  <Button
+                <div className='flex items-start gap-3'>
+                  <button
                     type='button'
-                    variant='ghost'
-                    size='icon'
-                    className='h-8 w-8 text-muted-foreground transition hover:text-destructive'
                     onClick={() => handleDeleteFolder(card.folder)}
+                    className='group relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary flex-shrink-0 transition hover:bg-destructive/10 cursor-pointer'
                     title='Eliminar pasta'
                   >
-                    <Trash2 className='h-4 w-4' />
-                  </Button>
+                    <FolderOpen className='h-5 w-5 transition-opacity group-hover:opacity-0' />
+                    <Trash2 className='h-5 w-5 text-destructive absolute opacity-0 transition-opacity group-hover:opacity-100' />
+                  </button>
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-sm font-semibold text-foreground'>{card.label}</p>
+                    <p className='text-[11px] text-muted-foreground whitespace-nowrap'>
+                      {card.count} documento(s)
+                    </p>
+                  </div>
                 </div>
                 <div className='mt-4 flex flex-wrap gap-2'>
                   <Button
