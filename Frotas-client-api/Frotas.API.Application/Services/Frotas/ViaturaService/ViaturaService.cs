@@ -89,7 +89,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       SyncEquipamentos(newViatura, request.EquipamentoIds);
       SyncGarantias(newViatura, request.GarantiaIds);
       SyncSeguros(newViatura, request.SeguroIds);
-      SyncCondutores(newViatura, request.CondutorIds);
+      SyncCondutores(newViatura, request.Condutores);
       SyncInspecoes(newViatura, request.Inspecoes);
       SyncAcidentes(newViatura, request.Acidentes);
       SyncMultas(newViatura, request.Multas);
@@ -174,7 +174,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       SyncEquipamentos(viaturaInDb, request.EquipamentoIds);
       SyncGarantias(viaturaInDb, request.GarantiaIds);
       SyncSeguros(viaturaInDb, request.SeguroIds);
-      SyncCondutores(viaturaInDb, request.CondutorIds);
+      SyncCondutores(viaturaInDb, request.Condutores);
       SyncInspecoes(viaturaInDb, request.Inspecoes);
       SyncAcidentes(viaturaInDb, request.Acidentes);
       SyncMultas(viaturaInDb, request.Multas);
@@ -323,7 +323,11 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       if (!existingIds.Contains(equipamentoId))
       {
         viatura.ViaturaEquipamentos.Add(
-          new ViaturaEquipamento { EquipamentoId = equipamentoId }
+          new ViaturaEquipamento 
+          { 
+            ViaturaId = viatura.Id,
+            EquipamentoId = equipamentoId 
+          }
         );
       }
     }
@@ -352,7 +356,11 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     {
       if (!existingIds.Contains(seguroId))
       {
-        viatura.ViaturaSeguros.Add(new ViaturaSeguro { SeguroId = seguroId });
+        viatura.ViaturaSeguros.Add(new ViaturaSeguro 
+        { 
+          ViaturaId = viatura.Id,
+          SeguroId = seguroId 
+        });
       }
     }
   }
@@ -380,19 +388,29 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     {
       if (!existingIds.Contains(garantiaId))
       {
-        viatura.ViaturaGarantias.Add(new ViaturaGarantia { GarantiaId = garantiaId });
+        viatura.ViaturaGarantias.Add(new ViaturaGarantia 
+        { 
+          ViaturaId = viatura.Id,
+          GarantiaId = garantiaId 
+        });
       }
     }
   }
 
-  private static void SyncCondutores(Viatura viatura, ICollection<Guid> condutorIds)
+  private static void SyncCondutores(Viatura viatura, ICollection<ViaturaCondutorUpsertDTO> condutores)
   {
-    condutorIds ??= new List<Guid>();
+    condutores ??= new List<ViaturaCondutorUpsertDTO>();
     viatura.ViaturaCondutores ??= new List<ViaturaCondutor>();
 
-    HashSet<Guid> desiredIds = condutorIds.ToHashSet();
+    // Criar um dicionário dos condutores desejados
+    Dictionary<Guid, string?> desiredCondutores = condutores.ToDictionary(
+      c => c.FuncionarioId,
+      c => c.Documentos
+    );
+
+    // Remover condutores que não estão mais na lista
     List<ViaturaCondutor> toRemove = viatura.ViaturaCondutores
-      .Where(vc => !desiredIds.Contains(vc.FuncionarioId))
+      .Where(vc => !desiredCondutores.ContainsKey(vc.FuncionarioId))
       .ToList();
 
     foreach (ViaturaCondutor item in toRemove)
@@ -400,15 +418,26 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
       _ = viatura.ViaturaCondutores.Remove(item);
     }
 
-    HashSet<Guid> existingIds = viatura.ViaturaCondutores
-      .Select(vc => vc.FuncionarioId)
-      .ToHashSet();
-
-    foreach (Guid condutorId in desiredIds)
+    // Atualizar ou adicionar condutores
+    foreach (ViaturaCondutorUpsertDTO condutorDto in condutores)
     {
-      if (!existingIds.Contains(condutorId))
+      ViaturaCondutor? existing = viatura.ViaturaCondutores
+        .FirstOrDefault(vc => vc.FuncionarioId == condutorDto.FuncionarioId);
+
+      if (existing != null)
       {
-        viatura.ViaturaCondutores.Add(new ViaturaCondutor { FuncionarioId = condutorId });
+        // Atualizar documentos do condutor existente
+        existing.Documentos = condutorDto.Documentos;
+      }
+      else
+      {
+        // Adicionar novo condutor com documentos
+        viatura.ViaturaCondutores.Add(new ViaturaCondutor
+        {
+          ViaturaId = viatura.Id,
+          FuncionarioId = condutorDto.FuncionarioId,
+          Documentos = condutorDto.Documentos
+        });
       }
     }
   }

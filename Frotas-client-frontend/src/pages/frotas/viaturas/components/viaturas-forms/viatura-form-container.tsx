@@ -171,6 +171,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -347,7 +348,11 @@ const formatFileSize = (bytes?: number) => {
   return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100} ${sizes[i]}`
 }
 
-const isImageContentType = (contentType: string) => contentType.startsWith('image/')
+const isImageContentType = (contentType?: string) => {
+  if (!contentType) return false
+  return contentType.startsWith('image/')
+}
+
 const isPdfContentType = (contentType: string, nome?: string) => {
   if (contentType === 'application/pdf') {
     return true
@@ -2021,6 +2026,10 @@ export function ViaturaFormContainer({
   const [inspecaoDocumentosDialogOpen, setInspecaoDocumentosDialogOpen] = useState(false)
   const [inspecaoDocumentosDialogIndex, setInspecaoDocumentosDialogIndex] = useState<number | null>(null)
 
+  // Estados para modal de visualização de documentos de condutor
+  const [condutorDocumentosDialogOpen, setCondutorDocumentosDialogOpen] = useState(false)
+  const [condutorDocumentosDialogCondutorId, setCondutorDocumentosDialogCondutorId] = useState<string | null>(null)
+
   const segurosMap = useMemo(() => {
     const map = new Map<string, string>()
     selectOptions.seguros.forEach((option) => {
@@ -2431,6 +2440,18 @@ export function ViaturaFormContainer({
     setCondutorUploadDialogCondutorId(condutorId)
     setCondutorUploadDialogOpen(true)
   }
+
+  // Função para abrir o modal de visualização de documentos do condutor
+  const handleOpenCondutorDocumentosDialog = (condutorId: string) => {
+    setCondutorDocumentosDialogCondutorId(condutorId)
+    setCondutorDocumentosDialogOpen(true)
+  }
+
+  // Função para fechar o modal de visualização de documentos do condutor
+  const handleCloseCondutorDocumentosDialog = () => {
+    setCondutorDocumentosDialogOpen(false)
+    setCondutorDocumentosDialogCondutorId(null)
+  }
   
   // Função para fechar o diálogo de upload
   const handleCloseCondutorUploadDialog = () => {
@@ -2451,13 +2472,35 @@ export function ViaturaFormContainer({
       }
 
       try {
+        const viaturaService = ViaturasService('viatura')
+        
         const novosDocumentos = await Promise.all(
-          fileList.map(async (file) => ({
-            nome: file.name || 'documento',
-            dados: await readFileAsDataUrl(file),
-            contentType: file.type || 'application/octet-stream',
-            tamanho: file.size,
-          }))
+          fileList.map(async (file) => {
+            try {
+              // Fazer upload do ficheiro usando o mesmo sistema que os documentos da viatura
+              const uploadResponse = await viaturaService.uploadDocumento(
+                file,
+                viaturaId,
+                null // sem pasta para documentos de condutor
+              )
+
+              if (!uploadResponse.info?.data) {
+                throw new Error('Resposta de upload inválida')
+              }
+
+              const caminho = uploadResponse.info.data
+
+              return {
+                nome: file.name || 'documento',
+                dados: caminho, // Guardar o caminho retornado pelo servidor
+                contentType: file.type || 'application/octet-stream',
+                tamanho: file.size,
+              }
+            } catch (error) {
+              console.error('[handleCondutorFileUpload] Erro ao fazer upload:', error)
+              throw error
+            }
+          })
         )
 
         const currentDocumentos = form.getValues('condutoresDocumentos') ?? {}
@@ -2473,12 +2516,13 @@ export function ViaturaFormContainer({
 
         toast.success(`${fileList.length} ficheiro(s) anexado(s) com sucesso.`)
       } catch (error) {
+        console.error('[handleCondutorFileUpload] Erro ao fazer upload:', error)
         toast.error('Não foi possível processar o(s) ficheiro(s).')
       } finally {
         event.target.value = ''
       }
     },
-    [condutorUploadDialogCondutorId, form]
+    [condutorUploadDialogCondutorId, form, viaturaId]
   )
   
   // Função para remover um documento do condutor
@@ -6525,57 +6569,15 @@ export function ViaturaFormContainer({
                                               </p>
                                             )}
                                             {condutorDocumentos.length > 0 && (
-                                              <div className='mt-2 space-y-1'>
-                                                <p className='text-xs font-medium text-foreground'>
-                                                  Documentos anexados ({condutorDocumentos.length}):
-                                                </p>
-                                                <div className='space-y-1'>
-                                                  {condutorDocumentos.map((documento, docIndex) => (
-                                                    <div
-                                                      key={docIndex}
-                                                      className='flex items-center justify-between gap-2 rounded-md bg-muted/50 px-2 py-1 text-xs'
-                                                    >
-                                                      <div className='flex items-center gap-1.5 min-w-0 flex-1'>
-                                                        <File className='h-3 w-3 flex-shrink-0 text-muted-foreground' />
-                                                        <span className='truncate text-muted-foreground'>
-                                                          {documento.nome}
-                                                        </span>
-                                                      </div>
-                                                      <div className='flex items-center gap-1'>
-                                                        <Button
-                                                          type='button'
-                                                          variant='ghost'
-                                                          size='sm'
-                                                          onClick={() => handleViewCondutorDocumento(documento)}
-                                                          title='Visualizar'
-                                                          className='h-6 w-6 p-0'
-                                                        >
-                                                          <Eye className='h-3 w-3' />
-                                                        </Button>
-                                                        <Button
-                                                          type='button'
-                                                          variant='ghost'
-                                                          size='sm'
-                                                          onClick={() => handleDownloadCondutorDocumento(documento)}
-                                                          title='Descarregar'
-                                                          className='h-6 w-6 p-0'
-                                                        >
-                                                          <Download className='h-3 w-3' />
-                                                        </Button>
-                                                        <Button
-                                                          type='button'
-                                                          variant='ghost'
-                                                          size='sm'
-                                                          onClick={() => handleRemoveCondutorDocumento(id, docIndex)}
-                                                          title='Remover'
-                                                          className='h-6 w-6 p-0 text-destructive hover:text-destructive'
-                                                        >
-                                                          <X className='h-3 w-3' />
-                                                        </Button>
-                                                      </div>
-                                                    </div>
-                                                  ))}
-                                                </div>
+                                              <div className='mt-2'>
+                                                <Badge 
+                                                  variant='secondary' 
+                                                  className='cursor-pointer hover:bg-secondary/80'
+                                                  onClick={() => handleOpenCondutorDocumentosDialog(id)}
+                                                >
+                                                  <FileText className='mr-1 h-3 w-3' />
+                                                  {condutorDocumentos.length} {condutorDocumentos.length === 1 ? 'documento' : 'documentos'}
+                                                </Badge>
                                               </div>
                                             )}
                                           </div>
@@ -8770,6 +8772,100 @@ export function ViaturaFormContainer({
                       </div>
                     )}
                   </div>
+                </div>
+              )
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para visualizar documentos do condutor */}
+      <Dialog open={condutorDocumentosDialogOpen} onOpenChange={handleCloseCondutorDocumentosDialog}>
+        <DialogContent className='max-w-3xl max-h-[80vh]'>
+          <DialogHeader>
+            <DialogTitle>Documentos do Condutor</DialogTitle>
+            <DialogDescription>
+              {(() => {
+                const condutorNome = condutorDocumentosDialogCondutorId
+                  ? selectOptions.funcionarios.find(f => f.value === condutorDocumentosDialogCondutorId)?.label
+                  : null
+                return condutorNome ? `Documentos anexados a ${condutorNome}` : 'Visualize e gerencie os documentos anexados'
+              })()}
+            </DialogDescription>
+          </DialogHeader>
+          <div className='overflow-y-auto max-h-[calc(80vh-120px)]'>
+            {(() => {
+              if (!condutorDocumentosDialogCondutorId) return null
+              const documentos = condutoresDocumentos[condutorDocumentosDialogCondutorId] ?? []
+              
+              if (documentos.length === 0) {
+                return (
+                  <div className='flex flex-col items-center justify-center py-8 text-center'>
+                    <FileText className='h-12 w-12 text-muted-foreground mb-3' />
+                    <p className='text-sm text-muted-foreground'>Nenhum documento anexado</p>
+                  </div>
+                )
+              }
+
+              return (
+                <div className='space-y-3'>
+                  {documentos.map((documento, index) => (
+                    <div
+                      key={index}
+                      className='flex items-center justify-between gap-4 rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:border-primary/50 hover:shadow-md'
+                    >
+                      <div className='flex items-center gap-3 min-w-0 flex-1'>
+                        <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary flex-shrink-0'>
+                          <File className='h-5 w-5' />
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <p className='truncate text-sm font-medium text-foreground'>
+                            {documento.nome}
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            {documento.contentType} • {(documento.tamanho / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-2'>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='sm'
+                          onClick={() => handleViewCondutorDocumento(documento)}
+                          title='Visualizar'
+                        >
+                          <Eye className='h-4 w-4' />
+                        </Button>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='sm'
+                          onClick={() => handleDownloadCondutorDocumento(documento)}
+                          title='Descarregar'
+                        >
+                          <Download className='h-4 w-4' />
+                        </Button>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => {
+                            handleRemoveCondutorDocumento(condutorDocumentosDialogCondutorId, index)
+                            // Se não houver mais documentos, fecha o modal
+                            const documentosAtualizados = form.getValues('condutoresDocumentos')?.[condutorDocumentosDialogCondutorId] ?? []
+                            if (documentosAtualizados.length <= 1) {
+                              handleCloseCondutorDocumentosDialog()
+                            }
+                          }}
+                          title='Remover'
+                          className='text-destructive hover:text-destructive'
+                        >
+                          <Trash2 className='h-4 w-4' />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )
             })()}

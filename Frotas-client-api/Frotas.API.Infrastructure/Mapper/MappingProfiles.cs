@@ -211,6 +211,30 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<ViaturaInspecao, ViaturaInspecaoDTO>();
       _ = CreateMap<ViaturaAcidente, ViaturaAcidenteDTO>();
       _ = CreateMap<ViaturaMulta, ViaturaMultaDTO>();
+      _ = CreateMap<ViaturaCondutor, ViaturaCondutorDTO>()
+        .ForMember(
+          dest => dest.FuncionarioId,
+          opt => opt.MapFrom(src => src.FuncionarioId)
+        )
+        .ForMember(
+          dest => dest.Nome,
+          opt => opt.MapFrom(src => src.Funcionario != null ? src.Funcionario.Nome : null)
+        )
+        .ForMember(
+          dest => dest.Documentos,
+          opt => opt.MapFrom(src => src.Documentos)
+        );
+      _ = CreateMap<ViaturaCondutorUpsertDTO, ViaturaCondutor>()
+        .ForMember(dest => dest.FuncionarioId, opt => opt.MapFrom(src => src.FuncionarioId))
+        .ForMember(dest => dest.Documentos, opt => opt.MapFrom(src => src.Documentos))
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore())
+        .ForMember(dest => dest.ViaturaId, opt => opt.Ignore())
+        .ForMember(dest => dest.Id, opt => opt.Ignore())
+        .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+        .ForMember(dest => dest.CreatedOn, opt => opt.Ignore())
+        .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
+        .ForMember(dest => dest.LastModifiedOn, opt => opt.Ignore());
       _ = CreateMap<Viatura, ViaturaDTO>()
         .ForMember(
           dest => dest.Marca,
@@ -246,7 +270,7 @@ namespace Frotas.API.Infrastructure.Mapper
         )
         .ForMember(
           dest => dest.Condutores,
-          opt => opt.MapFrom(src => src.ViaturaCondutores.Select(vc => vc.Funcionario))
+          opt => opt.MapFrom(src => src.ViaturaCondutores)
         )
         .ForMember(
           dest => dest.CondutorIds,

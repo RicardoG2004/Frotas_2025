@@ -330,8 +330,8 @@ const filterValidUuids = (val: unknown): string[] => {
     if (trimmed === '' || trimmed === 'null' || trimmed === 'undefined') {
       return false
     }
-    // Verificar se é um UUID válido usando regex básico
-    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+    // Verificar se é um UUID válido usando regex básico (formato relaxado: 8-4-4-4-12)
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
     return uuidRegex.test(trimmed)
   })
 }
@@ -498,7 +498,7 @@ const viaturaFormSchemaObject = z.object({
   ),
   seguroIds: z.preprocess(
     filterValidUuids,
-    z.array(z.string().uuid({ message: 'Selecione um seguro válido' })).optional().default([])
+    z.array(z.string().min(1)).optional().default([])
   ),
   notasAdicionais: z.string().optional().default(''),
   cartaoCombustivel: z.string().optional().default(''),
@@ -540,15 +540,15 @@ const viaturaFormSchemaObject = z.object({
   documentos: z.array(viaturaDocumentoSchema).optional().default([]),
   equipamentoIds: z.preprocess(
     filterValidUuids,
-    z.array(z.string().uuid({ message: 'Selecione um equipamento válido' })).optional().default([])
+    z.array(z.string().min(1)).optional().default([])
   ),
   garantiaIds: z.preprocess(
     filterValidUuids,
-    z.array(z.string().uuid({ message: 'Selecione uma garantia válida' })).optional().default([])
+    z.array(z.string().min(1)).optional().default([])
   ),
   condutorIds: z.preprocess(
     filterValidUuids,
-    z.array(z.string().uuid({ message: 'Selecione um condutor válido' })).optional().default([])
+    z.array(z.string().min(1)).optional().default([])
   ),
   condutoresDocumentos: z.record(z.string(), z.array(viaturaDocumentoSchema)).optional().default({}),
   inspecoes: z.array(viaturaInspecaoSchema).optional().default([]),

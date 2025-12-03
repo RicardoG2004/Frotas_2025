@@ -13,6 +13,19 @@ app.UseHttpsRedirection();
 // Permitir servir ficheiros estáticos da pasta wwwroot
 app.UseStaticFiles();
 
+// Permitir servir ficheiros estáticos da pasta uploads (criar se não existir)
+var uploadsPath = System.IO.Path.Combine(builder.Environment.ContentRootPath, "uploads");
+if (!System.IO.Directory.Exists(uploadsPath))
+{
+  System.IO.Directory.CreateDirectory(uploadsPath);
+}
+
+app.UseStaticFiles(new StaticFileOptions
+{
+  FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+  RequestPath = "/uploads"
+});
+
 app.UseRouting();
 
 app.UseAuthentication();

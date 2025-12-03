@@ -12,5 +12,7 @@ public class ViaturaCondutor : AuditableEntity
 
   public Guid FuncionarioId { get; set; }
   public Funcionario Funcionario { get; set; }
+  
+  public string? Documentos { get; set; }
 }
 

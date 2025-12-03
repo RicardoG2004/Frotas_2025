@@ -11,7 +11,9 @@ import { useWindowsStore } from '@/stores/use-windows-store'
 import { handleWindowClose } from '@/utils/window-utils'
 import {
   encodeViaturaDocumentos,
+  encodeCondutoresDocumentos,
   parseDocumentosPayload,
+  parseCondutoresDocumentos,
   type ViaturaFormSchemaType,
 } from './viatura-form-schema'
 import {
@@ -156,6 +158,21 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
         : viatura.garantias
             ?.map((garantia) => garantia.id)
             .filter((id): id is string => typeof id === 'string') ?? [],
+    condutorIds:
+      viatura.condutorIds && viatura.condutorIds.length > 0
+        ? [...viatura.condutorIds]
+        : viatura.condutores
+            ?.map((condutor: any) => condutor.funcionarioId || condutor.id)
+            .filter((id): id is string => typeof id === 'string') ?? [],
+    condutoresDocumentos: viatura.condutores
+      ? viatura.condutores.reduce((acc: any, condutor: any) => {
+          const id = condutor.funcionarioId || condutor.id
+          if (id && condutor.documentos) {
+            acc[id] = parseDocumentosPayload(condutor.documentos)
+          }
+          return acc
+        }, {})
+      : {},
     inspecoes:
       viatura.inspecoes?.map((inspecao) => ({
         id: inspecao.id,
@@ -267,7 +284,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     nRendas: values.nRendas ?? null,
     valorRenda: values.valorRenda ?? null,
     valorResidual: values.valorResidual ?? null,
-    seguroIds: values.seguroIds ?? [],
+    seguroIds: Array.isArray(values.seguroIds) ? values.seguroIds : [],
     documentos: encodeViaturaDocumentos(values.documentos) || null,
     notasAdicionais: values.notasAdicionais || '',
     cartaoCombustivel: values.cartaoCombustivel || '',
@@ -275,9 +292,14 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     anoImpostoCirculacao: values.anoImpostoCirculacao ?? null,
     dataValidadeSelo: values.dataValidadeSelo?.toISOString() ?? null,
     imagem: encodeViaturaDocumentos(values.imagem) || null,
-    equipamentoIds: values.equipamentoIds ?? [],
-    garantiaIds: values.garantiaIds ?? [],
-    condutorIds: values.condutorIds ?? [],
+    equipamentoIds: Array.isArray(values.equipamentoIds) ? values.equipamentoIds : [],
+    garantiaIds: Array.isArray(values.garantiaIds) ? values.garantiaIds : [],
+    condutores: (values.condutorIds ?? []).map((funcionarioId) => ({
+      funcionarioId,
+      documentos: values.condutoresDocumentos?.[funcionarioId] 
+        ? encodeViaturaDocumentos(values.condutoresDocumentos[funcionarioId]) 
+        : null,
+    })),
     inspecoes:
       values.inspecoes
         ?.filter(
@@ -388,13 +410,37 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
         payload.modeloId = null
       }
       
-      console.log('[UpdateViatura] Payload a enviar:', {
+      // WORKAROUND: Garantir que arrays de IDs estão sempre definidos como array (nunca undefined/null)
+      // Isto ajuda a evitar problemas no Entity Framework com relações many-to-many
+      if (!Array.isArray(payload.equipamentoIds)) {
+        payload.equipamentoIds = []
+      }
+      if (!Array.isArray(payload.garantiaIds)) {
+        payload.garantiaIds = []
+      }
+      if (!Array.isArray(payload.condutorIds)) {
+        payload.condutorIds = []
+      }
+      if (!Array.isArray(payload.seguroIds)) {
+        payload.seguroIds = []
+      }
+      
+      console.log('[UpdateViatura] Payload COMPLETO a enviar:', {
         id: viaturaId,
         marcaId: payload.marcaId,
         modeloId: payload.modeloId,
         matricula: payload.matricula,
         documentos: payload.documentos,
         imagem: payload.imagem,
+        equipamentoIds: payload.equipamentoIds,
+        garantiaIds: payload.garantiaIds,
+        condutores: payload.condutores,
+      })
+      console.log('[UpdateViatura] Valores do formulário ANTES de mapear:', {
+        equipamentoIds: values.equipamentoIds,
+        garantiaIds: values.garantiaIds,
+        condutorIds: values.condutorIds,
+        condutoresDocumentos: values.condutoresDocumentos,
       })
       
       const response = await updateMutation.mutateAsync({
@@ -452,8 +498,15 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
         console.error('[UpdateViatura Form] Estrutura do erro:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
       }
       
-      const errorMessage = handleApiError(error, 'Erro ao atualizar viatura')
+      let errorMessage = handleApiError(error, 'Erro ao atualizar viatura')
       console.error('[UpdateViatura Form] Mensagem de erro extraída:', errorMessage)
+      
+      // Verificar se é o erro específico de equipamentos/garantias
+      const isRelationshipError = errorMessage.includes('ViaturaEquipamento') || 
+                                   errorMessage.includes('ViaturaGarantia') ||
+                                   errorMessage.includes('ViaturaSeguro') ||
+                                   errorMessage.includes('association between entity types') ||
+                                   errorMessage.includes('has been severed')
       
       // Se tivermos detalhes do backend, logar
       if (errorDetails) {
@@ -472,6 +525,11 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
             }
           }
         }
+      }
+      
+      // Mensagem de erro mais amigável para problemas de relação
+      if (isRelationshipError) {
+        errorMessage = 'Erro ao atualizar associações da viatura (equipamentos, garantias ou seguros). Por favor, tente novamente ou contacte o suporte técnico. O backend precisa de configurar cascade delete nas relações.'
       }
       
       toast.error(errorMessage)

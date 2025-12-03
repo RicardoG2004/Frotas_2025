@@ -73,7 +73,7 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService.DTOs
     public string? Documentos { get; set; }
     public ICollection<Guid> EquipamentoIds { get; set; } = new List<Guid>();
     public ICollection<Guid> GarantiaIds { get; set; } = new List<Guid>();
-    public ICollection<Guid> CondutorIds { get; set; } = new List<Guid>();
+    public ICollection<ViaturaCondutorUpsertDTO> Condutores { get; set; } = new List<ViaturaCondutorUpsertDTO>();
     public ICollection<ViaturaInspecaoUpsertDTO> Inspecoes { get; set; } = new List<ViaturaInspecaoUpsertDTO>();
     public ICollection<ViaturaAcidenteUpsertDTO> Acidentes { get; set; } = new List<ViaturaAcidenteUpsertDTO>();
     public ICollection<ViaturaMultaUpsertDTO> Multas { get; set; } = new List<ViaturaMultaUpsertDTO>();

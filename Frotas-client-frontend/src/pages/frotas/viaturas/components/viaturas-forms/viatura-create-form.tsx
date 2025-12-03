@@ -9,6 +9,7 @@ import { useWindowsStore } from '@/stores/use-windows-store'
 import { handleWindowClose } from '@/utils/window-utils'
 import {
   encodeViaturaDocumentos,
+  encodeCondutoresDocumentos,
   type ViaturaFormSchemaType,
 } from './viatura-form-schema'
 import { type ViaturaPropulsao } from '@/types/dtos/frotas/viaturas.dtos'
@@ -91,8 +92,14 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     anoImpostoCirculacao: values.anoImpostoCirculacao,
     dataValidadeSelo: values.dataValidadeSelo?.toISOString() ?? null,
     imagem: encodeViaturaDocumentos(values.imagem) || null,
-    equipamentoIds: values.equipamentoIds,
-    garantiaIds: values.garantiaIds,
+    equipamentoIds: values.equipamentoIds ?? [],
+    garantiaIds: values.garantiaIds ?? [],
+    condutores: (values.condutorIds ?? []).map((funcionarioId) => ({
+      funcionarioId,
+      documentos: values.condutoresDocumentos?.[funcionarioId] 
+        ? encodeViaturaDocumentos(values.condutoresDocumentos[funcionarioId]) 
+        : null,
+    })),
     inspecoes:
       values.inspecoes
         ?.filter(
@@ -197,7 +204,7 @@ const ViaturaCreateForm = () => {
         payload.modeloId = null
       }
       
-      console.log('[CreateViatura Form] Payload a enviar:', {
+      console.log('[CreateViatura Form] Payload COMPLETO a enviar:', {
         matricula: payload.matricula,
         marcaId: payload.marcaId,
         modeloId: payload.modeloId,
@@ -207,6 +214,15 @@ const ViaturaCreateForm = () => {
         fornecedorId: payload.fornecedorId,
         documentos: payload.documentos,
         imagem: payload.imagem,
+        equipamentoIds: payload.equipamentoIds,
+        garantiaIds: payload.garantiaIds,
+        condutores: payload.condutores,
+      })
+      console.log('[CreateViatura Form] Valores do formulário ANTES de mapear:', {
+        equipamentoIds: values.equipamentoIds,
+        garantiaIds: values.garantiaIds,
+        condutorIds: values.condutorIds,
+        condutoresDocumentos: values.condutoresDocumentos,
       })
       
       const response = await viaturaMutation.mutateAsync(
