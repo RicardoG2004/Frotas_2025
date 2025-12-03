@@ -5995,6 +5995,29 @@ export function ViaturaFormContainer({
                         </div>
                       )}
                     </FormSection>
+
+                    <FormSection
+                      icon={FolderOpen}
+                      title='Documentação'
+                      description='Anexe documentos relevantes da viatura (documentos, fotos, certificados, etc.)'
+                    >
+                      <FormField
+                        control={form.control}
+                        name='documentos'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <DocumentosUploader
+                                value={field.value}
+                                onChange={(next) => field.onChange(next)}
+                                viaturaId={viaturaId}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </FormSection>
                   </div>
                 </CardContent>
               </Card>
