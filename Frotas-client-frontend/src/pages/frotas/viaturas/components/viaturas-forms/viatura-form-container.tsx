@@ -2734,6 +2734,23 @@ export function ViaturaFormContainer({
   }
 
   const handleAddAcidente = () => {
+    // Guardar a posição atual do scroll
+    const scrollPosition = window.scrollY
+    const scrollLeft = window.scrollX
+    
+    // Bloquear scroll usando CSS
+    const originalOverflow = document.body.style.overflow
+    const originalPosition = document.body.style.position
+    const originalTop = document.body.style.top
+    const originalLeft = document.body.style.left
+    const originalWidth = document.body.style.width
+    
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollPosition}px`
+    document.body.style.left = `-${scrollLeft}px`
+    document.body.style.width = '100%'
+    
     appendAcidente({
       id: undefined,
       condutorId: '',
@@ -2748,6 +2765,16 @@ export function ViaturaFormContainer({
       codigoPostalId: '',
       localReparacao: '',
     })
+    
+    // Restaurar scroll e CSS após a renderização
+    setTimeout(() => {
+      document.body.style.overflow = originalOverflow
+      document.body.style.position = originalPosition
+      document.body.style.top = originalTop
+      document.body.style.left = originalLeft
+      document.body.style.width = originalWidth
+      window.scrollTo({ top: scrollPosition, left: scrollLeft, behavior: 'instant' })
+    }, 150)
   }
 
 
@@ -7431,6 +7458,13 @@ export function ViaturaFormContainer({
                                                   {...field}
                                                   placeholder='Descreva detalhadamente os danos ocorridos na viatura'
                                                   className='min-h-[120px] resize-y'
+                                                  tabIndex={0}
+                                                  onFocus={(e) => {
+                                                    // Prevenir foco automático quando o acidente acaba de ser criado
+                                                    if (!acidenteData?.condutorId && !acidenteData?.local) {
+                                                      e.target.blur()
+                                                    }
+                                                  }}
                                                 />
                                               </FormControl>
                                               <FormMessage />
@@ -7505,7 +7539,7 @@ export function ViaturaFormContainer({
                                                     value: concelho.id || '',
                                                     label: concelho.nome,
                                                   }))}
-                                                  value={field.value}
+                                                  value={field.value ?? ''}
                                                   onValueChange={field.onChange}
                                                   placeholder={
                                                     isLoadingConcelhos
@@ -7521,7 +7555,7 @@ export function ViaturaFormContainer({
                                                     type='button'
                                                     variant='outline'
                                                     size='sm'
-                                                    onClick={() => handleViewConcelho(field.value)}
+                                                    onClick={() => handleViewConcelho(field.value ?? undefined)}
                                                     title='Ver Concelho'
                                                     disabled={!field.value}
                                                     className='h-8 w-8 p-0'
@@ -7559,7 +7593,7 @@ export function ViaturaFormContainer({
                                                     value: freguesia.id || '',
                                                     label: freguesia.nome,
                                                   }))}
-                                                  value={field.value}
+                                                  value={field.value ?? ''}
                                                   onValueChange={field.onChange}
                                                   placeholder={
                                                     isLoadingFreguesias
@@ -7575,7 +7609,7 @@ export function ViaturaFormContainer({
                                                     type='button'
                                                     variant='outline'
                                                     size='sm'
-                                                    onClick={() => handleViewFreguesia(field.value)}
+                                                    onClick={() => handleViewFreguesia(field.value ?? undefined)}
                                                     title='Ver Freguesia'
                                                     disabled={!field.value}
                                                     className='h-8 w-8 p-0'
@@ -7613,7 +7647,7 @@ export function ViaturaFormContainer({
                                                     value: codigo.id || '',
                                                     label: `${codigo.codigo} - ${codigo.localidade}`,
                                                   }))}
-                                                  value={field.value}
+                                                  value={field.value ?? ''}
                                                   onValueChange={field.onChange}
                                                   placeholder={
                                                     isLoadingCodigosPostais
@@ -7629,7 +7663,7 @@ export function ViaturaFormContainer({
                                                     type='button'
                                                     variant='outline'
                                                     size='sm'
-                                                    onClick={() => handleViewCodigoPostal(field.value)}
+                                                    onClick={() => handleViewCodigoPostal(field.value ?? undefined)}
                                                     title='Ver Código Postal'
                                                     disabled={!field.value}
                                                     className='h-8 w-8 p-0'

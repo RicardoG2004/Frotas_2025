@@ -28,7 +28,13 @@ const TabsList = React.forwardRef<
     return () => window.removeEventListener('resize', checkScroll)
   }, [])
 
-  const scroll = (direction: 'left' | 'right') => {
+  const scroll = (direction: 'left' | 'right', event?: React.MouseEvent) => {
+    // Prevenir comportamento padrão e propagação do evento
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+    
     if (containerRef.current) {
       const scrollAmount = direction === 'left' ? -200 : 200
       const currentScroll = containerRef.current.scrollLeft
@@ -47,10 +53,11 @@ const TabsList = React.forwardRef<
       <div className='bg-muted rounded-md'>
         {showLeftScroll && (
           <Button
+            type='button'
             variant='ghost'
             size='icon'
             className='absolute left-0 top-1/2 -translate-y-1/2 z-10'
-            onClick={() => scroll('left')}
+            onClick={(e) => scroll('left', e)}
           >
             <ChevronLeft className='h-4 w-4' />
           </Button>
@@ -79,10 +86,11 @@ const TabsList = React.forwardRef<
 
         {showRightScroll && (
           <Button
+            type='button'
             variant='ghost'
             size='icon'
             className='absolute right-0 top-1/2 -translate-y-1/2 z-10'
-            onClick={() => scroll('right')}
+            onClick={(e) => scroll('right', e)}
           >
             <ChevronRight className='h-4 w-4' />
           </Button>
