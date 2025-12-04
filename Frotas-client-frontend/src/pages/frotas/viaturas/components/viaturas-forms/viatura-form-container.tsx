@@ -5290,238 +5290,242 @@ export function ViaturaFormContainer({
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className='space-y-8'>
-                  <FormSection
-                    icon={FileText}
-                    title='Contrato de locação'
-                    description='Preencha a referência, entidade fornecedora e datas do contrato'
-                  >
-                    <div className='grid gap-4 md:grid-cols-2'>
-                      <FormField
-                        control={form.control}
-                        name='contrato'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nº de Contrato</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder='Referência do contrato'
-                                {...field}
-                                className={TEXT_INPUT_CLASS}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='valorTotalContrato'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Valor Total do Contrato (€)</FormLabel>
-                            <FormControl>
-                              <NumberInput
-                                value={toNumberValue(field.value)}
-                                onValueChange={(nextValue) => field.onChange(nextValue)}
-                                onBlur={field.onBlur}
-                                name={field.name}
-                                ref={field.ref}
-                                className={TEXT_INPUT_CLASS}
-                                step={0.01}
-                                min={0}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='fornecedorId'
-                        render={({ field }) => (
-                          <FormItem className='md:col-span-2'>
-                            <FormLabel>Fornecedor</FormLabel>
-                            <FormControl>
-                              <div className='relative'>
-                                <Autocomplete
-                                  options={selectOptions.fornecedores}
-                                  value={field.value ?? ''}
-                                  onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.fornecedores,
-                                    'o fornecedor'
-                                  )}
-                                  disabled={selectLoading.fornecedores}
-                                  className={SELECT_WITH_ACTIONS_CLASS}
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewFornecedor}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Fornecedor'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateFornecedor}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Fornecedor'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
-                                </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='dataInicial'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data Inicial</FormLabel>
-                            <FormControl>
-                              <DatePicker
-                                value={field.value || undefined}
-                                onChange={field.onChange}
-                                placeholder='Selecione a data inicial'
-                                className={FIELD_HEIGHT_CLASS}
-                                allowClear
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name='dataFinal'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data Final</FormLabel>
-                            <FormControl>
-                              <DatePicker
-                                value={field.value || undefined}
-                                onChange={field.onChange}
-                                placeholder='Selecione a data final'
-                                className={FIELD_HEIGHT_CLASS}
-                                allowClear
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </FormSection>
-
-                  <div className='grid gap-6 md:grid-cols-2'>
+                <CardContent className='space-y-6'>
+                  <div className='grid gap-6 lg:grid-cols-2'>
                     <FormSection
-                      icon={PiggyBank}
-                      title='Condições financeiras'
-                      description='Detalhes de rendas, opção de compra e valor residual'
+                      icon={FileText}
+                      title='Contrato e condições financeiras'
+                      description='Dados do contrato, rendas e valores'
                     >
-                      <div className='grid gap-4 md:grid-cols-3'>
-                        <FormField
-                          control={form.control}
-                          name='opcaoCompra'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Opção de Compra</FormLabel>
-                              <FormControl>
-                                <div className='flex items-center justify-between rounded-lg border border-input bg-background px-4 py-3 shadow-inner drop-shadow-xl'>
-                                  <span className='text-sm text-muted-foreground'>
-                                    {field.value ? 'Disponível' : 'Não disponível'}
-                                  </span>
-                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='nRendas'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nº de Rendas</FormLabel>
-                              <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='valorRenda'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Valor da Renda (€)</FormLabel>
-                              <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  step={0.01}
-                                  min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    <FormField
-                      control={form.control}
-                      name='valorResidual'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Valor Residual Estimado (€)</FormLabel>
-                          <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  step={0.01}
-                                  min={0}
+                      <div className='space-y-3'>
+                        <div className='grid gap-2 grid-cols-[1fr_2fr]'>
+                          <FormField
+                            control={form.control}
+                            name='contrato'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='text-xs'>Nº de Contrato</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder='Referência'
+                                    {...field}
+                                    className='h-8 text-xs'
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='fornecedorId'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='text-xs'>Fornecedor</FormLabel>
+                                <FormControl>
+                                  <div className='relative'>
+                                    <Autocomplete
+                                      options={selectOptions.fornecedores}
+                                      value={field.value ?? ''}
+                                      onValueChange={field.onChange}
+                                      placeholder={placeholder(
+                                        selectLoading.fornecedores,
+                                        'o fornecedor'
+                                      )}
+                                      disabled={selectLoading.fornecedores}
+                                      className='h-8 text-xs pr-20'
+                                    />
+                                    <div className='absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5'>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleViewFornecedor}
+                                        className='h-6 w-6 p-0'
+                                        title='Ver Fornecedor'
+                                        disabled={!field.value}
+                                      >
+                                        <Eye className='h-3 w-3' />
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleCreateFornecedor}
+                                        className='h-6 w-6 p-0'
+                                        title='Criar Fornecedor'
+                                      >
+                                        <Plus className='h-3 w-3' />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className='grid gap-2 grid-cols-2'>
+                          <FormField
+                            control={form.control}
+                            name='valorTotalContrato'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='text-xs'>Valor Total (€)</FormLabel>
+                                <FormControl>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                    className='h-8 text-xs'
+                                    step={0.01}
+                                    min={0}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='opcaoCompra'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='text-xs'>Opção de Compra</FormLabel>
+                                <FormControl>
+                                  <div className='flex items-center justify-between rounded-lg border border-input bg-background px-3 py-3.5 shadow-sm'>
+                                    <span className='text-xs text-muted-foreground'>
+                                      {field.value ? 'Disponível' : 'Não disponível'}
+                                    </span>
+                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className='grid gap-2 grid-cols-2'>
+                          <FormField
+                            control={form.control}
+                            name='dataInicial'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='text-xs'>Data Inicial</FormLabel>
+                                <FormControl>
+                                  <DatePicker
+                                    value={field.value || undefined}
+                                    onChange={field.onChange}
+                                    placeholder='Selecione'
+                                    className='h-8 text-xs'
+                                    allowClear
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='dataFinal'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className='text-xs'>Data Final</FormLabel>
+                                <FormControl>
+                                  <DatePicker
+                                    value={field.value || undefined}
+                                    onChange={field.onChange}
+                                    placeholder='Selecione'
+                                    className='h-8 text-xs'
+                                    allowClear
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className='pt-2 border-t'>
+                          <div className='grid gap-2 grid-cols-3'>
+                            <FormField
+                              control={form.control}
+                              name='nRendas'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className='text-xs'>Nº Rendas</FormLabel>
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                      className='h-8 text-xs'
+                                      min={0}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                      </FormSection>
+                            <FormField
+                              control={form.control}
+                              name='valorRenda'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className='text-xs'>Valor Renda (€)</FormLabel>
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                      className='h-8 text-xs'
+                                      step={0.01}
+                                      min={0}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name='valorResidual'
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className='text-xs'>Valor Residual (€)</FormLabel>
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
+                                      className='h-8 text-xs'
+                                      step={0.01}
+                                      min={0}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </FormSection>
 
                     <FormSection
                       icon={FolderOpen}
                       title='Documentação do Contrato'
-                      description='Anexe documentos do contrato de locação (contratos, faturas, etc.)'
+                      description='Anexe documentos do contrato de locação'
                     >
                       <FormField
                         control={form.control}
