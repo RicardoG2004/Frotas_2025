@@ -1265,7 +1265,7 @@ const DocumentosUploader = ({ value, onChange, viaturaId }: DocumentosUploaderPr
       </div>
 
       <div className='space-y-3'>
-        <div className='h-[170px] overflow-y-auto px-3 py-2 rounded-2xl border border-border/60 bg-card/60 documentation-scroll'>
+        <div className='h-[300px] overflow-y-auto px-3 py-2 rounded-2xl border border-border/60 bg-card/60 documentation-scroll'>
           <div className='grid grid-cols-3 gap-3'>
             <div className='rounded-2xl border border-border/70 bg-card/70 p-2.5 shadow-sm transition hover:border-primary/50 hover:shadow-md text-[13px]'>
               <div className='flex items-center justify-between gap-3'>
