@@ -248,6 +248,15 @@ const ViaturaCreateForm = () => {
         // Remove form data from the form store
         removeFormState(formId)
 
+        // Limpar dados do localStorage
+        try {
+          const path = location.pathname.replace(/\//g, '_')
+          const storageKey = `viatura_form_viatura-create_${instanceId}_${path}`
+          localStorage.removeItem(storageKey)
+        } catch (error) {
+          console.error('Erro ao limpar localStorage:', error)
+        }
+
         // Find the current window and close it properly
         const currentWindow = windows.find(
           (w) => w.path === location.pathname && w.instanceId === instanceId

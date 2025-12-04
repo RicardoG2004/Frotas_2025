@@ -1676,16 +1676,97 @@ export function ViaturaFormContainer({
     }
   }, [initialValues])
 
-  const form = useForm<ViaturaFormSchemaType>({
-    resolver: zodResolver(viaturaFormSchema),
-    defaultValues: initialFormValues,
-    mode: 'onSubmit',
-  })
-
   const navigate = useNavigate()
   const location = useLocation()
   const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search])
   const instanceId = searchParams.get('instanceId') || 'default'
+  
+  // Chave única para o localStorage baseada no caminho e instanceId
+  const storageKey = useMemo(() => {
+    const path = location.pathname.replace(/\//g, '_')
+    return `viatura_form_${tabKey}_${instanceId}_${path}`
+  }, [location.pathname, tabKey, instanceId])
+
+  // Tentar carregar dados do localStorage na montagem inicial
+  const getStoredFormData = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(storageKey)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        // Converter strings de datas de volta para objetos Date
+        const dateFields = [
+          'dataAquisicao',
+          'dataLivrete',
+          'dataInicial',
+          'dataFinal',
+          'dataValidadeSelo',
+        ]
+        dateFields.forEach((field) => {
+          if (parsed[field]) {
+            parsed[field] = new Date(parsed[field])
+          }
+        })
+        // Converter datas em arrays aninhados (inspeções, acidentes, multas)
+        if (parsed.inspecoes) {
+          parsed.inspecoes = parsed.inspecoes.map((inspecao: any) => ({
+            ...inspecao,
+            dataInspecao: inspecao.dataInspecao ? new Date(inspecao.dataInspecao) : null,
+            dataProximaInspecao: inspecao.dataProximaInspecao
+              ? new Date(inspecao.dataProximaInspecao)
+              : null,
+          }))
+        }
+        if (parsed.acidentes) {
+          parsed.acidentes = parsed.acidentes.map((acidente: any) => ({
+            ...acidente,
+            dataHora: acidente.dataHora ? new Date(acidente.dataHora) : null,
+          }))
+        }
+        if (parsed.multas) {
+          parsed.multas = parsed.multas.map((multa: any) => ({
+            ...multa,
+            dataHora: multa.dataHora ? new Date(multa.dataHora) : null,
+          }))
+        }
+        return parsed
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do formulário do localStorage:', error)
+    }
+    return null
+  }, [storageKey])
+
+  // Combinar dados do localStorage com initialValues
+  const formDefaultValues = useMemo<Partial<ViaturaFormSchemaType>>(() => {
+    const storedData = getStoredFormData()
+    
+    // Se houver dados no localStorage e NÃO estiver em modo de edição (viaturaId),
+    // priorizar dados do localStorage
+    if (storedData && !viaturaId) {
+      return {
+        ...initialFormValues,
+        ...storedData,
+      }
+    }
+    
+    // Se estiver editando uma viatura existente, priorizar os initialValues
+    // mas ainda assim verificar se há dados não salvos no localStorage
+    if (viaturaId && storedData) {
+      // Para edição, só usar localStorage se os dados foram salvos para esta viatura específica
+      return {
+        ...initialFormValues,
+        ...storedData,
+      }
+    }
+    
+    return initialFormValues
+  }, [initialFormValues, getStoredFormData, viaturaId])
+
+  const form = useForm<ViaturaFormSchemaType>({
+    resolver: zodResolver(viaturaFormSchema),
+    defaultValues: formDefaultValues,
+    mode: 'onSubmit',
+  })
   const currentWindowId = useCurrentWindowId()
   const parentWindowId = currentWindowId || instanceId || 'viaturas-root'
   const updateWindowState = useWindowsStore((state) => state.updateWindowState)
@@ -1744,6 +1825,28 @@ export function ViaturaFormContainer({
       form.reset(initialFormValues)
     }
   }, [viaturaId])
+
+  // Salvar dados do formulário no localStorage sempre que houver mudanças
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      try {
+        // Salvar no localStorage
+        localStorage.setItem(storageKey, JSON.stringify(value))
+      } catch (error) {
+        console.error('Erro ao salvar dados do formulário no localStorage:', error)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form, storageKey])
+
+  // Função para limpar dados do localStorage (será chamada após submit bem-sucedido)
+  const clearStoredFormData = useCallback(() => {
+    try {
+      localStorage.removeItem(storageKey)
+    } catch (error) {
+      console.error('Erro ao limpar dados do formulário do localStorage:', error)
+    }
+  }, [storageKey])
 
   const combustivelSectionIcon =
     isElectricPropulsion || isHybridPropulsion ? BatteryCharging : Fuel
@@ -3464,6 +3567,8 @@ export function ViaturaFormContainer({
 
   const handleSubmit = async (values: ViaturaFormSchemaType) => {
     await onSubmit(values)
+    // Limpar dados do localStorage após submit bem-sucedido
+    clearStoredFormData()
   }
 
   if (isLoadingInitial) {
