@@ -281,53 +281,9 @@ const viaturaAcidenteSchema = z.object({
   freguesiaId: uuidOrEmpty,
   codigoPostalId: uuidOrEmpty,
   localReparacao: z.string().optional().default(''),
-}).superRefine((data, ctx) => {
-  // Não validar acidentes que serão filtrados no envio
-  const condutorId = typeof data.condutorId === 'string' ? data.condutorId.trim() : ''
-  const dataHora = data.dataHora instanceof Date && !isNaN(data.dataHora.getTime()) ? data.dataHora : null
-  const local = typeof data.local === 'string' ? data.local.trim() : ''
-  
-  // Se TODOS os campos obrigatórios estão vazios, não validar (será filtrado)
-  if (!condutorId && !dataHora && !local) {
-    return // Acidente vazio é OK, será filtrado no envio
-  }
-  
-  // Se chegou aqui, tem pelo menos um campo preenchido - validar formato
-  // Regex simplificado para UUID padrão (8-4-4-4-12)
-  const condutorValido = condutorId !== '' && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(condutorId)
-  const dataValida = dataHora !== null
-  const localValido = local !== ''
-  
-  // Se está completo e válido, OK
-  if (condutorValido && dataValida && localValido) {
-    return
-  }
-  
-  // Parcialmente preenchido - mostrar erros
-  if (!condutorValido) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: condutorId === '' ? 'O condutor é obrigatório' : 'Selecione o condutor',
-      path: ['condutorId'],
-    })
-  }
-  
-  if (!dataValida) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'A data/hora é obrigatória',
-      path: ['dataHora'],
-    })
-  }
-  
-  if (!localValido) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'O local é obrigatório',
-      path: ['local'],
-    })
-  }
 })
+// Não validar acidentes - serão filtrados no envio
+// O filtro no mapFormValuesToPayload já garante que apenas acidentes completos são enviados
 
 const viaturaMultaSchema = z.object({
   id: z.preprocess(
@@ -367,62 +323,9 @@ const viaturaMultaSchema = z.object({
     (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
     z.number().min(0, { message: 'O valor deve ser positivo' }).optional().default(0)
   ),
-}).superRefine((data, ctx) => {
-  // Não validar multas que serão filtradas no envio
-  const condutorId = typeof data.condutorId === 'string' ? data.condutorId.trim() : ''
-  const dataHora = data.dataHora instanceof Date && !isNaN(data.dataHora.getTime()) ? data.dataHora : null
-  const local = typeof data.local === 'string' ? data.local.trim() : ''
-  const motivo = typeof data.motivo === 'string' ? data.motivo.trim() : ''
-  
-  // Se NENHUM dos campos obrigatórios está preenchido, não validar (será filtrada)
-  if (!condutorId && !dataHora && !local && !motivo) {
-    return // Multa vazia é OK, será filtrada no envio
-  }
-  
-  // Regex simplificado para UUID padrão (8-4-4-4-12)
-  const condutorValido = condutorId !== '' && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(condutorId)
-  const dataValida = dataHora !== null
-  const localValido = local !== ''
-  const motivoValido = motivo !== ''
-  
-  // Se está completa e válida, OK
-  if (condutorValido && dataValida && localValido && motivoValido) {
-    return
-  }
-  
-  // Parcialmente preenchida - mostrar erros
-  if (!condutorValido) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: condutorId === '' ? 'O condutor é obrigatório' : 'Selecione o condutor',
-      path: ['condutorId'],
-    })
-  }
-  
-  if (!dataValida) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'A data é obrigatória',
-      path: ['dataHora'],
-    })
-  }
-  
-  if (!localValido) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'O local é obrigatório',
-      path: ['local'],
-    })
-  }
-  
-  if (!motivoValido) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'O motivo é obrigatório',
-      path: ['motivo'],
-    })
-  }
 })
+// Não validar multas - serão filtradas no envio
+// O filtro no mapFormValuesToPayload já garante que apenas multas completas são enviadas
 
 const requiredUuidField = (message: string) =>
   z.preprocess(
@@ -435,7 +338,7 @@ const requiredUuidField = (message: string) =>
       return str.trim()
     },
     z
-      .string({ required_error: message, invalid_type_error: message })
+      .string({ message })
       .superRefine((val, ctx) => {
         // First check: must not be empty
         if (!val || val.length === 0) {
@@ -443,6 +346,7 @@ const requiredUuidField = (message: string) =>
             code: z.ZodIssueCode.too_small,
             minimum: 1,
             type: 'string',
+            origin: 'string',
             inclusive: true,
             message,
           })
@@ -453,8 +357,7 @@ const requiredUuidField = (message: string) =>
           /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
         if (!uuidRegex.test(val)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.invalid_string,
-            validation: 'uuid',
+            code: z.ZodIssueCode.custom,
             message,
           })
         }

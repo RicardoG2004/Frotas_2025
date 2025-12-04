@@ -26,7 +26,7 @@ interface ViaturaUpdateFormProps {
   viaturaId: string
 }
 
-const normalizePropulsao = (tipo?: ViaturaPropulsao | null): string => {
+const normalizePropulsao = (tipo?: ViaturaPropulsao | null): '' | 'combustao' | 'hibrido' | 'hibridoPlugIn' | 'eletrico' => {
   if (!tipo) {
     return '' // Retorna string vazia quando não há valor
   }
@@ -57,7 +57,7 @@ const normalizePropulsao = (tipo?: ViaturaPropulsao | null): string => {
   
   // Se o valor já está no formato correto do frontend, retornar diretamente
   if ((VIATURA_PROPULSAO_TYPES as readonly string[]).includes(tipoStr as any)) {
-    return tipoStr
+    return tipoStr as '' | 'combustao' | 'hibrido' | 'hibridoPlugIn' | 'eletrico'
   }
   
   return '' // Retorna string vazia se não for reconhecido
@@ -113,9 +113,9 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
     cilindrada: viatura.cilindrada ?? undefined,
     potencia: viatura.potencia ?? 0,
     capacidadeBateria: viatura.capacidadeBateria ?? undefined,
-    emissoesCO2: viatura.emissoesCO2 ?? undefined,
-    padraoCO2: viatura.padraoCO2 ?? '',
-    voltagemTotal: viatura.voltagemTotal ?? undefined,
+    emissoesCO2: (viatura as any).emissoesCO2 ?? undefined,
+    padraoCO2: (viatura as any).padraoCO2 ?? '',
+    voltagemTotal: (viatura as any).voltagemTotal ?? undefined,
     tara: viatura.tara ?? 0,
     lotacao: viatura.lotacao ?? 0,
     marketing: viatura.marketing ?? false,
@@ -190,7 +190,7 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
         const hora = dataHora ? `${dataHora.getHours().toString().padStart(2, '0')}:${dataHora.getMinutes().toString().padStart(2, '0')}` : ''
         return {
           id: acidente.id,
-          condutorId: acidente.condutorId || '',
+          condutorId: (acidente as any).funcionarioId || acidente.condutorId || '',
           dataHora: dataHora as any,
           hora,
           culpa: typeof acidente.culpa === 'boolean' ? acidente.culpa : (acidente.culpa === 'true' || acidente.culpa === 'Sim'),
@@ -209,7 +209,7 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
         const hora = dataHora ? `${dataHora.getHours().toString().padStart(2, '0')}:${dataHora.getMinutes().toString().padStart(2, '0')}` : ''
         return {
           id: multa.id,
-          condutorId: multa.condutorId || '',
+          condutorId: (multa as any).funcionarioId || multa.condutorId || '',
           dataHora: dataHora as any,
           hora,
           local: multa.local || '',
@@ -418,8 +418,8 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
       if (!Array.isArray(payload.garantiaIds)) {
         payload.garantiaIds = []
       }
-      if (!Array.isArray(payload.condutorIds)) {
-        payload.condutorIds = []
+      if (!Array.isArray(payload.condutores)) {
+        payload.condutores = []
       }
       if (!Array.isArray(payload.seguroIds)) {
         payload.seguroIds = []

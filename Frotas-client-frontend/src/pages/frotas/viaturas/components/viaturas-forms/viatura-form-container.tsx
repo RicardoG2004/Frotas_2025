@@ -1736,9 +1736,14 @@ export function ViaturaFormContainer({
     }
   }, [entidadeFornecedoraTipo, form])
 
+  // Reset do formulário apenas na montagem inicial ou quando initialValues muda externamente
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    form.reset(initialFormValues)
-  }, [form, initialFormValues])
+    // Só reseta se os valores iniciais mudaram significativamente (ex: carregou nova viatura)
+    if (initialValues && !form.formState.isDirty) {
+      form.reset(initialFormValues)
+    }
+  }, [viaturaId])
 
   const combustivelSectionIcon =
     isElectricPropulsion || isHybridPropulsion ? BatteryCharging : Fuel
