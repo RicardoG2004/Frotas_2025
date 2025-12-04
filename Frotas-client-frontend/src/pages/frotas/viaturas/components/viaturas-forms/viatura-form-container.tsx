@@ -3024,7 +3024,7 @@ export function ViaturaFormContainer({
       hora: '',
       local: '',
       motivo: '',
-      valor: 0,
+      valor: undefined,
     })
   }
 
@@ -7941,11 +7941,6 @@ export function ViaturaFormContainer({
                                         </Badge>
                                       )}
                                     </div>
-                                    <p className='text-xs text-muted-foreground'>
-                                      {dataHoraFormatada
-                                        ? `Aplicada em ${dataHoraFormatada}.`
-                                        : 'Data/hora ainda não definida.'}
-                                    </p>
                                   </div>
                                 </div>
                                 <div className='flex items-center gap-2'>
@@ -8489,8 +8484,8 @@ export function ViaturaFormContainer({
                                             <FormControl>
                                               <NumberInput
                                                 value={field.value}
-                                                onValueChange={(value) => field.onChange(value ?? 0)}
-                                                placeholder='0.00'
+                                                onValueChange={(value) => field.onChange(value)}
+                                                placeholder='0,00'
                                                 min={0}
                                                 step={0.01}
                                                 className={TEXT_INPUT_CLASS}

@@ -321,7 +321,7 @@ const viaturaMultaSchema = z.object({
   ),
   valor: z.preprocess(
     (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
-    z.number().min(0, { message: 'O valor deve ser positivo' }).optional().default(0)
+    z.number().min(0, { message: 'O valor deve ser positivo' }).optional()
   ),
 })
 // Não validar multas - serão filtradas no envio
