@@ -450,6 +450,13 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
     inspeccoesRequest ??= new List<ViaturaInspecaoUpsertDTO>();
     viatura.ViaturaInspecoes ??= new List<ViaturaInspecao>();
 
+    // DEBUG: Log das inspeções recebidas
+    System.Diagnostics.Debug.WriteLine($"[SyncInspecoes] Recebidas {inspeccoesRequest.Count} inspeções");
+    foreach (var insp in inspeccoesRequest)
+    {
+      System.Diagnostics.Debug.WriteLine($"[SyncInspecoes] Inspeção ID: {insp.Id}, Documentos: {(string.IsNullOrEmpty(insp.Documentos) ? "VAZIO/NULL" : $"{insp.Documentos.Length} chars")}");
+    }
+
     HashSet<Guid> incomingIds = inspeccoesRequest
       .Where(i => i.Id.HasValue)
       .Select(i => i.Id!.Value)
@@ -474,19 +481,22 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
         if (existing != null)
         {
+          System.Diagnostics.Debug.WriteLine($"[SyncInspecoes] Atualizando inspeção existente {existing.Id}, Documentos: {requestInspecao.Documentos?.Length ?? 0} chars");
           existing.DataInspecao = requestInspecao.DataInspecao;
           existing.Resultado = requestInspecao.Resultado;
           existing.DataProximaInspecao = requestInspecao.DataProximaInspecao;
+          existing.Documentos = requestInspecao.Documentos;
           continue;
         }
       }
 
+      System.Diagnostics.Debug.WriteLine($"[SyncInspecoes] Criando nova inspeção, Documentos: {requestInspecao.Documentos?.Length ?? 0} chars");
       var newInspecao = new ViaturaInspecao
       {
-        Id = requestInspecao.Id ?? Guid.NewGuid(),
         DataInspecao = requestInspecao.DataInspecao,
         Resultado = requestInspecao.Resultado,
         DataProximaInspecao = requestInspecao.DataProximaInspecao,
+        Documentos = requestInspecao.Documentos,
       };
       if (viatura.Id != Guid.Empty)
       {
@@ -545,7 +555,6 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
       var newAcidente = new ViaturaAcidente
       {
-        Id = requestAcidente.Id ?? Guid.NewGuid(),
         FuncionarioId = requestAcidente.FuncionarioId,
         DataHora = requestAcidente.DataHora,
         Hora = requestAcidente.Hora,
@@ -610,7 +619,6 @@ namespace Frotas.API.Application.Services.Frotas.ViaturaService
 
       var newMulta = new ViaturaMulta
       {
-        Id = requestMulta.Id ?? Guid.NewGuid(),
         FuncionarioId = requestMulta.FuncionarioId,
         DataHora = requestMulta.DataHora,
         Hora = requestMulta.Hora,

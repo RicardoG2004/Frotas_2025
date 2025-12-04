@@ -118,6 +118,16 @@ namespace Frotas.API.WebApi.Controllers.Frotas
         // Log do request recebido
         _logger.LogInformation($"[UpdateViatura] Recebido request para atualizar viatura {id}. Matricula: {request.Matricula}, MarcaId: {request.MarcaId?.ToString() ?? "null"}, ModeloId: {request.ModeloId?.ToString() ?? "null"}");
         
+        // DEBUG: Log das inspeções recebidas
+        _logger.LogInformation($"[UpdateViatura] Inspeções recebidas: {request.Inspecoes?.Count ?? 0}");
+        if (request.Inspecoes != null)
+        {
+          foreach (var insp in request.Inspecoes)
+          {
+            _logger.LogInformation($"[UpdateViatura] Inspeção ID: {insp.Id}, Resultado: {insp.Resultado}, Documentos: {(string.IsNullOrEmpty(insp.Documentos) ? "VAZIO/NULL" : $"{insp.Documentos.Length} chars")}");
+          }
+        }
+        
         if (!ModelState.IsValid)
         {
           var errorMessages = new Dictionary<string, List<string>>();

@@ -195,9 +195,18 @@ export const parseCondutoresDocumentos = (
   return {}
 }
 
+// Schema para validação de inspeções de viatura
 const viaturaInspecaoSchema = z
   .object({
-    id: z.string().uuid().optional(),
+    id: z.preprocess(
+      (value) => {
+        if (value === '' || value === null || value === undefined) {
+          return undefined
+        }
+        return value
+      },
+      z.string().optional()
+    ),
     dataInspecao: z.preprocess(
       (value) => (value ? new Date(value as string | number | Date) : null),
       dateWithMessages('A data da inspeção é obrigatória', 'A data da inspeção é inválida')
@@ -223,7 +232,10 @@ const viaturaInspecaoSchema = z
   )
 
 const viaturaAcidenteSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().optional()
+  ),
   condutorId: z
     .string()
     .min(1, { message: 'O condutor é obrigatório' })
@@ -244,7 +256,10 @@ const viaturaAcidenteSchema = z.object({
 })
 
 const viaturaMultaSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().optional()
+  ),
   condutorId: z
     .string()
     .min(1, { message: 'O condutor é obrigatório' })
