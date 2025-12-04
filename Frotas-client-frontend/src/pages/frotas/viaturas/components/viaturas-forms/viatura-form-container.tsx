@@ -2598,13 +2598,36 @@ export function ViaturaFormContainer({
       }
 
       try {
+        const viaturaService = ViaturasService('viatura')
+        
         const novosDocumentos = await Promise.all(
-          fileList.map(async (file) => ({
-            nome: file.name || 'documento',
-            dados: await readFileAsDataUrl(file),
-            contentType: file.type || 'application/octet-stream',
-            tamanho: file.size,
-          }))
+          fileList.map(async (file) => {
+            try {
+              // Fazer upload do ficheiro para o servidor
+              const uploadResponse = await viaturaService.uploadDocumento(
+                file,
+                viaturaId, // viaturaId pode ser undefined se for criação
+                null // sem pasta específica para inspeções
+              )
+
+              if (!uploadResponse.info?.data) {
+                throw new Error('Resposta de upload inválida')
+              }
+
+              const caminho = uploadResponse.info.data
+
+              return {
+                nome: file.name || 'documento',
+                dados: caminho, // Guardar apenas o caminho
+                contentType: file.type || 'application/octet-stream',
+                tamanho: file.size,
+                pasta: null,
+              }
+            } catch (error) {
+              console.error('Erro ao fazer upload:', error)
+              throw error
+            }
+          })
         )
 
         const currentInspecoes = form.getValues('inspecoes') ?? []
@@ -2630,7 +2653,7 @@ export function ViaturaFormContainer({
         event.target.value = ''
       }
     },
-    [inspecaoUploadDialogIndex, form]
+    [inspecaoUploadDialogIndex, form, viaturaId]
   )
   
   // Função para remover um documento da inspeção
