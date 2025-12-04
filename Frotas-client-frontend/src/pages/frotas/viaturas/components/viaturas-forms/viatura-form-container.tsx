@@ -3840,18 +3840,20 @@ export function ViaturaFormContainer({
                     </div>
                   </FormSection>
 
-                  <FormSection
-                    icon={BatteryCharging}
-                    title='Motorização'
-                    description='Selecione o tipo de motorização principal da viatura'
-                  >
-                    <FormField
-                      control={form.control}
-                      name='tipoPropulsao'
-                      render={({ field }) => (
-                        <FormItem className='space-y-4'>
-                          <FormLabel className='sr-only'>Tipo de motorização</FormLabel>
-                          <FormControl>
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={BatteryCharging}
+                      title='Motorização'
+                      description='Selecione o tipo de motorização principal da viatura'
+                      className='h-full'
+                    >
+                      <FormField
+                        control={form.control}
+                        name='tipoPropulsao'
+                        render={({ field }) => (
+                          <FormItem className='space-y-4'>
+                            <FormLabel className='sr-only'>Tipo de motorização</FormLabel>
+                            <FormControl>
                             <ToggleGroup
                               type='single'
                               value={field.value || undefined}
@@ -3859,180 +3861,35 @@ export function ViaturaFormContainer({
                                 // Permite deselecionar: se clicar novamente no item selecionado, value será undefined
                                 field.onChange(value || '')
                               }}
-                              className='grid gap-3 md:grid-cols-2'
+                              className='grid grid-cols-2 gap-3'
                             >
-                              {PROPULSAO_OPTIONS.map((option) => (
-                                <ToggleGroupItem
-                                  key={option.value}
-                                  value={option.value}
-                                  className='flex h-full flex-col items-start gap-3 rounded-xl border border-input bg-background p-4 text-left shadow-sm transition data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary'
-                                >
-                                  <div className='flex items-start gap-3'>
-                                    <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
-                                      <option.icon className='h-4 w-4' />
+                                {PROPULSAO_OPTIONS.map((option) => (
+                                  <ToggleGroupItem
+                                    key={option.value}
+                                    value={option.value}
+                                    className='flex h-full flex-col items-start gap-3 rounded-xl border border-input bg-background p-4 text-left shadow-sm transition data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary'
+                                  >
+                                    <div className='flex items-start gap-3'>
+                                      <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+                                        <option.icon className='h-4 w-4' />
+                                      </div>
+                                      <div className='text-left'>
+                                        <p className='text-sm font-semibold leading-tight text-foreground'>
+                                          {option.label}
+                                        </p>
+                                        <p className='mt-1 text-xs leading-snug text-muted-foreground'>
+                                          {option.description}
+                                        </p>
+                                      </div>
                                     </div>
-                                    <div className='text-left'>
-                                      <p className='text-sm font-semibold leading-tight text-foreground'>
-                                        {option.label}
-                                      </p>
-                                      <p className='mt-1 text-xs leading-snug text-muted-foreground'>
-                                        {option.description}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </ToggleGroupItem>
-                              ))}
-                            </ToggleGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </FormSection>
-
-                  <div className='grid gap-6 lg:grid-cols-2'>
-                    <FormSection
-                      icon={CalendarDays}
-                      title='Registos e documentação'
-                      description='Datas oficiais e enquadramento legal da viatura'
-                      className='h-full'
-                    >
-                      <div className='grid gap-4 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='dataAquisicao'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data de Aquisição</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value || undefined}
-                              onChange={field.onChange}
-                              placeholder='Selecione a data de aquisição'
-                              className={FIELD_HEIGHT_CLASS}
-                              allowClear
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name='dataLivrete'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Data do Livrete</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value || undefined}
-                              onChange={field.onChange}
-                              placeholder='Selecione a data do livrete'
-                              className={FIELD_HEIGHT_CLASS}
-                              allowClear
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                          name='conservatoriaId'
-                      render={({ field }) => (
-                        <FormItem>
-                              <FormLabel>Conservatória</FormLabel>
-                          <FormControl>
-                                <div className='relative'>
-                            <Autocomplete
-                                    options={selectOptions.conservatorias}
-                              value={field.value ?? ''}
-                              onValueChange={field.onChange}
-                                    placeholder={placeholder(
-                                      selectLoading.conservatorias,
-                                      'a conservatória'
-                                    )}
-                                    disabled={selectLoading.conservatorias}
-                                    className={SELECT_WITH_ACTIONS_CLASS}
-                                  />
-                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                    <Button
-                                      type='button'
-                                      variant='outline'
-                                      size='sm'
-                                      onClick={handleViewConservatoria}
-                                      className='h-8 w-8 p-0'
-                                      title='Ver Conservatória'
-                                      disabled={!field.value}
-                                    >
-                                      <Eye className='h-4 w-4' />
-                                    </Button>
-                                    <Button
-                                      type='button'
-                                      variant='outline'
-                                      size='sm'
-                                      onClick={handleCreateConservatoria}
-                                      className='h-8 w-8 p-0'
-                                      title='Criar Conservatória'
-                                    >
-                                      <Plus className='h-4 w-4' />
-                                    </Button>
-                                  </div>
-                                </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                          name='categoriaId'
-                      render={({ field }) => (
-                        <FormItem>
-                              <FormLabel>Categoria</FormLabel>
-                          <FormControl>
-                                <div className='relative'>
-                            <Autocomplete
-                                    options={selectOptions.categorias}
-                              value={field.value ?? ''}
-                              onValueChange={field.onChange}
-                                    placeholder={placeholder(
-                                      selectLoading.categorias,
-                                      'a categoria'
-                                    )}
-                                    disabled={selectLoading.categorias}
-                                    className={SELECT_WITH_ACTIONS_CLASS}
-                                  />
-                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                    <Button
-                                      type='button'
-                                      variant='outline'
-                                      size='sm'
-                                      onClick={handleViewCategoria}
-                                      className='h-8 w-8 p-0'
-                                      title='Ver Categoria'
-                                      disabled={!field.value}
-                                    >
-                                      <Eye className='h-4 w-4' />
-                                    </Button>
-                                    <Button
-                                      type='button'
-                                      variant='outline'
-                                      size='sm'
-                                      onClick={handleCreateCategoria}
-                                      className='h-8 w-8 p-0'
-                                      title='Criar Categoria'
-                                    >
-                                      <Plus className='h-4 w-4' />
-                                    </Button>
-                                  </div>
-                                </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                                  </ToggleGroupItem>
+                                ))}
+                              </ToggleGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </FormSection>
 
                     <FormSection
@@ -4229,55 +4086,28 @@ export function ViaturaFormContainer({
                     </FormSection>
                   </div>
 
-                  <FormSection
-                    icon={MapPin}
-                    title='Atribuição interna'
-                    description='Defina a afetação da viatura dentro da organização'
-                  >
-                    <div className='grid gap-4 md:grid-cols-3'>
+                  <div className='grid gap-6 lg:grid-cols-2'>
+                    <FormSection
+                      icon={CalendarDays}
+                      title='Registos e documentação'
+                      description='Datas oficiais e enquadramento legal da viatura'
+                      className='h-full'
+                    >
+                    <div className='grid gap-4 md:grid-cols-2'>
                     <FormField
                       control={form.control}
-                      name='localizacaoId'
+                      name='dataAquisicao'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Localização</FormLabel>
+                          <FormLabel>Data de Aquisição</FormLabel>
                           <FormControl>
-                              <div className='relative'>
-                              <Autocomplete
-                              options={selectOptions.localizacoes}
-                              value={field.value ?? ''}
-                              onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.localizacoes,
-                                    'a localização'
-                                  )}
-                              disabled={selectLoading.localizacoes}
-                                  className={SELECT_WITH_ACTIONS_CLASS}
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewLocalizacao}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Localização'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateLocalizacao}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Localização'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
-                                </div>
-                              </div>
+                            <DatePicker
+                              value={field.value || undefined}
+                              onChange={field.onChange}
+                              placeholder='Selecione a data de aquisição'
+                              className={FIELD_HEIGHT_CLASS}
+                              allowClear
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -4285,47 +4115,18 @@ export function ViaturaFormContainer({
                     />
                     <FormField
                       control={form.control}
-                      name='setorId'
+                      name='dataLivrete'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Setor</FormLabel>
+                          <FormLabel>Data do Livrete</FormLabel>
                           <FormControl>
-                              <div className='relative'>
-                              <Autocomplete
-                              options={selectOptions.setores}
-                              value={field.value ?? ''}
-                              onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.setores,
-                                    'o setor'
-                                  )}
-                              disabled={selectLoading.setores}
-                                  className={SELECT_WITH_ACTIONS_CLASS}
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewSetor}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Setor'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateSetor}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Setor'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
-                                </div>
-                              </div>
+                            <DatePicker
+                              value={field.value || undefined}
+                              onChange={field.onChange}
+                              placeholder='Selecione a data do livrete'
+                              className={FIELD_HEIGHT_CLASS}
+                              allowClear
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -4333,54 +4134,260 @@ export function ViaturaFormContainer({
                     />
                     <FormField
                       control={form.control}
-                      name='delegacaoId'
+                          name='conservatoriaId'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Delegação</FormLabel>
+                              <FormLabel>Conservatória</FormLabel>
                           <FormControl>
-                              <div className='relative'>
-                              <Autocomplete
-                              options={selectOptions.delegacoes}
+                                <div className='relative'>
+                            <Autocomplete
+                                    options={selectOptions.conservatorias}
                               value={field.value ?? ''}
                               onValueChange={field.onChange}
-                                  placeholder={placeholder(
-                                    selectLoading.delegacoes,
-                                    'a delegação'
-                                  )}
-                              disabled={selectLoading.delegacoes}
-                                  className={SELECT_WITH_ACTIONS_CLASS}
-                                />
-                                <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleViewDelegacao}
-                                    className='h-8 w-8 p-0'
-                                    title='Ver Delegação'
-                                    disabled={!field.value}
-                                  >
-                                    <Eye className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    type='button'
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={handleCreateDelegacao}
-                                    className='h-8 w-8 p-0'
-                                    title='Criar Delegação'
-                                  >
-                                    <Plus className='h-4 w-4' />
-                                  </Button>
+                                    placeholder={placeholder(
+                                      selectLoading.conservatorias,
+                                      'a conservatória'
+                                    )}
+                                    disabled={selectLoading.conservatorias}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewConservatoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Conservatória'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateConservatoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Conservatória'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
+                    <FormField
+                      control={form.control}
+                          name='categoriaId'
+                      render={({ field }) => (
+                        <FormItem>
+                              <FormLabel>Categoria</FormLabel>
+                          <FormControl>
+                                <div className='relative'>
+                            <Autocomplete
+                                    options={selectOptions.categorias}
+                              value={field.value ?? ''}
+                              onValueChange={field.onChange}
+                                    placeholder={placeholder(
+                                      selectLoading.categorias,
+                                      'a categoria'
+                                    )}
+                                    disabled={selectLoading.categorias}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewCategoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Categoria'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateCategoria}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Categoria'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
+                                </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    </div>
                   </FormSection>
+
+                    <FormSection
+                      icon={MapPin}
+                      title='Atribuição interna'
+                      description='Defina a afetação da viatura dentro da organização'
+                      className='h-full'
+                    >
+                      <div className='space-y-4'>
+                        <div className='grid gap-4 md:grid-cols-2'>
+                          <FormField
+                            control={form.control}
+                            name='localizacaoId'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Localização</FormLabel>
+                                <FormControl>
+                                  <div className='relative'>
+                                    <Autocomplete
+                                      options={selectOptions.localizacoes}
+                                      value={field.value ?? ''}
+                                      onValueChange={field.onChange}
+                                      placeholder={placeholder(
+                                        selectLoading.localizacoes,
+                                        'a localização'
+                                      )}
+                                      disabled={selectLoading.localizacoes}
+                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                    />
+                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleViewLocalizacao}
+                                        className='h-8 w-8 p-0'
+                                        title='Ver Localização'
+                                        disabled={!field.value}
+                                      >
+                                        <Eye className='h-4 w-4' />
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleCreateLocalizacao}
+                                        className='h-8 w-8 p-0'
+                                        title='Criar Localização'
+                                      >
+                                        <Plus className='h-4 w-4' />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='setorId'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Setor</FormLabel>
+                                <FormControl>
+                                  <div className='relative'>
+                                    <Autocomplete
+                                      options={selectOptions.setores}
+                                      value={field.value ?? ''}
+                                      onValueChange={field.onChange}
+                                      placeholder={placeholder(
+                                        selectLoading.setores,
+                                        'o setor'
+                                      )}
+                                      disabled={selectLoading.setores}
+                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                    />
+                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleViewSetor}
+                                        className='h-8 w-8 p-0'
+                                        title='Ver Setor'
+                                        disabled={!field.value}
+                                      >
+                                        <Eye className='h-4 w-4' />
+                                      </Button>
+                                      <Button
+                                        type='button'
+                                        variant='outline'
+                                        size='sm'
+                                        onClick={handleCreateSetor}
+                                        className='h-8 w-8 p-0'
+                                        title='Criar Setor'
+                                      >
+                                        <Plus className='h-4 w-4' />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <FormField
+                          control={form.control}
+                          name='delegacaoId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Delegação</FormLabel>
+                              <FormControl>
+                                <div className='relative'>
+                                  <Autocomplete
+                                    options={selectOptions.delegacoes}
+                                    value={field.value ?? ''}
+                                    onValueChange={field.onChange}
+                                    placeholder={placeholder(
+                                      selectLoading.delegacoes,
+                                      'a delegação'
+                                    )}
+                                    disabled={selectLoading.delegacoes}
+                                    className={SELECT_WITH_ACTIONS_CLASS}
+                                  />
+                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleViewDelegacao}
+                                      className='h-8 w-8 p-0'
+                                      title='Ver Delegação'
+                                      disabled={!field.value}
+                                    >
+                                      <Eye className='h-4 w-4' />
+                                    </Button>
+                                    <Button
+                                      type='button'
+                                      variant='outline'
+                                      size='sm'
+                                      onClick={handleCreateDelegacao}
+                                      className='h-8 w-8 p-0'
+                                      title='Criar Delegação'
+                                    >
+                                      <Plus className='h-4 w-4' />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </FormSection>
+                  </div>
                 </CardContent>
               </Card>
             </div>
