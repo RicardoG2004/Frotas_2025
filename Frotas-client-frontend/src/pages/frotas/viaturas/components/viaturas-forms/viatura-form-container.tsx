@@ -5298,7 +5298,7 @@ export function ViaturaFormContainer({
                       description='Dados do contrato, rendas e valores'
                     >
                       <div className='space-y-3'>
-                        <div className='grid gap-2 grid-cols-[1fr_2fr]'>
+                        <div className='grid gap-2 grid-cols-2'>
                           <FormField
                             control={form.control}
                             name='contrato'
