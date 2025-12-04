@@ -195,6 +195,23 @@ export const parseCondutoresDocumentos = (
   return {}
 }
 
+// Campo UUID opcional - aceita qualquer string ou null, sem validação de formato
+const optionalUuidField = z.preprocess(
+  (val) => {
+    if (val === '' || val === null || val === undefined) {
+      return null
+    }
+    if (typeof val === 'string') {
+      const trimmed = val.trim()
+      return trimmed === '' ? null : trimmed
+    }
+    return val
+  },
+  z.string().nullable().optional().default(null)
+)
+
+const uuidOrEmpty = optionalUuidField
+
 // Schema para validação de inspeções de viatura
 const viaturaInspecaoSchema = z
   .object({
@@ -236,23 +253,80 @@ const viaturaAcidenteSchema = z.object({
     (value) => (value === '' || value === null ? undefined : value),
     z.string().optional()
   ),
-  condutorId: z
-    .string()
-    .min(1, { message: 'O condutor é obrigatório' })
-    .uuid({ message: 'Selecione o condutor' }),
+  condutorId: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined) return ''
+      if (typeof val === 'string') return val.trim()
+      return String(val)
+    },
+    z.string().optional().default('')
+  ),
   dataHora: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
-    dateWithMessages('A data/hora é obrigatória', 'A data/hora é inválida')
+    z.date().optional().nullable()
   ),
   hora: z.string().optional().default(''),
   culpa: z.boolean().default(false),
   descricaoAcidente: z.string().optional().default(''),
   descricaoDanos: z.string().optional().default(''),
-  local: z.string().min(1, { message: 'O local é obrigatório' }),
-  concelhoId: z.string().uuid().or(z.literal('')).optional().default(''),
-  freguesiaId: z.string().uuid().or(z.literal('')).optional().default(''),
-  codigoPostalId: z.string().uuid().or(z.literal('')).optional().default(''),
+  local: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined) return ''
+      if (typeof val === 'string') return val.trim()
+      return String(val)
+    },
+    z.string().optional().default('')
+  ),
+  concelhoId: uuidOrEmpty,
+  freguesiaId: uuidOrEmpty,
+  codigoPostalId: uuidOrEmpty,
   localReparacao: z.string().optional().default(''),
+}).superRefine((data, ctx) => {
+  // Não validar acidentes que serão filtrados no envio
+  const condutorId = typeof data.condutorId === 'string' ? data.condutorId.trim() : ''
+  const dataHora = data.dataHora instanceof Date && !isNaN(data.dataHora.getTime()) ? data.dataHora : null
+  const local = typeof data.local === 'string' ? data.local.trim() : ''
+  
+  // Se TODOS os campos obrigatórios estão vazios, não validar (será filtrado)
+  if (!condutorId && !dataHora && !local) {
+    return // Acidente vazio é OK, será filtrado no envio
+  }
+  
+  // Se chegou aqui, tem pelo menos um campo preenchido - validar formato
+  // Regex simplificado para UUID padrão (8-4-4-4-12)
+  const condutorValido = condutorId !== '' && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(condutorId)
+  const dataValida = dataHora !== null
+  const localValido = local !== ''
+  
+  // Se está completo e válido, OK
+  if (condutorValido && dataValida && localValido) {
+    return
+  }
+  
+  // Parcialmente preenchido - mostrar erros
+  if (!condutorValido) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: condutorId === '' ? 'O condutor é obrigatório' : 'Selecione o condutor',
+      path: ['condutorId'],
+    })
+  }
+  
+  if (!dataValida) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'A data/hora é obrigatória',
+      path: ['dataHora'],
+    })
+  }
+  
+  if (!localValido) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'O local é obrigatório',
+      path: ['local'],
+    })
+  }
 })
 
 const viaturaMultaSchema = z.object({
@@ -260,36 +334,95 @@ const viaturaMultaSchema = z.object({
     (value) => (value === '' || value === null ? undefined : value),
     z.string().optional()
   ),
-  condutorId: z
-    .string()
-    .min(1, { message: 'O condutor é obrigatório' })
-    .uuid({ message: 'Selecione o condutor' }),
+  condutorId: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined) return ''
+      if (typeof val === 'string') return val.trim()
+      return String(val)
+    },
+    z.string().optional().default('')
+  ),
   dataHora: z.preprocess(
     (value) => (value ? new Date(value as string | number | Date) : null),
-    dateWithMessages('A data é obrigatória', 'A data é inválida')
+    z.date().optional().nullable()
   ),
   hora: z.string().optional().default(''),
-  local: z.string().min(1, { message: 'O local é obrigatório' }),
-  motivo: z.string().min(1, { message: 'O motivo é obrigatório' }),
-  valor: z.coerce.number().min(0, { message: 'O valor deve ser positivo' }),
+  local: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined) return ''
+      if (typeof val === 'string') return val.trim()
+      return String(val)
+    },
+    z.string().optional().default('')
+  ),
+  motivo: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined) return ''
+      if (typeof val === 'string') return val.trim()
+      return String(val)
+    },
+    z.string().optional().default('')
+  ),
+  valor: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, { message: 'O valor deve ser positivo' }).optional().default(0)
+  ),
+}).superRefine((data, ctx) => {
+  // Não validar multas que serão filtradas no envio
+  const condutorId = typeof data.condutorId === 'string' ? data.condutorId.trim() : ''
+  const dataHora = data.dataHora instanceof Date && !isNaN(data.dataHora.getTime()) ? data.dataHora : null
+  const local = typeof data.local === 'string' ? data.local.trim() : ''
+  const motivo = typeof data.motivo === 'string' ? data.motivo.trim() : ''
+  
+  // Se NENHUM dos campos obrigatórios está preenchido, não validar (será filtrada)
+  if (!condutorId && !dataHora && !local && !motivo) {
+    return // Multa vazia é OK, será filtrada no envio
+  }
+  
+  // Regex simplificado para UUID padrão (8-4-4-4-12)
+  const condutorValido = condutorId !== '' && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(condutorId)
+  const dataValida = dataHora !== null
+  const localValido = local !== ''
+  const motivoValido = motivo !== ''
+  
+  // Se está completa e válida, OK
+  if (condutorValido && dataValida && localValido && motivoValido) {
+    return
+  }
+  
+  // Parcialmente preenchida - mostrar erros
+  if (!condutorValido) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: condutorId === '' ? 'O condutor é obrigatório' : 'Selecione o condutor',
+      path: ['condutorId'],
+    })
+  }
+  
+  if (!dataValida) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'A data é obrigatória',
+      path: ['dataHora'],
+    })
+  }
+  
+  if (!localValido) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'O local é obrigatório',
+      path: ['local'],
+    })
+  }
+  
+  if (!motivoValido) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'O motivo é obrigatório',
+      path: ['motivo'],
+    })
+  }
 })
-
-// Campo UUID opcional - aceita qualquer string ou null, sem validação de formato
-const optionalUuidField = z.preprocess(
-  (val) => {
-    if (val === '' || val === null || val === undefined) {
-      return null
-    }
-    if (typeof val === 'string') {
-      const trimmed = val.trim()
-      return trimmed === '' ? null : trimmed
-    }
-    return val
-  },
-  z.string().nullable().optional().default(null)
-)
-
-const uuidOrEmpty = optionalUuidField
 
 const requiredUuidField = (message: string) =>
   z.preprocess(

@@ -5570,7 +5570,7 @@ export function ViaturaFormContainer({
                                             value={field.value || undefined}
                                             onChange={field.onChange}
                                             allowClear
-                                            className='h-7 text-[9px] justify-start px-2.5 [&_svg]:mr-1.5 [&_svg]:h-3.5 [&_svg]:w-3.5'
+                                            className='h-7 text-[8px] justify-center px-2 [&_svg]:mr-1 [&_svg]:h-3 [&_svg]:w-3'
                                           />
                                         </FormControl>
                                         <FormMessage className='text-[8px]' />
@@ -5605,7 +5605,7 @@ export function ViaturaFormContainer({
                                             value={field.value || undefined}
                                             onChange={field.onChange}
                                             allowClear
-                                            className='h-7 text-[9px] justify-start px-2.5 [&_svg]:mr-1.5 [&_svg]:h-3.5 [&_svg]:w-3.5'
+                                            className='h-7 text-[8px] justify-center px-2 [&_svg]:mr-1 [&_svg]:h-3 [&_svg]:w-3'
                                           />
                                         </FormControl>
                                         <FormMessage className='text-[8px]' />
@@ -6763,14 +6763,16 @@ export function ViaturaFormContainer({
                                     <AlertTriangle className='h-5 w-5' />
                                   </div>
                                   <div>
-                                    <p className='text-sm font-semibold text-foreground'>
-                                      Acidente/Dano #{index + 1}
+                                    <div className='flex items-center gap-2'>
+                                      <p className='text-sm font-semibold text-foreground'>
+                                        Acidente/Dano #{index + 1}
+                                      </p>
                                       {isSaved && (
-                                        <Badge variant='outline' className='ml-2 rounded-full border-primary/30 bg-primary/10 text-primary font-medium text-[10px]'>
+                                        <Badge variant='outline' className='rounded-full border-primary/30 bg-primary/10 text-primary font-medium text-[10px]'>
                                           Guardado
                                         </Badge>
                                       )}
-                                    </p>
+                                    </div>
                                     <p className='text-xs text-muted-foreground'>
                                       {dataHoraFormatada
                                         ? `Ocorrido em ${dataHoraFormatada}.`
@@ -7785,14 +7787,16 @@ export function ViaturaFormContainer({
                                     <FileText className='h-5 w-5' />
                                   </div>
                                   <div>
-                                    <p className='text-sm font-semibold text-foreground'>
-                                      Multa #{index + 1}
+                                    <div className='flex items-center gap-2'>
+                                      <p className='text-sm font-semibold text-foreground'>
+                                        Multa #{index + 1}
+                                      </p>
                                       {isSaved && (
-                                        <Badge variant='outline' className='ml-2 rounded-full border-primary/30 bg-primary/10 text-primary font-medium text-[10px]'>
+                                        <Badge variant='outline' className='rounded-full border-primary/30 bg-primary/10 text-primary font-medium text-[10px]'>
                                           Guardado
                                         </Badge>
                                       )}
-                                    </p>
+                                    </div>
                                     <p className='text-xs text-muted-foreground'>
                                       {dataHoraFormatada
                                         ? `Aplicada em ${dataHoraFormatada}.`

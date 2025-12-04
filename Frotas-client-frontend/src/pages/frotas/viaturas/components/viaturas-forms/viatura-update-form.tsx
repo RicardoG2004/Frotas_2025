@@ -186,12 +186,12 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
       })) ?? [],
     acidentes:
       viatura.acidentes?.map((acidente) => {
-        const dataHora = acidente.dataHora ? new Date(acidente.dataHora) : new Date()
+        const dataHora = acidente.dataHora ? new Date(acidente.dataHora) : undefined
         const hora = dataHora ? `${dataHora.getHours().toString().padStart(2, '0')}:${dataHora.getMinutes().toString().padStart(2, '0')}` : ''
         return {
           id: acidente.id,
           condutorId: acidente.condutorId || '',
-          dataHora,
+          dataHora: dataHora as any,
           hora,
           culpa: typeof acidente.culpa === 'boolean' ? acidente.culpa : (acidente.culpa === 'true' || acidente.culpa === 'Sim'),
           descricaoAcidente: acidente.descricaoAcidente || '',
@@ -205,12 +205,12 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
       }) ?? [],
     multas:
       viatura.multas?.map((multa) => {
-        const dataHora = multa.dataHora ? new Date(multa.dataHora) : new Date()
+        const dataHora = multa.dataHora ? new Date(multa.dataHora) : undefined
         const hora = dataHora ? `${dataHora.getHours().toString().padStart(2, '0')}:${dataHora.getMinutes().toString().padStart(2, '0')}` : ''
         return {
           id: multa.id,
           condutorId: multa.condutorId || '',
-          dataHora,
+          dataHora: dataHora as any,
           hora,
           local: multa.local || '',
           motivo: multa.motivo || '',
@@ -329,7 +329,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
         )
         .map((acidente) => {
           // Combinar data e hora antes de enviar
-          let dataHoraFinal = acidente.dataHora
+          let dataHoraFinal: Date = acidente.dataHora as Date
           if (acidente.dataHora && acidente.hora) {
             const [hours, minutes] = acidente.hora.split(':').map(Number)
             dataHoraFinal = new Date(acidente.dataHora)
@@ -363,7 +363,7 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
         )
         .map((multa) => {
           // Combinar data e hora antes de enviar
-          let dataHoraFinal = multa.dataHora
+          let dataHoraFinal: Date = multa.dataHora as Date
           if (multa.dataHora && multa.hora) {
             const [hours, minutes] = multa.hora.split(':').map(Number)
             dataHoraFinal = new Date(multa.dataHora)
