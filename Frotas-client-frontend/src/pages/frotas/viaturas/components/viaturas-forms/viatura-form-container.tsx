@@ -5170,7 +5170,7 @@ export function ViaturaFormContainer({
                             </div>
 
                             {/* Utilização Comercial */}
-                            <div className='space-y-2 lg:pl-3'>
+                            <div className='lg:pl-3'>
                               <div className='flex items-center gap-2'>
                                 <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
                                 <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
