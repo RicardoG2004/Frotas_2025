@@ -6032,21 +6032,21 @@ export function ViaturaFormContainer({
                     </div>
                   ) : (
                     <div className='space-y-3'>
-                      <div className='flex items-center justify-between rounded-lg border border-border/60 bg-muted/5 px-3 py-2'>
-                        <div className='flex items-center gap-2'>
-                          <div className='flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary'>
-                            <ClipboardCheckIcon className='h-3.5 w-3.5' />
+                      <div className='flex items-center justify-between rounded-lg border border-border/60 bg-muted/5 px-4 py-3'>
+                        <div className='flex items-center gap-3'>
+                          <div className='flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                            <ClipboardCheckIcon className='h-5 w-5' />
                           </div>
                           <div>
-                            <h3 className='text-xs font-semibold text-foreground'>
+                            <h3 className='text-sm font-semibold text-foreground'>
                               Inspeções Registadas
                             </h3>
-                            <p className='text-[10px] text-muted-foreground'>
+                            <p className='text-xs text-muted-foreground'>
                               {inspectionFields.length} inspeção{inspectionFields.length !== 1 ? 'ões' : ''} no histórico
                             </p>
                           </div>
                         </div>
-                        <Badge variant='secondary' className='rounded-full px-2 py-0.5 text-[10px] font-medium'>
+                        <Badge variant='secondary' className='rounded-full px-3 py-1 text-xs font-medium'>
                           {inspectionFields.length} total
                         </Badge>
                       </div>
