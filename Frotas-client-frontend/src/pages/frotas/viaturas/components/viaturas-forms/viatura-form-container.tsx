@@ -1780,6 +1780,9 @@ export function ViaturaFormContainer({
   const [activeAcidenteTab, setActiveAcidenteTab] = useState<Record<string, string>>({})
   const [savedMultas, setSavedMultas] = useState<Set<string>>(new Set())
   const [expandedMultas, setExpandedMultas] = useState<Set<string>>(new Set())
+  // Estado para controlar qual inspeção está aberta no Dialog
+  const [openInspecaoDialogIndex, setOpenInspecaoDialogIndex] = useState<number | null>(null)
+  
   const tipoPropulsao = form.watch('tipoPropulsao')
   const isElectricPropulsion = tipoPropulsao === 'eletrico'
   const isHybridPropulsion = tipoPropulsao === 'hibrido' || tipoPropulsao === 'hibridoPlugIn'
@@ -6084,13 +6087,16 @@ export function ViaturaFormContainer({
                               key={inspection.fieldId}
                               className='group relative flex h-full flex-col overflow-hidden rounded-lg border border-border/60 bg-background shadow-sm transition-all duration-200 hover:border-primary/40 hover:shadow-md'
                             >
-                              {/* Header com gradiente sutil */}
-                              <div className='relative border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10 px-2.5 py-2'>
-                                <div className='flex items-start justify-between gap-1.5'>
-                                  <div className='flex items-start gap-1.5 flex-1 min-w-0'>
+                              {/* Box compacta com título e data - clicável para abrir */}
+                              <div 
+                                className='relative border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10 px-3 py-3 cursor-pointer hover:from-muted/40 hover:to-muted/20 transition-colors'
+                                onClick={() => setOpenInspecaoDialogIndex(index)}
+                              >
+                                <div className='flex items-center justify-between gap-2'>
+                                  <div className='flex items-center gap-2 flex-1 min-w-0'>
                                     <div
                                       className={cn(
-                                        'flex h-6 w-6 flex-shrink-0 items-center justify-center rounded shadow-sm transition-colors',
+                                        'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded shadow-sm transition-colors',
                                         isAprovado
                                           ? 'bg-green-500/10 text-green-600 dark:text-green-400'
                                           : isReprovado
@@ -6098,172 +6104,51 @@ export function ViaturaFormContainer({
                                             : 'bg-primary/10 text-primary'
                                       )}
                                     >
-                                      <ClipboardCheckIcon className='h-3 w-3' />
+                                      <ClipboardCheckIcon className='h-4 w-4' />
                                     </div>
-                                    <div className='min-w-0 flex-1'>
-                                      <div className='flex items-center gap-1 mb-0.5'>
-                                        <h4 className='text-[10px] font-semibold text-foreground truncate'>
-                                          Inspeção #{index + 1}
-                                        </h4>
-                                        {resultado && (
-                                          <Badge
-                                            variant={resultadoBadgeVariant}
-                                            className={cn(
-                                              'rounded-full px-1 py-0 text-[8px] font-medium leading-none',
-                                              isAprovado && 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
-                                              isReprovado && 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
-                                            )}
-                                          >
-                                            {inspectionData.resultado}
-                                          </Badge>
-                                        )}
-                                      </div>
+                                    <div className='min-w-0 flex-1 text-left'>
+                                      <h4 className='text-sm font-semibold text-foreground'>
+                                        Inspeção #{index + 1}
+                                      </h4>
                                       {inspeccaoRealizada && (
-                                        <div className='flex items-center gap-0.5 text-[9px] text-muted-foreground'>
-                                          <CalendarDays className='h-2 w-2' />
-                                          <span>Realizada em {inspeccaoRealizada}</span>
+                                        <div className='flex items-center gap-1 mt-0.5 text-xs text-muted-foreground'>
+                                          <CalendarDays className='h-3 w-3' />
+                                          <span>{inspeccaoRealizada}</span>
                                         </div>
                                       )}
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-
-                              {/* Conteúdo principal */}
-                              <div className='flex-1 flex flex-col space-y-2.5 p-3'>
-                                {/* Campos de edição - em linha */}
-                                <div className='grid grid-cols-3 gap-2'>
-                                  <FormField
-                                    control={form.control}
-                                    name={`inspecoes.${index}.dataInspecao`}
-                                    render={({ field }) => (
-                                      <FormItem className='space-y-0.5'>
-                                        <FormLabel className='text-[9px] font-medium leading-tight text-left'>Data da Inspeção</FormLabel>
-                                        <FormControl>
-                                          <DatePicker
-                                            value={field.value || undefined}
-                                            onChange={field.onChange}
-                                            allowClear
-                                            className='h-7 text-[8px] justify-center px-2 [&_svg]:mr-1 [&_svg]:h-3 [&_svg]:w-3'
-                                          />
-                                        </FormControl>
-                                        <FormMessage className='text-[8px]' />
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <FormField
-                                    control={form.control}
-                                    name={`inspecoes.${index}.resultado`}
-                                    render={({ field }) => (
-                                      <FormItem className='space-y-0.5'>
-                                        <FormLabel className='text-[9px] font-medium leading-tight'>Resultado</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            {...field}
-                                            placeholder='Ex.: Aprovado'
-                                            className='h-[1.75rem] text-[9.5px] px-2 py-0.5 shadow-inner'
-                                          />
-                                        </FormControl>
-                                        <FormMessage className='text-[8px]' />
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <FormField
-                                    control={form.control}
-                                    name={`inspecoes.${index}.dataProximaInspecao`}
-                                    render={({ field }) => (
-                                      <FormItem className='space-y-0.5'>
-                                        <FormLabel className='text-[9px] font-medium leading-tight text-left'>Próxima Inspeção</FormLabel>
-                                        <FormControl>
-                                          <DatePicker
-                                            value={field.value || undefined}
-                                            onChange={field.onChange}
-                                            allowClear
-                                            className='h-7 text-[8px] justify-center px-2 [&_svg]:mr-1 [&_svg]:h-3 [&_svg]:w-3'
-                                          />
-                                        </FormControl>
-                                        <FormMessage className='text-[8px]' />
-                                      </FormItem>
-                                    )}
-                                  />
-                                </div>
-
-                                {/* Informações adicionais - apenas se necessário */}
-                                {(isProximaInspecaoAtrasada || isProximaInspecaoProxima) && proximaInspecao && (
-                                  <div className='space-y-1 pt-1.5 border-t border-border/30 mt-auto'>
-                                    <div
-                                      className={cn(
-                                        'rounded border px-1.5 py-0.5',
-                                        isProximaInspecaoAtrasada
-                                          ? 'border-red-500/30 bg-red-500/5'
-                                          : 'border-amber-500/30 bg-amber-500/5'
-                                      )}
-                                    >
-                                      <div className='flex items-center gap-1'>
-                                        <CalendarDays
-                                          className={cn(
-                                            'h-2.5 w-2.5 flex-shrink-0',
-                                            isProximaInspecaoAtrasada
-                                              ? 'text-red-600 dark:text-red-400'
-                                              : 'text-amber-600 dark:text-amber-400'
-                                          )}
-                                        />
-                                        <p
-                                          className={cn(
-                                            'text-[9px] font-medium leading-tight',
-                                            isProximaInspecaoAtrasada
-                                              ? 'text-red-700 dark:text-red-300'
-                                              : 'text-amber-700 dark:text-amber-300'
-                                          )}
-                                        >
-                                          {isProximaInspecaoAtrasada
-                                            ? '⚠️ Atrasada'
-                                            : '⏰ Em breve'}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Footer com ações */}
-                              <div className='border-t border-border/50 bg-muted/20 px-2.5 py-1.5'>
-                                <div className='flex items-center justify-between gap-1'>
                                   <div className='flex items-center gap-1'>
                                     <Button
                                       type='button'
-                                      variant='outline'
+                                      variant='ghost'
                                       size='sm'
-                                      onClick={() => handleOpenInspecaoUploadDialog(index)}
-                                      className='h-5 gap-0.5 text-[9px] px-1.5'
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setOpenInspecaoDialogIndex(index)
+                                      }}
+                                      className='gap-1.5'
+                                      title='Ver detalhes'
                                     >
-                                      <FileText className='h-2.5 w-2.5' />
-                                      Anexar
+                                      <Eye className='h-3.5 w-3.5' />
                                     </Button>
                                     <Button
                                       type='button'
-                                      variant='outline'
+                                      variant='ghost'
                                       size='sm'
-                                      onClick={() => handleOpenInspecaoDocumentosDialog(index)}
-                                      disabled={documentosCount === 0}
-                                      className='h-5 gap-0.5 text-[9px] px-1.5'
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleRemoveInspection(index)
+                                      }}
+                                      className='gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10'
+                                      title='Remover inspeção'
                                     >
-                                      <Eye className='h-2.5 w-2.5' />
-                                      Ver documentos
+                                      <Trash2 className='h-3.5 w-3.5' />
                                     </Button>
                                   </div>
-                                  <Button
-                                    type='button'
-                                    variant='ghost'
-                                    size='sm'
-                                    onClick={() => handleRemoveInspection(index)}
-                                    className='h-5 gap-0.5 text-[9px] px-1.5 text-destructive hover:text-destructive hover:bg-destructive/10'
-                                  >
-                                    <Trash2 className='h-2.5 w-2.5' />
-                                    Remover
-                                  </Button>
                                 </div>
                               </div>
+
                             </div>
                           )
                         })}
@@ -6274,6 +6159,189 @@ export function ViaturaFormContainer({
               </Card>
             </div>
           </PersistentTabsContent>
+
+          {/* Dialog para detalhes da inspeção */}
+          {openInspecaoDialogIndex !== null && (
+            <Dialog open={openInspecaoDialogIndex !== null} onOpenChange={(open) => !open && setOpenInspecaoDialogIndex(null)}>
+              <DialogContent className='sm:max-w-2xl max-h-[90vh] overflow-y-auto'>
+                <DialogHeader>
+                  <DialogTitle>Inspeção #{openInspecaoDialogIndex + 1}</DialogTitle>
+                  <DialogDescription>
+                    Visualize e edite os detalhes desta inspeção
+                  </DialogDescription>
+                </DialogHeader>
+                {(() => {
+                  const index = openInspecaoDialogIndex
+                  const inspectionData = inspecoesValues?.[index]
+                  const inspeccaoRealizada = formatDateLabel(inspectionData?.dataInspecao)
+                  const proximaInspecao = formatDateLabel(inspectionData?.dataProximaInspecao)
+                  const documentos = inspectionData?.documentos || []
+                  const documentosCount = documentos.length
+                  const resultado = inspectionData?.resultado?.toLowerCase() || ''
+                  const isAprovado = resultado.includes('aprovado') || resultado.includes('aprovada')
+                  const isReprovado = resultado.includes('reprovado') || resultado.includes('reprovada') || resultado.includes('rejeitado')
+                  
+                  const resultadoBadgeVariant = isAprovado
+                    ? 'default'
+                    : isReprovado
+                      ? 'destructive'
+                      : 'secondary'
+
+                  const hoje = new Date()
+                  const proximaInspecaoDate = inspectionData?.dataProximaInspecao
+                  const isProximaInspecaoProxima =
+                    proximaInspecaoDate &&
+                    proximaInspecaoDate instanceof Date &&
+                    proximaInspecaoDate <= new Date(hoje.getTime() + 30 * 24 * 60 * 60 * 1000) &&
+                    proximaInspecaoDate >= hoje
+                  const isProximaInspecaoAtrasada =
+                    proximaInspecaoDate &&
+                    proximaInspecaoDate instanceof Date &&
+                    proximaInspecaoDate < hoje
+
+                  return (
+                    <div className='space-y-4 py-4'>
+                      {/* Badge de resultado */}
+                      {resultado && (
+                        <div className='flex items-center justify-start'>
+                          <Badge
+                            variant={resultadoBadgeVariant}
+                            className={cn(
+                              'rounded-full px-3 py-1 text-sm font-medium',
+                              isAprovado && 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+                              isReprovado && 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
+                            )}
+                          >
+                            {inspectionData.resultado}
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Campos de edição */}
+                      <div className='grid grid-cols-1 gap-4'>
+                        <FormField
+                          control={form.control}
+                          name={`inspecoes.${index}.dataInspecao`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className='text-sm font-medium'>Data da Inspeção</FormLabel>
+                              <FormControl>
+                                <DatePicker
+                                  value={field.value || undefined}
+                                  onChange={field.onChange}
+                                  allowClear
+                                  className='w-full'
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`inspecoes.${index}.resultado`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className='text-sm font-medium'>Resultado</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder='Ex.: Aprovado'
+                                  className='w-full'
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`inspecoes.${index}.dataProximaInspecao`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className='text-sm font-medium'>Próxima Inspeção</FormLabel>
+                              <FormControl>
+                                <DatePicker
+                                  value={field.value || undefined}
+                                  onChange={field.onChange}
+                                  allowClear
+                                  className='w-full'
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Informações adicionais */}
+                      {(isProximaInspecaoAtrasada || isProximaInspecaoProxima) && proximaInspecao && (
+                        <div className='rounded border p-3'>
+                          <div
+                            className={cn(
+                              'flex items-center gap-2',
+                              isProximaInspecaoAtrasada
+                                ? 'text-red-600 dark:text-red-400'
+                                : 'text-amber-600 dark:text-amber-400'
+                            )}
+                          >
+                            <CalendarDays className='h-4 w-4' />
+                            <p className='text-sm font-medium'>
+                              {isProximaInspecaoAtrasada
+                                ? '⚠️ Próxima inspeção atrasada'
+                                : '⏰ Próxima inspeção em breve'}
+                            </p>
+                          </div>
+                          {proximaInspecao && (
+                            <p className='text-xs text-muted-foreground mt-1 ml-6'>
+                              Data: {proximaInspecao}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Ações */}
+                      <DialogFooter className='flex items-center justify-between gap-2 sm:justify-between'>
+                        <div className='flex items-center gap-2'>
+                          <Button
+                            type='button'
+                            variant='outline'
+                            size='sm'
+                            onClick={() => handleOpenInspecaoUploadDialog(index)}
+                            className='gap-1.5'
+                          >
+                            <FileText className='h-4 w-4' />
+                            Anexar documentos
+                          </Button>
+                          <Button
+                            type='button'
+                            variant='outline'
+                            size='sm'
+                            onClick={() => handleOpenInspecaoDocumentosDialog(index)}
+                            disabled={documentosCount === 0}
+                            className='gap-1.5'
+                          >
+                            <Eye className='h-4 w-4' />
+                            Ver documentos ({documentosCount})
+                          </Button>
+                        </div>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => handleRemoveInspection(index)}
+                          className='gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10'
+                        >
+                          <Trash2 className='h-4 w-4' />
+                          Remover
+                        </Button>
+                      </DialogFooter>
+                    </div>
+                  )
+                })()}
+              </DialogContent>
+            </Dialog>
+          )}
 
           {/* Seguros */}
           <PersistentTabsContent value='seguros'>
