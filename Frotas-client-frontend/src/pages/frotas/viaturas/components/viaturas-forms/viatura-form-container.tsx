@@ -1875,7 +1875,9 @@ export function ViaturaFormContainer({
         : 'Consumo Médio (L/100km)'
   const combustivelGridClass = isElectricPropulsion
     ? 'grid gap-4'
-    : 'grid gap-4 sm:grid-cols-[2fr_1fr]'
+    : isPlugInHybrid
+      ? 'grid gap-4 sm:grid-cols-2'
+      : 'grid gap-4 sm:grid-cols-[2fr_1fr]'
   const potenciaLabel = isElectricPropulsion
     ? 'Potência (kW)'
     : isPlugInHybrid
@@ -4615,7 +4617,7 @@ export function ViaturaFormContainer({
                             control={form.control}
                             name='combustivelId'
                             render={({ field }) => (
-                              <FormItem className='sm:col-span-2'>
+                              <FormItem className={isPlugInHybrid ? '' : 'sm:col-span-2'}>
                                 <FormLabel>Combustível</FormLabel>
                                 <FormControl>
                                   <div className='relative'>
@@ -4754,7 +4756,7 @@ export function ViaturaFormContainer({
                         <div className='space-y-2 lg:pr-4'>
                           <div className='flex items-center gap-2'>
                             <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                            <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                            <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                               Identificação Mecânica
                             </span>
                             <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -4866,7 +4868,7 @@ export function ViaturaFormContainer({
                         <div className='space-y-2 lg:pl-7'>
                           <div className='flex items-center gap-2'>
                             <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                            <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                            <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                               Capacidades e Dimensões
                             </span>
                             <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -4996,7 +4998,7 @@ export function ViaturaFormContainer({
                             <div className='space-y-2 lg:pr-3'>
                               <div className='flex items-center gap-2'>
                                 <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                                <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                                <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                   Sistema Híbrido
                                 </span>
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5055,7 +5057,7 @@ export function ViaturaFormContainer({
                             <div className='space-y-2 lg:pl-3'>
                               <div className='flex items-center gap-2'>
                                 <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                                <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                                <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                   Emissões
                                 </span>
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5124,7 +5126,7 @@ export function ViaturaFormContainer({
                             <div className='space-y-2 lg:pr-3'>
                               <div className='flex items-center gap-2'>
                                 <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                                <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                                <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                   Pneus
                                 </span>
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5171,7 +5173,7 @@ export function ViaturaFormContainer({
                             <div className='space-y-2 lg:pl-3'>
                               <div className='flex items-center gap-2'>
                                 <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                                <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                                <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                   Utilização
                                 </span>
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5232,7 +5234,7 @@ export function ViaturaFormContainer({
                           <div className='space-y-2'>
                             <div className='flex items-center gap-2'>
                               <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                              <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                              <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                 Sistema Híbrido Plug-In
                               </span>
                               <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5362,7 +5364,7 @@ export function ViaturaFormContainer({
                             <div className='space-y-2 lg:pr-3'>
                               <div className='flex items-center gap-2'>
                                 <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                                <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                                <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                   Pneus
                                 </span>
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5409,7 +5411,7 @@ export function ViaturaFormContainer({
                             <div className='space-y-2 lg:pl-3'>
                               <div className='flex items-center gap-2'>
                                 <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                                <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                                <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                   Utilização
                                 </span>
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5471,7 +5473,7 @@ export function ViaturaFormContainer({
                           <div className='space-y-2 lg:pr-3'>
                             <div className='flex items-center gap-2'>
                               <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                              <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                              <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                 Emissões
                               </span>
                               <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5536,7 +5538,7 @@ export function ViaturaFormContainer({
                           <div className='space-y-2 lg:pr-3'>
                             <div className='flex items-center gap-2'>
                               <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                              <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                              <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                                 {isPlugInHybrid ? 'Sistema Híbrido Plug-In' : 'Sistema Elétrico'}
                               </span>
                               <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5599,7 +5601,7 @@ export function ViaturaFormContainer({
                         <div className='space-y-2 lg:px-3'>
                           <div className='flex items-center gap-2'>
                             <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                            <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                            <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                               Pneus
                             </span>
                             <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
@@ -5646,7 +5648,7 @@ export function ViaturaFormContainer({
                         <div className='space-y-2 lg:pl-3'>
                           <div className='flex items-center gap-2'>
                             <div className='h-px flex-1 bg-gradient-to-r from-border to-transparent' />
-                            <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                            <span className='text-[10px] font-bold uppercase tracking-wider text-muted-foreground'>
                               Utilização
                             </span>
                             <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
