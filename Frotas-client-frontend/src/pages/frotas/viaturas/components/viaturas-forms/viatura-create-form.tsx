@@ -25,7 +25,51 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
   const entidadeFornecedoraTipo =
     !values.entidadeFornecedoraTipo || values.entidadeFornecedoraTipo.trim() === ''
       ? null
-      : (values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro')                           
+      : (values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro')
+
+  // Helper function to normalize optional integer values (for int? fields)
+  const normalizeOptionalInteger = (value: number | undefined | null | string | boolean): number | null => {
+    if (value === undefined || value === null || value === '' || value === false) {
+      return null
+    }
+    if (typeof value === 'boolean') {
+      return null
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim()
+      if (trimmed === '' || trimmed === 'null' || trimmed === 'undefined' || trimmed === 'NaN') {
+        return null
+      }
+      const num = parseInt(trimmed, 10)
+      if (isNaN(num) || !isFinite(num)) {
+        return null
+      }
+      return num
+    }
+    if (typeof value === 'number') {
+      if (isNaN(value) || !isFinite(value)) {
+        return null
+      }
+      // Convert to integer (round)
+      return Math.round(value)
+    }
+    return null
+  }
+
+  // Helper function to normalize optional numeric values (for decimal? fields)
+  const normalizeOptionalNumber = (value: number | undefined | null | string | boolean): number | null => {
+    // Handle undefined, null, empty string, or whitespace-only strings
+    if (value === undefined || value === null || value === '' || (typeof value === 'string' && value.trim() === '')) {
+      return null
+    }
+    // Convert to number
+    const num = typeof value === 'string' ? parseFloat(value.trim()) : Number(value)
+    // Return null if not a valid number (NaN) or if the string couldn't be parsed
+    if (isNaN(num) || (typeof value === 'string' && isNaN(parseFloat(value.trim())))) {
+      return null
+    }
+    return num
+  }                           
 
   return {
     matricula: values.matricula || '',
@@ -61,12 +105,16 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
         : null,
     nQuadro: values.nQuadro,
     nMotor: values.nMotor,
-    cilindrada: values.cilindrada ?? null,
-    potencia: values.potencia,
-    capacidadeBateria: values.capacidadeBateria ?? null,
-    emissoesCO2: values.emissoesCO2 ?? null,
+    cilindrada: normalizeOptionalNumber(values.cilindrada),
+    potencia: normalizeOptionalInteger(values.potencia),
+    potenciaMotorEletrico: normalizeOptionalInteger(values.potenciaMotorEletrico),
+    potenciaCombinada: normalizeOptionalInteger(values.potenciaCombinada),
+    capacidadeBateria: normalizeOptionalNumber(values.capacidadeBateria),
+    consumoEletrico: normalizeOptionalNumber(values.consumoEletrico),
+    tempoCarregamento: normalizeOptionalNumber(values.tempoCarregamento),
+    emissoesCO2: normalizeOptionalNumber(values.emissoesCO2),
     padraoCO2: values.padraoCO2 && values.padraoCO2.trim() !== '' ? values.padraoCO2 : null,
-    voltagemTotal: values.voltagemTotal ?? null,
+    voltagemTotal: normalizeOptionalNumber(values.voltagemTotal),
     tara: values.tara,
     lotacao: values.lotacao,
     marketing: values.marketing,

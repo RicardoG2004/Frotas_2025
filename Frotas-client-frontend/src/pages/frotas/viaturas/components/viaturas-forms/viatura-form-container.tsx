@@ -4739,7 +4739,7 @@ export function ViaturaFormContainer({
                     </FormSection>
                   </div>
 
-                  <FormSection
+                    <FormSection
                     icon={Settings}
                     title='Especificações técnicas completas'
                     description='Identificação mecânica, motor, capacidades, dimensões, pneus e utilização'
@@ -4759,101 +4759,101 @@ export function ViaturaFormContainer({
                           <div className='space-y-2'>
                             {/* Linha 1: Nº Quadro e Nº Motor */}
                             <div className='grid gap-2 grid-cols-2'>
-                              <FormField
-                                control={form.control}
-                                name='nQuadro'
-                                render={({ field }) => (
-                                  <FormItem>
+                    <FormField
+                      control={form.control}
+                      name='nQuadro'
+                      render={({ field }) => (
+                        <FormItem>
                                     <FormLabel className='text-xs'>Nº Quadro</FormLabel>
-                                    <FormControl>
-                                      <NumberInput
-                                        value={toNumberValue(field.value)}
-                                        onValueChange={(nextValue) => field.onChange(nextValue)}
-                                        onBlur={field.onBlur}
-                                        name={field.name}
-                                        ref={field.ref}
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
                                         className='h-8 text-xs'
-                                        min={0}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name='nMotor'
-                                render={({ field }) => (
-                                  <FormItem>
+                                  min={0}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='nMotor'
+                      render={({ field }) => (
+                        <FormItem>
                                     <FormLabel className='text-xs'>
                                       {isElectricPropulsion ? 'Nº Motor Elétrico' : 'Nº Motor'}
-                                    </FormLabel>
-                                    <FormControl>
-                                      <NumberInput
-                                        value={toNumberValue(field.value)}
-                                        onValueChange={(nextValue) => field.onChange(nextValue)}
-                                        onBlur={field.onBlur}
-                                        name={field.name}
-                                        ref={field.ref}
+                          </FormLabel>
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
                                         className='h-8 text-xs'
-                                        min={0}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                                  min={0}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                      </div>
                             {/* Linha 2: Cilindrada e Potência */}
                             <div className='grid gap-2 grid-cols-2'>
-                              {showCombustivelFields ? (
-                                <FormField
-                                  control={form.control}
-                                  name='cilindrada'
-                                  render={({ field }) => (
-                                    <FormItem>
+                        {showCombustivelFields ? (
+                          <FormField
+                            control={form.control}
+                            name='cilindrada'
+                            render={({ field }) => (
+                              <FormItem>
                                       <FormLabel className='text-xs'>Cilindrada (cm³)</FormLabel>
-                                      <FormControl>
-                                        <NumberInput
-                                          value={toNumberValue(field.value)}
-                                          onValueChange={(nextValue) => field.onChange(nextValue)}
-                                          onBlur={field.onBlur}
-                                          name={field.name}
-                                          ref={field.ref}
+                                <FormControl>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
                                           className='h-8 text-xs'
-                                          step={0.1}
-                                          min={0}
-                                          disabled={!motorizacaoSelecionada}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
+                                    step={0.1}
+                                    min={0}
+                                    disabled={!motorizacaoSelecionada}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                               ) : <div />}
                               {!isHybridNormal ? (
-                                <FormField
-                                  control={form.control}
-                                  name='potencia'
-                                  render={({ field }) => (
-                                    <FormItem>
+                        <FormField
+                          control={form.control}
+                          name='potencia'
+                          render={({ field }) => (
+                            <FormItem>
                                       <FormLabel className='text-xs'>{potenciaLabel}</FormLabel>
-                                      <FormControl>
-                                        <NumberInput
-                                          value={toNumberValue(field.value)}
-                                          onValueChange={(nextValue) => field.onChange(nextValue)}
-                                          onBlur={field.onBlur}
-                                          name={field.name}
-                                          ref={field.ref}
+                              <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
                                           className='h-8 text-xs'
-                                          min={0}
-                                          disabled={!motorizacaoSelecionada}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
+                                  min={0}
+                                  disabled={!motorizacaoSelecionada}
                                 />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                               ) : <div />}
                             </div>
                           </div>
@@ -4871,85 +4871,85 @@ export function ViaturaFormContainer({
                           <div className='space-y-2'>
                             {/* Linha 1: Comprimento e Largura (2 dimensões) */}
                             <div className='grid gap-2 grid-cols-2'>
-                              <FormField
-                                control={form.control}
+                            <FormField
+                              control={form.control}
                                 name='comprimento'
-                                render={({ field }) => (
-                                  <FormItem>
+                              render={({ field }) => (
+                                <FormItem>
                                     <FormLabel className='text-xs'>Comprimento (mm)</FormLabel>
-                                    <FormControl>
-                                      <NumberInput
-                                        value={toNumberValue(field.value)}
-                                        onValueChange={(nextValue) => field.onChange(nextValue)}
-                                        onBlur={field.onBlur}
-                                        name={field.name}
-                                        ref={field.ref}
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
                                         className='h-8 text-xs'
-                                        min={0}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
+                                      min={0}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                                <FormField
+                                  control={form.control}
                                 name='largura'
-                                render={({ field }) => (
-                                  <FormItem>
+                                  render={({ field }) => (
+                                    <FormItem>
                                     <FormLabel className='text-xs'>Largura (mm)</FormLabel>
-                                    <FormControl>
-                                      <NumberInput
-                                        value={toNumberValue(field.value)}
-                                        onValueChange={(nextValue) => field.onChange(nextValue)}
-                                        onBlur={field.onBlur}
-                                        name={field.name}
-                                        ref={field.ref}
+                                      <FormControl>
+                                        <NumberInput
+                                          value={toNumberValue(field.value)}
+                                          onValueChange={(nextValue) => field.onChange(nextValue)}
+                                          onBlur={field.onBlur}
+                                          name={field.name}
+                                          ref={field.ref}
                                         className='h-8 text-xs'
-                                        min={0}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                                          min={0}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
                             </div>
                             {/* Linha 2: Tara, Lotação e Carga Útil (3 capacidades) */}
                             <div className='grid gap-2 grid-cols-3'>
-                              <FormField
-                                control={form.control}
+                                <FormField
+                                  control={form.control}
                                 name='tara'
-                                render={({ field }) => (
-                                  <FormItem>
+                                  render={({ field }) => (
+                                    <FormItem>
                                     <FormLabel className='text-xs'>Tara (kg)</FormLabel>
-                                    <FormControl>
-                                      <NumberInput
-                                        value={toNumberValue(field.value)}
-                                        onValueChange={(nextValue) => field.onChange(nextValue)}
-                                        onBlur={field.onBlur}
-                                        name={field.name}
-                                        ref={field.ref}
+                                      <FormControl>
+                                        <NumberInput
+                                          value={toNumberValue(field.value)}
+                                          onValueChange={(nextValue) => field.onChange(nextValue)}
+                                          onBlur={field.onBlur}
+                                          name={field.name}
+                                          ref={field.ref}
                                         className='h-8 text-xs'
-                                        min={0}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
+                                          min={0}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
                                 name='lotacao'
-                                render={({ field }) => (
-                                  <FormItem>
+                                  render={({ field }) => (
+                                    <FormItem>
                                     <FormLabel className='text-xs'>Lotação</FormLabel>
-                                    <FormControl>
-                                      <NumberInput
-                                        value={toNumberValue(field.value)}
-                                        onValueChange={(nextValue) => field.onChange(nextValue)}
-                                        onBlur={field.onBlur}
-                                        name={field.name}
-                                        ref={field.ref}
+                                      <FormControl>
+                                        <NumberInput
+                                          value={toNumberValue(field.value)}
+                                          onValueChange={(nextValue) => field.onChange(nextValue)}
+                                          onBlur={field.onBlur}
+                                          name={field.name}
+                                          ref={field.ref}
                                         className='h-8 text-xs'
                                         min={0}
                                       />
@@ -5022,29 +5022,29 @@ export function ViaturaFormContainer({
                                     </FormItem>
                                   )}
                                 />
-                                <FormField
-                                  control={form.control}
+                              <FormField
+                                control={form.control}
                                   name='potenciaCombinada'
-                                  render={({ field }) => (
-                                    <FormItem>
+                                render={({ field }) => (
+                                  <FormItem>
                                       <FormLabel className='text-[9px]'>Potência (cv)</FormLabel>
-                                      <FormControl>
-                                        <NumberInput
-                                          value={toNumberValue(field.value)}
-                                          onValueChange={(nextValue) => field.onChange(nextValue)}
-                                          onBlur={field.onBlur}
-                                          name={field.name}
-                                          ref={field.ref}
+                                    <FormControl>
+                                      <NumberInput
+                                        value={toNumberValue(field.value)}
+                                        onValueChange={(nextValue) => field.onChange(nextValue)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
                                           className='h-7 text-[10px]'
-                                          step={0.1}
-                                          min={0}
-                                          disabled={!motorizacaoSelecionada}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
+                                        step={0.1}
+                                        min={0}
+                                        disabled={!motorizacaoSelecionada}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                               </div>
                             </div>
 
@@ -5058,62 +5058,62 @@ export function ViaturaFormContainer({
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
                               </div>
                               <div className='grid grid-cols-2 gap-2'>
-                                <FormField
-                                  control={form.control}
-                                  name='emissoesCO2'
-                                  render={({ field }) => (
-                                    <FormItem>
+                            <FormField
+                              control={form.control}
+                              name='emissoesCO2'
+                              render={({ field }) => (
+                                <FormItem>
                                       <FormLabel className='text-[9px]'>CO₂</FormLabel>
-                                      <FormControl>
-                                        <NumberInput
-                                          value={toNumberValue(field.value)}
-                                          onValueChange={(nextValue) => field.onChange(nextValue)}
-                                          onBlur={field.onBlur}
-                                          name={field.name}
-                                          ref={field.ref}
+                                  <FormControl>
+                                    <NumberInput
+                                      value={toNumberValue(field.value)}
+                                      onValueChange={(nextValue) => field.onChange(nextValue)}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
                                           className='h-7 text-[10px]'
-                                          step={0.1}
-                                          min={0}
-                                          disabled={!motorizacaoSelecionada}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name='padraoCO2'
-                                  render={({ field }) => (
-                                    <FormItem>
+                                      step={0.1}
+                                      min={0}
+                                      disabled={!motorizacaoSelecionada}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name='padraoCO2'
+                              render={({ field }) => (
+                                <FormItem>
                                       <FormLabel className='text-[9px]'>Padrão</FormLabel>
-                                      <FormControl>
-                                        <Select
-                                          value={field.value || undefined}
-                                          onValueChange={(value) => {
-                                            field.onChange(value || '')
-                                          }}
-                                          disabled={!motorizacaoSelecionada || !form.watch('emissoesCO2')}
-                                        >
+                                  <FormControl>
+                                    <Select
+                                      value={field.value || undefined}
+                                      onValueChange={(value) => {
+                                        field.onChange(value || '')
+                                      }}
+                                      disabled={!motorizacaoSelecionada || !form.watch('emissoesCO2')}
+                                    >
                                           <SelectTrigger className='h-12 text-[10px]'>
                                             <SelectValue placeholder='Padrão' />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            {PADRAO_CO2_OPTIONS.map((option) => (
-                                              <SelectItem key={option.value} value={option.value}>
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {PADRAO_CO2_OPTIONS.map((option) => (
+                                          <SelectItem key={option.value} value={option.value}>
                                                 <span className='text-[10px]'>{option.label}</span>
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                      </div>
                             </div>
-                          </div>
+                  </div>
 
                           {/* Linha 2: Pneus e Utilização Comercial */}
                           <div className='grid gap-3 lg:grid-cols-2 lg:divide-x lg:divide-border'>
@@ -5127,11 +5127,11 @@ export function ViaturaFormContainer({
                                 <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
                               </div>
                               <div className='grid grid-cols-2 gap-2'>
-                                <FormField
-                                  control={form.control}
+                    <FormField
+                      control={form.control}
                                   name='pneusFrente'
-                                  render={({ field }) => (
-                                    <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                                       <FormLabel className='text-[9px]'>Frente</FormLabel>
                                       <FormControl>
                                         <Input
@@ -5234,30 +5234,7 @@ export function ViaturaFormContainer({
                               </span>
                               <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
                             </div>
-                            <div className='grid grid-cols-4 gap-2'>
-                              <FormField
-                                control={form.control}
-                                name='capacidadeBateria'
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className='text-[9px]'>Bateria (kWh)</FormLabel>
-                                    <FormControl>
-                                      <NumberInput
-                                        value={toNumberValue(field.value)}
-                                        onValueChange={(nextValue) => field.onChange(nextValue)}
-                                        onBlur={field.onBlur}
-                                        name={field.name}
-                                        ref={field.ref}
-                                        className='h-7 text-[10px]'
-                                        step={0.1}
-                                        min={0}
-                                        disabled={!motorizacaoSelecionada}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                            <div className='grid grid-cols-5 gap-2'>
                               <FormField
                                 control={form.control}
                                 name='tempoCarregamento'
@@ -5283,10 +5260,10 @@ export function ViaturaFormContainer({
                               />
                               <FormField
                                 control={form.control}
-                                name='potenciaMotorEletrico'
+                                name='capacidadeBateria'
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className='text-[9px]'>Potência (kW)</FormLabel>
+                                    <FormLabel className='text-[9px]'>Capacidade Bateria (kWh)</FormLabel>
                                     <FormControl>
                                       <NumberInput
                                         value={toNumberValue(field.value)}
@@ -5309,7 +5286,53 @@ export function ViaturaFormContainer({
                                 name='potenciaCombinada'
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className='text-[9px]'>Potência (cv)</FormLabel>
+                                    <FormLabel className='text-[9px]'>Potência Combinada (cv)</FormLabel>
+                                    <FormControl>
+                                      <NumberInput
+                                        value={toNumberValue(field.value)}
+                                        onValueChange={(nextValue) => field.onChange(nextValue)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                        className='h-7 text-[10px]'
+                                        step={0.1}
+                                        min={0}
+                                        disabled={!motorizacaoSelecionada}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name='voltagemTotal'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className='text-[9px]'>Voltagem Total (V)</FormLabel>
+                                    <FormControl>
+                                      <NumberInput
+                                        value={toNumberValue(field.value)}
+                                        onValueChange={(nextValue) => field.onChange(nextValue)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                        className='h-7 text-[10px]'
+                                        step={0.1}
+                                        min={0}
+                                        disabled={!motorizacaoSelecionada}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name='potenciaMotorEletrico'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className='text-[9px]'>Potência Motor Elétrico (kW)</FormLabel>
                                     <FormControl>
                                       <NumberInput
                                         value={toNumberValue(field.value)}
@@ -5518,55 +5541,55 @@ export function ViaturaFormContainer({
                             {/* Elétrico puro: lado a lado */}
                             {isElectricPropulsion ? (
                               <div className='grid grid-cols-2 gap-2'>
-                                <FormField
-                                  control={form.control}
+                    <FormField
+                      control={form.control}
                                   name='capacidadeBateria'
-                                  render={({ field }) => (
-                                    <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                                       <FormLabel className='text-[9px]'>Bateria (kWh)</FormLabel>
-                                      <FormControl>
-                                        <NumberInput
-                                          value={toNumberValue(field.value)}
-                                          onValueChange={(nextValue) => field.onChange(nextValue)}
-                                          onBlur={field.onBlur}
-                                          name={field.name}
-                                          ref={field.ref}
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
                                           className='h-7 text-[10px]'
                                           step={0.1}
-                                          min={0}
+                                  min={0}
                                           disabled={!motorizacaoSelecionada}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
                                 />
-                                <FormField
-                                  control={form.control}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                                   name='voltagemTotal'
-                                  render={({ field }) => (
-                                    <FormItem>
+                      render={({ field }) => (
+                        <FormItem>
                                       <FormLabel className='text-[9px]'>Voltagem (V)</FormLabel>
-                                      <FormControl>
-                                        <NumberInput
-                                          value={toNumberValue(field.value)}
-                                          onValueChange={(nextValue) => field.onChange(nextValue)}
-                                          onBlur={field.onBlur}
-                                          name={field.name}
-                                          ref={field.ref}
+                          <FormControl>
+                                <NumberInput
+                                  value={toNumberValue(field.value)}
+                                  onValueChange={(nextValue) => field.onChange(nextValue)}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                  ref={field.ref}
                                           className='h-7 text-[10px]'
                                           step={0.1}
-                                          min={0}
+                                  min={0}
                                           disabled={!motorizacaoSelecionada}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
                                 />
-                              </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                             ) : null}
-                          </div>
+                  </div>
                         ) : <div />}
 
                         {/* Coluna 2: Pneus */}
@@ -5579,41 +5602,41 @@ export function ViaturaFormContainer({
                             <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
                           </div>
                           <div className='grid grid-cols-2 gap-2'>
-                            <FormField
-                              control={form.control}
-                              name='pneusFrente'
-                              render={({ field }) => (
-                                <FormItem>
+                    <FormField
+                      control={form.control}
+                      name='pneusFrente'
+                      render={({ field }) => (
+                        <FormItem>
                                   <FormLabel className='text-[9px]'>Frente</FormLabel>
-                                  <FormControl>
-                                    <Input
+                          <FormControl>
+                            <Input
                                       placeholder='Ref.'
-                                      {...field}
+                              {...field}
                                       className='h-7 text-[10px]'
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
                             />
-                            <FormField
-                              control={form.control}
-                              name='pneusTras'
-                              render={({ field }) => (
-                                <FormItem>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='pneusTras'
+                      render={({ field }) => (
+                        <FormItem>
                                   <FormLabel className='text-[9px]'>Traseiros</FormLabel>
-                                  <FormControl>
-                                    <Input
+                          <FormControl>
+                            <Input
                                       placeholder='Ref.'
-                                      {...field}
+                              {...field}
                                       className='h-7 text-[10px]'
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
                             />
-                          </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                         </div>
 
                         {/* Coluna 3: Utilização Comercial */}
@@ -5626,52 +5649,52 @@ export function ViaturaFormContainer({
                             <div className='h-px flex-1 bg-gradient-to-l from-border to-transparent' />
                           </div>
                           <div className='grid grid-cols-2 gap-2'>
-                            <FormField
-                              control={form.control}
-                              name='marketing'
-                              render={({ field }) => (
-                                <FormItem>
+                    <FormField
+                      control={form.control}
+                      name='marketing'
+                      render={({ field }) => (
+                        <FormItem>
                                   <FormLabel className='text-[9px]'>Marketing</FormLabel>
-                                  <FormControl>
+                          <FormControl>
                                     <div className='flex items-center justify-between rounded-lg border border-input bg-background px-1.5 py-2 h-12'>
                                       <span className='text-[10px] text-muted-foreground'>
-                                        {field.value ? 'Sim' : 'Não'}
-                                      </span>
+                                {field.value ? 'Sim' : 'Não'}
+                              </span>
                                       <Switch 
                                         checked={field.value} 
                                         onCheckedChange={field.onChange}
                                         className='scale-[0.7]'
                                       />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name='mercadorias'
-                              render={({ field }) => (
-                                <FormItem>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='mercadorias'
+                      render={({ field }) => (
+                        <FormItem>
                                   <FormLabel className='text-[9px]'>Mercadorias</FormLabel>
-                                  <FormControl>
+                          <FormControl>
                                     <div className='flex items-center justify-between rounded-lg border border-input bg-background px-1.5 py-2 h-12'>
                                       <span className='text-[10px] text-muted-foreground'>
-                                        {field.value ? 'Sim' : 'Não'}
-                                      </span>
+                                {field.value ? 'Sim' : 'Não'}
+                              </span>
                                       <Switch 
                                         checked={field.value} 
                                         onCheckedChange={field.onChange}
                                         className='scale-[0.7]'
                                       />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                      </div>
+                  </div>
                         </div>
                       )}
                     </div>

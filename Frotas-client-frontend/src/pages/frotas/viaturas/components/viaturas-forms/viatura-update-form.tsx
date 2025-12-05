@@ -112,7 +112,11 @@ const mapDtoToFormValues = (viatura: ViaturaDTO): ViaturaFormSchemaType => {
     nMotor: viatura.nMotor ?? 0,
     cilindrada: viatura.cilindrada ?? undefined,
     potencia: viatura.potencia ?? 0,
+    potenciaMotorEletrico: viatura.potenciaMotorEletrico ?? undefined,
+    potenciaCombinada: viatura.potenciaCombinada ?? undefined,
     capacidadeBateria: viatura.capacidadeBateria ?? undefined,
+    consumoEletrico: viatura.consumoEletrico ?? undefined,
+    tempoCarregamento: viatura.tempoCarregamento ?? undefined,
     emissoesCO2: (viatura as any).emissoesCO2 ?? undefined,
     padraoCO2: (viatura as any).padraoCO2 ?? '',
     voltagemTotal: (viatura as any).voltagemTotal ?? undefined,
@@ -233,12 +237,74 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
       ? null
       : (values.entidadeFornecedoraTipo as 'fornecedor' | 'terceiro')
 
+  // Helper function to normalize optional integer values (for int? fields)
+  const normalizeOptionalInteger = (value: number | undefined | null | string | boolean): number | null => {
+    if (value === undefined || value === null || value === '' || value === false) {
+      return null
+    }
+    if (typeof value === 'boolean') {
+      return null
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim()
+      if (trimmed === '' || trimmed === 'null' || trimmed === 'undefined' || trimmed === 'NaN') {
+        return null
+      }
+      const num = parseInt(trimmed, 10)
+      if (isNaN(num) || !isFinite(num)) {
+        return null
+      }
+      return num
+    }
+    if (typeof value === 'number') {
+      if (isNaN(value) || !isFinite(value)) {
+        return null
+      }
+      // Convert to integer (round)
+      return Math.round(value)
+    }
+    return null
+  }
+
+  // Helper function to normalize optional numeric values (for decimal? fields)
+  const normalizeOptionalNumber = (value: number | undefined | null | string | boolean): number | null => {
+    // Handle undefined, null, empty string, or whitespace-only strings
+    if (value === undefined || value === null || value === '' || value === false) {
+      return null
+    }
+    // Handle boolean true (shouldn't happen, but just in case)
+    if (typeof value === 'boolean') {
+      return null
+    }
+    // Handle strings
+    if (typeof value === 'string') {
+      const trimmed = value.trim()
+      if (trimmed === '' || trimmed === 'null' || trimmed === 'undefined' || trimmed === 'NaN') {
+        return null
+      }
+      const num = parseFloat(trimmed)
+      if (isNaN(num) || !isFinite(num)) {
+        return null
+      }
+      return num
+    }
+    // Handle numbers
+    if (typeof value === 'number') {
+      if (isNaN(value) || !isFinite(value)) {
+        return null
+      }
+      return value
+    }
+    // Any other type, return null
+    return null
+  }
+
   return {
     matricula: values.matricula || '',
     countryCode: values.countryCode || 'PT',
-    numero: values.numero ?? null,
-    anoFabrico: values.anoFabrico ?? null,
-    mesFabrico: values.mesFabrico ?? null,
+    numero: normalizeOptionalInteger(values.numero),
+    anoFabrico: normalizeOptionalInteger(values.anoFabrico),
+    mesFabrico: normalizeOptionalInteger(values.mesFabrico),
     dataAquisicao: values.dataAquisicao?.toISOString() ?? null,
     dataLivrete: values.dataLivrete?.toISOString() ?? null,
     marcaId: (values.marcaId && typeof values.marcaId === 'string' && values.marcaId.trim() !== '') ? values.marcaId : null,
@@ -259,21 +325,25 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     entidadeFornecedoraTipo,
     terceiroId: values.terceiroId ?? null,
     fornecedorId: values.fornecedorId ?? null,
-    nQuadro: values.nQuadro ?? null,
-    nMotor: values.nMotor ?? null,
-    cilindrada: values.cilindrada ?? null,
-    potencia: values.potencia ?? null,
-    capacidadeBateria: values.capacidadeBateria ?? null,
-    emissoesCO2: values.emissoesCO2 ?? null,
+    nQuadro: normalizeOptionalInteger(values.nQuadro),
+    nMotor: normalizeOptionalInteger(values.nMotor),
+    cilindrada: normalizeOptionalNumber(values.cilindrada),
+    potencia: normalizeOptionalInteger(values.potencia),
+    potenciaMotorEletrico: normalizeOptionalInteger(values.potenciaMotorEletrico),
+    potenciaCombinada: normalizeOptionalInteger(values.potenciaCombinada),
+    capacidadeBateria: normalizeOptionalNumber(values.capacidadeBateria),
+    consumoEletrico: normalizeOptionalNumber(values.consumoEletrico),
+    tempoCarregamento: normalizeOptionalNumber(values.tempoCarregamento),
+    emissoesCO2: normalizeOptionalNumber(values.emissoesCO2),
     padraoCO2: values.padraoCO2 && values.padraoCO2.trim() !== '' ? values.padraoCO2 : null,
-    voltagemTotal: values.voltagemTotal ?? null,
-    tara: values.tara ?? null,
-    lotacao: values.lotacao ?? null,
+    voltagemTotal: normalizeOptionalNumber(values.voltagemTotal),
+    tara: normalizeOptionalInteger(values.tara),
+    lotacao: normalizeOptionalInteger(values.lotacao),
     marketing: values.marketing ?? false,
     mercadorias: values.mercadorias ?? false,
-    cargaUtil: values.cargaUtil ?? null,
-    comprimento: values.comprimento ?? null,
-    largura: values.largura ?? null,
+    cargaUtil: normalizeOptionalInteger(values.cargaUtil),
+    comprimento: normalizeOptionalInteger(values.comprimento),
+    largura: normalizeOptionalInteger(values.largura),
     pneusFrente: values.pneusFrente || '',
     pneusTras: values.pneusTras || '',
     contrato: values.contrato || '',
@@ -288,8 +358,8 @@ const mapFormValuesToPayload = (values: ViaturaFormSchemaType) => {
     documentos: encodeViaturaDocumentos(values.documentos) || null,
     notasAdicionais: values.notasAdicionais || '',
     cartaoCombustivel: values.cartaoCombustivel || '',
-    anoImpostoSelo: values.anoImpostoSelo ?? null,
-    anoImpostoCirculacao: values.anoImpostoCirculacao ?? null,
+    anoImpostoSelo: normalizeOptionalInteger(values.anoImpostoSelo),
+    anoImpostoCirculacao: normalizeOptionalInteger(values.anoImpostoCirculacao),
     dataValidadeSelo: values.dataValidadeSelo?.toISOString() ?? null,
     imagem: encodeViaturaDocumentos(values.imagem) || null,
     equipamentoIds: Array.isArray(values.equipamentoIds) ? values.equipamentoIds : [],
@@ -425,27 +495,108 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
         payload.seguroIds = []
       }
       
+      // Garantir que todos os valores undefined, strings vazias, ou inválidos sejam null
+      // Especialmente importante para campos numéricos opcionais que o backend espera como int? ou decimal?
+      const cleanPayload = Object.fromEntries(
+        Object.entries(payload).map(([key, value]) => {
+          // Se for undefined, retornar null
+          if (value === undefined) {
+            return [key, null]
+          }
+          // Se for string vazia ou apenas espaços, retornar null
+          if (typeof value === 'string' && value.trim() === '') {
+            return [key, null]
+          }
+            // Para campos numéricos opcionais específicos, garantir que sejam null ou número válido
+            // IMPORTANTE: potenciaMotorEletrico e potenciaCombinada devem ser INT (não decimal)
+            const integerFields = ['potenciaMotorEletrico', 'potenciaCombinada', 'potencia', 'nQuadro', 'nMotor', 'tara', 'lotacao', 'cargaUtil', 'comprimento', 'largura', 'numero', 'anoFabrico', 'mesFabrico', 'anoImpostoSelo', 'anoImpostoCirculacao']
+            const decimalFields = ['cilindrada', 'capacidadeBateria', 'consumoEletrico', 'tempoCarregamento', 'emissoesCO2', 'voltagemTotal']
+          
+          if (integerFields.includes(key)) {
+            // Campos que devem ser inteiros
+            if (typeof value === 'string') {
+              const trimmed = value.trim()
+              if (trimmed === '' || trimmed === 'null' || trimmed === 'undefined') {
+                return [key, null]
+              }
+              const num = parseInt(trimmed, 10)
+              if (isNaN(num) || !isFinite(num)) {
+                return [key, null]
+              }
+              return [key, num]
+            }
+            if (typeof value === 'number') {
+              if (isNaN(value) || !isFinite(value)) {
+                return [key, null]
+              }
+              // Converter para inteiro (arredondar)
+              return [key, Math.round(value)]
+            }
+            if (value === null) {
+              return [key, null]
+            }
+            return [key, null]
+          }
+          
+          if (decimalFields.includes(key)) {
+            // Campos que podem ser decimais
+            if (typeof value === 'string') {
+              const trimmed = value.trim()
+              if (trimmed === '' || trimmed === 'null' || trimmed === 'undefined') {
+                return [key, null]
+              }
+              const num = parseFloat(trimmed)
+              if (isNaN(num) || !isFinite(num)) {
+                return [key, null]
+              }
+              return [key, num]
+            }
+            if (typeof value === 'number') {
+              if (isNaN(value) || !isFinite(value)) {
+                return [key, null]
+              }
+              return [key, value]
+            }
+            if (value === null) {
+              return [key, null]
+            }
+            return [key, null]
+          }
+          // Para outros campos, manter o valor original
+          return [key, value]
+        })
+      ) as typeof payload
+      
       console.log('[UpdateViatura] Payload COMPLETO a enviar:', {
         id: viaturaId,
-        marcaId: payload.marcaId,
-        modeloId: payload.modeloId,
-        matricula: payload.matricula,
-        documentos: payload.documentos,
-        imagem: payload.imagem,
-        equipamentoIds: payload.equipamentoIds,
-        garantiaIds: payload.garantiaIds,
-        condutores: payload.condutores,
+        marcaId: cleanPayload.marcaId,
+        modeloId: cleanPayload.modeloId,
+        matricula: cleanPayload.matricula,
+        potenciaMotorEletrico: cleanPayload.potenciaMotorEletrico,
+        potenciaCombinada: cleanPayload.potenciaCombinada,
+        tipoPotenciaMotorEletrico: typeof cleanPayload.potenciaMotorEletrico,
+        tipoPotenciaCombinada: typeof cleanPayload.potenciaCombinada,
+        documentos: cleanPayload.documentos,
+        imagem: cleanPayload.imagem,
+        equipamentoIds: cleanPayload.equipamentoIds,
+        garantiaIds: cleanPayload.garantiaIds,
+        condutores: cleanPayload.condutores,
       })
       console.log('[UpdateViatura] Valores do formulário ANTES de mapear:', {
+        potenciaMotorEletrico: values.potenciaMotorEletrico,
+        tipoPotenciaMotorEletrico: typeof values.potenciaMotorEletrico,
+        potenciaCombinada: values.potenciaCombinada,
+        tipoPotenciaCombinada: typeof values.potenciaCombinada,
         equipamentoIds: values.equipamentoIds,
         garantiaIds: values.garantiaIds,
         condutorIds: values.condutorIds,
         condutoresDocumentos: values.condutoresDocumentos,
       })
+      console.log('[UpdateViatura] JSON stringify do payload (primeiros 2000 chars):', JSON.stringify(cleanPayload).substring(0, 2000))
       
       const response = await updateMutation.mutateAsync({
         id: viaturaId,
-        data: payload as any,
+        data: cleanPayload as any,
       })
       const result = handleApiResponse(
         response,

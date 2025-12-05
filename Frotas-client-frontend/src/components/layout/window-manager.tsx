@@ -574,34 +574,44 @@ export function WindowManager({ children }: WindowManagerProps) {
     }
   }
 
-  const handleWheel = (e: React.WheelEvent) => {
-    if (!windowsBarRef.current) return
-    e.preventDefault()
+  // Register wheel event listener manually with passive: false to allow preventDefault
+  useEffect(() => {
+    const element = windowsBarRef.current
+    if (!element) return
 
-    const currentScroll = windowsBarRef.current.scrollLeft
-    const containerWidth = windowsBarRef.current.clientWidth
-    const totalWidth = windowsBarRef.current.scrollWidth
+    const wheelHandler = (e: WheelEvent) => {
+      e.preventDefault()
 
-    // Calculate target scroll position
-    let targetScroll = currentScroll + e.deltaY * 2
+      const currentScroll = element.scrollLeft
+      const containerWidth = element.clientWidth
+      const totalWidth = element.scrollWidth
 
-    // Ensure we don't scroll past the boundaries
-    targetScroll = Math.max(
-      0,
-      Math.min(targetScroll, totalWidth - containerWidth)
-    )
+      // Calculate target scroll position
+      let targetScroll = currentScroll + e.deltaY * 2
 
-    // If we're scrolling left and very close to the left edge, snap to exactly 0
-    if (e.deltaY < 0 && targetScroll < 10) {
-      targetScroll = 0
+      // Ensure we don't scroll past the boundaries
+      targetScroll = Math.max(
+        0,
+        Math.min(targetScroll, totalWidth - containerWidth)
+      )
+
+      // If we're scrolling left and very close to the left edge, snap to exactly 0
+      if (e.deltaY < 0 && targetScroll < 10) {
+        targetScroll = 0
+      }
+
+      // Use smooth scrolling to the target position
+      element.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth',
+      })
     }
 
-    // Use smooth scrolling to the target position
-    windowsBarRef.current.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth',
-    })
-  }
+    element.addEventListener('wheel', wheelHandler, { passive: false })
+    return () => {
+      element.removeEventListener('wheel', wheelHandler)
+    }
+  }, [])
 
   const handleCloseAllWindows = () => {
     // Remove all windows and clean up their data
@@ -673,7 +683,6 @@ export function WindowManager({ children }: WindowManagerProps) {
             <div
               ref={windowsBarRef}
               className='flex gap-2 p-2 bg-background/80 backdrop-blur-sm border-t overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'
-              onWheel={handleWheel}
             >
               <Button
                 variant='outline'
