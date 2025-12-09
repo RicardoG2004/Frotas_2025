@@ -59,6 +59,11 @@ import {
   FuncionariosCreatePage,
   FuncionariosUpdatePage,
 } from '@/pages/base/funcionarios'
+import {
+  FsesPage,
+  FsesCreatePage,
+  FsesUpdatePage,
+} from '@/pages/base/fses'
 
 
 export const utilitariosRoutes = [
@@ -608,6 +613,36 @@ export const utilitariosRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Fornecedor',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/fses',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <FsesPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Fornecedores Serviços Externos',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/fses/create',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <FsesCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Fornecedor Serviços Externos',
+  },
+  {
+    path: 'utilitarios/tabelas/configuracoes/fses/update',
+    element: (
+      <LicenseGuard requiredModule={utilitarios.id}>
+        <FsesUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Fornecedor Serviços Externos',
   },
   {
     path: 'utilitarios/tabelas/configuracoes/funcionarios',

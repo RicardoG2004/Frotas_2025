@@ -38,11 +38,7 @@ namespace Frotas.API.Application.Services.Base.FornecedorService
     {
       string dynamicOrder = (filter.Sorting != null) ? GSHelpers.GenerateOrderByString(filter) : ""; // possible dynamic ordering from datatable
       FornecedorSearchTable specification = new(filter.Filters ?? [], dynamicOrder); // ardalis specification
-      PaginatedResponse<FornecedorDTO> pagedResponse = await _repository.GetPaginatedResultsAsync<
-        Fornecedor,
-        FornecedorDTO,
-        Guid
-      >(filter.PageNumber, filter.PageSize, specification); // paginated response, entity mapped to dto
+      PaginatedResponse<FornecedorDTO> pagedResponse = await _repository.GetPaginatedResultsAsync<Fornecedor,FornecedorDTO,Guid>(filter.PageNumber, filter.PageSize, specification); // paginated response, entity mapped to dto
       return pagedResponse;
     }
 

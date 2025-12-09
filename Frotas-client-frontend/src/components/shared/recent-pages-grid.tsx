@@ -140,7 +140,7 @@ export function RecentPagesGrid({
                 <div className='flex flex-col flex-1 min-w-0'>
                   {/* Page Title */}
                   <h4 className='font-medium text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight mb-2'>
-                    {page.title}
+                    {pageConfig.title || page.title}
                   </h4>
 
                   {/* Time row */}

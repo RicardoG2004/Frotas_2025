@@ -15,13 +15,14 @@ using Frotas.API.Application.Services.Base.TerceiroService.DTOs;
 using Frotas.API.Application.Services.Base.EntidadeService.DTOs;
 using Frotas.API.Application.Services.Base.CargoService.DTOs;
 using Frotas.API.Application.Services.Base.FuncionarioService.DTOs;
-using Frotas.API.Application.Services.Frotas.CorService.DTOs;
+using Frotas.API.Application.Services.Base.FornecedorService.DTOs;
+using Frotas.API.Application.Services.Base.FseService.DTOs;
 using Frotas.API.Application.Services.Base.GarantiaService.DTOs;
+using Frotas.API.Application.Services.Frotas.CorService.DTOs;
 using Frotas.API.Application.Services.Frotas.CategoriaService.DTOs;
 using Frotas.API.Application.Services.Frotas.MarcaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ModeloService.DTOs;
 using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
-using Frotas.API.Application.Services.Base.FornecedorService.DTOs;
 using Frotas.API.Application.Services.Frotas.PecaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ServicoService.DTOs;
 using Frotas.API.Application.Services.Frotas.EquipamentoService.DTOs;
@@ -168,6 +169,15 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.PaisEscritorio, opt => opt.Ignore())
         .ForMember(dest => dest.CodigoPostalCarga, opt => opt.Ignore())
         .ForMember(dest => dest.PaisCarga, opt => opt.Ignore());
+
+      // Fses mappings
+      _ = CreateMap<Fse, FseDTO>();
+      _ = CreateMap<CreateFseRequest, Fse>()
+        .ForMember(dest => dest.CodigoPostal, opt => opt.Ignore())
+        .ForMember(dest => dest.Pais, opt => opt.Ignore());
+      _ = CreateMap<UpdateFseRequest, Fse>()
+        .ForMember(dest => dest.CodigoPostal, opt => opt.Ignore())
+        .ForMember(dest => dest.Pais, opt => opt.Ignore());
 
       // Pecas mappings
       _ = CreateMap<Peca, PecaDTO>();

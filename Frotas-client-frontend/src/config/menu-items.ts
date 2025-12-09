@@ -271,6 +271,21 @@ export const roleHeaderMenus = {
                 funcionalidadeId: modules.utilitarios.permissions.fornecedores.id,
               },
               {
+                label: 'Fornecedores Serviços Externos',
+                href: '/utilitarios/tabelas/configuracoes/fses',
+                icon: 'briefcase',
+                colors: {
+                  colorful: 'bg-teal-500',
+                  'theme-color': 'bg-teal-600',
+                  pastel: 'bg-teal-200',
+                  vibrant: 'bg-teal-700',
+                  neon: 'bg-teal-400',
+                  'neon-cyberpunk':
+                    'bg-teal-500 shadow-[0_0_40px_rgba(20,184,166,0.9)]',
+                },
+                funcionalidadeId: modules.utilitarios.permissions.fses.id,
+              },
+              {
                 label: 'Funcionários',
                 href: '/utilitarios/tabelas/configuracoes/funcionarios',
                 icon: 'briefcase',

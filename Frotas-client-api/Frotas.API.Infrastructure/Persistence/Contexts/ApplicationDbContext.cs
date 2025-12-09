@@ -53,6 +53,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<Combustivel> Combustiveis { get; set; }
     public DbSet<Fornecedor> Fornecedores { get; set; }
+    public DbSet<Fse> Fses { get; set; }
     public DbSet<Equipamento> Equipamentos { get; set; }
     public DbSet<TipoViatura> TipoViaturas { get; set; }
     public DbSet<Seguradora> Seguradoras { get; set; }

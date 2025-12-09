@@ -32,6 +32,7 @@ export function UtilitariosDashboardPage() {
     '/utilitarios/tabelas/configuracoes/garantias',
     '/utilitarios/tabelas/configuracoes/entidades',
     '/utilitarios/tabelas/configuracoes/fornecedores',
+    '/utilitarios/tabelas/configuracoes/fses',
     '/utilitarios/tabelas/configuracoes/cargos',
     '/utilitarios/tabelas/configuracoes/funcionarios',
   ] as const

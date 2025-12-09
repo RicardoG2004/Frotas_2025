@@ -56,6 +56,10 @@ export const utilitarios: Module = {
       id: '',
       name: 'Fornecedores',
     },
+    fses: {
+      id: '',
+      name: 'Fornecedores Serviços Externos',
+    },
     funcionarios: {
       id: '',
       name: 'Funcionários',
