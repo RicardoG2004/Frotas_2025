@@ -17,20 +17,5 @@ export const filterFields: DataTableFilterField<FseDTO>[] = [
     value: 'telefone',
     order: 3,
   },
-  {
-    label: 'Email',
-    value: 'email',
-    order: 4,
-  },
-  {
-    label: 'Origem',
-    value: 'origem',
-    order: 5,
-  },
-  {
-    label: 'Criado em',
-    value: 'createdOn',
-    order: 6,
-  },
 ]
 

@@ -60,42 +60,6 @@ export const columns: DataTableColumnDef<FseDTO>[] = [
     cell: ({ row }) => row.original.telefone || '-',
   },
   {
-    accessorKey: 'email',
-    header: 'Email',
-    sortKey: 'email',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) => row.original.email || '-',
-  },
-  {
-    accessorKey: 'origem',
-    header: 'Origem',
-    sortKey: 'origem',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) => row.original.origem || '-',
-  },
-  {
-    accessorKey: 'createdOn',
-    header: 'Criado em',
-    sortKey: 'createdOn',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) =>
-      row.original.createdOn
-        ? new Date(row.original.createdOn).toLocaleDateString()
-        : '-',
-  },
-  {
     id: 'actions',
     header: '',
     cell: ({ row }) => (

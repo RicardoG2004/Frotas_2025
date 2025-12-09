@@ -468,9 +468,6 @@ const FseUpdateForm = ({
                       <div>
                         <CardTitle className='text-base flex items-center gap-2'>
                           Identificação do Fornecedor Serviços Externos
-                          <Badge variant='secondary' className='text-xs'>
-                            Obrigatório
-                          </Badge>
                         </CardTitle>
                         <p className='text-sm text-muted-foreground mt-1'>
                           Informações básicas do fornecedor serviços externos
