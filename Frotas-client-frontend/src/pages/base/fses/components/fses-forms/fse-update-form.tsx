@@ -4,7 +4,7 @@ import { useForm, type Resolver } from 'react-hook-form'
 import { useGetCodigosPostaisSelect } from '@/pages/base/codigospostais/queries/codigospostais-queries'
 import { useGetPaisesSelect } from '@/pages/base/paises/queries/paises-queries'
 import { UpdateFseDTO } from '@/types/dtos/base/fses.dtos'
-import { Plus, MapPin, User, Eye, Building, Phone, Mail, Globe } from 'lucide-react'
+import { Plus, MapPin, User, Eye, Building, Phone, Mail, Globe, Home, Printer } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFormState, useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
@@ -254,9 +254,8 @@ const FseUpdateForm = ({
         if (effectiveWindowId) {
           updateWindowFormData(
             effectiveWindowId,
-            value,
-            setWindowHasFormData,
-            defaultValues
+            hasChanges,
+            setWindowHasFormData
           )
           if (value.nome && value.nome !== formData?.nome) {
             updateUpdateWindowTitle(
@@ -551,7 +550,7 @@ const FseUpdateForm = ({
                         control={form.control}
                         name='origem'
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className='mt-1'>
                             <FormLabel className='flex items-center gap-2'>
                               <MapPin className='h-4 w-4' />
                               Origem
@@ -606,7 +605,10 @@ const FseUpdateForm = ({
                       name='morada'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Morada</FormLabel>
+                          <FormLabel className='flex items-center gap-2'>
+                            <Home className='h-4 w-4' />
+                            Morada
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder='Digite a morada'
@@ -624,7 +626,10 @@ const FseUpdateForm = ({
                         name='codigoPostalId'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Código Postal</FormLabel>
+                            <FormLabel className='flex items-center gap-2'>
+                              <Mail className='h-4 w-4' />
+                              Código Postal
+                            </FormLabel>
                             <FormControl>
                               <div className='relative'>
                                 <Autocomplete
@@ -672,7 +677,10 @@ const FseUpdateForm = ({
                         name='paisId'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>País</FormLabel>
+                            <FormLabel className='flex items-center gap-2'>
+                              <Globe className='h-4 w-4' />
+                              País
+                            </FormLabel>
                             <FormControl>
                               <div className='relative'>
                                 <Autocomplete
@@ -747,7 +755,10 @@ const FseUpdateForm = ({
                         name='contacto'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Contacto</FormLabel>
+                            <FormLabel className='flex items-center gap-2'>
+                              <Phone className='h-4 w-4' />
+                              Contacto
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder='Digite o contacto'
@@ -764,7 +775,10 @@ const FseUpdateForm = ({
                         name='fax'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Fax</FormLabel>
+                            <FormLabel className='flex items-center gap-2'>
+                              <Printer className='h-4 w-4' />
+                              Fax
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder='Digite o fax'
