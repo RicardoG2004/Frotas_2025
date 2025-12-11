@@ -66,6 +66,8 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<ViaturaCondutor> ViaturaCondutores { get; set; }
     public DbSet<ViaturaAcidente> ViaturaAcidentes { get; set; }
     public DbSet<ViaturaMulta> ViaturaMultas { get; set; }
+    public DbSet<Manutencao> Manutencoes { get; set; }
+    public DbSet<ManutencaoServico> ManutencaoServicos { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -190,6 +192,18 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .WithMany()
         .HasForeignKey(x => x.FuncionarioId)
         .OnDelete(DeleteBehavior.Restrict); // RESTRICT: Não apagar o funcionário
+
+      modelBuilder.Entity<ManutencaoServico>()
+        .HasOne(x => x.Manutencao)
+        .WithMany(x => x.ManutencaoServicos)
+        .HasForeignKey(x => x.ManutencaoId)
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover manutenção, apagar serviços
+
+      modelBuilder.Entity<ManutencaoServico>()
+        .HasOne(x => x.Servico)
+        .WithMany()
+        .HasForeignKey(x => x.ServicoId)
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: Não apagar o serviço
 
       // query filters
       _ = modelBuilder.AppendGlobalQueryFilter<ISoftDelete>(s => s.DeletedOn == null);

@@ -6,6 +6,7 @@ import { useFormsStore } from '@/stores/use-forms-store'
 import { usePagesStore } from '@/stores/use-pages-store'
 import { useWindowsStore, WindowState } from '@/stores/use-windows-store'
 import { Icons } from '@/components/ui/icons'
+import { getPageTitleFromPath } from '@/stores/use-navigation-history-store'
 
 // ============================================================================
 // WINDOW IDENTIFICATION
@@ -441,6 +442,22 @@ export function getWindowMetadata(path: string): {
   const pathSegments = path.split('/').filter(Boolean)
 
   if (pathSegments.includes('create') || pathSegments.includes('update')) {
+    // First try to get title from path mapping (more specific)
+    const titleFromPath = getPageTitleFromPath(path)
+    if (titleFromPath && titleFromPath !== 'Window') {
+      const parentPathSegments = pathSegments.slice(0, -1)
+      const parentPath = '/' + parentPathSegments.join('/')
+      const parentItem =
+        findFrotasItem(parentPath) ?? findUtilitarioItem(parentPath)
+      
+      return {
+        icon: parentItem?.icon as keyof typeof Icons || null,
+        color: '',
+        title: titleFromPath,
+      }
+    }
+
+    // Fallback to parent item label
     const parentPathSegments = pathSegments.slice(0, -1)
     const parentPath = '/' + parentPathSegments.join('/')
 
@@ -452,6 +469,16 @@ export function getWindowMetadata(path: string): {
         color: '',
         title: parentItem.label,
       }
+    }
+  }
+
+  // Try to get title from path mapping as fallback
+  const titleFromPath = getPageTitleFromPath(path)
+  if (titleFromPath && titleFromPath !== 'Window') {
+    return {
+      icon: null,
+      color: 'bg-gray-500',
+      title: titleFromPath,
     }
   }
 

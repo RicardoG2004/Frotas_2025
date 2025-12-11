@@ -24,6 +24,13 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Manutenções',
+      description: 'Gestão de manutenções',
+      icon: Icons.wrench,
+      path: '/frotas/manutencoes',
+      openInNewWindow: true,
+    },
+    {
       title: 'Peças',
       description: 'Gestão de peças',
       icon: Icons.container,

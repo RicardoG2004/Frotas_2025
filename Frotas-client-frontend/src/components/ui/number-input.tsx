@@ -50,6 +50,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
     const [displayValue, setDisplayValue] = React.useState<string>('')
     const [isFocused, setIsFocused] = React.useState(false)
+    const [isHovered, setIsHovered] = React.useState(false)
+    const focusRestoreRef = React.useRef<{ selectionStart: number | null; selectionEnd: number | null } | null>(null)
 
     const roundToDecimals = React.useCallback(
       (value: number, decimals: number = 2) => {
@@ -97,9 +99,25 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       )
     }, [])
 
+    // Restaurar foco após re-renders causados por mudanças de valor
+    React.useLayoutEffect(() => {
+      if (focusRestoreRef.current && inputRef.current) {
+        const { selectionStart, selectionEnd } = focusRestoreRef.current
+        inputRef.current.focus()
+        if (selectionStart !== null && selectionEnd !== null && inputRef.current.setSelectionRange) {
+          inputRef.current.setSelectionRange(selectionStart, selectionEnd)
+        }
+        focusRestoreRef.current = null
+      }
+    })
+
     React.useEffect(() => {
       // Se o campo está focado, não atualizar o displayValue para permitir que o utilizador escreva/apague
-      if (inputRef.current === document.activeElement) {
+      const wasFocused = inputRef.current === document.activeElement
+      const selectionStart = inputRef.current?.selectionStart ?? null
+      const selectionEnd = inputRef.current?.selectionEnd ?? null
+      
+      if (wasFocused) {
         return
       }
 
@@ -120,6 +138,18 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       }
 
       setDisplayValue(desired)
+      
+      // Se estava focado antes, restaurar o foco após a atualização
+      if (wasFocused) {
+        requestAnimationFrame(() => {
+          if (inputRef.current) {
+            inputRef.current.focus()
+            if (selectionStart !== null && selectionEnd !== null && inputRef.current.setSelectionRange) {
+              inputRef.current.setSelectionRange(selectionStart, selectionEnd)
+            }
+          }
+        })
+      }
     }, [numericValue, displayValue, step, roundToDecimals])
 
     const emitValue = React.useCallback(
@@ -132,25 +162,39 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           const clamped = clampValue(next)
           // Garantir que o valor emitido está arredondado corretamente
           const rounded = step < 1 ? roundToDecimals(clamped, 2) : clamped
-          onValueChange(rounded)
+          
+          // Só atualizar se o valor realmente mudou para evitar re-renders desnecessários
+          if (numericValue !== rounded) {
+            onValueChange(rounded)
+          }
+          
           // Formatar o display value com 2 casas decimais se step < 1
-          if (step < 1) {
-            setDisplayValue(rounded.toFixed(2).replace('.', ','))
-          } else {
-            setDisplayValue(String(Math.round(rounded)))
+          // Só atualizar displayValue se estiver diferente para evitar re-renders
+          const newDisplayValue = step < 1 
+            ? rounded.toFixed(2).replace('.', ',')
+            : String(Math.round(rounded))
+          
+          if (displayValue !== newDisplayValue) {
+            setDisplayValue(newDisplayValue)
           }
           return
         }
 
-        onValueChange(undefined)
-        setDisplayValue('')
+        if (numericValue !== undefined) {
+          onValueChange(undefined)
+        }
+        if (displayValue !== '') {
+          setDisplayValue('')
+        }
       },
-      [clampValue, onValueChange, step, roundToDecimals]
+      [clampValue, onValueChange, step, roundToDecimals, numericValue, displayValue]
     )
 
     const handleChange = React.useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = event.target.value
+        const selectionStart = event.target.selectionStart
+        const selectionEnd = event.target.selectionEnd
 
         const numberPattern = /^-?\d*(?:[.,]\d*)?$/
         if (!numberPattern.test(rawValue)) {
@@ -163,7 +207,22 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         const normalized = rawValue.replace(',', '.')
 
         if (rawValue === '' || rawValue === '-' || rawValue === '-.' || rawValue === '.') {
+          // Guardar se estava focado antes de chamar onValueChange
+          const wasFocused = inputRef.current === document.activeElement
           onValueChange?.(undefined)
+          // SEMPRE restaurar o foco e seleção se estava focado
+          if (wasFocused) {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (inputRef.current) {
+                  inputRef.current.focus()
+                  if (selectionStart !== null && selectionEnd !== null && inputRef.current.setSelectionRange) {
+                    inputRef.current.setSelectionRange(selectionStart, selectionEnd)
+                  }
+                }
+              })
+            })
+          }
           return
         }
 
@@ -176,9 +235,26 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
         // Arredondar valores durante a digitação também para evitar problemas de precisão
         const rounded = step < 1 ? roundToDecimals(parsed, 2) : parsed
-        onValueChange?.(rounded)
+        
+        // Guardar se estava focado ANTES de qualquer mudança
+        const wasFocused = inputRef.current === document.activeElement
+        const currentSelectionStart = selectionStart
+        const currentSelectionEnd = selectionEnd
+        
+        // Só chamar onValueChange se o valor realmente mudou
+        if (numericValue !== rounded && onValueChange) {
+          onValueChange(rounded)
+        }
+        
+        // Guardar informações para restaurar o foco após o re-render
+        if (wasFocused) {
+          focusRestoreRef.current = {
+            selectionStart: currentSelectionStart,
+            selectionEnd: currentSelectionEnd,
+          }
+        }
       },
-      [step, roundToDecimals, onValueChange]
+      [step, roundToDecimals, onValueChange, numericValue]
     )
 
     const handleInternalBlur = React.useCallback(
@@ -223,67 +299,177 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
     const handleStep = React.useCallback(
       (direction: 1 | -1) => {
+        // Manter o foco no input durante a mudança de valor
+        const wasFocused = inputRef.current === document.activeElement
+        const selectionStart = inputRef.current?.selectionStart ?? null
+        const selectionEnd = inputRef.current?.selectionEnd ?? null
+        
         const current = resolveCurrentValue()
         const next = current + direction * step
         // Arredondar imediatamente após o cálculo para evitar erros de precisão
         const rounded = step < 1 ? roundToDecimals(next, 2) : next
-        emitValue(rounded)
+        
+        // Se o valor não mudou, não fazer nada para evitar re-renders desnecessários
+        if (numericValue === rounded) {
+          return
+        }
+        
+        // Só chamar emitValue se o valor realmente mudou
+        const clamped = clampValue(rounded)
+        const finalValue = step < 1 ? roundToDecimals(clamped, 2) : clamped
+        
+        if (numericValue !== finalValue && onValueChange) {
+          onValueChange(finalValue)
+        }
+        
+        // Atualizar displayValue localmente sem causar re-render do pai
+        const newDisplayValue = step < 1 
+          ? finalValue.toFixed(2).replace('.', ',')
+          : String(Math.round(finalValue))
+        
+        if (displayValue !== newDisplayValue) {
+          setDisplayValue(newDisplayValue)
+        }
+        
+        // Restaurar o foco e seleção se estava focado antes (para evitar perda de foco visual)
+        if (wasFocused && inputRef.current) {
+          // Usar múltiplos requestAnimationFrame para garantir que o foco é restaurado após todos os re-renders
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (inputRef.current) {
+                inputRef.current.focus()
+                // Restaurar a seleção se existia
+                if (selectionStart !== null && selectionEnd !== null && inputRef.current.setSelectionRange) {
+                  inputRef.current.setSelectionRange(selectionStart, selectionEnd)
+                }
+              }
+            })
+          })
+        }
       },
-      [step, roundToDecimals, emitValue, resolveCurrentValue]
+      [step, roundToDecimals, clampValue, resolveCurrentValue, numericValue, displayValue, onValueChange]
     )
 
-    const handleWheel = (event: React.WheelEvent<HTMLInputElement>) => {
+    const handleWheel = React.useCallback((event: React.WheelEvent<HTMLInputElement>) => {
       if (disabled) {
         onWheel?.(event)
         return
       }
 
-      if (inputRef.current !== document.activeElement) {
-        onWheel?.(event)
-        return
-      }
-
-      event.preventDefault()
-      event.stopPropagation()
-      event.nativeEvent.stopImmediatePropagation?.()
-
-      const direction: 1 | -1 = event.deltaY < 0 ? 1 : -1
-      handleStep(direction)
-    }
-
-    React.useEffect(() => {
-      if (!isFocused) {
-        return
-      }
-
-      const listener = (event: WheelEvent) => {
-        if (!inputRef.current) {
-          return
-        }
-
-        const path = event.composedPath ? event.composedPath() : []
-
-        const isTargetWithinInput =
-          path.length > 0
-            ? path.includes(inputRef.current)
-            : inputRef.current.contains(event.target as Node)
-
-        if (!isTargetWithinInput) {
-          return
-        }
-
+      // Se o campo está focado, SEMPRE prevenir o scroll da página
+      if (inputRef.current === document.activeElement) {
         event.preventDefault()
         event.stopPropagation()
-        ;(event as any).stopImmediatePropagation?.()
+        event.nativeEvent.preventDefault()
+        event.nativeEvent.stopPropagation()
+        event.nativeEvent.stopImmediatePropagation?.()
+
+        // Manter o foco explicitamente antes de alterar o valor
+        const wasFocused = true
+        const selectionStart = inputRef.current?.selectionStart ?? null
+        const selectionEnd = inputRef.current?.selectionEnd ?? null
 
         const direction: 1 | -1 = event.deltaY < 0 ? 1 : -1
         handleStep(direction)
+
+        // Garantir que o foco permanece após a mudança
+        requestAnimationFrame(() => {
+          if (inputRef.current && wasFocused) {
+            inputRef.current.focus()
+            if (selectionStart !== null && selectionEnd !== null && inputRef.current.setSelectionRange) {
+              inputRef.current.setSelectionRange(selectionStart, selectionEnd)
+            }
+          }
+        })
+        return // Não chamar onWheel para evitar propagação
+      } else if (isHovered) {
+        // Se apenas com hover, também prevenir mas só alterar valor se hover
+        event.preventDefault()
+        event.stopPropagation()
+        event.nativeEvent.preventDefault()
+        event.nativeEvent.stopPropagation()
+        event.nativeEvent.stopImmediatePropagation?.()
+
+        const direction: 1 | -1 = event.deltaY < 0 ? 1 : -1
+        handleStep(direction)
+        return // Não chamar onWheel para evitar propagação
       }
 
-      window.addEventListener('wheel', listener, { passive: false, capture: true })
+      onWheel?.(event)
+    }, [disabled, isHovered, handleStep, onWheel])
+
+    React.useEffect(() => {
+      // Quando o campo está focado, bloquear completamente o scroll da página
+      if (!isFocused || !inputRef.current) {
+        return
+      }
+
+      // Guardar a posição atual do scroll
+      let scrollPosition = window.scrollY || document.documentElement.scrollTop
+
+      // Listener que bloqueia TODOS os eventos de scroll quando o campo está focado
+      const preventScroll = (event: WheelEvent) => {
+        // Se o campo está focado, SEMPRE prevenir scroll
+        if (inputRef.current === document.activeElement) {
+          // Prevenir o scroll da página
+          event.preventDefault()
+          event.stopPropagation()
+          event.stopImmediatePropagation?.()
+          
+          // Forçar a posição do scroll a permanecer igual
+          window.scrollTo(0, scrollPosition)
+          document.documentElement.scrollTop = scrollPosition
+          document.body.scrollTop = scrollPosition
+
+          // Verificar se o evento está sobre o input ou seus elementos filhos
+          const target = event.target as Node
+          const path = event.composedPath ? event.composedPath() : []
+          const isTargetWithinInput =
+            path.length > 0
+              ? path.includes(inputRef.current)
+              : inputRef.current.contains(target)
+
+          // Só alterar o valor se o evento for sobre o input
+          if (isTargetWithinInput) {
+            const direction: 1 | -1 = event.deltaY < 0 ? 1 : -1
+            handleStep(direction)
+          }
+        }
+      }
+
+      // Atualizar a posição do scroll periodicamente enquanto focado
+      const updateScrollPosition = () => {
+        if (inputRef.current === document.activeElement) {
+          scrollPosition = window.scrollY || document.documentElement.scrollTop
+        }
+      }
+
+      // Listener para manter a posição do scroll fixa
+      const lockScroll = () => {
+        if (inputRef.current === document.activeElement) {
+          window.scrollTo(0, scrollPosition)
+          document.documentElement.scrollTop = scrollPosition
+          document.body.scrollTop = scrollPosition
+        }
+      }
+
+      // Adicionar listeners em múltiplos níveis para garantir captura
+      window.addEventListener('wheel', preventScroll, { passive: false, capture: true })
+      document.addEventListener('wheel', preventScroll, { passive: false, capture: true })
+      document.body.addEventListener('wheel', preventScroll, { passive: false, capture: true })
+      
+      // Bloquear scroll via eventos de scroll
+      window.addEventListener('scroll', lockScroll, { passive: false, capture: true })
+      
+      // Atualizar posição do scroll periodicamente
+      const scrollInterval = setInterval(updateScrollPosition, 100)
 
       return () => {
-        window.removeEventListener('wheel', listener, { capture: true } as any)
+        window.removeEventListener('wheel', preventScroll, { capture: true } as any)
+        document.removeEventListener('wheel', preventScroll, { capture: true } as any)
+        document.body.removeEventListener('wheel', preventScroll, { capture: true } as any)
+        window.removeEventListener('scroll', lockScroll, { capture: true } as any)
+        clearInterval(scrollInterval)
       }
     }, [handleStep, isFocused])
 
@@ -300,6 +486,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           onWheel={handleWheel}
           onBlur={handleInternalBlur}
           onFocus={handleInternalFocus}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           className={cn('pr-12', className)}
           placeholder={resolvedPlaceholder}
           disabled={disabled}

@@ -32,6 +32,9 @@ import { TipoViaturasUpdatePage } from '@/pages/frotas/tipo-viaturas/components/
 import { ViaturasPage } from '@/pages/frotas/viaturas/viaturas-page'
 import { ViaturasCreatePage } from '@/pages/frotas/viaturas/components/viaturas-create-page/viaturas-create-page'
 import { ViaturasUpdatePage } from '@/pages/frotas/viaturas/components/viaturas-update-page/viaturas-update-page'
+import { ManutencoesPage } from '@/pages/frotas/manutencoes/manutencoes-page'
+import { ManutencoesCreatePage } from '@/pages/frotas/manutencoes/components/manutencoes-create-page/manutencoes-create-page'
+import { ManutencoesUpdatePage } from '@/pages/frotas/manutencoes/components/manutencoes-update-page/manutencoes-update-page'
 
 import { LicenseGuard } from '@/components/auth/license-guard'
 
@@ -82,6 +85,42 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Atualizar Viatura',
+  },
+  {
+    path: 'frotas/manutencoes',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <ManutencoesPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Manutenções',
+  },
+  {
+    path: 'frotas/manutencoes/create',
+    element: (
+      <LicenseGuard
+        requiredModule={frotas.id}
+        actionType={actionTypes.AuthAdd}
+      >
+        <ManutencoesCreatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Criar Manutenção',
+  },
+  {
+    path: 'frotas/manutencoes/update',
+    element: (
+      <LicenseGuard
+        requiredModule={frotas.id}
+        actionType={actionTypes.AuthChg}
+      >
+        <ManutencoesUpdatePage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Atualizar Manutenção',
   },
  
   {

@@ -30,6 +30,7 @@ using Frotas.API.Application.Services.Frotas.TipoViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.SeguradoraService.DTOs;
 using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
 using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
+using Frotas.API.Application.Services.Frotas.ManutencaoService.DTOs;
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
 
@@ -347,6 +348,27 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.ViaturaAcidentes, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaMultas, opt => opt.Ignore())
         .ForMember(dest => dest.ViaturaCondutores, opt => opt.Ignore());
+
+      // Manutencoes mappings
+      _ = CreateMap<Manutencao, ManutencaoDTO>();
+      _ = CreateMap<CreateManutencaoRequest, Manutencao>()
+        .ForMember(dest => dest.Fse, opt => opt.Ignore())
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore());
+      _ = CreateMap<UpdateManutencaoRequest, Manutencao>()
+        .ForMember(dest => dest.Fse, opt => opt.Ignore())
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore())
+        .ForMember(dest => dest.ManutencaoServicos, opt => opt.Ignore());
+      _ = CreateMap<CreateManutencaoRequest, Manutencao>()
+        .ForMember(dest => dest.Fse, opt => opt.Ignore())
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore())
+        .ForMember(dest => dest.ManutencaoServicos, opt => opt.Ignore());
+      _ = CreateMap<ManutencaoServico, ManutencaoServicoDTO>();
+      _ = CreateMap<CreateManutencaoServicoRequest, ManutencaoServico>()
+        .ForMember(dest => dest.Manutencao, opt => opt.Ignore())
+        .ForMember(dest => dest.Servico, opt => opt.Ignore());
 
       // add new entity mappings here...
     }
