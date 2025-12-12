@@ -13,6 +13,8 @@ namespace Frotas.API.Application.Services.Frotas.ManutencaoService.Specification
       _ = Query.Include(x => x.Viatura);
       _ = Query.Include(x => x.ManutencaoServicos)
         .ThenInclude(x => x.Servico);
+      _ = Query.Include(x => x.ManutencaoPecas)
+        .ThenInclude(x => x.Peca);
 
       // filters
       if (!string.IsNullOrEmpty(keyword))

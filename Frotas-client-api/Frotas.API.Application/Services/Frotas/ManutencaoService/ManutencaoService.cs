@@ -106,6 +106,21 @@ namespace Frotas.API.Application.Services.Frotas.ManutencaoService
           _ = await _repository.SaveChangesAsync();
         }
 
+        // Create ManutencaoPecas if provided
+        if (request.Pecas != null && request.Pecas.Any())
+        {
+          foreach (var pecaRequest in request.Pecas)
+          {
+            ManutencaoPeca manutencaoPeca = _mapper.Map(
+              pecaRequest,
+              new ManutencaoPeca()
+            );
+            manutencaoPeca.ManutencaoId = response.Id;
+            _ = await _repository.CreateAsync<ManutencaoPeca, Guid>(manutencaoPeca);
+          }
+          _ = await _repository.SaveChangesAsync();
+        }
+
         return Response<Guid>.Success(response.Id); // return id
       }
       catch (Exception ex)
@@ -175,6 +190,31 @@ namespace Frotas.API.Application.Services.Frotas.ManutencaoService
             );
             manutencaoServico.ManutencaoId = id;
             _ = await _repository.CreateAsync<ManutencaoServico, Guid>(manutencaoServico);
+          }
+          _ = await _repository.SaveChangesAsync();
+        }
+
+        // Delete existing ManutencaoPecas
+        var existingPecas = await _repository.GetListAsync<ManutencaoPeca, Guid>(
+          new ManutencaoPecaByManutencaoIdSpecification(id)
+        );
+        foreach (var peca in existingPecas)
+        {
+          _ = await _repository.RemoveByIdAsync<ManutencaoPeca, Guid>(peca.Id);
+        }
+        _ = await _repository.SaveChangesAsync();
+
+        // Create new ManutencaoPecas if provided
+        if (request.Pecas != null && request.Pecas.Any())
+        {
+          foreach (var pecaRequest in request.Pecas)
+          {
+            ManutencaoPeca manutencaoPeca = _mapper.Map(
+              pecaRequest,
+              new ManutencaoPeca()
+            );
+            manutencaoPeca.ManutencaoId = id;
+            _ = await _repository.CreateAsync<ManutencaoPeca, Guid>(manutencaoPeca);
           }
           _ = await _repository.SaveChangesAsync();
         }

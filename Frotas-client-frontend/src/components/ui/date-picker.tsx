@@ -31,6 +31,7 @@ interface DatePickerProps {
   maxYear?: number
   allowClear?: boolean
   clearLabel?: string
+  disabled?: boolean
 }
 
 const DatePickerButton = React.forwardRef<
@@ -39,7 +40,7 @@ const DatePickerButton = React.forwardRef<
     value?: Date | null
     placeholder?: string
   }
->(({ className, value, placeholder, ...props }, ref) => {
+>(({ className, value, placeholder, disabled, ...props }, ref) => {
   // Check if value is a valid date (not null, is a Date, and has a valid timestamp)
   const isValidDate = value instanceof Date && !isNaN(value.getTime()) && value.getFullYear() > 1
   
@@ -48,6 +49,7 @@ const DatePickerButton = React.forwardRef<
       ref={ref}
       type='button'
       variant='outline'
+      disabled={disabled}
       className={cn(
         'h-12 w-full justify-start px-4 text-left font-normal shadow-inner',
         !isValidDate && 'text-muted-foreground',
@@ -75,6 +77,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
       maxYear = 2100,
       allowClear = false,
       clearLabel = 'Limpar',
+      disabled = false,
     },
     ref
   ) => {
@@ -126,12 +129,13 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
 
     return (
       <div ref={ref}>
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open && !disabled} onOpenChange={(open) => !disabled && setOpen(open)}>
           <PopoverTrigger asChild>
             <DatePickerButton
               value={value as Date | null}
               placeholder={placeholder}
               className={className}
+              disabled={disabled}
               aria-expanded={open}
             />
           </PopoverTrigger>

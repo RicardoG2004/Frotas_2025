@@ -31,7 +31,7 @@ export function ManutencoesCreatePage() {
 
   return (
     <div className='flex h-full flex-col gap-8 px-4 md:px-8 md:pb-8 md:pt-28 pt-14 md:mx-0 md:my-4 md:mr-4 md:rounded-xl pb-24'>
-      <PageHead title='Criar Manutenção | Frotas' />
+      <PageHead title='Criar Serviço de Oficina | Frotas' />
 
       <div className='flex items-center gap-4'>
         <Button
@@ -62,7 +62,7 @@ export function ManutencoesCreatePage() {
 
       <div className='rounded-lg border bg-card'>
         <div className='border-b px-6 py-4'>
-          <h2 className='text-base font-medium'>Criar Manutenção</h2>
+          <h2 className='text-base font-medium'>Criar Serviço de Oficina</h2>
         </div>
         <div className='p-6'>
           <ManutencaoCreateForm modalClose={handleClose} />

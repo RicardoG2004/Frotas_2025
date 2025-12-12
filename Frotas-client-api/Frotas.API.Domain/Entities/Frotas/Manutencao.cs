@@ -23,5 +23,6 @@ namespace Frotas.API.Domain.Entities.Frotas
     public decimal ValorIva { get; set; }
     public decimal Total { get; set; }
     public ICollection<ManutencaoServico> ManutencaoServicos { get; set; } = new List<ManutencaoServico>();
+    public ICollection<ManutencaoPeca> ManutencaoPecas { get; set; } = new List<ManutencaoPeca>();
   }
 }

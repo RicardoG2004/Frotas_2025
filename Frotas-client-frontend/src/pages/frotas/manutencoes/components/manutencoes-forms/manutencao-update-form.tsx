@@ -53,6 +53,7 @@ import { useGetFsesSelect } from '@/pages/base/fses/queries/fses-queries'
 import { useGetFuncionariosSelect } from '@/pages/base/funcionarios/queries/funcionarios-queries'
 import { useGetViaturasSelect } from '@/pages/frotas/viaturas/queries/viaturas-queries'
 import { useGetServicosSelect } from '@/pages/frotas/servicos/queries/servicos-queries'
+import { useGetPecasSelect } from '@/pages/frotas/pecas/queries/pecas-queries'
 import { format } from 'date-fns'
 
 const FIELD_HEIGHT_CLASS = 'h-12'
@@ -98,6 +99,45 @@ const manutencaoServicoSchema = z.object({
   ),
 })
 
+const manutencaoPecaSchema = z.object({
+  id: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().optional()
+  ),
+  pecaId: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined) return ''
+      if (typeof val === 'string') return val.trim()
+      return String(val)
+    },
+    z.string().optional().default('')
+  ),
+  quantidade: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, { message: 'A quantidade deve ser maior ou igual a 0' }).optional()
+  ),
+  garantia: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, { message: 'A garantia deve ser positiva' }).optional().nullable()
+  ),
+  validade: z.preprocess(
+    (value) => (value ? new Date(value as string | number | Date) : null),
+    z.date().optional().nullable()
+  ),
+  valorSemIva: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, { message: 'O valor deve ser positivo' }).optional()
+  ),
+  ivaPercentagem: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, { message: 'A percentagem de IVA deve ser positiva' }).optional()
+  ),
+  valorTotal: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, { message: 'O valor total deve ser positivo' }).optional()
+  ),
+})
+
 const ManutencaoFormSchema = z.object({
   dataRequisicao: z.date({ message: 'A Data de Requisição é obrigatória' }).nullable().refine((val) => val !== null, { message: 'A Data de Requisição é obrigatória' }),
   fseId: z.string().min(1, { message: 'O Fornecedor de Serviços Externos é obrigatório' }),
@@ -120,6 +160,7 @@ const ManutencaoFormSchema = z.object({
     .number({ message: 'O Total é obrigatório' })
     .min(0, { message: 'O Total deve ser maior ou igual a 0' }),
   servicos: z.array(manutencaoServicoSchema).optional().default([]),
+  pecas: z.array(manutencaoPecaSchema).optional().default([]),
 })
 
 type ManutencaoFormSchemaType = z.infer<typeof ManutencaoFormSchema>
@@ -198,6 +239,34 @@ const ManutencaoUpdateForm = ({
     navigate(`/frotas/viaturas/update?viaturaId=${viaturaId}&instanceId=${instanceId}`)
   }
 
+  const handleCreateServico = () => {
+    const instanceId = crypto.randomUUID()
+    navigate(`/frotas/configuracoes/servicos/create?instanceId=${instanceId}`)
+  }
+
+  const handleViewServico = (servicoId: string) => {
+    if (!servicoId) {
+      toast.error('Por favor, selecione um serviço primeiro')
+      return
+    }
+    const instanceId = crypto.randomUUID()
+    navigate(`/frotas/configuracoes/servicos/update?servicoId=${servicoId}&instanceId=${instanceId}`)
+  }
+
+  const handleCreatePeca = () => {
+    const instanceId = crypto.randomUUID()
+    navigate(`/frotas/configuracoes/pecas/create?instanceId=${instanceId}`)
+  }
+
+  const handleViewPeca = (pecaId: string) => {
+    if (!pecaId) {
+      toast.error('Por favor, selecione uma peça primeiro')
+      return
+    }
+    const instanceId = crypto.randomUUID()
+    navigate(`/frotas/configuracoes/pecas/update?pecaId=${pecaId}&instanceId=${instanceId}`)
+  }
+
   const effectiveWindowId = windowId || instanceId
 
   const updateManutencaoMutation = useUpdateManutencao()
@@ -218,6 +287,10 @@ const ManutencaoUpdateForm = ({
     data: servicosData,
     isLoading: isLoadingServicos,
   } = useGetServicosSelect()
+  const {
+    data: pecasData,
+    isLoading: isLoadingPecas,
+  } = useGetPecasSelect()
 
   const form = useForm<ManutencaoFormSchemaType>({
     resolver: zodResolver(ManutencaoFormSchema),
@@ -227,6 +300,51 @@ const ManutencaoUpdateForm = ({
 
   const [savedServicos, setSavedServicos] = useState<Set<string>>(new Set())
   const [expandedServicos, setExpandedServicos] = useState<Set<string>>(new Set())
+  const [savedPecas, setSavedPecas] = useState<Set<string>>(new Set())
+  const [expandedPecas, setExpandedPecas] = useState<Set<string>>(new Set())
+
+  // Observar mudanças em serviços e peças para recalcular totais
+  const servicos = useWatch({ control: form.control, name: 'servicos' })
+  const pecas = useWatch({ control: form.control, name: 'pecas' })
+
+  // Calcular totais automaticamente baseado em serviços e peças
+  useEffect(() => {
+    let totalSemIva = 0
+    let valorIva = 0
+    let total = 0
+
+    // Calcular totais dos serviços
+    if (servicos && servicos.length > 0) {
+      servicos.forEach((servico) => {
+        if (servico && servico.valorSemIva !== undefined) {
+          totalSemIva += servico.valorSemIva || 0
+        }
+        if (servico && servico.valorTotal !== undefined) {
+          total += servico.valorTotal || 0
+        }
+      })
+    }
+
+    // Calcular totais das peças
+    if (pecas && pecas.length > 0) {
+      pecas.forEach((peca) => {
+        if (peca && peca.valorSemIva !== undefined) {
+          totalSemIva += peca.valorSemIva || 0
+        }
+        if (peca && peca.valorTotal !== undefined) {
+          total += peca.valorTotal || 0
+        }
+      })
+    }
+
+    // Calcular valor do IVA (diferença entre total e total sem IVA)
+    valorIva = total - totalSemIva
+
+    // Atualizar os campos do formulário
+    form.setValue('totalSemIva', totalSemIva, { shouldValidate: false, shouldDirty: false })
+    form.setValue('valorIva', valorIva, { shouldValidate: false, shouldDirty: false })
+    form.setValue('total', total, { shouldValidate: false, shouldDirty: false })
+  }, [servicos, pecas, form])
 
   const {
     fields: servicoFields,
@@ -238,8 +356,15 @@ const ManutencaoUpdateForm = ({
     keyName: 'fieldId',
   })
 
-  // Não usar watch para evitar re-renders durante a digitação
-  // Usar getValues apenas quando necessário
+  const {
+    fields: pecaFields,
+    append: appendPeca,
+    remove: removePeca,
+  } = useFieldArray({
+    control: form.control,
+    name: 'pecas',
+    keyName: 'fieldId',
+  })
 
   const { handleSubmit, handleError } = useSubmitErrorTab(form, formId)
 
@@ -269,6 +394,25 @@ const ManutencaoUpdateForm = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicoFields.length])
+
+  // Inicializar peças vindas do backend como guardadas
+  useEffect(() => {
+    if (pecaFields.length > 0) {
+      pecaFields.forEach((peca, index) => {
+        const pecaData = form.getValues(`pecas.${index}`)
+        if (pecaData?.id) {
+          setSavedPecas((prev) => {
+            const next = new Set(prev)
+            if (!next.has(peca.fieldId)) {
+              next.add(peca.fieldId)
+            }
+            return next
+          })
+        }
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pecaFields.length])
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -334,7 +478,7 @@ const ManutencaoUpdateForm = ({
                 setWindowHasFormData,
                 initialData
               )
-              const newTitle = 'Atualizar Manutenção'
+              const newTitle = 'Atualizar Serviço de Oficina'
               updateUpdateWindowTitle(
                 effectiveWindowId,
                 newTitle,
@@ -368,7 +512,7 @@ const ManutencaoUpdateForm = ({
                 setWindowHasFormData,
                 initialData
               )
-              const newTitle = 'Atualizar Manutenção'
+              const newTitle = 'Atualizar Serviço de Oficina'
               updateUpdateWindowTitle(
                 effectiveWindowId,
                 newTitle,
@@ -463,6 +607,19 @@ const ManutencaoUpdateForm = ({
     })
   }
 
+  const handleAddPeca = () => {
+    appendPeca({
+      id: undefined,
+      pecaId: '',
+      quantidade: undefined,
+      garantia: undefined,
+      validade: undefined as any,
+      valorSemIva: undefined,
+      ivaPercentagem: undefined,
+      valorTotal: undefined,
+    })
+  }
+
   const handleRemoveServico = (index: number) => {
     const servico = servicoFields[index]
     if (servico) {
@@ -478,6 +635,23 @@ const ManutencaoUpdateForm = ({
       })
     }
     removeServico(index)
+  }
+
+  const handleRemovePeca = (index: number) => {
+    const peca = pecaFields[index]
+    if (peca) {
+      setSavedPecas((prev) => {
+        const next = new Set(prev)
+        next.delete(peca.fieldId)
+        return next
+      })
+      setExpandedPecas((prev) => {
+        const next = new Set(prev)
+        next.delete(peca.fieldId)
+        return next
+      })
+    }
+    removePeca(index)
   }
 
   const handleSaveServico = (index: number) => {
@@ -498,6 +672,24 @@ const ManutencaoUpdateForm = ({
     toast.success('Serviço guardado com sucesso.')
   }
 
+  const handleSavePeca = (index: number) => {
+    const peca = pecaFields[index]
+    if (!peca) return
+
+    const pecaData = form.getValues(`pecas.${index}`)
+    if (!pecaData) return
+
+    // Campos são opcionais, não há validação obrigatória
+
+    setSavedPecas((prev) => new Set(prev).add(peca.fieldId))
+    setExpandedPecas((prev) => {
+      const next = new Set(prev)
+      next.delete(peca.fieldId)
+      return next
+    })
+    toast.success('Peça guardada com sucesso.')
+  }
+
   const handleToggleExpandServico = (index: number) => {
     const servico = servicoFields[index]
     if (!servico) return
@@ -508,6 +700,21 @@ const ManutencaoUpdateForm = ({
         next.delete(servico.fieldId)
       } else {
         next.add(servico.fieldId)
+      }
+      return next
+    })
+  }
+
+  const handleToggleExpandPeca = (index: number) => {
+    const peca = pecaFields[index]
+    if (!peca) return
+
+    setExpandedPecas((prev) => {
+      const next = new Set(prev)
+      if (next.has(peca.fieldId)) {
+        next.delete(peca.fieldId)
+      } else {
+        next.add(peca.fieldId)
       }
       return next
     })
@@ -543,6 +750,18 @@ const ManutencaoUpdateForm = ({
           valorTotal: servico.valorTotal ?? 0,
         })) || []
 
+      const pecasPayload = values.pecas
+        ?.filter((peca) => peca.pecaId) // Apenas filtrar peças que tenham uma peça selecionada
+        .map((peca) => ({
+          pecaId: peca.pecaId,
+          quantidade: peca.quantidade ?? 0,
+          garantia: peca.garantia ?? null,
+          validade: peca.validade ? format(peca.validade, 'yyyy-MM-dd') : null,
+          valorSemIva: peca.valorSemIva ?? 0,
+          ivaPercentagem: peca.ivaPercentagem ?? 0,
+          valorTotal: peca.valorTotal ?? 0,
+        })) || []
+
       const requestData: UpdateManutencaoDTO = {
         dataRequisicao: values.dataRequisicao ? format(values.dataRequisicao, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
         fseId: values.fseId,
@@ -557,6 +776,7 @@ const ManutencaoUpdateForm = ({
         valorIva: values.valorIva,
         total: values.total,
         servicos: servicosPayload.length > 0 ? servicosPayload : undefined,
+        pecas: pecasPayload.length > 0 ? pecasPayload : undefined,
       }
 
       const response = await updateManutencaoMutation.mutateAsync({
@@ -565,9 +785,9 @@ const ManutencaoUpdateForm = ({
       })
       const result = handleApiResponse(
         response,
-        'Manutenção atualizada com sucesso',
-        'Erro ao atualizar Manutenção',
-        'Manutenção atualizada com avisos'
+        'Serviço de Oficina atualizado com sucesso',
+        'Erro ao atualizar Serviço de Oficina',
+        'Serviço de Oficina atualizado com avisos'
       )
 
       if (result.success) {
@@ -577,7 +797,7 @@ const ManutencaoUpdateForm = ({
         modalClose()
       }
     } catch (error) {
-      toast.error(handleApiError(error, 'Erro ao atualizar Manutenção'))
+      toast.error(handleApiError(error, 'Erro ao atualizar Serviço de Oficina'))
     } finally {
       updateFormState(formId, (state) => ({
         ...state,
@@ -608,6 +828,10 @@ const ManutencaoUpdateForm = ({
               <PersistentTabsTrigger value='servicos' className='h-9 px-3 py-1.5'>
                 <Settings className='mr-2 h-4 w-4' />
                 Serviços
+              </PersistentTabsTrigger>
+              <PersistentTabsTrigger value='pecas' className='h-9 px-3 py-1.5'>
+                <Settings className='mr-2 h-4 w-4' />
+                Peças
               </PersistentTabsTrigger>
             </PersistentTabsList>
             <PersistentTabsContent value='informacoes'>
@@ -1562,6 +1786,7 @@ const ManutencaoUpdateForm = ({
                                 className='px-4 py-6 shadow-inner'
                                 step={0.01}
                                 min={0}
+                                disabled
                               />
                             </FormControl>
                             <FormMessage />
@@ -1587,6 +1812,7 @@ const ManutencaoUpdateForm = ({
                                 className='px-4 py-6 shadow-inner'
                                 step={0.01}
                                 min={0}
+                                disabled
                               />
                             </FormControl>
                             <FormMessage />
@@ -1612,6 +1838,7 @@ const ManutencaoUpdateForm = ({
                                 className='px-4 py-6 shadow-inner'
                                 step={0.01}
                                 min={0}
+                                disabled
                               />
                             </FormControl>
                             <FormMessage />
@@ -1644,10 +1871,16 @@ const ManutencaoUpdateForm = ({
                     </div>
                   </CardHeader>
                   <CardContent className='space-y-6'>
-                    <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
-                      <p className='text-sm text-muted-foreground'>
-                        Adicione registos de serviços com todas as informações relevantes.
-                      </p>
+                    <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between pt-2'>
+                      <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                        <FileText className='h-4 w-4 text-primary' />
+                        Serviços registados
+                        {servicoFields.length > 0 && (
+                          <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                            {servicoFields.length}
+                          </Badge>
+                        )}
+                      </div>
                       <Button
                         type='button'
                         variant='secondary'
@@ -1672,19 +1905,6 @@ const ManutencaoUpdateForm = ({
                       </div>
                     ) : (
                       <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
-                        <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
-                          <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
-                            <FileText className='h-4 w-4 text-primary' />
-                            Serviços registados
-                            <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
-                              {servicoFields.length}
-                            </Badge>
-                          </div>
-                          <p className='text-xs text-muted-foreground'>
-                            Edite as informações conforme necessário e remova registos que já não sejam relevantes.
-                          </p>
-                        </div>
-
                         <div className='space-y-4'>
                           {servicoFields.map((servico, index) => {
                             // Usar getValues apenas quando necessário para evitar re-renders durante a digitação
@@ -1841,7 +2061,7 @@ const ManutencaoUpdateForm = ({
                                     </CardHeader>
                                     <CardContent className='space-y-4'>
                                       <div className='grid gap-4 md:grid-cols-12'>
-                                        <div className='md:col-span-3'>
+                                        <div className='md:col-span-4'>
                                           <FormField
                                             control={form.control}
                                             name={`servicos.${index}.servicoId`}
@@ -1890,6 +2110,29 @@ const ManutencaoUpdateForm = ({
                                                     disabled={isLoadingServicos}
                                                     className={SELECT_WITH_ACTIONS_CLASS}
                                                   />
+                                                  <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                                    <Button
+                                                      type='button'
+                                                      variant='outline'
+                                                      size='sm'
+                                                      onClick={() => handleViewServico(field.value)}
+                                                      className='h-8 w-8 p-0'
+                                                      title='Ver Serviço'
+                                                      disabled={!field.value}
+                                                    >
+                                                      <Eye className='h-4 w-4' />
+                                                    </Button>
+                                                    <Button
+                                                      type='button'
+                                                      variant='outline'
+                                                      size='sm'
+                                                      onClick={handleCreateServico}
+                                                      className='h-8 w-8 p-0'
+                                                      title='Criar Serviço'
+                                                    >
+                                                      <Plus className='h-4 w-4' />
+                                                    </Button>
+                                                  </div>
                                                 </div>
                                               </FormControl>
                                                 <FormMessage />
@@ -1898,7 +2141,7 @@ const ManutencaoUpdateForm = ({
                                           />
                                         </div>
 
-                                        <div className='md:col-span-3'>
+                                        <div className='md:col-span-2'>
                                           <FormField
                                             control={form.control}
                                             name={`servicos.${index}.quantidade`}
@@ -1940,7 +2183,7 @@ const ManutencaoUpdateForm = ({
                                           />
                                         </div>
 
-                                        <div className='md:col-span-3'>
+                                        <div className='md:col-span-2'>
                                           <FormField
                                             control={form.control}
                                             name={`servicos.${index}.kmProxima`}
@@ -1963,7 +2206,7 @@ const ManutencaoUpdateForm = ({
                                           />
                                         </div>
 
-                                        <div className='md:col-span-3'>
+                                        <div className='md:col-span-4'>
                                           <FormField
                                             control={form.control}
                                             name={`servicos.${index}.dataProxima`}
@@ -2066,6 +2309,502 @@ const ManutencaoUpdateForm = ({
                                               </FormItem>
                                             )
                                           }}
+                                          />
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </PersistentTabsContent>
+
+            {/* Peças */}
+            <PersistentTabsContent value='pecas'>
+              <div className='space-y-6'>
+                <Card className='overflow-hidden border-l-4 border-l-primary/20 transition-all duration-200 hover:border-l-primary/40 hover:shadow-md'>
+                  <CardHeader className='pb-4'>
+                    <div className='flex items-center gap-3'>
+                      <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                        <FileText className='h-4 w-4' />
+                      </div>
+                      <div>
+                        <CardTitle className='flex items-center gap-2 text-base'>
+                          Peças
+                        </CardTitle>
+                        <p className='mt-1 text-sm text-muted-foreground'>
+                          Registe peças aplicadas nesta manutenção.
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className='space-y-6'>
+                    <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between pt-2'>
+                      <div className='flex items-center gap-2 text-sm font-semibold text-foreground'>
+                        <FileText className='h-4 w-4 text-primary' />
+                        Peças registadas
+                        {pecaFields.length > 0 && (
+                          <Badge variant='secondary' className='rounded-full px-2 py-0 text-xs'>
+                            {pecaFields.length}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        type='button'
+                        variant='secondary'
+                        size='default'
+                        className='md:min-w-[220px]'
+                        onClick={handleAddPeca}
+                      >
+                        Adicionar
+                      </Button>
+                    </div>
+                    {pecaFields.length === 0 ? (
+                      <div className='rounded-xl border border-dashed border-border/70 bg-muted/5 p-6 text-center shadow-inner'>
+                        <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                          <FileText className='h-6 w-6' />
+                        </div>
+                        <h4 className='mt-4 text-sm font-semibold text-foreground'>
+                          Sem peças registadas
+                        </h4>
+                        <p className='mt-2 text-sm text-muted-foreground'>
+                          Clique em "Adicionar" para registar uma peça aplicada nesta manutenção.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className='space-y-4 rounded-xl border border-border/60 bg-muted/10 p-4 shadow-inner sm:p-5'>
+                        <div className='space-y-4'>
+                          {pecaFields.map((peca, index) => {
+                            const pecaData = form.getValues(`pecas.${index}`)
+                            const validadeFormatada = formatDateLabel(pecaData?.validade)
+                            const hasId = !!pecaData?.id
+                            const isSaved = hasId || savedPecas.has(peca.fieldId)
+                            const isExpanded = expandedPecas.has(peca.fieldId)
+                            
+                            const pecaNome = pecaData?.pecaId
+                              ? pecasData?.find((p) => p.id === pecaData.pecaId)?.designacao || 'Não definido'
+                              : 'Não definido'
+
+                            return (
+                              <div
+                                key={peca.fieldId}
+                                className={cn(
+                                  'group rounded-lg border border-border/70 bg-background p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md md:p-5',
+                                  isSaved && !isExpanded && 'space-y-3'
+                                )}
+                              >
+                                <div className='flex flex-col gap-3 border-b border-border/60 pb-4 sm:flex-row sm:items-center sm:justify-between'>
+                                  <div className='flex items-center gap-3'>
+                                    <div className='flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                                      <FileText className='h-5 w-5' />
+                                    </div>
+                                    <div>
+                                      <div className='flex items-center gap-2'>
+                                        <p className='text-sm font-semibold text-foreground'>
+                                          Peça #{index + 1}
+                                        </p>
+                                        {isSaved && (
+                                          <Badge variant='outline' className='rounded-full border-primary/30 bg-primary/10 text-primary font-medium text-[10px]'>
+                                            Guardado
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className='flex items-center gap-2'>
+                                    {isSaved ? (
+                                      <>
+                                        <Button
+                                          type='button'
+                                          variant='outline'
+                                          size='sm'
+                                          onClick={() => handleToggleExpandPeca(index)}
+                                          className='gap-2'
+                                        >
+                                          {isExpanded ? (
+                                            <>
+                                              <ChevronUp className='h-4 w-4' />
+                                              Ocultar
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Eye className='h-4 w-4' />
+                                              Ver dados
+                                            </>
+                                          )}
+                                        </Button>
+                                        <Button
+                                          type='button'
+                                          variant='ghost'
+                                          size='sm'
+                                          onClick={() => handleRemovePeca(index)}
+                                          className='text-destructive hover:text-destructive'
+                                        >
+                                          <Trash2 className='h-4 w-4' />
+                                        </Button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Button
+                                          type='button'
+                                          variant='default'
+                                          size='sm'
+                                          onClick={() => handleSavePeca(index)}
+                                          className='gap-2'
+                                        >
+                                          <Save className='h-4 w-4' />
+                                          Guardar
+                                        </Button>
+                                        <Button
+                                          type='button'
+                                          variant='ghost'
+                                          size='sm'
+                                          onClick={() => handleRemovePeca(index)}
+                                          className='text-destructive hover:text-destructive'
+                                        >
+                                          <Trash2 className='h-4 w-4' />
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {isSaved && !isExpanded ? (
+                                  <Card className='border-l-4 border-l-primary/50 shadow-sm'>
+                                    <CardContent className='p-4'>
+                                      <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+                                        <div className='flex items-start gap-3 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted/70'>
+                                          <div className='mt-0.5 rounded-full bg-primary/10 p-2'>
+                                            <Settings className='h-4 w-4 text-primary' />
+                                          </div>
+                                          <div className='flex-1 space-y-1'>
+                                            <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                                              Peça
+                                            </p>
+                                            <p className='text-sm font-medium text-foreground'>{pecaNome || 'Não definido'}</p>
+                                          </div>
+                                        </div>
+                                        <div className='flex items-start gap-3 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted/70'>
+                                          <div className='mt-0.5 rounded-full bg-primary/10 p-2'>
+                                            <DollarSign className='h-4 w-4 text-primary' />
+                                          </div>
+                                          <div className='flex-1 space-y-1'>
+                                            <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                                              Quantidade
+                                            </p>
+                                            <p className='text-sm font-medium text-foreground'>
+                                              {pecaData?.quantidade !== undefined ? pecaData.quantidade : 'Não definida'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className='flex items-start gap-3 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted/70'>
+                                          <div className='mt-0.5 rounded-full bg-primary/10 p-2'>
+                                            <PiggyBank className='h-4 w-4 text-primary' />
+                                          </div>
+                                          <div className='flex-1 space-y-1'>
+                                            <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                                              Valor Total
+                                            </p>
+                                            <p className='text-sm font-medium text-foreground'>
+                                              {pecaData?.valorTotal !== undefined ? `${pecaData.valorTotal.toFixed(2)} €` : 'Não definido'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ) : (
+                                  <Card className='border-l-4 border-l-primary/50 shadow-sm'>
+                                    <CardHeader className='pb-3'>
+                                      <div className='flex items-center gap-2'>
+                                        <div className='rounded-full bg-primary/10 p-2'>
+                                          <FileText className='h-4 w-4 text-primary' />
+                                        </div>
+                                        <div>
+                                          <CardTitle className='text-base font-semibold'>Informações da Peça</CardTitle>
+                                          <CardDescription className='text-xs'>Dados da peça aplicada</CardDescription>
+                                        </div>
+                                      </div>
+                                    </CardHeader>
+                                    <CardContent className='space-y-4'>
+                                      <div className='grid gap-4 md:grid-cols-12'>
+                                        <div className='md:col-span-4'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`pecas.${index}.pecaId`}
+                                            render={({ field }) => (
+                                              <FormItem>
+                                                <FormLabel>Peça</FormLabel>
+                                                <FormControl>
+                                                  <div className='relative'>
+                                                    <Autocomplete
+                                                      options={
+                                                        pecasData?.map((peca) => ({
+                                                          value: peca.id || '',
+                                                          label: peca.designacao || '',
+                                                        })) || []
+                                                      }
+                                                      value={field.value}
+                                                      onValueChange={(value) => {
+                                                        field.onChange(value)
+                                                        if (value && pecasData) {
+                                                          const pecaSelecionada = pecasData.find((p) => p.id === value)
+                                                          if (pecaSelecionada) {
+                                                            const quantidade = form.getValues(`pecas.${index}.quantidade`) || 0
+                                                            const custo = pecaSelecionada.custo || 0
+                                                            const ivaPercentagem = pecaSelecionada.taxaIva?.valor || 0
+                                                            const valorSemIva = custo * quantidade
+                                                            const valorIva = (valorSemIva * ivaPercentagem) / 100
+                                                            const valorTotal = valorSemIva + valorIva
+                                                            
+                                                            // Preencher garantia com anos da peça
+                                                            const garantia = pecaSelecionada.anos || 0
+                                                            // Preencher validade como data atual + anos da peça
+                                                            const validade = pecaSelecionada.anos > 0 
+                                                              ? (() => {
+                                                                  const data = new Date()
+                                                                  data.setFullYear(data.getFullYear() + pecaSelecionada.anos)
+                                                                  return data
+                                                                })()
+                                                              : null
+                                                            
+                                                            form.setValue(`pecas.${index}.garantia`, garantia)
+                                                            form.setValue(`pecas.${index}.validade`, validade)
+                                                            form.setValue(`pecas.${index}.valorSemIva`, valorSemIva)
+                                                            form.setValue(`pecas.${index}.ivaPercentagem`, ivaPercentagem)
+                                                            form.setValue(`pecas.${index}.valorTotal`, valorTotal)
+                                                          }
+                                                        } else {
+                                                          form.setValue(`pecas.${index}.garantia`, undefined)
+                                                          form.setValue(`pecas.${index}.validade`, undefined)
+                                                          form.setValue(`pecas.${index}.valorSemIva`, undefined)
+                                                          form.setValue(`pecas.${index}.ivaPercentagem`, undefined)
+                                                          form.setValue(`pecas.${index}.valorTotal`, undefined)
+                                                        }
+                                                      }}
+                                                      placeholder={
+                                                        isLoadingPecas
+                                                          ? 'A carregar...'
+                                                          : 'Selecione a peça'
+                                                      }
+                                                      disabled={isLoadingPecas}
+                                                      className={SELECT_WITH_ACTIONS_CLASS}
+                                                    />
+                                                    <div className='absolute right-12 top-1/2 -translate-y-1/2 flex gap-1'>
+                                                      <Button
+                                                        type='button'
+                                                        variant='outline'
+                                                        size='sm'
+                                                        onClick={() => handleViewPeca(field.value)}
+                                                        className='h-8 w-8 p-0'
+                                                        title='Ver Peça'
+                                                        disabled={!field.value}
+                                                      >
+                                                        <Eye className='h-4 w-4' />
+                                                      </Button>
+                                                      <Button
+                                                        type='button'
+                                                        variant='outline'
+                                                        size='sm'
+                                                        onClick={handleCreatePeca}
+                                                        className='h-8 w-8 p-0'
+                                                        title='Criar Peça'
+                                                      >
+                                                        <Plus className='h-4 w-4' />
+                                                      </Button>
+                                                    </div>
+                                                  </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                              </FormItem>
+                                            )}
+                                          />
+                                        </div>
+
+                                        <div className='md:col-span-2'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`pecas.${index}.quantidade`}
+                                            render={({ field }) => (
+                                              <FormItem>
+                                                <FormLabel>Quantidade</FormLabel>
+                                                <FormControl>
+                                                  <NumberInput
+                                                    value={field.value}
+                                                    onValueChange={(value) => {
+                                                      field.onChange(value)
+                                                      const pecaId = form.getValues(`pecas.${index}.pecaId`)
+                                                      if (pecaId && pecasData) {
+                                                        const pecaSelecionada = pecasData.find((p) => p.id === pecaId)
+                                                        if (pecaSelecionada) {
+                                                          const quantidade = value || 0
+                                                          const custo = pecaSelecionada.custo || 0
+                                                          const ivaPercentagem = pecaSelecionada.taxaIva?.valor || 0
+                                                          const valorSemIva = custo * quantidade
+                                                          const valorIva = (valorSemIva * ivaPercentagem) / 100
+                                                          const valorTotal = valorSemIva + valorIva
+                                                          
+                                                          form.setValue(`pecas.${index}.valorSemIva`, valorSemIva)
+                                                          form.setValue(`pecas.${index}.ivaPercentagem`, ivaPercentagem)
+                                                          form.setValue(`pecas.${index}.valorTotal`, valorTotal)
+                                                        }
+                                                      }
+                                                    }}
+                                                    placeholder='0'
+                                                    min={0}
+                                                    step={1}
+                                                    className={TEXT_INPUT_CLASS}
+                                                  />
+                                                </FormControl>
+                                                <FormMessage />
+                                              </FormItem>
+                                            )}
+                                          />
+                                        </div>
+
+                                        <div className='md:col-span-2'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`pecas.${index}.garantia`}
+                                            render={({ field }) => {
+                                              const pecaId = form.watch(`pecas.${index}.pecaId`)
+                                              const isDisabled = !!pecaId && pecaId.trim() !== ''
+                                              return (
+                                                <FormItem>
+                                                  <FormLabel>Garantia</FormLabel>
+                                                  <FormControl>
+                                                    <NumberInput
+                                                      value={field.value ?? undefined}
+                                                      onValueChange={(value) => field.onChange(value ?? null)}
+                                                      placeholder='0'
+                                                      min={0}
+                                                      step={1}
+                                                      className={TEXT_INPUT_CLASS}
+                                                      disabled={isDisabled}
+                                                    />
+                                                  </FormControl>
+                                                  <FormMessage />
+                                                </FormItem>
+                                              )
+                                            }}
+                                          />
+                                        </div>
+
+                                        <div className='md:col-span-4'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`pecas.${index}.validade`}
+                                            render={({ field }) => {
+                                              const pecaId = form.watch(`pecas.${index}.pecaId`)
+                                              const isDisabled = !!pecaId && pecaId.trim() !== ''
+                                              return (
+                                                <FormItem>
+                                                  <FormLabel>Validade</FormLabel>
+                                                  <FormControl>
+                                                    <DatePicker
+                                                      value={field.value || undefined}
+                                                      onChange={field.onChange}
+                                                      placeholder='Selecione a data'
+                                                      allowClear
+                                                      className={FIELD_HEIGHT_CLASS}
+                                                      disabled={isDisabled}
+                                                    />
+                                                  </FormControl>
+                                                  <FormMessage />
+                                                </FormItem>
+                                              )
+                                            }}
+                                          />
+                                        </div>
+
+                                        <div className='md:col-span-4'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`pecas.${index}.valorSemIva`}
+                                            render={({ field }) => {
+                                              const pecaId = form.watch(`pecas.${index}.pecaId`)
+                                              const isDisabled = !!pecaId && pecaId.trim() !== ''
+                                              return (
+                                                <FormItem>
+                                                  <FormLabel>Valor S/ IVA (€)</FormLabel>
+                                                  <FormControl>
+                                                    <NumberInput
+                                                      value={field.value}
+                                                      onValueChange={(value) => field.onChange(value)}
+                                                      placeholder='0,00'
+                                                      min={0}
+                                                      step={0.01}
+                                                      className={TEXT_INPUT_CLASS}
+                                                      disabled={isDisabled}
+                                                    />
+                                                  </FormControl>
+                                                  <FormMessage />
+                                                </FormItem>
+                                              )
+                                            }}
+                                          />
+                                        </div>
+
+                                        <div className='md:col-span-4'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`pecas.${index}.ivaPercentagem`}
+                                            render={({ field }) => {
+                                              const pecaId = form.watch(`pecas.${index}.pecaId`)
+                                              const isDisabled = !!pecaId && pecaId.trim() !== ''
+                                              return (
+                                                <FormItem>
+                                                  <FormLabel>IVA %</FormLabel>
+                                                  <FormControl>
+                                                    <NumberInput
+                                                      value={field.value}
+                                                      onValueChange={(value) => field.onChange(value)}
+                                                      placeholder='0,00'
+                                                      min={0}
+                                                      step={0.01}
+                                                      className={TEXT_INPUT_CLASS}
+                                                      disabled={isDisabled}
+                                                    />
+                                                  </FormControl>
+                                                  <FormMessage />
+                                                </FormItem>
+                                              )
+                                            }}
+                                          />
+                                        </div>
+
+                                        <div className='md:col-span-4'>
+                                          <FormField
+                                            control={form.control}
+                                            name={`pecas.${index}.valorTotal`}
+                                            render={({ field }) => {
+                                              const pecaId = form.watch(`pecas.${index}.pecaId`)
+                                              const isDisabled = !!pecaId && pecaId.trim() !== ''
+                                              return (
+                                                <FormItem>
+                                                  <FormLabel>Valor Total (€)</FormLabel>
+                                                  <FormControl>
+                                                    <NumberInput
+                                                      value={field.value}
+                                                      onValueChange={(value) => field.onChange(value)}
+                                                      placeholder='0,00'
+                                                      min={0}
+                                                      step={0.01}
+                                                      className={TEXT_INPUT_CLASS}
+                                                      disabled={isDisabled}
+                                                    />
+                                                  </FormControl>
+                                                  <FormMessage />
+                                                </FormItem>
+                                              )
+                                            }}
                                           />
                                         </div>
                                       </div>

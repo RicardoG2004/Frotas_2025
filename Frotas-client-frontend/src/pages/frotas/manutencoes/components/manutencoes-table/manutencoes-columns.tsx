@@ -30,36 +30,24 @@ export const columns: DataTableColumnDef<ManutencaoDTO>[] = [
   },
   {
     accessorKey: 'viatura.matricula',
-    header: 'Matrícula',
+    header: 'Designação Viatura',
     sortKey: 'matricula',
     enableSorting: true,
     enableHiding: true,
     meta: {
       align: 'left',
     },
-    cell: ({ row }) => row.original.viatura?.matricula || '-',
-  },
-  {
-    accessorKey: 'fse.nome',
-    header: 'FSE',
-    sortKey: 'fse',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
+    cell: ({ row }) => {
+      const viatura = row.original.viatura
+      if (!viatura) return '-'
+      const matricula = viatura.matricula || ''
+      const marca = viatura.marca?.nome || ''
+      const modelo = viatura.modelo?.nome || ''
+      if (marca && modelo) {
+        return `${matricula} / ${marca} ${modelo}`
+      }
+      return matricula || '-'
     },
-    cell: ({ row }) => row.original.fse?.nome || '-',
-  },
-  {
-    accessorKey: 'funcionario.nome',
-    header: 'Funcionário',
-    sortKey: 'funcionario',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) => row.original.funcionario?.nome || '-',
   },
   {
     accessorKey: 'dataRequisicao',
@@ -82,77 +70,30 @@ export const columns: DataTableColumnDef<ManutencaoDTO>[] = [
     },
   },
   {
-    accessorKey: 'dataEntrada',
-    header: 'Data Entrada',
-    sortKey: 'dataEntrada',
+    accessorKey: 'fse.nome',
+    header: 'Entidade',
+    sortKey: 'fse',
     enableSorting: true,
     enableHiding: true,
     meta: {
       align: 'left',
+    },
+    cell: ({ row }) => row.original.fse?.nome || '-',
+  },
+  {
+    accessorKey: 'total',
+    header: 'Custo Total',
+    sortKey: 'total',
+    enableSorting: true,
+    enableHiding: true,
+    meta: {
+      align: 'right',
     },
     cell: ({ row }) => {
-      if (!row.original.dataEntrada) return '-'
-      try {
-        return format(new Date(row.original.dataEntrada), 'dd/MM/yyyy', {
-          locale: ptBR,
-        })
-      } catch {
-        return row.original.dataEntrada
-      }
+      const total = row.original.total
+      if (total === undefined || total === null) return '-'
+      return `${total.toFixed(2)} €`
     },
-  },
-  {
-    accessorKey: 'horaEntrada',
-    header: 'Hora Entrada',
-    sortKey: 'horaEntrada',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) => row.original.horaEntrada || '-',
-  },
-  {
-    accessorKey: 'dataSaida',
-    header: 'Data Saída',
-    sortKey: 'dataSaida',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) => {
-      if (!row.original.dataSaida) return '-'
-      try {
-        return format(new Date(row.original.dataSaida), 'dd/MM/yyyy', {
-          locale: ptBR,
-        })
-      } catch {
-        return row.original.dataSaida
-      }
-    },
-  },
-  {
-    accessorKey: 'horaSaida',
-    header: 'Hora Saída',
-    sortKey: 'horaSaida',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) => row.original.horaSaida || '-',
-  },
-  {
-    accessorKey: 'kmsRegistados',
-    header: 'KMs Registados',
-    sortKey: 'kmsRegistados',
-    enableSorting: true,
-    enableHiding: true,
-    meta: {
-      align: 'left',
-    },
-    cell: ({ row }) => row.original.kmsRegistados?.toLocaleString('pt-PT') || '-',
   },
   {
     id: 'actions',

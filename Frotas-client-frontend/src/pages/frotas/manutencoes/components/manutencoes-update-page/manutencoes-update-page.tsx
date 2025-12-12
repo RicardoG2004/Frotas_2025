@@ -90,11 +90,23 @@ export function ManutencoesUpdatePage() {
       ivaPercentagem: servico.ivaPercentagem || 0,
       valorTotal: servico.valorTotal || 0,
     })) || [],
+    pecas: manutencao.manutencaoPecas?.map((peca) => ({
+      id: peca.id || undefined,
+      pecaId: peca.pecaId || '',
+      quantidade: peca.quantidade || 1,
+      garantia: peca.garantia ?? null,
+      validade: peca.validade
+        ? parse(peca.validade.split('T')[0], 'yyyy-MM-dd', new Date())
+        : null,
+      valorSemIva: peca.valorSemIva || 0,
+      ivaPercentagem: peca.ivaPercentagem || 0,
+      valorTotal: peca.valorTotal || 0,
+    })) || [],
   }
 
   return (
     <div className='flex h-full flex-col gap-8 px-4 md:px-8 md:pb-8 md:pt-28 pt-14 md:mx-0 md:my-4 md:mr-4 md:rounded-xl pb-24'>
-      <PageHead title='Atualizar Manutenção | Frotas' />
+      <PageHead title='Atualizar Serviço de Oficina | Frotas' />
 
       <div className='flex items-center gap-4'>
         <Button
@@ -125,7 +137,7 @@ export function ManutencoesUpdatePage() {
 
       <div className='rounded-lg border bg-card'>
         <div className='border-b px-6 py-4'>
-          <h2 className='text-base font-medium'>Atualizar Manutenção</h2>
+          <h2 className='text-base font-medium'>Atualizar Serviço de Oficina</h2>
         </div>
         <div className='p-6'>
           <ManutencaoUpdateForm

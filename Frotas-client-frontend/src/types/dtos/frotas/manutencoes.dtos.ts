@@ -2,6 +2,7 @@ import { FseDTO } from '../base/fses.dtos'
 import { FuncionarioDTO } from '../base/funcionarios.dtos'
 import { ViaturaDTO } from './viaturas.dtos'
 import { ServicoDTO } from './servicos.dtos'
+import { PecaDTO } from './pecas.dtos'
 
 export interface ManutencaoDTO {
   id: string
@@ -21,6 +22,7 @@ export interface ManutencaoDTO {
   valorIva: number
   total: number
   manutencaoServicos?: ManutencaoServicoDTO[] | null
+  manutencaoPecas?: ManutencaoPecaDTO[] | null
   createdOn: string
 }
 
@@ -32,6 +34,20 @@ export interface ManutencaoServicoDTO {
   quantidade: number
   kmProxima?: number | null
   dataProxima?: string | null
+  valorSemIva: number
+  ivaPercentagem: number
+  valorTotal: number
+  createdOn: string
+}
+
+export interface ManutencaoPecaDTO {
+  id: string
+  manutencaoId: string
+  pecaId: string
+  peca?: PecaDTO | null
+  quantidade: number
+  garantia?: number | null
+  validade?: string | null
   valorSemIva: number
   ivaPercentagem: number
   valorTotal: number
@@ -52,6 +68,7 @@ export interface CreateManutencaoDTO {
   valorIva: number
   total: number
   servicos?: CreateManutencaoServicoDTO[]
+  pecas?: CreateManutencaoPecaDTO[]
 }
 
 export interface CreateManutencaoServicoDTO {
@@ -59,6 +76,16 @@ export interface CreateManutencaoServicoDTO {
   quantidade: number
   kmProxima?: number | null
   dataProxima?: string | null
+  valorSemIva: number
+  ivaPercentagem: number
+  valorTotal: number
+}
+
+export interface CreateManutencaoPecaDTO {
+  pecaId: string
+  quantidade: number
+  garantia?: number | null
+  validade?: string | null
   valorSemIva: number
   ivaPercentagem: number
   valorTotal: number
@@ -78,5 +105,6 @@ export interface UpdateManutencaoDTO {
   valorIva: number
   total: number
   servicos?: CreateManutencaoServicoDTO[]
+  pecas?: CreateManutencaoPecaDTO[]
 }
 

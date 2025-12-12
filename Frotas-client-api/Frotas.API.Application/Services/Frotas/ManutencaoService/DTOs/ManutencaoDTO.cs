@@ -1,8 +1,9 @@
-﻿using Frotas.API.Application.Common.Marker;
+using Frotas.API.Application.Common.Marker;
 using Frotas.API.Application.Services.Base.FseService.DTOs;
 using Frotas.API.Application.Services.Base.FuncionarioService.DTOs;
 using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ServicoService.DTOs;
+using Frotas.API.Application.Services.Frotas.PecaService.DTOs;
 using System.Collections.Generic;
 
 namespace Frotas.API.Application.Services.Frotas.ManutencaoService.DTOs
@@ -26,6 +27,7 @@ namespace Frotas.API.Application.Services.Frotas.ManutencaoService.DTOs
     public decimal ValorIva { get; set; }
     public decimal Total { get; set; }
     public ICollection<ManutencaoServicoDTO>? ManutencaoServicos { get; set; }
+    public ICollection<ManutencaoPecaDTO>? ManutencaoPecas { get; set; }
     public DateTime CreatedOn { get; set; }
   }
 
@@ -54,4 +56,31 @@ namespace Frotas.API.Application.Services.Frotas.ManutencaoService.DTOs
     public required decimal IvaPercentagem { get; set; }
     public required decimal ValorTotal { get; set; }
   }
+
+  public class ManutencaoPecaDTO : IDto
+  {
+    public Guid Id { get; set; }
+    public Guid ManutencaoId { get; set; }
+    public Guid PecaId { get; set; }
+    public PecaDTO? Peca { get; set; }
+    public int Quantidade { get; set; }
+    public int? Garantia { get; set; }
+    public DateTime? Validade { get; set; }
+    public decimal ValorSemIva { get; set; }
+    public decimal IvaPercentagem { get; set; }
+    public decimal ValorTotal { get; set; }
+    public DateTime CreatedOn { get; set; }
+  }
+
+  public class CreateManutencaoPecaRequest : IDto
+  {
+    public required Guid PecaId { get; set; }
+    public required int Quantidade { get; set; }
+    public int? Garantia { get; set; }
+    public DateTime? Validade { get; set; }
+    public required decimal ValorSemIva { get; set; }
+    public required decimal IvaPercentagem { get; set; }
+    public required decimal ValorTotal { get; set; }
+  }
 }
+

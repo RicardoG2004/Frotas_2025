@@ -205,6 +205,18 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasForeignKey(x => x.ServicoId)
         .OnDelete(DeleteBehavior.Restrict); // RESTRICT: Não apagar o serviço
 
+      modelBuilder.Entity<ManutencaoPeca>()
+        .HasOne(x => x.Manutencao)
+        .WithMany(x => x.ManutencaoPecas)
+        .HasForeignKey(x => x.ManutencaoId)
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover manutenção, apagar peças
+
+      modelBuilder.Entity<ManutencaoPeca>()
+        .HasOne(x => x.Peca)
+        .WithMany()
+        .HasForeignKey(x => x.PecaId)
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: Não apagar a peça
+
       // query filters
       _ = modelBuilder.AppendGlobalQueryFilter<ISoftDelete>(s => s.DeletedOn == null);
 

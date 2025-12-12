@@ -536,6 +536,14 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '',
           },
+        ],
+      },
+      {
+        label: 'Oficina',
+        href: '/frotas/oficina',
+        icon: '',
+        funcionalidadeId: '',
+        items: [
           {
             label: 'Manutenções',
             href: '/frotas/manutencoes',

@@ -359,16 +359,22 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.Fse, opt => opt.Ignore())
         .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
         .ForMember(dest => dest.Viatura, opt => opt.Ignore())
-        .ForMember(dest => dest.ManutencaoServicos, opt => opt.Ignore());
+        .ForMember(dest => dest.ManutencaoServicos, opt => opt.Ignore())
+        .ForMember(dest => dest.ManutencaoPecas, opt => opt.Ignore());
       _ = CreateMap<CreateManutencaoRequest, Manutencao>()
         .ForMember(dest => dest.Fse, opt => opt.Ignore())
         .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
         .ForMember(dest => dest.Viatura, opt => opt.Ignore())
-        .ForMember(dest => dest.ManutencaoServicos, opt => opt.Ignore());
+        .ForMember(dest => dest.ManutencaoServicos, opt => opt.Ignore())
+        .ForMember(dest => dest.ManutencaoPecas, opt => opt.Ignore());
       _ = CreateMap<ManutencaoServico, ManutencaoServicoDTO>();
       _ = CreateMap<CreateManutencaoServicoRequest, ManutencaoServico>()
         .ForMember(dest => dest.Manutencao, opt => opt.Ignore())
         .ForMember(dest => dest.Servico, opt => opt.Ignore());
+      _ = CreateMap<ManutencaoPeca, ManutencaoPecaDTO>();
+      _ = CreateMap<CreateManutencaoPecaRequest, ManutencaoPeca>()
+        .ForMember(dest => dest.Manutencao, opt => opt.Ignore())
+        .ForMember(dest => dest.Peca, opt => opt.Ignore());
 
       // add new entity mappings here...
     }

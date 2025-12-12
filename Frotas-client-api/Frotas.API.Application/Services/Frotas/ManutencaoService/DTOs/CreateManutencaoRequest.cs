@@ -19,6 +19,7 @@ namespace Frotas.API.Application.Services.Frotas.ManutencaoService.DTOs
     public required decimal ValorIva { get; set; }
     public required decimal Total { get; set; }
     public ICollection<CreateManutencaoServicoRequest>? Servicos { get; set; }
+    public ICollection<CreateManutencaoPecaRequest>? Pecas { get; set; }
   }
 
   public class CreateManutencaoValidator : AbstractValidator<CreateManutencaoRequest>
