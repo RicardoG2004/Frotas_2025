@@ -1,12 +1,19 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, MoreVertical } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Breadcrumbs } from '@/components/shared/breadcrumbs'
 import { PageHead } from '@/components/shared/page-head'
 import { useFormsStore } from '@/stores/use-forms-store'
 import { useWindowsStore } from '@/stores/use-windows-store'
-import { handleWindowClose } from '@/utils/window-utils'
+import { handleWindowClose, generateInstanceId } from '@/utils/window-utils'
 import { ViaturaUpdateForm } from '../viaturas-forms/viatura-update-form'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Wrench, Calendar, Car } from 'lucide-react'
 
 export function ViaturasUpdatePage() {
   const navigate = useNavigate()
@@ -59,8 +66,45 @@ export function ViaturasUpdatePage() {
       </div>
 
       <div className='rounded-lg border bg-card'>
-        <div className='border-b px-6 py-4'>
+        <div className='border-b px-6 py-4 flex items-center justify-between'>
           <h2 className='text-base font-medium'>Atualizar Viatura</h2>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' size='icon' className='h-8 w-8'>
+                <MoreVertical className='h-4 w-4' />
+                <span className='sr-only'>Mais opções</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem
+                onClick={() => {
+                  const instanceId = generateInstanceId()
+                  navigate(`/frotas/manutencoes?viaturaId=${viaturaId}&instanceId=${instanceId}`)
+                }}
+              >
+                <Wrench className='mr-2 h-4 w-4' />
+                Ver Manutenções
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  const instanceId = generateInstanceId()
+                  navigate(`/frotas/reservas-oficinas?viaturaId=${viaturaId}&instanceId=${instanceId}`)
+                }}
+              >
+                <Calendar className='mr-2 h-4 w-4' />
+                Ver Reservas de Oficinas
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  const instanceId = generateInstanceId()
+                  navigate(`/frotas/utilizacoes?viaturaId=${viaturaId}&instanceId=${instanceId}`)
+                }}
+              >
+                <Car className='mr-2 h-4 w-4' />
+                Ver Utilizações
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className='p-6'>
           {viaturaId ? (

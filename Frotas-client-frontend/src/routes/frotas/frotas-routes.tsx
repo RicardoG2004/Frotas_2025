@@ -36,6 +36,7 @@ import { ManutencoesPage } from '@/pages/frotas/manutencoes/manutencoes-page'
 import { ManutencoesCreatePage } from '@/pages/frotas/manutencoes/components/manutencoes-create-page/manutencoes-create-page'
 import { ManutencoesUpdatePage } from '@/pages/frotas/manutencoes/components/manutencoes-update-page/manutencoes-update-page'
 import { ReservasOficinasPage } from '@/pages/frotas/reservas-oficinas/reservas-oficinas-page'
+import { UtilizacoesPage } from '@/pages/frotas/utilizacoes/utilizacoes-page'
 
 import { LicenseGuard } from '@/components/auth/license-guard'
 
@@ -132,6 +133,16 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Reservas de Oficinas',
+  },
+  {
+    path: 'frotas/utilizacoes',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <UtilizacoesPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Utilizações',
   },
   {
     path: 'frotas/configuracoes',

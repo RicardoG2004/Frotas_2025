@@ -576,6 +576,22 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '',
           },
+          {
+            label: 'Utilizações',
+            href: '/frotas/utilizacoes',
+            description: 'Faça a gestão de utilizações por funcionário',
+            icon: 'calendar',
+            colors: {
+              colorful: 'bg-blue-700',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-blue-500',
+              vibrant: 'bg-blue-800',
+              neon: 'bg-blue-600',
+              'neon-cyberpunk':
+                'bg-blue-700 shadow-[0_0_40px_rgba(37,99,235,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
         ],
       },
     ],
