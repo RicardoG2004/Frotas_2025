@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Car,
+  CalendarDays,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -112,6 +113,7 @@ export const Icons = {
   droplets: Droplets,
   container: Container,
   wrench: Wrench,
+  calendar: CalendarDays,
 } as const
 
 export type IconKey = keyof typeof Icons

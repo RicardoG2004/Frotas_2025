@@ -31,6 +31,13 @@ export function FrotasDashboardPage() {
       openInNewWindow: true,
     },
     {
+      title: 'Reservas de Oficinas',
+      description: 'Gestão de reservas de oficinas por funcionário',
+      icon: Icons.calendar,
+      path: '/frotas/reservas-oficinas',
+      openInNewWindow: true,
+    },
+    {
       title: 'Peças',
       description: 'Gestão de peças',
       icon: Icons.container,

@@ -560,6 +560,22 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '',
           },
+          {
+            label: 'Reservas de Oficinas',
+            href: '/frotas/reservas-oficinas',
+            description: 'Faça a gestão de reservas de oficinas por funcionário',
+            icon: 'calendar',
+            colors: {
+              colorful: 'bg-purple-700',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-purple-500',
+              vibrant: 'bg-purple-800',
+              neon: 'bg-purple-600',
+              'neon-cyberpunk':
+                'bg-purple-700 shadow-[0_0_40px_rgba(126,34,206,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
         ],
       },
     ],

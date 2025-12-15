@@ -68,7 +68,9 @@ export function RecentPagesGrid({
     }
 
     const color = useIconThemeColor(pathForColor)
-    const IconComponent = metadata.icon ? Icons[metadata.icon] : Icons.fileText
+    // Ensure we always have a valid icon component
+    const iconKey = metadata.icon as keyof typeof Icons
+    const IconComponent = (iconKey && Icons[iconKey]) ? Icons[iconKey] : Icons.fileText
 
     return {
       color,
@@ -116,7 +118,12 @@ export function RecentPagesGrid({
       <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3'>
         {recentPages.map((page) => {
           const pageConfig = getPageConfig(page.path)
-          const PageIcon = pageConfig.icon
+          const PageIcon = pageConfig.icon || Icons.fileText
+
+          // Ensure PageIcon is a valid component
+          if (!PageIcon || typeof PageIcon !== 'function') {
+            return null
+          }
 
           return (
             <Card

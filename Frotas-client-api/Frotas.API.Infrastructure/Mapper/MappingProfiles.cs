@@ -31,6 +31,7 @@ using Frotas.API.Application.Services.Frotas.SeguradoraService.DTOs;
 using Frotas.API.Application.Services.Frotas.SeguroService.DTOs;
 using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ManutencaoService.DTOs;
+using Frotas.API.Application.Services.Frotas.ReservaOficinaService.DTOs;
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
 
@@ -375,6 +376,15 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<CreateManutencaoPecaRequest, ManutencaoPeca>()
         .ForMember(dest => dest.Manutencao, opt => opt.Ignore())
         .ForMember(dest => dest.Peca, opt => opt.Ignore());
+
+      // ReservasOficina mappings
+      _ = CreateMap<ReservaOficina, ReservaOficinaDTO>();
+      _ = CreateMap<CreateReservaOficinaRequest, ReservaOficina>()
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore());
+      _ = CreateMap<UpdateReservaOficinaRequest, ReservaOficina>()
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore());
 
       // add new entity mappings here...
     }
