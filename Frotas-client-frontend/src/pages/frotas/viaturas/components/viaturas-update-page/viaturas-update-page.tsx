@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Wrench, Calendar, Car } from 'lucide-react'
+import { Wrench, Car } from 'lucide-react'
 
 export function ViaturasUpdatePage() {
   const navigate = useNavigate()
@@ -84,15 +84,6 @@ export function ViaturasUpdatePage() {
               >
                 <Wrench className='mr-2 h-4 w-4' />
                 Ver Manutenções
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  const instanceId = generateInstanceId()
-                  navigate(`/frotas/reservas-oficinas?viaturaId=${viaturaId}&instanceId=${instanceId}`)
-                }}
-              >
-                <Calendar className='mr-2 h-4 w-4' />
-                Ver Reservas de Oficinas
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {

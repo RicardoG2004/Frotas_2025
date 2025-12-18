@@ -30,6 +30,7 @@ import { CreateReservaOficinaDTO, ReservaOficinaDTO, UpdateReservaOficinaDTO } f
 import { CalendarDays, Trash2, Edit, CalendarPlus } from 'lucide-react'
 import { handleApiResponse } from '@/utils/response-handlers'
 import { ResponseStatus } from '@/types/api/responses'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -334,6 +335,8 @@ function TimePicker({ value, onChange }: { value: string; onChange: (value: stri
 export function ReservasOficinasPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
+  const [calendarDayCounts, setCalendarDayCounts] = useState<Record<string, number>>({})
+  const [hoveredDate, setHoveredDate] = useState<Date | undefined>(undefined)
   const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>('')
   const [selectedViaturaId, setSelectedViaturaId] = useState<string>('')
   const [horaInicio, setHoraInicio] = useState<string>('')
@@ -356,7 +359,7 @@ export function ReservasOficinasPage() {
 
   // Get reservas by date
   const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
-  const { data: reservasData, isLoading: isLoadingReservas, refetch: refetchReservas } = useQuery({
+  const { data: reservasData, isLoading: isLoadingReservas, refetch: refetchReservas } = useQuery<ReservaOficinaDTO[] | null>({
     queryKey: ['reservas-oficinas-by-date', formattedDate],
     queryFn: async () => {
       if (!formattedDate) return null
@@ -366,7 +369,34 @@ export function ReservasOficinasPage() {
     enabled: !!formattedDate,
     staleTime: 30000,
   })
-  const reservas = reservasData || []
+  const reservas: ReservaOficinaDTO[] = reservasData || []
+
+  // Hover fetch só para obter a contagem por dia (tooltip)
+  const hoveredDateKey = hoveredDate ? format(hoveredDate, 'yyyy-MM-dd') : ''
+  const { data: hoveredReservasData, isFetching: isHoverFetching } = useQuery<ReservaOficinaDTO[] | null>({
+    queryKey: ['reservas-oficinas-by-date', hoveredDateKey],
+    queryFn: async () => {
+      if (!hoveredDateKey) return null
+      const response = await ReservasOficinasService('reserva-oficina').getReservasOficinasByDate(hoveredDateKey)
+      return response.info?.data || []
+    },
+    enabled: !!hoveredDateKey && hoveredDateKey !== formattedDate,
+    staleTime: 30000,
+  })
+
+  // Atualizar “heat counts” quando os dados chegam (TanStack v5 sem callbacks no hook)
+  useEffect(() => {
+    if (!formattedDate) return
+    const count = reservas.length
+    setCalendarDayCounts((prev) => (prev[formattedDate] === count ? prev : { ...prev, [formattedDate]: count }))
+  }, [formattedDate, reservas.length])
+
+  // Atualizar contagem quando os dados do hover chegam (evita setState dentro do hook/query)
+  useEffect(() => {
+    if (!hoveredDateKey || hoveredDateKey === formattedDate) return
+    const count = Array.isArray(hoveredReservasData) ? hoveredReservasData.length : 0
+    setCalendarDayCounts((prev) => (prev[hoveredDateKey] === count ? prev : { ...prev, [hoveredDateKey]: count }))
+  }, [hoveredDateKey, formattedDate, hoveredReservasData])
 
   // Prepare funcionarios options for Autocomplete with name and cargo
   const funcionarioOptions = useMemo(() => {
@@ -747,6 +777,107 @@ export function ReservasOficinasPage() {
     setReservaToDelete(null)
   }
 
+  const CalendarDayButton = useCallback((props: any) => {
+    const date: Date = props?.day?.date
+    const modifiers = props?.modifiers || {}
+    const isSelected = !!modifiers?.selected
+    const isOutside = !!modifiers?.outside
+    const isToday = !!modifiers?.today
+    const isWeekend = date?.getDay?.() === 0 || date?.getDay?.() === 6
+    const key = date ? format(date, 'yyyy-MM-dd') : ''
+    const count = key ? (calendarDayCounts[key] ?? 0) : 0
+    const isThisHovered = !!hoveredDateKey && key === hoveredDateKey
+    const tooltipDateLabel = date ? format(date, "d 'de' MMMM 'de' yyyy", { locale: pt }) : ''
+
+    return (
+      <Tooltip open={isThisHovered}>
+        <TooltipTrigger asChild>
+          <button
+            {...props}
+            type='button'
+            onMouseEnter={(e) => {
+              props?.onMouseEnter?.(e)
+              if (date) setHoveredDate(date)
+            }}
+            onMouseLeave={(e) => {
+              props?.onMouseLeave?.(e)
+              setHoveredDate(undefined)
+            }}
+            onPointerEnter={(e) => {
+              props?.onPointerEnter?.(e)
+              if (date) setHoveredDate(date)
+            }}
+            onPointerLeave={(e) => {
+              props?.onPointerLeave?.(e)
+              setHoveredDate(undefined)
+            }}
+            onBlur={(e) => {
+              props?.onBlur?.(e)
+              setHoveredDate(undefined)
+            }}
+          >
+            <div className='relative h-full w-full flex flex-col items-center justify-center'>
+              {(isSelected || isToday) && (
+                <div
+                  className={[
+                    'pointer-events-none absolute inset-0 rounded-xl',
+                    isSelected
+                      ? 'ring-2 ring-primary/60 shadow-[0_0_0_2px_rgba(0,0,0,0.02),0_0_28px_rgba(99,102,241,0.18)]'
+                      : 'ring-1 ring-primary/20',
+                  ].join(' ')}
+                />
+              )}
+
+              <div
+                className={[
+                  'leading-none',
+                  isOutside ? 'opacity-55' : '',
+                  isWeekend && !isSelected ? 'text-foreground/90' : '',
+                ].join(' ')}
+              >
+                {date?.getDate?.()}
+              </div>
+
+              {/* Mantém os dots/heat */}
+              {count > 0 && (
+                <div className='mt-1 flex items-center justify-center gap-0.5'>
+                  {Array.from({ length: Math.min(6, count) }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={[
+                        'h-1 w-1 rounded-full',
+                        isSelected ? 'bg-primary-foreground/80' : 'bg-primary/70',
+                      ].join(' ')}
+                    />
+                  ))}
+                  {count > 6 && (
+                    <span className={isSelected ? 'text-[9px] text-primary-foreground/80' : 'text-[9px] text-muted-foreground'}>
+                      +{count - 6}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side='bottom'
+          className='border bg-popover text-popover-foreground shadow-md'
+        >
+          <div className='font-semibold text-xs'>{tooltipDateLabel}</div>
+          <div className='text-[11px] opacity-90'>
+            {`${count} reserva(s) neste dia`}
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    )
+  }, [calendarDayCounts, hoveredDateKey, formattedDate])
+
+  const calendarComponents = useMemo(() => {
+    // Tipagem do react-day-picker varia entre versões; mantemos isto flexível.
+    return { DayButton: CalendarDayButton } as unknown as Record<string, any>
+  }, [CalendarDayButton])
+
   return (
     <div className='px-4 md:px-8 md:pb-8 md:pt-28 pt-4 md:mx-0 md:my-4 md:mr-4 md:rounded-xl pb-24'>
       <PageHead title='Reservas de Oficinas | Frotas' />
@@ -861,40 +992,74 @@ export function ReservasOficinasPage() {
                   </div>
                 </div>
 
-                {/* Calendário */}
-                <div className='bg-background rounded-lg'>
-                  <Calendar
-                    mode='single'
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    month={currentMonth}
-                    onMonthChange={setCurrentMonth}
-                    locale={pt}
-                    className='rounded-md'
-                    classNames={{
-                      months: 'flex flex-col space-y-4',
-                      month: 'space-y-4',
-                      month_caption: 'hidden',
-                      caption_label: 'text-sm font-medium',
-                      nav: 'space-x-1 flex items-center',
-                      button_previous: 'hidden',
-                      button_next: 'hidden',
-                      month_grid: 'w-full border-collapse space-y-1',
-                      weekdays: 'flex w-full -mt-2',
-                      weekday:
-                        'text-muted-foreground rounded-md flex-1 h-9 flex items-center justify-center font-semibold text-sm',
-                      week: 'flex w-full mt-1',
-                      day: 'flex-1 h-9 text-center text-sm p-0 relative rounded-md hover:bg-accent transition-colors flex items-center justify-center',
-                      day_button:
-                        'w-full h-full p-0 font-normal aria-selected:opacity-100 flex items-center justify-center',
-                      selected:
-                        'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground font-semibold',
-                      today: 'bg-accent/20 text-foreground',
-                      outside:
-                        'day-outside text-muted-foreground opacity-50',
-                      disabled: 'text-muted-foreground opacity-50',
+                {/* Calendário (visual premium + funcionalidades, igual ao de Utilizações) */}
+                <div className='relative overflow-hidden rounded-xl border bg-gradient-to-br from-background via-background to-muted/30 shadow-[0_10px_40px_-22px_rgba(0,0,0,0.45)]'>
+                  {/* assinatura visual (auras + pattern subtil) */}
+                  <div className='pointer-events-none absolute -top-16 left-1/2 h-28 w-[22rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-primary/0 via-primary/25 to-primary/0 blur-3xl' />
+                  <div className='pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-primary/10 blur-3xl' />
+                  <div
+                    className='pointer-events-none absolute inset-0 opacity-[0.07]'
+                    style={{
+                      backgroundImage:
+                        'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.6) 1px, transparent 0)',
+                      backgroundSize: '16px 16px',
                     }}
                   />
+
+                  <TooltipProvider delayDuration={40}>
+                    <div className='p-1.5' onMouseLeave={() => setHoveredDate(undefined)} onPointerLeave={() => setHoveredDate(undefined)}>
+                      <Calendar
+                      mode='single'
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      month={currentMonth}
+                      onMonthChange={setCurrentMonth}
+                      locale={pt}
+                      className='rounded-xl p-2'
+                      components={calendarComponents as any}
+                      classNames={{
+                            months: 'flex flex-col space-y-3',
+                            month: 'space-y-3',
+                            month_caption: 'hidden',
+                            caption_label: 'text-sm font-medium',
+                            nav: 'space-x-1 flex items-center',
+                            button_previous: 'hidden',
+                            button_next: 'hidden',
+                            month_grid: 'w-full border-collapse space-y-1.5',
+                            weekdays: 'flex w-full -mt-1 px-1',
+                            weekday:
+                              'text-muted-foreground/80 flex-1 h-7 flex items-center justify-center font-semibold text-[10px] uppercase tracking-wider',
+                            week: 'flex w-full mt-1.5 px-1',
+                            day: 'group flex-1 h-10 text-center text-xs p-0 relative rounded-xl flex items-center justify-center',
+                            day_button:
+                              [
+                                'relative w-full h-full rounded-xl p-0 font-medium aria-selected:opacity-100',
+                                'flex items-center justify-center',
+                                'transition-all duration-200',
+                                'hover:scale-[1.04] active:scale-[0.98]',
+                                'hover:bg-gradient-to-br hover:from-accent/70 hover:to-accent/20',
+                                'hover:shadow-[0_10px_20px_-14px_rgba(0,0,0,0.55)]',
+                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                              ].join(' '),
+                            selected:
+                              [
+                                'bg-gradient-to-br from-primary via-primary to-primary/85',
+                                'text-primary-foreground',
+                                'shadow-[0_14px_26px_-18px_rgba(99,102,241,0.75)]',
+                                'hover:from-primary hover:to-primary/80',
+                                'font-semibold',
+                              ].join(' '),
+                            today:
+                              [
+                                'bg-primary/10 text-foreground',
+                                'shadow-[inset_0_0_0_1px_rgba(99,102,241,0.25)]',
+                              ].join(' '),
+                            outside: 'day-outside text-muted-foreground/50 opacity-60',
+                            disabled: 'text-muted-foreground opacity-40',
+                          }}
+                      />
+                    </div>
+                  </TooltipProvider>
                 </div>
 
                 {/* Informação da data selecionada */}

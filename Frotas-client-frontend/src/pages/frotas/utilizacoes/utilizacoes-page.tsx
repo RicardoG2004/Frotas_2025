@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { format, startOfMonth, endOfMonth, addMonths, subMonths, getYear, getMonth } from 'date-fns'
+import { format, addMonths, subMonths, getYear, getMonth } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { Calendar } from '@/components/ui/calendar'
 import { Breadcrumbs } from '@/components/shared/breadcrumbs'
 import { PageHead } from '@/components/shared/page-head'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, User, Eye, Plus, Clock, Car, FileText } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, User, Eye, Plus, Clock, Car } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import {
   Select,
@@ -20,16 +20,15 @@ import { useGetFuncionarios } from '@/pages/base/funcionarios/queries/funcionari
 import { Autocomplete } from '@/components/ui/autocomplete'
 import { useMemo } from 'react'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useGetViaturasSelect } from '@/pages/frotas/viaturas/queries/viaturas-queries'
 import { UtilizacoesService } from '@/lib/services/frotas/utilizacoes-service'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { CreateUtilizacaoDTO, UtilizacaoDTO, UpdateUtilizacaoDTO } from '@/types/dtos/frotas/utilizacoes.dtos'
-import { CalendarDays, Trash2, Edit, CalendarPlus } from 'lucide-react'
+import { CalendarDays, Trash2, Edit, CalendarPlus, Route, Fuel, Gauge } from 'lucide-react'
 import { handleApiResponse } from '@/utils/response-handlers'
-import { ResponseStatus } from '@/types/api/responses'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +39,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+
+function parseNumberOrEmpty(value: string): string {
+  if (!value) return ''
+  const n = Number(value)
+  return Number.isFinite(n) ? String(n) : ''
+}
 
 // Helper component for time picker
 function TimePicker({ value, onChange }: { value: string; onChange: (value: string) => void }) {
@@ -199,11 +204,11 @@ function TimePicker({ value, onChange }: { value: string; onChange: (value: stri
             placeholder='HH:mm'
             value={formattedTime}
             onChange={(e) => onChange(e.target.value)}
-            className='h-10 border hover:border-primary/50 transition-colors rounded-md shadow-inner text-xs px-3 py-2.5 pl-10 cursor-pointer'
+            className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-inner text-sm px-3 py-2 pl-10 cursor-pointer'
             readOnly
             onClick={() => setOpen(true)}
           />
-          <Clock className='absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none' />
+          <Clock className='absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none' />
         </div>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-6' align='start'>
@@ -334,11 +339,19 @@ function TimePicker({ value, onChange }: { value: string; onChange: (value: stri
 export function UtilizacoesPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
+  const [calendarDayCounts, setCalendarDayCounts] = useState<Record<string, number>>({})
+  const [hoveredDate, setHoveredDate] = useState<Date | undefined>(undefined)
   const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>('')
   const [selectedViaturaId, setSelectedViaturaId] = useState<string>('')
+  const [dataUltimaConferencia, setDataUltimaConferencia] = useState<string>('') // yyyy-MM-dd
+  const [valorCombustivel, setValorCombustivel] = useState<string>('') // number as string
+  const [kmPartida, setKmPartida] = useState<string>('') // number as string
+  const [kmChegada, setKmChegada] = useState<string>('') // number as string
+  const [totalKmEfectuados, setTotalKmEfectuados] = useState<string>('') // number as string
+  const [totalKmConferidos, setTotalKmConferidos] = useState<string>('') // number as string
+  const [totalKmAConferir, setTotalKmAConferir] = useState<string>('') // number as string
   const [horaInicio, setHoraInicio] = useState<string>('')
   const [horaFim, setHoraFim] = useState<string>('')
-  const [causa, setCausa] = useState<string>('')
   const [showUtilizacaoForm, setShowUtilizacaoForm] = useState<boolean>(false)
   const [editingUtilizacaoId, setEditingUtilizacaoId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
@@ -347,16 +360,16 @@ export function UtilizacoesPage() {
   const queryClient = useQueryClient()
 
   // Get funcionarios
-  const { data: funcionariosData, isLoading: isLoadingFuncionarios } = useGetFuncionarios()
+  const { data: funcionariosData } = useGetFuncionarios()
   const funcionarios = funcionariosData?.info?.data || []
 
   // Get viaturas
-  const { data: viaturasData, isLoading: isLoadingViaturas } = useGetViaturasSelect()
+  const { data: viaturasData } = useGetViaturasSelect()
   const viaturas = viaturasData || []
 
   // Get utilizacoes by date
   const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
-  const { data: utilizacoesData, isLoading: isLoadingUtilizacoes, refetch: refetchUtilizacoes } = useQuery({
+  const { data: utilizacoesData, refetch: refetchUtilizacoes } = useQuery<UtilizacaoDTO[] | null>({
     queryKey: ['utilizacoes-by-date', formattedDate],
     queryFn: async () => {
       if (!formattedDate) return null
@@ -366,7 +379,36 @@ export function UtilizacoesPage() {
     enabled: !!formattedDate,
     staleTime: 30000,
   })
-  const utilizacoes = utilizacoesData || []
+  const utilizacoes: UtilizacaoDTO[] = utilizacoesData || []
+
+  // Hover fetch só para obter a contagem por dia (tooltip)
+  const hoveredDateKey = hoveredDate ? format(hoveredDate, 'yyyy-MM-dd') : ''
+  const { data: hoveredUtilizacoesData } = useQuery<UtilizacaoDTO[] | null>({
+    queryKey: ['utilizacoes-by-date', hoveredDateKey],
+    queryFn: async () => {
+      if (!hoveredDateKey) return null
+      const response = await UtilizacoesService('utilizacao').getUtilizacoesByDate(hoveredDateKey)
+      return response.info?.data || []
+    },
+    enabled: !!hoveredDateKey && hoveredDateKey !== formattedDate,
+    staleTime: 30000,
+  })
+
+  // Atualizar “heat counts” quando os dados chegam (TanStack v5 sem callbacks no hook)
+  useEffect(() => {
+    if (!formattedDate) return
+    setCalendarDayCounts((prev) => {
+      const count = utilizacoes.length
+      return prev[formattedDate] === count ? prev : { ...prev, [formattedDate]: count }
+    })
+  }, [formattedDate, utilizacoes.length])
+
+  // Atualizar contagem quando os dados do hover chegam
+  useEffect(() => {
+    if (!hoveredDateKey || hoveredDateKey === formattedDate) return
+    const count = Array.isArray(hoveredUtilizacoesData) ? hoveredUtilizacoesData.length : 0
+    setCalendarDayCounts((prev) => (prev[hoveredDateKey] === count ? prev : { ...prev, [hoveredDateKey]: count }))
+  }, [hoveredDateKey, formattedDate, hoveredUtilizacoesData])
 
   // Prepare funcionarios options for Autocomplete with name and cargo
   const funcionarioOptions = useMemo(() => {
@@ -404,9 +446,15 @@ export function UtilizacoesPage() {
     if (!editingUtilizacaoId) {
       setShowUtilizacaoForm(false)
       setSelectedViaturaId('')
+      setDataUltimaConferencia('')
+      setValorCombustivel('')
+      setKmPartida('')
+      setKmChegada('')
+      setTotalKmEfectuados('')
+      setTotalKmConferidos('')
+      setTotalKmAConferir('')
       setHoraInicio('')
       setHoraFim('')
-      setCausa('')
     }
   }, [selectedDate, selectedFuncionarioId, editingUtilizacaoId])
 
@@ -414,8 +462,6 @@ export function UtilizacoesPage() {
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ]
-
-  const weekDayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
   // Generate year options
   const currentYear = getYear(new Date())
@@ -554,7 +600,6 @@ export function UtilizacoesPage() {
         setSelectedViaturaId('')
         setHoraInicio('')
         setHoraFim('')
-        setCausa('')
       }
     },
     onError: (error: any) => {
@@ -610,7 +655,6 @@ export function UtilizacoesPage() {
         setSelectedViaturaId('')
         setHoraInicio('')
         setHoraFim('')
-        setCausa('')
       }
     },
     onError: (error: any) => {
@@ -660,9 +704,25 @@ export function UtilizacoesPage() {
     setCurrentMonth(utilizacaoDate) // Atualizar o mês do calendário também
     setSelectedFuncionarioId(utilizacao.funcionarioId)
     setSelectedViaturaId(utilizacao.viaturaId || '')
+    setDataUltimaConferencia(
+      utilizacao.dataUltimaConferencia ? utilizacao.dataUltimaConferencia.slice(0, 10) : ''
+    )
+    setValorCombustivel(
+      typeof utilizacao.valorCombustivel === 'number' ? String(utilizacao.valorCombustivel) : ''
+    )
+    setKmPartida(typeof utilizacao.kmPartida === 'number' ? String(utilizacao.kmPartida) : '')
+    setKmChegada(typeof utilizacao.kmChegada === 'number' ? String(utilizacao.kmChegada) : '')
+    setTotalKmEfectuados(
+      typeof utilizacao.totalKmEfectuados === 'number' ? String(utilizacao.totalKmEfectuados) : ''
+    )
+    setTotalKmConferidos(
+      typeof utilizacao.totalKmConferidos === 'number' ? String(utilizacao.totalKmConferidos) : ''
+    )
+    setTotalKmAConferir(
+      typeof utilizacao.totalKmAConferir === 'number' ? String(utilizacao.totalKmAConferir) : ''
+    )
     setHoraInicio(utilizacao.horaInicio || '')
     setHoraFim(utilizacao.horaFim || '')
-    setCausa(utilizacao.causa || '')
     
     // Abrir o formulário por último
     setShowUtilizacaoForm(true)
@@ -682,11 +742,17 @@ export function UtilizacoesPage() {
       // Atualizar utilização existente
       const data: UpdateUtilizacaoDTO = {
         dataUtilizacao: format(selectedDate, 'yyyy-MM-dd'),
+        dataUltimaConferencia: dataUltimaConferencia || undefined,
         funcionarioId: selectedFuncionarioId,
         viaturaId: selectedViaturaId || undefined,
         horaInicio: horaInicio || undefined,
         horaFim: horaFim || undefined,
-        causa: causa || undefined,
+        valorCombustivel: valorCombustivel ? Number(valorCombustivel) : undefined,
+        kmPartida: kmPartida ? Number(kmPartida) : undefined,
+        kmChegada: kmChegada ? Number(kmChegada) : undefined,
+        totalKmEfectuados: totalKmEfectuados ? Number(totalKmEfectuados) : undefined,
+        totalKmConferidos: totalKmConferidos ? Number(totalKmConferidos) : undefined,
+        totalKmAConferir: totalKmAConferir ? Number(totalKmAConferir) : undefined,
       }
       console.log('Atualizando utilização com dados:', data)
       updateUtilizacaoMutation.mutate({ id: editingUtilizacaoId, data })
@@ -694,11 +760,17 @@ export function UtilizacoesPage() {
       // Criar nova utilização
       const data: CreateUtilizacaoDTO = {
         dataUtilizacao: format(selectedDate, 'yyyy-MM-dd'),
+        dataUltimaConferencia: dataUltimaConferencia || undefined,
         funcionarioId: selectedFuncionarioId,
         viaturaId: selectedViaturaId || undefined,
         horaInicio: horaInicio || undefined,
         horaFim: horaFim || undefined,
-        causa: causa || undefined,
+        valorCombustivel: valorCombustivel ? Number(valorCombustivel) : undefined,
+        kmPartida: kmPartida ? Number(kmPartida) : undefined,
+        kmChegada: kmChegada ? Number(kmChegada) : undefined,
+        totalKmEfectuados: totalKmEfectuados ? Number(totalKmEfectuados) : undefined,
+        totalKmConferidos: totalKmConferidos ? Number(totalKmConferidos) : undefined,
+        totalKmAConferir: totalKmAConferir ? Number(totalKmAConferir) : undefined,
       }
       console.log('Criando utilização com dados:', data)
       createUtilizacaoMutation.mutate(data)
@@ -721,9 +793,15 @@ export function UtilizacoesPage() {
     setShowUtilizacaoForm(false)
     setEditingUtilizacaoId(null)
     setSelectedViaturaId('')
+    setDataUltimaConferencia('')
+    setValorCombustivel('')
+    setKmPartida('')
+    setKmChegada('')
+    setTotalKmEfectuados('')
+    setTotalKmConferidos('')
+    setTotalKmAConferir('')
     setHoraInicio('')
     setHoraFim('')
-    setCausa('')
   }
 
   const handleDeleteUtilizacao = (utilizacao: UtilizacaoDTO) => {
@@ -747,6 +825,104 @@ export function UtilizacoesPage() {
     setUtilizacaoToDelete(null)
   }
 
+  const CalendarDayButton = useCallback((props: any) => {
+    const date: Date = props?.day?.date
+    const modifiers = props?.modifiers || {}
+    const isSelected = !!modifiers?.selected
+    const isOutside = !!modifiers?.outside
+    const isToday = !!modifiers?.today
+    const isWeekend = date?.getDay?.() === 0 || date?.getDay?.() === 6
+    const key = date ? format(date, 'yyyy-MM-dd') : ''
+    const count = key ? (calendarDayCounts[key] ?? 0) : 0
+    const isThisHovered = !!hoveredDateKey && key === hoveredDateKey
+    const tooltipDateLabel = date ? format(date, "d 'de' MMMM 'de' yyyy", { locale: pt }) : ''
+
+    return (
+      <Tooltip open={isThisHovered}>
+        <TooltipTrigger asChild>
+          <button
+            {...props}
+            type='button'
+            onMouseEnter={(e) => {
+              props?.onMouseEnter?.(e)
+              if (date) setHoveredDate(date)
+            }}
+            onMouseLeave={(e) => {
+              props?.onMouseLeave?.(e)
+              setHoveredDate(undefined)
+            }}
+            onPointerEnter={(e) => {
+              props?.onPointerEnter?.(e)
+              if (date) setHoveredDate(date)
+            }}
+            onPointerLeave={(e) => {
+              props?.onPointerLeave?.(e)
+              setHoveredDate(undefined)
+            }}
+            onBlur={(e) => {
+              props?.onBlur?.(e)
+              setHoveredDate(undefined)
+            }}
+          >
+            <div className='relative h-full w-full flex flex-col items-center justify-center'>
+              {(isSelected || isToday) && (
+                <div
+                  className={[
+                    'pointer-events-none absolute inset-0 rounded-xl',
+                    isSelected
+                      ? 'ring-2 ring-primary/60 shadow-[0_0_0_2px_rgba(0,0,0,0.02),0_0_28px_rgba(99,102,241,0.18)]'
+                      : 'ring-1 ring-primary/20',
+                  ].join(' ')}
+                />
+              )}
+
+              <div
+                className={[
+                  'leading-none',
+                  isOutside ? 'opacity-55' : '',
+                  isWeekend && !isSelected ? 'text-foreground/90' : '',
+                ].join(' ')}
+              >
+                {date?.getDate?.()}
+              </div>
+
+              {/* Dots/heat (quando já existe contagem no cache) */}
+              {count > 0 && (
+                <div className='mt-1 flex items-center justify-center gap-0.5'>
+                  {Array.from({ length: Math.min(6, count) }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={[
+                        'h-1 w-1 rounded-full',
+                        isSelected ? 'bg-primary-foreground/80' : 'bg-primary/70',
+                      ].join(' ')}
+                    />
+                  ))}
+                  {count > 6 && (
+                    <span className={isSelected ? 'text-[9px] text-primary-foreground/80' : 'text-[9px] text-muted-foreground'}>
+                      +{count - 6}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side='bottom' className='border bg-popover text-popover-foreground shadow-md'>
+          <div className='font-semibold text-xs'>{tooltipDateLabel}</div>
+          <div className='text-[11px] opacity-90'>
+            {`${count} utilização(ões) neste dia`}
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    )
+  }, [calendarDayCounts, hoveredDateKey, formattedDate])
+
+  const calendarComponents = useMemo(() => {
+    // Tipagem do react-day-picker varia entre versões; mantemos isto flexível.
+    return { DayButton: CalendarDayButton } as unknown as Record<string, any>
+  }, [CalendarDayButton])
+
   return (
     <div className='px-4 md:px-8 md:pb-8 md:pt-28 pt-4 md:mx-0 md:my-4 md:mr-4 md:rounded-xl pb-24'>
       <PageHead title='Utilizações | Frotas' />
@@ -767,14 +943,14 @@ export function UtilizacoesPage() {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Calendário Profissional do lado esquerdo */}
           <div className='lg:col-span-1'>
-            <Card className='shadow-lg border-l-4 border-l-primary/50'>
-              <CardHeader className='pb-1.5'>
+            <Card className='shadow-lg border-l-4 border-l-primary/50 overflow-hidden'>
+              <CardHeader className='pb-1.5 px-3 pt-3'>
                 <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-2.5'>
-                    <div className='rounded-lg bg-primary/10 p-2'>
-                      <CalendarIcon className='h-4 w-4 text-primary' />
+                  <div className='flex items-center gap-2'>
+                    <div className='rounded-lg bg-primary/10 p-1.5'>
+                      <CalendarIcon className='h-3.5 w-3.5 text-primary' />
                     </div>
-                    <CardTitle className='text-sm font-semibold'>
+                    <CardTitle className='text-xs font-semibold'>
                       Calendário
                     </CardTitle>
                   </div>
@@ -788,16 +964,16 @@ export function UtilizacoesPage() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className='pt-0 pb-3'>
+              <CardContent className='pt-0 pb-2.5 px-3'>
                 {/* Navegação de Mês e Ano - Design Moderno */}
-                <div className='mb-3 pb-3 border-b border-border/50'>
+                <div className='mb-2.5 pb-2.5 border-b border-border/50'>
                   <div className='flex items-center justify-between gap-3'>
                     {/* Botão Anterior */}
                     <Button
                       variant='outline'
                       size='icon'
                       onClick={handlePreviousMonth}
-                      className='h-8 w-8 rounded-lg hover:bg-accent transition-all duration-200 shadow-sm hover:shadow'
+                      className='h-7 w-7 rounded-lg hover:bg-accent transition-all duration-200 shadow-sm hover:shadow'
                     >
                       <ChevronLeft className='h-3.5 w-3.5' />
                     </Button>
@@ -809,7 +985,7 @@ export function UtilizacoesPage() {
                           value={getMonth(currentMonth).toString()}
                           onValueChange={handleMonthChange}
                         >
-                          <SelectTrigger className='h-8 w-full text-xs font-semibold border-2 hover:border-primary/50 transition-colors rounded-lg shadow-sm'>
+                          <SelectTrigger className='h-7 w-full text-xs font-semibold border hover:border-primary/50 transition-colors rounded-lg shadow-sm'>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className='max-h-[300px]'>
@@ -831,7 +1007,7 @@ export function UtilizacoesPage() {
                           value={getYear(currentMonth).toString()}
                           onValueChange={handleYearChange}
                         >
-                          <SelectTrigger className='h-8 w-full text-xs font-semibold border-2 hover:border-primary/50 transition-colors rounded-lg shadow-sm'>
+                          <SelectTrigger className='h-7 w-full text-xs font-semibold border hover:border-primary/50 transition-colors rounded-lg shadow-sm'>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className='max-h-[300px]'>
@@ -854,7 +1030,7 @@ export function UtilizacoesPage() {
                       variant='outline'
                       size='icon'
                       onClick={handleNextMonth}
-                      className='h-8 w-8 rounded-lg hover:bg-accent transition-all duration-200 shadow-sm hover:shadow'
+                      className='h-7 w-7 rounded-lg hover:bg-accent transition-all duration-200 shadow-sm hover:shadow'
                     >
                       <ChevronRight className='h-3.5 w-3.5' />
                     </Button>
@@ -862,39 +1038,74 @@ export function UtilizacoesPage() {
                 </div>
 
                 {/* Calendário */}
-                <div className='bg-background rounded-lg'>
-                  <Calendar
-                    mode='single'
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    month={currentMonth}
-                    onMonthChange={setCurrentMonth}
-                    locale={pt}
-                    className='rounded-md'
-                    classNames={{
-                      months: 'flex flex-col space-y-4',
-                      month: 'space-y-4',
-                      month_caption: 'hidden',
-                      caption_label: 'text-sm font-medium',
-                      nav: 'space-x-1 flex items-center',
-                      button_previous: 'hidden',
-                      button_next: 'hidden',
-                      month_grid: 'w-full border-collapse space-y-1',
-                      weekdays: 'flex w-full -mt-2',
-                      weekday:
-                        'text-muted-foreground rounded-md flex-1 h-9 flex items-center justify-center font-semibold text-sm',
-                      week: 'flex w-full mt-1',
-                      day: 'flex-1 h-9 text-center text-sm p-0 relative rounded-md hover:bg-accent transition-colors flex items-center justify-center',
-                      day_button:
-                        'w-full h-full p-0 font-normal aria-selected:opacity-100 flex items-center justify-center',
-                      selected:
-                        'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground font-semibold',
-                      today: 'bg-accent/20 text-foreground',
-                      outside:
-                        'day-outside text-muted-foreground opacity-50',
-                      disabled: 'text-muted-foreground opacity-50',
+                <div className='relative overflow-hidden rounded-xl border bg-gradient-to-br from-background via-background to-muted/30 shadow-[0_10px_40px_-22px_rgba(0,0,0,0.45)]'>
+                  {/* assinatura visual (auras + pattern subtil) */}
+                  <div className='pointer-events-none absolute -top-16 left-1/2 h-28 w-[22rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-primary/0 via-primary/25 to-primary/0 blur-3xl' />
+                  <div className='pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-primary/10 blur-3xl' />
+                  <div
+                    className='pointer-events-none absolute inset-0 opacity-[0.07]'
+                    style={{
+                      backgroundImage:
+                        'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.6) 1px, transparent 0)',
+                      backgroundSize: '16px 16px',
                     }}
                   />
+
+                  <TooltipProvider delayDuration={40}>
+                    <div className='p-1.5' onMouseLeave={() => setHoveredDate(undefined)} onPointerLeave={() => setHoveredDate(undefined)}>
+                      <Calendar
+                      mode='single'
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      month={currentMonth}
+                      onMonthChange={setCurrentMonth}
+                      locale={pt}
+                      className='rounded-xl p-2'
+                      components={calendarComponents as any}
+                      classNames={{
+                            months: 'flex flex-col space-y-3',
+                            month: 'space-y-3',
+                            month_caption: 'hidden',
+                            caption_label: 'text-sm font-medium',
+                            nav: 'space-x-1 flex items-center',
+                            button_previous: 'hidden',
+                            button_next: 'hidden',
+                            month_grid: 'w-full border-collapse space-y-1.5',
+                            weekdays: 'flex w-full -mt-1 px-1',
+                            weekday:
+                              'text-muted-foreground/80 flex-1 h-7 flex items-center justify-center font-semibold text-[10px] uppercase tracking-wider',
+                            week: 'flex w-full mt-1.5 px-1',
+                            day: 'group flex-1 h-10 text-center text-xs p-0 relative rounded-xl flex items-center justify-center',
+                            day_button:
+                              [
+                                'relative w-full h-full rounded-xl p-0 font-medium aria-selected:opacity-100',
+                                'flex items-center justify-center',
+                                'transition-all duration-200',
+                                'hover:scale-[1.04] active:scale-[0.98]',
+                                'hover:bg-gradient-to-br hover:from-accent/70 hover:to-accent/20',
+                                'hover:shadow-[0_10px_20px_-14px_rgba(0,0,0,0.55)]',
+                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                              ].join(' '),
+                            selected:
+                              [
+                                'bg-gradient-to-br from-primary via-primary to-primary/85',
+                                'text-primary-foreground',
+                                'shadow-[0_14px_26px_-18px_rgba(99,102,241,0.75)]',
+                                'hover:from-primary hover:to-primary/80',
+                                'font-semibold',
+                              ].join(' '),
+                            today:
+                              [
+                                'bg-primary/10 text-foreground',
+                                'shadow-[inset_0_0_0_1px_rgba(99,102,241,0.25)]',
+                              ].join(' '),
+                            outside:
+                              'day-outside text-muted-foreground/50 opacity-60',
+                            disabled: 'text-muted-foreground opacity-40',
+                          }}
+                      />
+                    </div>
+                  </TooltipProvider>
                 </div>
 
                 {/* Informação da data selecionada */}
@@ -911,19 +1122,69 @@ export function UtilizacoesPage() {
               </CardContent>
             </Card>
 
+            {/* Mini Secção - Viatura */}
+            <Card className='shadow-lg mt-2 border-l-4 border-l-primary/50'>
+              <CardHeader className='pb-2 px-3 pt-3'>
+                <div className='flex items-center gap-2'>
+                  <div className='rounded-lg bg-primary/10 p-1.5'>
+                    <Car className='h-3.5 w-3.5 text-primary' />
+                  </div>
+                  <CardTitle className='text-xs font-semibold'>
+                    Viatura
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className='pb-3 px-3'>
+                <div className='relative'>
+                  <Autocomplete
+                    options={viaturaOptions}
+                    value={selectedViaturaId}
+                    onValueChange={setSelectedViaturaId}
+                    placeholder='Selecione ou pesquise viatura'
+                    emptyText='Nenhuma viatura encontrada.'
+                    className='h-11 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2.5 pr-18'
+                    defaultVisibleCount={8}
+                  />
+                  <div className='absolute right-8 top-1/2 -translate-y-1/2 flex gap-1 z-10'>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={handleViewViatura}
+                      className='h-7 w-7 p-0 hover:bg-accent'
+                      title='Ver Viatura'
+                      disabled={!selectedViaturaId}
+                    >
+                      <Eye className='h-4 w-4' />
+                    </Button>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={handleCreateViatura}
+                      className='h-7 w-7 p-0 hover:bg-accent'
+                      title='Criar Viatura'
+                    >
+                      <Plus className='h-4 w-4' />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Mini Secção - Funcionário */}
             <Card className='shadow-lg mt-2 border-l-4 border-l-primary/50'>
-              <CardHeader className='pb-2'>
-                <div className='flex items-center gap-2.5'>
-                  <div className='rounded-lg bg-primary/10 p-2'>
-                    <User className='h-4 w-4 text-primary' />
+              <CardHeader className='pb-2 px-3 pt-3'>
+                <div className='flex items-center gap-2'>
+                  <div className='rounded-lg bg-primary/10 p-1.5'>
+                    <User className='h-3.5 w-3.5 text-primary' />
                   </div>
-                  <CardTitle className='text-sm font-semibold'>
+                  <CardTitle className='text-xs font-semibold'>
                     Funcionário
                   </CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className='pb-3'>
+              <CardContent className='pb-3 px-3'>
                 <div className='relative'>
                   <Autocomplete
                     options={funcionarioOptions}
@@ -931,30 +1192,30 @@ export function UtilizacoesPage() {
                     onValueChange={setSelectedFuncionarioId}
                     placeholder='Selecione ou pesquise funcionário'
                     emptyText='Nenhum funcionário encontrado.'
-                    className='h-10 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-xs px-3 py-2.5 pr-20'
+                    className='h-11 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2.5 pr-18'
                     defaultVisibleCount={8}
                   />
-                  <div className='absolute right-9 top-1/2 -translate-y-1/2 flex gap-0.5 z-10'>
+                  <div className='absolute right-8 top-1/2 -translate-y-1/2 flex gap-1 z-10'>
                     <Button
                       type='button'
                       variant='ghost'
                       size='sm'
                       onClick={handleViewFuncionario}
-                      className='h-6 w-6 p-0 hover:bg-accent'
+                      className='h-7 w-7 p-0 hover:bg-accent'
                       title='Ver Funcionário'
                       disabled={!selectedFuncionarioId}
                     >
-                      <Eye className='h-3 w-3' />
+                      <Eye className='h-4 w-4' />
                     </Button>
                     <Button
                       type='button'
                       variant='ghost'
                       size='sm'
                       onClick={handleCreateFuncionario}
-                      className='h-6 w-6 p-0 hover:bg-accent'
+                      className='h-7 w-7 p-0 hover:bg-accent'
                       title='Criar Funcionário'
                     >
-                      <Plus className='h-3 w-3' />
+                      <Plus className='h-4 w-4' />
                     </Button>
                   </div>
                 </div>
@@ -1081,21 +1342,6 @@ export function UtilizacoesPage() {
                                     </div>
                                   )}
 
-                                  {/* Causa */}
-                                  {utilizacao.causa && (
-                                    <div className='flex items-start gap-2 min-w-0 flex-1 max-w-xs'>
-                                      <FileText className='h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-1' />
-                                      <div className='min-w-0 flex-1'>
-                                        <p className='text-xs font-medium text-muted-foreground mb-1'>Causa</p>
-                                        <div className='border-t border-border/50 pt-1'>
-                                          <p className='text-sm text-foreground truncate' title={utilizacao.causa}>
-                                            {utilizacao.causa}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-
                                   {/* Botões de Ação */}
                                   <div className='flex items-center gap-1.5 flex-shrink-0'>
                                     <Button
@@ -1126,93 +1372,204 @@ export function UtilizacoesPage() {
                       )}
                     </div>
                   ) : (
-                    <div className='flex items-center justify-center min-h-[400px] py-8'>
-                      <div className='w-full max-w-2xl space-y-4'>
-                        {/* Campo Viatura */}
-                        <div className='space-y-1.5'>
-                          <Label htmlFor='viatura-select' className='text-xs font-medium flex items-center gap-1.5'>
-                            <Car className='h-3 w-3' />
-                            Viatura
-                          </Label>
-                          <div className='relative'>
-                            <div className='absolute left-3 top-1/2 -translate-y-1/2 z-[100] pointer-events-none flex items-center'>
-                              <Car className='h-3.5 w-3.5 text-muted-foreground' />
-                            </div>
-                            <Autocomplete
-                              options={viaturaOptions}
-                              value={selectedViaturaId}
-                              onValueChange={setSelectedViaturaId}
-                              placeholder={isLoadingViaturas ? 'A carregar...' : 'Selecione ou pesquise viatura'}
-                              emptyText='Nenhuma viatura encontrada.'
-                              disabled={isLoadingViaturas}
-                              className='h-10 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-xs pl-10 pr-20 py-2.5'
-                              defaultVisibleCount={8}
+                    <div className='flex items-start justify-center min-h-[400px] pt-10 pb-6'>
+                      <div className='w-full max-w-3xl'>
+                        {/* Primeira linha: Data da Última Conferência (primeiro campo) */}
+                        <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2'>
+                          <div className='space-y-1 col-span-2 md:col-span-2'>
+                            <Label htmlFor='data-ultima-conferencia' className='text-xs font-medium flex items-center gap-1.5'>
+                              <CalendarDays className='h-3 w-3' />
+                              Últ. Conferência
+                            </Label>
+                            <Input
+                              id='data-ultima-conferencia'
+                              type='date'
+                              value={dataUltimaConferencia}
+                              onChange={(e) => setDataUltimaConferencia(e.target.value)}
+                              className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2'
                             />
-                            <div className='absolute right-9 top-1/2 -translate-y-1/2 flex gap-0.5 z-10'>
-                              <Button
-                                type='button'
-                                variant='ghost'
-                                size='sm'
-                                onClick={handleViewViatura}
-                                className='h-6 w-6 p-0 hover:bg-accent'
-                                title='Ver Viatura'
-                                disabled={!selectedViaturaId}
-                              >
-                                <Eye className='h-3 w-3' />
-                              </Button>
-                              <Button
-                                type='button'
-                                variant='ghost'
-                                size='sm'
-                                onClick={handleCreateViatura}
-                                className='h-6 w-6 p-0 hover:bg-accent'
-                                title='Criar Viatura'
-                              >
-                                <Plus className='h-3 w-3' />
-                              </Button>
-                            </div>
                           </div>
                         </div>
 
-                        {/* Campos de Hora - Grid */}
-                        <div className='grid grid-cols-2 gap-3'>
-                          {/* Campo Hora Inicio */}
-                          <div className='space-y-1.5'>
+                        {/* Separador */}
+                        <div className='my-3 h-px bg-border/60' />
+
+                        {/* Linha seguinte: Viatura + Horas (lado a lado) */}
+                        <div className='grid grid-cols-1 lg:grid-cols-6 gap-2 items-end'>
+                          <div className='space-y-1 lg:col-span-4'>
+                          <Label htmlFor='viatura-select' className='text-xs font-medium flex items-center gap-1.5'>
+                              <Car className='h-3 w-3' />
+                              Viatura
+                            </Label>
+                            <div className='relative'>
+                              <div className='absolute left-3 top-1/2 -translate-y-1/2 z-[100] pointer-events-none flex items-center'>
+                                <Car className='h-3.5 w-3.5 text-muted-foreground' />
+                              </div>
+                              <Autocomplete
+                                options={viaturaOptions}
+                                value={selectedViaturaId}
+                                onValueChange={setSelectedViaturaId}
+                                placeholder='Selecione ou pesquise viatura'
+                                emptyText='Nenhuma viatura encontrada.'
+                                className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm pl-10 pr-16 py-2'
+                                defaultVisibleCount={8}
+                              />
+                              <div className='absolute right-9 top-1/2 -translate-y-1/2 flex gap-0.5 z-10'>
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='sm'
+                                  onClick={handleViewViatura}
+                                  className='h-6 w-6 p-0 hover:bg-accent'
+                                  title='Ver Viatura'
+                                  disabled={!selectedViaturaId}
+                                >
+                                  <Eye className='h-3 w-3' />
+                                </Button>
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='sm'
+                                  onClick={handleCreateViatura}
+                                  className='h-6 w-6 p-0 hover:bg-accent'
+                                  title='Criar Viatura'
+                                >
+                                  <Plus className='h-3 w-3' />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className='space-y-1 lg:col-span-1'>
                             <Label htmlFor='hora-inicio' className='text-xs font-medium flex items-center gap-1.5'>
                               <Clock className='h-3 w-3' />
-                              Hora Início
+                              Início
                             </Label>
                             <TimePicker value={horaInicio} onChange={setHoraInicio} />
                           </div>
 
-                          {/* Campo Hora Fim */}
-                          <div className='space-y-1.5'>
+                          <div className='space-y-1 lg:col-span-1'>
                             <Label htmlFor='hora-fim' className='text-xs font-medium flex items-center gap-1.5'>
                               <Clock className='h-3 w-3' />
-                              Hora Fim
+                              Fim
                             </Label>
                             <TimePicker value={horaFim} onChange={setHoraFim} />
                           </div>
                         </div>
 
-                      {/* Campo Causa */}
-                      <div className='space-y-1.5'>
-                        <Label htmlFor='causa' className='text-xs font-medium flex items-center gap-1.5'>
-                          <FileText className='h-3 w-3' />
-                          Causa
-                        </Label>
-                        <Textarea
-                          id='causa'
-                          value={causa}
-                          onChange={(e) => setCausa(e.target.value)}
-                          placeholder='Descreva a causa da utilização'
-                          rows={5}
-                          className='shadow-inner drop-shadow-xl resize-none pr-3 text-xs border hover:border-primary/50 transition-colors rounded-md'
-                        />
-                      </div>
+                        {/* Separador */}
+                        <div className='my-3 h-px bg-border/60' />
 
-                        {/* Botões Criar/Cancelar Utilização */}
-                        <div className='pt-1 flex gap-2'>
+                        {/* Grid denso: tudo em 2-5 colunas consoante largura */}
+                        <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2'>
+
+                          <div className='space-y-1 col-span-2 md:col-span-2 lg:col-span-2'>
+                            <Label htmlFor='valor-combustivel' className='text-xs font-medium inline-flex items-center gap-1.5'>
+                              <Fuel className='h-3 w-3 text-muted-foreground' />
+                              Combustível
+                            </Label>
+                            <Input
+                              id='valor-combustivel'
+                              type='number'
+                              inputMode='decimal'
+                              value={valorCombustivel}
+                              onChange={(e) => setValorCombustivel(parseNumberOrEmpty(e.target.value))}
+                              placeholder='0'
+                                className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2'
+                            />
+                          </div>
+
+                          <div className='space-y-1 col-span-1 md:col-span-1'>
+                            <Label htmlFor='km-partida' className='text-xs font-medium inline-flex items-center gap-1.5'>
+                              <Gauge className='h-3 w-3 text-muted-foreground' />
+                              Km Partida
+                            </Label>
+                            <Input
+                              id='km-partida'
+                              type='number'
+                              inputMode='numeric'
+                              value={kmPartida}
+                              onChange={(e) => setKmPartida(parseNumberOrEmpty(e.target.value))}
+                              placeholder='0'
+                                className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2'
+                            />
+                          </div>
+
+                          <div className='space-y-1 col-span-1 md:col-span-1'>
+                            <Label htmlFor='km-chegada' className='text-xs font-medium inline-flex items-center gap-1.5'>
+                              <Gauge className='h-3 w-3 text-muted-foreground' />
+                              Km Chegada
+                            </Label>
+                            <Input
+                              id='km-chegada'
+                              type='number'
+                              inputMode='numeric'
+                              value={kmChegada}
+                              onChange={(e) => setKmChegada(parseNumberOrEmpty(e.target.value))}
+                              placeholder='0'
+                                className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2'
+                            />
+                          </div>
+
+                          {/* Separador */}
+                          <div className='col-span-2 md:col-span-4 lg:col-span-6 h-px bg-border/60 my-1' />
+
+                          <div className='col-span-2 md:col-span-4 lg:col-span-6'>
+                            <div className='text-xs font-semibold text-muted-foreground mb-1 inline-flex items-center gap-1.5'>
+                              <Route className='h-3 w-3 opacity-70' />
+                              Total Km
+                            </div>
+                            <div className='grid grid-cols-3 gap-2'>
+                              <div className='space-y-1'>
+                                <Label htmlFor='total-km-efectuados' className='text-xs font-medium'>
+                                  Efectuados
+                                </Label>
+                                <Input
+                                  id='total-km-efectuados'
+                                  type='number'
+                                  inputMode='numeric'
+                                  value={totalKmEfectuados}
+                                  onChange={(e) => setTotalKmEfectuados(parseNumberOrEmpty(e.target.value))}
+                                  placeholder='0'
+                                  className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2'
+                                />
+                              </div>
+
+                              <div className='space-y-1'>
+                                <Label htmlFor='total-km-conferidos' className='text-xs font-medium'>
+                                  Conferidos
+                                </Label>
+                                <Input
+                                  id='total-km-conferidos'
+                                  type='number'
+                                  inputMode='numeric'
+                                  value={totalKmConferidos}
+                                  onChange={(e) => setTotalKmConferidos(parseNumberOrEmpty(e.target.value))}
+                                  placeholder='0'
+                                  className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2'
+                                />
+                              </div>
+
+                              <div className='space-y-1'>
+                                <Label htmlFor='total-km-a-conferir' className='text-xs font-medium'>
+                                  A conferir
+                                </Label>
+                                <Input
+                                  id='total-km-a-conferir'
+                                  type='number'
+                                  inputMode='numeric'
+                                  value={totalKmAConferir}
+                                  onChange={(e) => setTotalKmAConferir(parseNumberOrEmpty(e.target.value))}
+                                  placeholder='0'
+                                  className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm px-3 py-2'
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Ações */}
+                        <div className='mt-3 flex gap-2'>
                           <Button
                             onClick={handleCancelUtilizacao}
                             variant='outline'
