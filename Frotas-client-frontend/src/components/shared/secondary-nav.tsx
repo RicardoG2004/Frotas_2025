@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePermissionsStore } from '@/stores/permissions-store'
 import { cn } from '@/lib/utils'
 import { shouldManageWindow } from '@/utils/window-utils'
+import { useWindowsStore } from '@/stores/use-windows-store'
 import { createIconGradient } from '@/lib/icon-gradient'
 import { useTheme } from '@/providers/theme-provider'
 import { getMenuColorByTheme } from '@/utils/menu-colors'
@@ -64,11 +65,39 @@ export function SecondaryNav({ items, className }: SecondaryNavProps) {
   }
 
   const handleLinkClick = (e: React.MouseEvent, href: string) => {
-    // If this is a route that should manage windows, add a new instance ID
+    // If this is a route that should manage windows, check if window already exists
     if (shouldManageWindow(href)) {
       e.preventDefault()
-      const instanceId = crypto.randomUUID()
-      navigate(`${href}?instanceId=${instanceId}`)
+      
+      const { windows, restoreWindow } = useWindowsStore.getState()
+      
+      // Check if there's already a window for this path (including minimized ones)
+      // If multiple exist, get the most recently accessed one
+      const existingWindows = windows.filter((w) => w.path === href)
+      const existingWindow = existingWindows.length > 0
+        ? existingWindows.reduce((latest, current) =>
+            (current.lastAccessed || 0) > (latest.lastAccessed || 0)
+              ? current
+              : latest
+          )
+        : undefined
+      
+      if (existingWindow) {
+        // Restore/activate the existing window instead of creating a new one
+        restoreWindow(existingWindow.id)
+        const searchParams = new URLSearchParams()
+        if (existingWindow.searchParams) {
+          Object.entries(existingWindow.searchParams).forEach(([key, value]) => {
+            searchParams.set(key, value)
+          })
+        }
+        searchParams.set('instanceId', existingWindow.instanceId)
+        navigate(`${href}?${searchParams.toString()}`)
+      } else {
+        // If no existing window, create a new one
+        const instanceId = crypto.randomUUID()
+        navigate(`${href}?instanceId=${instanceId}`)
+      }
     }
 
     // Close any open dropdowns

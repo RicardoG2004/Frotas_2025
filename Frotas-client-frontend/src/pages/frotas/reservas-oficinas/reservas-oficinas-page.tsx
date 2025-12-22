@@ -332,22 +332,72 @@ function TimePicker({ value, onChange }: { value: string; onChange: (value: stri
   )
 }
 
+const STORAGE_KEY = 'reservas-oficinas-page-state'
+
+interface SavedState {
+  selectedDate?: string // ISO string
+  currentMonth?: string // ISO string
+  selectedFuncionarioId?: string
+  selectedViaturaId?: string
+  horaInicio?: string
+  horaFim?: string
+  causa?: string
+  showReservaForm?: boolean
+}
+
+function loadStateFromStorage(): SavedState | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (error) {
+    console.error('Erro ao carregar estado do localStorage:', error)
+  }
+  return null
+}
+
+function saveStateToStorage(state: SavedState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch (error) {
+    console.error('Erro ao salvar estado no localStorage:', error)
+  }
+}
+
 export function ReservasOficinasPage() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
+  // Carregar estado inicial do localStorage
+  const savedState = loadStateFromStorage()
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    savedState?.selectedDate ? new Date(savedState.selectedDate) : new Date()
+  )
+  const [currentMonth, setCurrentMonth] = useState<Date>(
+    savedState?.currentMonth ? new Date(savedState.currentMonth) : new Date()
+  )
   const [calendarDayCounts, setCalendarDayCounts] = useState<Record<string, number>>({})
   const [hoveredDate, setHoveredDate] = useState<Date | undefined>(undefined)
-  const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>('')
-  const [selectedViaturaId, setSelectedViaturaId] = useState<string>('')
-  const [horaInicio, setHoraInicio] = useState<string>('')
-  const [horaFim, setHoraFim] = useState<string>('')
-  const [causa, setCausa] = useState<string>('')
-  const [showReservaForm, setShowReservaForm] = useState<boolean>(false)
+  const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>(savedState?.selectedFuncionarioId || '')
+  const [selectedViaturaId, setSelectedViaturaId] = useState<string>(savedState?.selectedViaturaId || '')
+  const [horaInicio, setHoraInicio] = useState<string>(savedState?.horaInicio || '')
+  const [horaFim, setHoraFim] = useState<string>(savedState?.horaFim || '')
+  const [causa, setCausa] = useState<string>(savedState?.causa || '')
+  const [showReservaForm, setShowReservaForm] = useState<boolean>(savedState?.showReservaForm || false)
   const [editingReservaId, setEditingReservaId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
   const [reservaToDelete, setReservaToDelete] = useState<ReservaOficinaDTO | null>(null)
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  // Marcar que o carregamento inicial foi concluído após o primeiro render
+  // Usar um timeout para garantir que todos os estados iniciais foram carregados
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Get funcionarios
   const { data: funcionariosData, isLoading: isLoadingFuncionarios } = useGetFuncionarios()
@@ -429,16 +479,35 @@ export function ReservasOficinasPage() {
     })
   }, [viaturas])
 
-  // Reset form when date or funcionario changes (only if not editing)
+  // Salvar estado no localStorage quando mudar (exceto quando estiver editando)
   useEffect(() => {
     if (!editingReservaId) {
-      setShowReservaForm(false)
-      setSelectedViaturaId('')
-      setHoraInicio('')
-      setHoraFim('')
-      setCausa('')
+      const stateToSave: SavedState = {
+        selectedDate: selectedDate?.toISOString(),
+        currentMonth: currentMonth.toISOString(),
+        selectedFuncionarioId,
+        selectedViaturaId,
+        horaInicio,
+        horaFim,
+        causa,
+        showReservaForm,
+      }
+      saveStateToStorage(stateToSave)
     }
-  }, [selectedDate, selectedFuncionarioId, editingReservaId])
+  }, [
+    selectedDate,
+    currentMonth,
+    selectedFuncionarioId,
+    selectedViaturaId,
+    horaInicio,
+    horaFim,
+    causa,
+    showReservaForm,
+    editingReservaId,
+  ])
+
+  // Não resetar formulário - manter todos os campos após refresh
+  // O formulário só será limpo manualmente pelo usuário ou ao cancelar
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -578,13 +647,10 @@ export function ReservasOficinasPage() {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['reservas-oficinas-by-date'] })
         refetchReservas()
-        // Reset form
+        // Manter todos os campos - não limpar nada
         setShowReservaForm(false)
         setEditingReservaId(null)
-        setSelectedViaturaId('')
-        setHoraInicio('')
-        setHoraFim('')
-        setCausa('')
+        // Todos os campos permanecem preenchidos para facilitar criação de nova reserva
       }
     },
     onError: (error: any) => {
@@ -634,13 +700,10 @@ export function ReservasOficinasPage() {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['reservas-oficinas-by-date'] })
         refetchReservas()
-        // Reset form
+        // Manter todos os campos - não limpar nada
         setShowReservaForm(false)
         setEditingReservaId(null)
-        setSelectedViaturaId('')
-        setHoraInicio('')
-        setHoraFim('')
-        setCausa('')
+        // Todos os campos permanecem preenchidos para facilitar criação de nova reserva
       }
     },
     onError: (error: any) => {

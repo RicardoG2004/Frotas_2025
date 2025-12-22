@@ -11,6 +11,7 @@ import { shouldManageWindow } from '@/utils/window-utils'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { Icons } from '@/components/ui/icons'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { useWindowsStore } from '@/stores/use-windows-store'
 
 interface DashboardNavProps {
   items: NavItem[]
@@ -22,6 +23,7 @@ export function DashboardNav({ items, setOpen }: DashboardNavProps) {
   const { setCurrentMenu, currentMenu, setActiveMenuItem } = useHeaderNav()
   const location = useLocation()
   const navigate = useNavigate()
+  const { windows, restoreWindow } = useWindowsStore()
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(
     {}
   )
@@ -67,9 +69,36 @@ export function DashboardNav({ items, setOpen }: DashboardNavProps) {
   }
 
   const handleLinkClick = (e: React.MouseEvent, href: string) => {
-    // If this is a route that should manage windows, add a new instance ID
+    // If this is a route that should manage windows, check if window already exists
     if (shouldManageWindow(href)) {
       e.preventDefault()
+      
+      // Check if there's already a window for this path (including minimized ones)
+      // If multiple exist, get the most recently accessed one
+      const existingWindows = windows.filter((w) => w.path === href)
+      const existingWindow = existingWindows.length > 0
+        ? existingWindows.reduce((latest, current) =>
+            (current.lastAccessed || 0) > (latest.lastAccessed || 0)
+              ? current
+              : latest
+          )
+        : undefined
+      
+      if (existingWindow) {
+        // Restore/activate the existing window instead of creating a new one
+        restoreWindow(existingWindow.id)
+        const searchParams = new URLSearchParams()
+        if (existingWindow.searchParams) {
+          Object.entries(existingWindow.searchParams).forEach(([key, value]) => {
+            searchParams.set(key, value)
+          })
+        }
+        searchParams.set('instanceId', existingWindow.instanceId)
+        navigate(`${href}?${searchParams.toString()}`)
+        return
+      }
+      
+      // If no existing window, create a new one
       const instanceId = crypto.randomUUID()
       navigate(`${href}?instanceId=${instanceId}`)
       return

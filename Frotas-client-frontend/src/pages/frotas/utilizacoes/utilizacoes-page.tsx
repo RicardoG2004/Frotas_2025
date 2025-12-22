@@ -336,28 +336,84 @@ function TimePicker({ value, onChange }: { value: string; onChange: (value: stri
   )
 }
 
+const STORAGE_KEY = 'utilizacoes-page-state'
+
+interface SavedState {
+  selectedDate?: string // ISO string
+  currentMonth?: string // ISO string
+  selectedFuncionarioId?: string
+  selectedViaturaId?: string
+  dataUltimaConferencia?: string
+  valorCombustivel?: string
+  kmPartida?: string
+  kmChegada?: string
+  totalKmEfectuados?: string
+  totalKmConferidos?: string
+  totalKmAConferir?: string
+  horaInicio?: string
+  horaFim?: string
+  showUtilizacaoForm?: boolean
+}
+
+function loadStateFromStorage(): SavedState | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (error) {
+    console.error('Erro ao carregar estado do localStorage:', error)
+  }
+  return null
+}
+
+function saveStateToStorage(state: SavedState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch (error) {
+    console.error('Erro ao salvar estado no localStorage:', error)
+  }
+}
+
 export function UtilizacoesPage() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
+  // Carregar estado inicial do localStorage
+  const savedState = loadStateFromStorage()
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    savedState?.selectedDate ? new Date(savedState.selectedDate) : new Date()
+  )
+  const [currentMonth, setCurrentMonth] = useState<Date>(
+    savedState?.currentMonth ? new Date(savedState.currentMonth) : new Date()
+  )
   const [calendarDayCounts, setCalendarDayCounts] = useState<Record<string, number>>({})
   const [hoveredDate, setHoveredDate] = useState<Date | undefined>(undefined)
-  const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>('')
-  const [selectedViaturaId, setSelectedViaturaId] = useState<string>('')
-  const [dataUltimaConferencia, setDataUltimaConferencia] = useState<string>('') // yyyy-MM-dd
-  const [valorCombustivel, setValorCombustivel] = useState<string>('') // number as string
-  const [kmPartida, setKmPartida] = useState<string>('') // number as string
-  const [kmChegada, setKmChegada] = useState<string>('') // number as string
-  const [totalKmEfectuados, setTotalKmEfectuados] = useState<string>('') // number as string
-  const [totalKmConferidos, setTotalKmConferidos] = useState<string>('') // number as string
-  const [totalKmAConferir, setTotalKmAConferir] = useState<string>('') // number as string
-  const [horaInicio, setHoraInicio] = useState<string>('')
-  const [horaFim, setHoraFim] = useState<string>('')
-  const [showUtilizacaoForm, setShowUtilizacaoForm] = useState<boolean>(false)
+  const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>(savedState?.selectedFuncionarioId || '')
+  const [selectedViaturaId, setSelectedViaturaId] = useState<string>(savedState?.selectedViaturaId || '')
+  const [dataUltimaConferencia, setDataUltimaConferencia] = useState<string>(savedState?.dataUltimaConferencia || '') // yyyy-MM-dd
+  const [valorCombustivel, setValorCombustivel] = useState<string>(savedState?.valorCombustivel || '') // number as string
+  const [kmPartida, setKmPartida] = useState<string>(savedState?.kmPartida || '') // number as string
+  const [kmChegada, setKmChegada] = useState<string>(savedState?.kmChegada || '') // number as string
+  const [totalKmEfectuados, setTotalKmEfectuados] = useState<string>(savedState?.totalKmEfectuados || '') // number as string
+  const [totalKmConferidos, setTotalKmConferidos] = useState<string>(savedState?.totalKmConferidos || '') // number as string
+  const [totalKmAConferir, setTotalKmAConferir] = useState<string>(savedState?.totalKmAConferir || '') // number as string
+  const [horaInicio, setHoraInicio] = useState<string>(savedState?.horaInicio || '')
+  const [horaFim, setHoraFim] = useState<string>(savedState?.horaFim || '')
+  const [showUtilizacaoForm, setShowUtilizacaoForm] = useState<boolean>(savedState?.showUtilizacaoForm || false)
   const [editingUtilizacaoId, setEditingUtilizacaoId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
   const [utilizacaoToDelete, setUtilizacaoToDelete] = useState<UtilizacaoDTO | null>(null)
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  // Marcar que o carregamento inicial foi concluído após o primeiro render
+  // Usar um timeout para garantir que todos os estados iniciais foram carregados
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Get funcionarios
   const { data: funcionariosData } = useGetFuncionarios()
@@ -441,22 +497,47 @@ export function UtilizacoesPage() {
     })
   }, [viaturas])
 
-  // Reset form when date or funcionario changes (only if not editing)
+  // Salvar estado no localStorage quando mudar (exceto quando estiver editando)
   useEffect(() => {
     if (!editingUtilizacaoId) {
-      setShowUtilizacaoForm(false)
-      setSelectedViaturaId('')
-      setDataUltimaConferencia('')
-      setValorCombustivel('')
-      setKmPartida('')
-      setKmChegada('')
-      setTotalKmEfectuados('')
-      setTotalKmConferidos('')
-      setTotalKmAConferir('')
-      setHoraInicio('')
-      setHoraFim('')
+      const stateToSave: SavedState = {
+        selectedDate: selectedDate?.toISOString(),
+        currentMonth: currentMonth.toISOString(),
+        selectedFuncionarioId,
+        selectedViaturaId,
+        dataUltimaConferencia,
+        valorCombustivel,
+        kmPartida,
+        kmChegada,
+        totalKmEfectuados,
+        totalKmConferidos,
+        totalKmAConferir,
+        horaInicio,
+        horaFim,
+        showUtilizacaoForm,
+      }
+      saveStateToStorage(stateToSave)
     }
-  }, [selectedDate, selectedFuncionarioId, editingUtilizacaoId])
+  }, [
+    selectedDate,
+    currentMonth,
+    selectedFuncionarioId,
+    selectedViaturaId,
+    dataUltimaConferencia,
+    valorCombustivel,
+    kmPartida,
+    kmChegada,
+    totalKmEfectuados,
+    totalKmConferidos,
+    totalKmAConferir,
+    horaInicio,
+    horaFim,
+    showUtilizacaoForm,
+    editingUtilizacaoId,
+  ])
+
+  // Não resetar formulário - manter todos os campos após refresh
+  // O formulário só será limpo manualmente pelo usuário ou ao cancelar
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -594,12 +675,10 @@ export function UtilizacoesPage() {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['utilizacoes-by-date'] })
         refetchUtilizacoes()
-        // Reset form
+        // Manter todos os campos - não limpar nada
         setShowUtilizacaoForm(false)
         setEditingUtilizacaoId(null)
-        setSelectedViaturaId('')
-        setHoraInicio('')
-        setHoraFim('')
+        // Todos os campos permanecem preenchidos para facilitar criação de nova utilização
       }
     },
     onError: (error: any) => {
@@ -649,12 +728,10 @@ export function UtilizacoesPage() {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['utilizacoes-by-date'] })
         refetchUtilizacoes()
-        // Reset form
+        // Manter todos os campos - não limpar nada
         setShowUtilizacaoForm(false)
         setEditingUtilizacaoId(null)
-        setSelectedViaturaId('')
-        setHoraInicio('')
-        setHoraFim('')
+        // Todos os campos permanecem preenchidos para facilitar criação de nova utilização
       }
     },
     onError: (error: any) => {
@@ -737,6 +814,10 @@ export function UtilizacoesPage() {
       toast.error('Por favor, selecione um funcionário')
       return
     }
+    if (!selectedViaturaId) {
+      toast.error('Por favor, selecione uma viatura')
+      return
+    }
 
     if (editingUtilizacaoId) {
       // Atualizar utilização existente
@@ -786,6 +867,10 @@ export function UtilizacoesPage() {
       toast.error('Por favor, selecione um funcionário')
       return
     }
+    if (!selectedViaturaId) {
+      toast.error('Por favor, selecione uma viatura')
+      return
+    }
     setShowUtilizacaoForm(true)
   }
 
@@ -802,6 +887,7 @@ export function UtilizacoesPage() {
     setTotalKmAConferir('')
     setHoraInicio('')
     setHoraFim('')
+    // Não limpar localStorage ao cancelar, para manter os campos principais (funcionário, viatura, data)
   }
 
   const handleDeleteUtilizacao = (utilizacao: UtilizacaoDTO) => {
@@ -1252,7 +1338,7 @@ export function UtilizacoesPage() {
                   {selectedDate && !showUtilizacaoForm && (
                     <Button
                       onClick={handleAddUtilizacao}
-                      disabled={!selectedFuncionarioId}
+                      disabled={!selectedFuncionarioId || !selectedViaturaId}
                       className='h-8 text-xs font-semibold px-4 mt-7'
                       size='sm'
                     >
@@ -1274,10 +1360,10 @@ export function UtilizacoesPage() {
                           <h3 className='text-lg font-semibold mb-2 text-foreground'>Nenhuma utilização encontrada</h3>
                           <p className='text-sm text-muted-foreground text-center max-w-md leading-relaxed'>
                             Não existem utilizações registadas para esta data.
-                            {selectedFuncionarioId ? (
+                            {selectedFuncionarioId && selectedViaturaId ? (
                               <> Clique no botão "Adicionar Utilização" acima para criar a primeira utilização.</>
                             ) : (
-                              <> Selecione um funcionário no painel lateral para começar a adicionar utilizações.</>
+                              <> Selecione um funcionário e uma viatura no painel lateral para começar a adicionar utilizações.</>
                             )}
                           </p>
                         </div>

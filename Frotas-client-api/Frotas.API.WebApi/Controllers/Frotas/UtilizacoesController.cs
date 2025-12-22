@@ -111,14 +111,10 @@ namespace Frotas.API.WebApi.Controllers.Frotas
           return BadRequest(Response<Guid>.Fail("ID de funcionário inválido."));
         }
 
-        Guid? viaturaId = null;
-        if (!string.IsNullOrWhiteSpace(dto.ViaturaId))
+        // Convert string Guid to Guid (ViaturaId is now required)
+        if (string.IsNullOrWhiteSpace(dto.ViaturaId) || !Guid.TryParse(dto.ViaturaId, out Guid viaturaId))
         {
-          if (!Guid.TryParse(dto.ViaturaId, out Guid parsedViaturaId))
-          {
-            return BadRequest(Response<Guid>.Fail("ID de viatura inválido."));
-          }
-          viaturaId = parsedViaturaId;
+          return BadRequest(Response<Guid>.Fail("ID de viatura inválido. A viatura é obrigatória."));
         }
 
         CreateUtilizacaoRequest request = new()
@@ -155,7 +151,7 @@ namespace Frotas.API.WebApi.Controllers.Frotas
     {
       public string DataUtilizacao { get; set; } = string.Empty;
       public string FuncionarioId { get; set; } = string.Empty;
-      public string? ViaturaId { get; set; }
+      public string ViaturaId { get; set; } = string.Empty;
       public string? HoraInicio { get; set; }
       public string? HoraFim { get; set; }
       public string? Causa { get; set; }

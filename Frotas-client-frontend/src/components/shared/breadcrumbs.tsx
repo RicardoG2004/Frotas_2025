@@ -21,6 +21,11 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItemProps[] }) {
   const navigate = useNavigate()
   const { windows, activeWindow } = useWindowsStore()
 
+  // Remover itens duplicados baseado no link (mantém apenas o primeiro)
+  const uniqueItems = items.filter((item, index, self) => 
+    index === self.findIndex((t) => t.link === item.link)
+  )
+
   const handleBackClick = () => {
     // Find the last active window that's not the current one
     const lastActiveWindow = windows.find((w) => w.id !== activeWindow)
@@ -38,7 +43,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItemProps[] }) {
       navigate(`${lastActiveWindow.path}?${searchParams.toString()}`)
     } else {
       // If no other window is open, go to the previous breadcrumb
-      const previousItem = items[items.length - 2]
+      const previousItem = uniqueItems[uniqueItems.length - 2]
       if (previousItem) {
         navigate(previousItem.link)
       }
@@ -61,9 +66,9 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItemProps[] }) {
   return (
     <Breadcrumb>
       <BreadcrumbList className='text-xs'>
-        {items.map((item, index) => (
-          <Fragment key={item.title}>
-            {index !== items.length - 1 && (
+        {uniqueItems.map((item, index) => (
+          <Fragment key={`${item.link}-${index}`}>
+            {index !== uniqueItems.length - 1 && (
               <BreadcrumbItem>
                 <BreadcrumbLink
                   href={item.link}
@@ -77,7 +82,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItemProps[] }) {
                 </BreadcrumbLink>
               </BreadcrumbItem>
             )}
-            {index < items.length - 1 && (
+            {index < uniqueItems.length - 1 && (
               <BreadcrumbSeparator>
                 <Slash
                   className='h-3 w-3'
@@ -86,7 +91,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItemProps[] }) {
                 />
               </BreadcrumbSeparator>
             )}
-            {index === items.length - 1 && (
+            {index === uniqueItems.length - 1 && (
               <BreadcrumbPage className='font-medium'>
                 {item.title}
               </BreadcrumbPage>

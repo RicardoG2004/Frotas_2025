@@ -11,7 +11,7 @@ namespace Frotas.API.Application.Services.Frotas.UtilizacaoService.DTOs
     public DateTime? DataUltimaConferencia { get; set; }
     public Guid FuncionarioId { get; set; }
     public FuncionarioDTO? Funcionario { get; set; }
-    public Guid? ViaturaId { get; set; }
+    public Guid ViaturaId { get; set; }
     public ViaturaDTO? Viatura { get; set; }
     public string? HoraInicio { get; set; }
     public string? HoraFim { get; set; }

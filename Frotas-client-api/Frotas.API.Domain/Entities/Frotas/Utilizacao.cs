@@ -11,8 +11,8 @@ namespace Frotas.API.Domain.Entities.Frotas
     public DateTime? DataUltimaConferencia { get; set; }
     public Guid FuncionarioId { get; set; }
     public Funcionario Funcionario { get; set; }
-    public Guid? ViaturaId { get; set; }
-    public Viatura? Viatura { get; set; }
+    public Guid ViaturaId { get; set; }
+    public Viatura Viatura { get; set; }
     public string? HoraInicio { get; set; }
     public string? HoraFim { get; set; }
     public string? Causa { get; set; }
@@ -20,3 +20,4 @@ namespace Frotas.API.Domain.Entities.Frotas
   }
 }
 
+  

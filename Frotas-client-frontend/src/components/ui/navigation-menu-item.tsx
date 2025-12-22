@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { shouldManageWindow } from '@/utils/window-utils'
 import { Icons } from '@/components/ui/icons'
 import { NavigationMenuLink } from '@/components/ui/navigation-menu'
+import { useWindowsStore } from '@/stores/use-windows-store'
 
 interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
   title: string
@@ -30,9 +31,38 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
     const navigate = useNavigate()
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-      // If this is a route that should manage windows, add a new instance ID
+      // If this is a route that should manage windows, check if window already exists
       if (shouldManageWindow(to)) {
         e.preventDefault()
+        
+        const { windows, restoreWindow } = useWindowsStore.getState()
+        
+        // Check if there's already a window for this path (including minimized ones)
+        // If multiple exist, get the most recently accessed one
+        const existingWindows = windows.filter((w) => w.path === to)
+        const existingWindow = existingWindows.length > 0
+          ? existingWindows.reduce((latest, current) =>
+              (current.lastAccessed || 0) > (latest.lastAccessed || 0)
+                ? current
+                : latest
+            )
+          : undefined
+        
+        if (existingWindow) {
+          // Restore/activate the existing window instead of creating a new one
+          restoreWindow(existingWindow.id)
+          const searchParams = new URLSearchParams()
+          if (existingWindow.searchParams) {
+            Object.entries(existingWindow.searchParams).forEach(([key, value]) => {
+              searchParams.set(key, value)
+            })
+          }
+          searchParams.set('instanceId', existingWindow.instanceId)
+          navigate(`${to}?${searchParams.toString()}`)
+          return
+        }
+        
+        // If no existing window, create a new one
         const instanceId = crypto.randomUUID()
         navigate(`${to}?instanceId=${instanceId}`)
         return

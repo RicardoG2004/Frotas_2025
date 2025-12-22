@@ -1,4 +1,4 @@
-using Frotas.API.Domain.Common;
+Ôªøusing Frotas.API.Domain.Common;
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
 using Frotas.API.Infrastructure.Persistence.Extensions;
@@ -69,6 +69,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<Manutencao> Manutencoes { get; set; }
     public DbSet<ManutencaoServico> ManutencaoServicos { get; set; }
     public DbSet<ReservaOficina> ReservasOficinas { get; set; }
+    public DbSet<Utilizacao> Utilizacoes { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -90,13 +91,13 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Viatura)
         .WithMany(x => x.ViaturaEquipamentos)
         .HasForeignKey(x => x.ViaturaId)
-        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou relaÁ„o, apagar a entrada
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou rela√ß√£o, apagar a entrada
 
       modelBuilder.Entity<ViaturaEquipamento>()
         .HasOne(x => x.Equipamento)
         .WithMany(x => x.ViaturaEquipamentos)
         .HasForeignKey(x => x.EquipamentoId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o equipamento
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o equipamento
 
       modelBuilder.Entity<ViaturaGarantia>()
         .HasIndex(x => new { x.ViaturaId, x.GarantiaId })
@@ -106,13 +107,13 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Viatura)
         .WithMany(x => x.ViaturaGarantias)
         .HasForeignKey(x => x.ViaturaId)
-        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou relaÁ„o, apagar a entrada
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou rela√ß√£o, apagar a entrada
 
       modelBuilder.Entity<ViaturaGarantia>()
         .HasOne(x => x.Garantia)
         .WithMany(x => x.ViaturaGarantias)
         .HasForeignKey(x => x.GarantiaId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar a garantia
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar a garantia
 
       modelBuilder.Entity<ViaturaSeguro>()
         .HasIndex(x => new { x.ViaturaId, x.SeguroId })
@@ -122,19 +123,19 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Viatura)
         .WithMany(x => x.ViaturaSeguros)
         .HasForeignKey(x => x.ViaturaId)
-        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou relaÁ„o, apagar a entrada
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou rela√ß√£o, apagar a entrada
 
       modelBuilder.Entity<ViaturaSeguro>()
         .HasOne(x => x.Seguro)
         .WithMany(x => x.ViaturaSeguros)
         .HasForeignKey(x => x.SeguroId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o seguro
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o seguro
 
       modelBuilder.Entity<ViaturaInspecao>()
         .HasOne(x => x.Viatura)
         .WithMany(x => x.ViaturaInspecoes)
         .HasForeignKey(x => x.ViaturaId)
-        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura, apagar inspeÁıes
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura, apagar inspe√ß√µes
 
       modelBuilder.Entity<ViaturaCondutor>()
         .HasIndex(x => new { x.ViaturaId, x.FuncionarioId })
@@ -144,13 +145,13 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Viatura)
         .WithMany(x => x.ViaturaCondutores)
         .HasForeignKey(x => x.ViaturaId)
-        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou relaÁ„o, apagar a entrada
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover viatura ou rela√ß√£o, apagar a entrada
 
       modelBuilder.Entity<ViaturaCondutor>()
         .HasOne(x => x.Funcionario)
         .WithMany()
         .HasForeignKey(x => x.FuncionarioId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o funcion·rio
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o funcion√°rio
 
       modelBuilder.Entity<ViaturaAcidente>()
         .HasOne(x => x.Viatura)
@@ -162,25 +163,25 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Funcionario)
         .WithMany()
         .HasForeignKey(x => x.FuncionarioId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o funcion·rio
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o funcion√°rio
 
       modelBuilder.Entity<ViaturaAcidente>()
         .HasOne(x => x.Concelho)
         .WithMany()
         .HasForeignKey(x => x.ConcelhoId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o concelho
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o concelho
 
       modelBuilder.Entity<ViaturaAcidente>()
         .HasOne(x => x.Freguesia)
         .WithMany()
         .HasForeignKey(x => x.FreguesiaId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar a freguesia
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar a freguesia
 
       modelBuilder.Entity<ViaturaAcidente>()
         .HasOne(x => x.CodigoPostal)
         .WithMany()
         .HasForeignKey(x => x.CodigoPostalId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o cÛdigo postal
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o c√≥digo postal
 
       modelBuilder.Entity<ViaturaMulta>()
         .HasOne(x => x.Viatura)
@@ -192,31 +193,56 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .HasOne(x => x.Funcionario)
         .WithMany()
         .HasForeignKey(x => x.FuncionarioId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o funcion·rio
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o funcion√°rio
 
       modelBuilder.Entity<ManutencaoServico>()
         .HasOne(x => x.Manutencao)
         .WithMany(x => x.ManutencaoServicos)
         .HasForeignKey(x => x.ManutencaoId)
-        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover manutenÁ„o, apagar serviÁos
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover manuten√ß√£o, apagar servi√ßos
 
       modelBuilder.Entity<ManutencaoServico>()
         .HasOne(x => x.Servico)
         .WithMany()
         .HasForeignKey(x => x.ServicoId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar o serviÁo
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o servi√ßo
 
       modelBuilder.Entity<ManutencaoPeca>()
         .HasOne(x => x.Manutencao)
         .WithMany(x => x.ManutencaoPecas)
         .HasForeignKey(x => x.ManutencaoId)
-        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover manutenÁ„o, apagar peÁas
+        .OnDelete(DeleteBehavior.Cascade); // CASCADE: Ao remover manuten√ß√£o, apagar pe√ßas
 
       modelBuilder.Entity<ManutencaoPeca>()
         .HasOne(x => x.Peca)
         .WithMany()
         .HasForeignKey(x => x.PecaId)
-        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N„o apagar a peÁa
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar a pe√ßa
+
+      modelBuilder.Entity<ReservaOficina>()
+        .HasOne(x => x.Funcionario)
+        .WithMany()
+        .HasForeignKey(x => x.FuncionarioId)
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o funcion√°rio
+
+      modelBuilder.Entity<ReservaOficina>()
+        .HasOne(x => x.Viatura)
+        .WithMany()
+        .HasForeignKey(x => x.ViaturaId)
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar a viatura
+
+      modelBuilder.Entity<Utilizacao>()
+        .HasOne(x => x.Funcionario)
+        .WithMany()
+        .HasForeignKey(x => x.FuncionarioId)
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar o funcion√°rio
+
+      modelBuilder.Entity<Utilizacao>()
+        .HasOne(x => x.Viatura)
+        .WithMany()
+        .HasForeignKey(x => x.ViaturaId)
+        .IsRequired()
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: N√£o apagar a viatura
 
       // query filters
       _ = modelBuilder.AppendGlobalQueryFilter<ISoftDelete>(s => s.DeletedOn == null);
