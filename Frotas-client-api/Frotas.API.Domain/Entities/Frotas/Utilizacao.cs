@@ -15,6 +15,12 @@ namespace Frotas.API.Domain.Entities.Frotas
     public Viatura Viatura { get; set; }
     public string? HoraInicio { get; set; }
     public string? HoraFim { get; set; }
+    public decimal? ValorCombustivel { get; set; }
+    public decimal? KmPartida { get; set; }
+    public decimal? KmChegada { get; set; }
+    public decimal? TotalKmEfectuados { get; set; }
+    public decimal? TotalKmConferidos { get; set; }
+    public decimal? TotalKmAConferir { get; set; }
     public string? Causa { get; set; }
     public string? Observacoes { get; set; }
   }

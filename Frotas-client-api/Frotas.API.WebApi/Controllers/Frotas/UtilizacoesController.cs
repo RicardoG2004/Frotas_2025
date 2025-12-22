@@ -117,13 +117,27 @@ namespace Frotas.API.WebApi.Controllers.Frotas
           return BadRequest(Response<Guid>.Fail("ID de viatura inválido. A viatura é obrigatória."));
         }
 
+        // Convert string date to DateTime (optional)
+        DateTime? dataUltimaConferencia = null;
+        if (!string.IsNullOrWhiteSpace(dto.DataUltimaConferencia) && DateTime.TryParse(dto.DataUltimaConferencia, out DateTime parsedDataUltimaConferencia))
+        {
+          dataUltimaConferencia = parsedDataUltimaConferencia;
+        }
+
         CreateUtilizacaoRequest request = new()
         {
           DataUtilizacao = dataUtilizacao,
+          DataUltimaConferencia = dataUltimaConferencia,
           FuncionarioId = funcionarioId,
           ViaturaId = viaturaId,
           HoraInicio = dto.HoraInicio,
           HoraFim = dto.HoraFim,
+          ValorCombustivel = dto.ValorCombustivel,
+          KmPartida = dto.KmPartida,
+          KmChegada = dto.KmChegada,
+          TotalKmEfectuados = dto.TotalKmEfectuados,
+          TotalKmConferidos = dto.TotalKmConferidos,
+          TotalKmAConferir = dto.TotalKmAConferir,
           Causa = dto.Causa,
           Observacoes = dto.Observacoes,
         };
@@ -150,10 +164,17 @@ namespace Frotas.API.WebApi.Controllers.Frotas
     public class CreateUtilizacaoRequestDto
     {
       public string DataUtilizacao { get; set; } = string.Empty;
+      public string? DataUltimaConferencia { get; set; }
       public string FuncionarioId { get; set; } = string.Empty;
       public string ViaturaId { get; set; } = string.Empty;
       public string? HoraInicio { get; set; }
       public string? HoraFim { get; set; }
+      public decimal? ValorCombustivel { get; set; }
+      public decimal? KmPartida { get; set; }
+      public decimal? KmChegada { get; set; }
+      public decimal? TotalKmEfectuados { get; set; }
+      public decimal? TotalKmConferidos { get; set; }
+      public decimal? TotalKmAConferir { get; set; }
       public string? Causa { get; set; }
       public string? Observacoes { get; set; }
     }

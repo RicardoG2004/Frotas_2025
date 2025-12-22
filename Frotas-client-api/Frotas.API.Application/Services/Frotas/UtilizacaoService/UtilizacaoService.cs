@@ -122,10 +122,17 @@ namespace Frotas.API.Application.Services.Frotas.UtilizacaoService
         Utilizacao newUtilizacao = new()
         {
           DataUtilizacao = request.DataUtilizacao,
+          DataUltimaConferencia = request.DataUltimaConferencia,
           FuncionarioId = request.FuncionarioId,
           ViaturaId = request.ViaturaId,
           HoraInicio = request.HoraInicio,
           HoraFim = request.HoraFim,
+          ValorCombustivel = request.ValorCombustivel,
+          KmPartida = request.KmPartida,
+          KmChegada = request.KmChegada,
+          TotalKmEfectuados = request.TotalKmEfectuados,
+          TotalKmConferidos = request.TotalKmConferidos,
+          TotalKmAConferir = request.TotalKmAConferir,
           Causa = request.Causa,
           Observacoes = request.Observacoes,
         };
