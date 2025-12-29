@@ -470,6 +470,12 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
 
   const handleSubmit = async (values: ViaturaFormSchemaType) => {
     try {
+      // Verificar se o formulário realmente tem mudanças antes de submeter
+      // Isso evita o erro "Nada a ser atualizado" do backend
+      if (!viaturaQuery.data?.info?.data) {
+        throw new Error('Dados da viatura não disponíveis')
+      }
+      
       const payload = mapFormValuesToPayload(values)
       
       // Garantir que marcaId e modeloId sejam null quando vazios
@@ -660,6 +666,36 @@ const ViaturaUpdateForm = ({ viaturaId }: ViaturaUpdateFormProps) => {
       
       let errorMessage = handleApiError(error, 'Erro ao atualizar viatura')
       console.error('[UpdateViatura Form] Mensagem de erro extraída:', errorMessage)
+      
+      // Verificar se é o erro "Nada a ser atualizado" - isso acontece quando não há mudanças
+      const isNoChangesError = errorMessage.includes('Nada a ser atualizado') || 
+                               errorMessage.includes('nada a ser atualizado') ||
+                               errorMessage.includes('Nothing to update')
+      
+      if (isNoChangesError) {
+        // Se não há mudanças, mostrar mensagem amigável e fechar o formulário como se tivesse sucesso
+        toast.success('Nenhuma alteração foi feita na viatura')
+        
+        // Limpar dados do localStorage
+        try {
+          const path = location.pathname.replace(/\//g, '_')
+          const storageKey = `viatura_form_viatura-update_${instanceId}_${path}`
+          localStorage.removeItem(storageKey)
+        } catch (err) {
+          console.error('Erro ao limpar localStorage:', err)
+        }
+        
+        // Fechar a janela
+        const currentWindow = windows.find(
+          (w) => w.path === location.pathname && w.instanceId === instanceId
+        )
+        if (currentWindow) {
+          handleWindowClose(currentWindow.id, navigate, removeWindow)
+        } else {
+          navigate('/frotas/viaturas', { replace: true })
+        }
+        return // Sair sem mostrar erro
+      }
       
       // Verificar se é o erro específico de equipamentos/garantias
       const isRelationshipError = errorMessage.includes('ViaturaEquipamento') || 

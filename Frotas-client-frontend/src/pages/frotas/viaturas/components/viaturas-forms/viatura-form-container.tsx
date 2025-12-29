@@ -1684,6 +1684,7 @@ export function ViaturaFormContainer({
     const path = location.pathname.replace(/\//g, '_')
     return `viatura_form_${tabKey}_${instanceId}_${path}`
   }, [location.pathname, tabKey, instanceId])
+  
 
   // Tentar carregar dados do localStorage na montagem inicial
   const getStoredFormData = useCallback(() => {
@@ -1790,11 +1791,72 @@ export function ViaturaFormContainer({
   const [expandedMultas, setExpandedMultas] = useState<Set<string>>(new Set())
   // Estado para controlar qual inspeção está aberta no Dialog
   const [openInspecaoDialogIndex, setOpenInspecaoDialogIndex] = useState<number | null>(null)
+  // Função helper para calcular a chave do localStorage da matrícula alternativa
+  const getMatriculaAlternativaKey = useCallback(() => {
+    if (viaturaId) {
+      return `viatura_matricula_alternativa_${viaturaId}`
+    }
+    return `${storageKey}_matricula_alternativa`
+  }, [viaturaId, storageKey])
+  
   // Estado para controlar se está usando a visualização alternativa (barra amarela)
-  const [usandoMatriculaAlternativa, setUsandoMatriculaAlternativa] = useState(false)
+  // Inicializa diretamente do localStorage para garantir que o estado seja restaurado imediatamente
+  const [usandoMatriculaAlternativa, setUsandoMatriculaAlternativa] = useState(() => {
+    try {
+      // Calcular a chave do localStorage
+      // Para viaturaId, usar diretamente; para storageKey, calcular baseado no path
+      let key: string
+      if (viaturaId) {
+        key = `viatura_matricula_alternativa_${viaturaId}`
+      } else {
+        // Calcular storageKey manualmente para a inicialização
+        const path = location.pathname.replace(/\//g, '_')
+        const instanceId = new URLSearchParams(location.search).get('instanceId') || 'default'
+        const calculatedStorageKey = `viatura_form_${tabKey}_${instanceId}_${path}`
+        key = `${calculatedStorageKey}_matricula_alternativa`
+      }
+      const saved = localStorage.getItem(key)
+      if (saved !== null) {
+        const value = JSON.parse(saved)
+        return value === true
+      }
+      return false
+    } catch (error) {
+      console.error('Erro ao carregar estado da matrícula alternativa:', error)
+      return false
+    }
+  })
+  
+  // Atualizar estado quando viaturaId ou storageKey mudarem (ex: ao carregar uma viatura diferente)
+  useEffect(() => {
+    try {
+      const key = getMatriculaAlternativaKey()
+      const saved = localStorage.getItem(key)
+      if (saved !== null) {
+        const value = JSON.parse(saved)
+        setUsandoMatriculaAlternativa(value === true)
+      } else {
+        // Se não houver valor salvo, manter false
+        setUsandoMatriculaAlternativa(false)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar estado da matrícula alternativa:', error)
+    }
+  }, [getMatriculaAlternativaKey])
+  
+  // Salvar estado da matrícula alternativa no localStorage sempre que mudar
+  useEffect(() => {
+    try {
+      const key = getMatriculaAlternativaKey()
+      localStorage.setItem(key, JSON.stringify(usandoMatriculaAlternativa))
+    } catch (error) {
+      console.error('Erro ao salvar estado da matrícula alternativa:', error)
+    }
+  }, [usandoMatriculaAlternativa, getMatriculaAlternativaKey])
   // Estado para os números na barra amarela
-  const [numeroAcimaTraco, setNumeroAcimaTraco] = useState<string>('12')
-  const [numeroAbaixoTraco, setNumeroAbaixoTraco] = useState<string>('34')
+  // Inicializa vazio para criação, será preenchido automaticamente na edição se houver data do livrete
+  const [numeroAcimaTraco, setNumeroAcimaTraco] = useState<string>('')
+  const [numeroAbaixoTraco, setNumeroAbaixoTraco] = useState<string>('')
   
   const tipoPropulsao = form.watch('tipoPropulsao')
   const isElectricPropulsion = tipoPropulsao === 'eletrico'
@@ -2220,6 +2282,37 @@ export function ViaturaFormContainer({
   const anoImpostoCirculacao = form.watch('anoImpostoCirculacao')
   const dataLivrete = form.watch('dataLivrete')
   const anoFabrico = form.watch('anoFabrico')
+  
+  // Calcula os números na barra amarela baseado na data do livrete
+  // Usa uma string serializada da data para detectar mudanças
+  const dataLivreteSerializada = useMemo(() => {
+    if (dataLivrete) {
+      const data = dataLivrete instanceof Date ? dataLivrete : new Date(dataLivrete)
+      if (!isNaN(data.getTime())) {
+        return data.toISOString()
+      }
+    }
+    return null
+  }, [dataLivrete])
+  
+  // Calcula os números automaticamente apenas na edição (quando há viaturaId) e se houver data do livrete
+  useEffect(() => {
+    // Só calcula automaticamente se estiver editando uma viatura existente
+    if (viaturaId && dataLivreteSerializada) {
+      const data = new Date(dataLivreteSerializada)
+      const ano = data.getFullYear()
+      const mes = data.getMonth() + 1 // getMonth() retorna 0-11, então +1 para ter 1-12
+      const anoAtual = ano % 100 // Últimos 2 dígitos do ano
+      
+      setNumeroAcimaTraco(anoAtual.toString().padStart(2, '0'))
+      setNumeroAbaixoTraco(mes.toString().padStart(2, '0')) // Mês: 1=janeiro, 2=fevereiro, ..., 12=dezembro
+    } else if (viaturaId && !dataLivreteSerializada) {
+      // Se estiver editando mas não há data do livrete, deixa vazio
+      setNumeroAcimaTraco('')
+      setNumeroAbaixoTraco('')
+    }
+    // Se for criação (sem viaturaId), mantém vazio para o usuário preencher
+  }, [dataLivreteSerializada, viaturaId])
   const cilindrada = form.watch('cilindrada')
   const emissoesCO2 = form.watch('emissoesCO2')
   const padraoCO2 = form.watch('padraoCO2')
@@ -3842,10 +3935,10 @@ export function ViaturaFormContainer({
                                       {isPortugal && (
                                         <button
                                           type='button'
-                                          onClick={handleNextPlate}
-                                          disabled={usandoMatriculaAlternativa}
+                                          onClick={handlePreviousPlate}
+                                          disabled={!usandoMatriculaAlternativa}
                                           className='flex items-center justify-center w-8 h-8 rounded-md text-lg font-semibold text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all'
-                                          title='Trocar para matrícula alternativa'
+                                          title='Voltar para matrícula normal'
                                         >
                                           &lt;
                                         </button>
@@ -3933,10 +4026,10 @@ export function ViaturaFormContainer({
                                       {isPortugal && (
                                         <button
                                           type='button'
-                                          onClick={handlePreviousPlate}
-                                          disabled={!usandoMatriculaAlternativa}
+                                          onClick={handleNextPlate}
+                                          disabled={usandoMatriculaAlternativa}
                                           className='flex items-center justify-center w-8 h-8 rounded-md text-lg font-semibold text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all'
-                                          title='Voltar para matrícula inicial'
+                                          title='Trocar para matrícula com barra amarela'
                                         >
                                           &gt;
                                         </button>
