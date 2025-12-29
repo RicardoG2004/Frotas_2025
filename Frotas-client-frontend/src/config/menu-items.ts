@@ -552,6 +552,22 @@ export const roleHeaderMenus = {
             },
             funcionalidadeId: '',
           },
+          {
+            label: 'Abastecimentos',
+            href: '/frotas/abastecimentos',
+            description: 'Faça a gestão de abastecimentos por funcionário',
+            icon: 'fuel',
+            colors: {
+              colorful: 'bg-orange-500',
+              'theme-color': 'bg-primary',
+              pastel: 'bg-orange-300',
+              vibrant: 'bg-orange-600',
+              neon: 'bg-orange-400',
+              'neon-cyberpunk':
+                'bg-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.9)]',
+            },
+            funcionalidadeId: '',
+          },
         ],
       },
       {

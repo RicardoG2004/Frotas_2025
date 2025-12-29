@@ -33,6 +33,7 @@ using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
 using Frotas.API.Application.Services.Frotas.ManutencaoService.DTOs;
 using Frotas.API.Application.Services.Frotas.ReservaOficinaService.DTOs;
 using Frotas.API.Application.Services.Frotas.UtilizacaoService.DTOs;
+using Frotas.API.Application.Services.Frotas.AbastecimentoService.DTOs;
 using Frotas.API.Domain.Entities.Base;
 using Frotas.API.Domain.Entities.Frotas;
 
@@ -393,6 +394,15 @@ namespace Frotas.API.Infrastructure.Mapper
         .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
         .ForMember(dest => dest.Viatura, opt => opt.Ignore());
       _ = CreateMap<UpdateUtilizacaoRequest, Utilizacao>()
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore());
+
+      // Abastecimento mappings
+      _ = CreateMap<Abastecimento, AbastecimentoDTO>();
+      _ = CreateMap<CreateAbastecimentoRequest, Abastecimento>()
+        .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore());
+      _ = CreateMap<UpdateAbastecimentoRequest, Abastecimento>()
         .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
         .ForMember(dest => dest.Viatura, opt => opt.Ignore());
 

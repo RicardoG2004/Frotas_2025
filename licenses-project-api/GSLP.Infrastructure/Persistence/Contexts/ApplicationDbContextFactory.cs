@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -24,7 +25,14 @@ namespace GSLP.Infrastructure.Persistence.Contexts
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
             DbContextOptionsBuilder<ApplicationDbContext> optionsBuilder = new();
-            _ = optionsBuilder.UseSqlServer(connectionString);
+            _ = optionsBuilder.UseSqlServer(
+                connectionString,
+                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null
+                )
+            );
             return new ApplicationDbContext(optionsBuilder.Options);
         }
     }

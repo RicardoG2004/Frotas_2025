@@ -96,7 +96,14 @@ namespace GSLP.WebApi.Extensions
 
             #region [-- REGISTERING DB CONTEXT SERVICE --]
             _ = services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions => sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null
+                    )
+                )
             );
             _ = services.AddAndMigrateDatabase<ApplicationDbContext>(configuration);
             #endregion

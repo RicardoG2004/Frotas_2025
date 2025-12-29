@@ -30,7 +30,6 @@ import { CreateReservaOficinaDTO, ReservaOficinaDTO, UpdateReservaOficinaDTO } f
 import { CalendarDays, Trash2, Edit, CalendarPlus } from 'lucide-react'
 import { handleApiResponse } from '@/utils/response-handlers'
 import { ResponseStatus } from '@/types/api/responses'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -376,7 +375,6 @@ export function ReservasOficinasPage() {
     savedState?.currentMonth ? new Date(savedState.currentMonth) : new Date()
   )
   const [calendarDayCounts, setCalendarDayCounts] = useState<Record<string, number>>({})
-  const [hoveredDate, setHoveredDate] = useState<Date | undefined>(undefined)
   const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>(savedState?.selectedFuncionarioId || '')
   const [selectedViaturaId, setSelectedViaturaId] = useState<string>(savedState?.selectedViaturaId || '')
   const [horaInicio, setHoraInicio] = useState<string>(savedState?.horaInicio || '')
@@ -421,32 +419,12 @@ export function ReservasOficinasPage() {
   })
   const reservas: ReservaOficinaDTO[] = reservasData || []
 
-  // Hover fetch só para obter a contagem por dia (tooltip)
-  const hoveredDateKey = hoveredDate ? format(hoveredDate, 'yyyy-MM-dd') : ''
-  const { data: hoveredReservasData, isFetching: isHoverFetching } = useQuery<ReservaOficinaDTO[] | null>({
-    queryKey: ['reservas-oficinas-by-date', hoveredDateKey],
-    queryFn: async () => {
-      if (!hoveredDateKey) return null
-      const response = await ReservasOficinasService('reserva-oficina').getReservasOficinasByDate(hoveredDateKey)
-      return response.info?.data || []
-    },
-    enabled: !!hoveredDateKey && hoveredDateKey !== formattedDate,
-    staleTime: 30000,
-  })
-
-  // Atualizar “heat counts” quando os dados chegam (TanStack v5 sem callbacks no hook)
+  // Atualizar "heat counts" quando os dados chegam (TanStack v5 sem callbacks no hook)
   useEffect(() => {
     if (!formattedDate) return
     const count = reservas.length
     setCalendarDayCounts((prev) => (prev[formattedDate] === count ? prev : { ...prev, [formattedDate]: count }))
   }, [formattedDate, reservas.length])
-
-  // Atualizar contagem quando os dados do hover chegam (evita setState dentro do hook/query)
-  useEffect(() => {
-    if (!hoveredDateKey || hoveredDateKey === formattedDate) return
-    const count = Array.isArray(hoveredReservasData) ? hoveredReservasData.length : 0
-    setCalendarDayCounts((prev) => (prev[hoveredDateKey] === count ? prev : { ...prev, [hoveredDateKey]: count }))
-  }, [hoveredDateKey, formattedDate, hoveredReservasData])
 
   // Prepare funcionarios options for Autocomplete with name and cargo
   const funcionarioOptions = useMemo(() => {
@@ -849,92 +827,57 @@ export function ReservasOficinasPage() {
     const isWeekend = date?.getDay?.() === 0 || date?.getDay?.() === 6
     const key = date ? format(date, 'yyyy-MM-dd') : ''
     const count = key ? (calendarDayCounts[key] ?? 0) : 0
-    const isThisHovered = !!hoveredDateKey && key === hoveredDateKey
-    const tooltipDateLabel = date ? format(date, "d 'de' MMMM 'de' yyyy", { locale: pt }) : ''
 
     return (
-      <Tooltip open={isThisHovered}>
-        <TooltipTrigger asChild>
-          <button
-            {...props}
-            type='button'
-            onMouseEnter={(e) => {
-              props?.onMouseEnter?.(e)
-              if (date) setHoveredDate(date)
-            }}
-            onMouseLeave={(e) => {
-              props?.onMouseLeave?.(e)
-              setHoveredDate(undefined)
-            }}
-            onPointerEnter={(e) => {
-              props?.onPointerEnter?.(e)
-              if (date) setHoveredDate(date)
-            }}
-            onPointerLeave={(e) => {
-              props?.onPointerLeave?.(e)
-              setHoveredDate(undefined)
-            }}
-            onBlur={(e) => {
-              props?.onBlur?.(e)
-              setHoveredDate(undefined)
-            }}
+      <button
+        {...props}
+        type='button'
+      >
+        <div className='relative h-full w-full flex flex-col items-center justify-center'>
+          {(isSelected || isToday) && (
+            <div
+              className={[
+                'pointer-events-none absolute inset-0 rounded-xl',
+                isSelected
+                  ? 'ring-2 ring-primary/60 shadow-[0_0_0_2px_rgba(0,0,0,0.02),0_0_28px_rgba(99,102,241,0.18)]'
+                  : 'ring-1 ring-primary/20',
+              ].join(' ')}
+            />
+          )}
+
+          <div
+            className={[
+              'leading-none',
+              isOutside ? 'opacity-55' : '',
+              isWeekend && !isSelected ? 'text-foreground/90' : '',
+            ].join(' ')}
           >
-            <div className='relative h-full w-full flex flex-col items-center justify-center'>
-              {(isSelected || isToday) && (
-                <div
+            {date?.getDate?.()}
+          </div>
+
+          {/* Mantém os dots/heat */}
+          {count > 0 && (
+            <div className='mt-1 flex items-center justify-center gap-0.5'>
+              {Array.from({ length: Math.min(6, count) }).map((_, i) => (
+                <span
+                  key={i}
                   className={[
-                    'pointer-events-none absolute inset-0 rounded-xl',
-                    isSelected
-                      ? 'ring-2 ring-primary/60 shadow-[0_0_0_2px_rgba(0,0,0,0.02),0_0_28px_rgba(99,102,241,0.18)]'
-                      : 'ring-1 ring-primary/20',
+                    'h-1 w-1 rounded-full',
+                    isSelected ? 'bg-primary-foreground/80' : 'bg-primary/70',
                   ].join(' ')}
                 />
-              )}
-
-              <div
-                className={[
-                  'leading-none',
-                  isOutside ? 'opacity-55' : '',
-                  isWeekend && !isSelected ? 'text-foreground/90' : '',
-                ].join(' ')}
-              >
-                {date?.getDate?.()}
-              </div>
-
-              {/* Mantém os dots/heat */}
-              {count > 0 && (
-                <div className='mt-1 flex items-center justify-center gap-0.5'>
-                  {Array.from({ length: Math.min(6, count) }).map((_, i) => (
-                    <span
-                      key={i}
-                      className={[
-                        'h-1 w-1 rounded-full',
-                        isSelected ? 'bg-primary-foreground/80' : 'bg-primary/70',
-                      ].join(' ')}
-                    />
-                  ))}
-                  {count > 6 && (
-                    <span className={isSelected ? 'text-[9px] text-primary-foreground/80' : 'text-[9px] text-muted-foreground'}>
-                      +{count - 6}
-                    </span>
-                  )}
-                </div>
+              ))}
+              {count > 6 && (
+                <span className={isSelected ? 'text-[9px] text-primary-foreground/80' : 'text-[9px] text-muted-foreground'}>
+                  +{count - 6}
+                </span>
               )}
             </div>
-          </button>
-        </TooltipTrigger>
-        <TooltipContent
-          side='bottom'
-          className='border bg-popover text-popover-foreground shadow-md'
-        >
-          <div className='font-semibold text-xs'>{tooltipDateLabel}</div>
-          <div className='text-[11px] opacity-90'>
-            {`${count} reserva(s) neste dia`}
-          </div>
-        </TooltipContent>
-      </Tooltip>
+          )}
+        </div>
+      </button>
     )
-  }, [calendarDayCounts, hoveredDateKey, formattedDate])
+  }, [calendarDayCounts])
 
   const calendarComponents = useMemo(() => {
     // Tipagem do react-day-picker varia entre versões; mantemos isto flexível.
@@ -1069,9 +1012,8 @@ export function ReservasOficinasPage() {
                     }}
                   />
 
-                  <TooltipProvider delayDuration={40}>
-                    <div className='p-1.5' onMouseLeave={() => setHoveredDate(undefined)} onPointerLeave={() => setHoveredDate(undefined)}>
-                      <Calendar
+                  <div className='p-1.5'>
+                    <Calendar
                       mode='single'
                       selected={selectedDate}
                       onSelect={setSelectedDate}
@@ -1122,7 +1064,6 @@ export function ReservasOficinasPage() {
                           }}
                       />
                     </div>
-                  </TooltipProvider>
                 </div>
 
                 {/* Informação da data selecionada */}

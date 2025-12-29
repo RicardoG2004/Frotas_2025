@@ -1745,18 +1745,24 @@ export function ViaturaFormContainer({
       }
     }
     
-    // Se estiver editando uma viatura existente, priorizar os initialValues
-    // mas ainda assim verificar se há dados não salvos no localStorage
-    if (viaturaId && storedData) {
-      // Para edição, só usar localStorage se os dados foram salvos para esta viatura específica
-      return {
-        ...initialFormValues,
-        ...storedData,
+    // Se estiver editando uma viatura existente, SEMPRE priorizar os initialValues (dados reais)
+    // Só usar localStorage se os initialValues ainda não estiverem disponíveis (enquanto carrega)
+    if (viaturaId) {
+      // Se temos initialValues válidos (dados carregados), usar apenas eles
+      if (initialValues && Object.keys(initialValues).length > 0) {
+        return initialFormValues
+      }
+      // Se ainda não temos initialValues (carregando), usar localStorage como fallback temporário
+      if (storedData) {
+        return {
+          ...initialFormValues,
+          ...storedData,
+        }
       }
     }
     
     return initialFormValues
-  }, [initialFormValues, getStoredFormData, viaturaId])
+  }, [initialFormValues, initialValues, getStoredFormData, viaturaId])
 
   const form = useForm<ViaturaFormSchemaType>({
     resolver: zodResolver(viaturaFormSchema),
@@ -1819,14 +1825,24 @@ export function ViaturaFormContainer({
     }
   }, [entidadeFornecedoraTipo, form])
 
-  // Reset do formulário apenas na montagem inicial ou quando initialValues muda externamente
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Reset do formulário quando initialValues mudar (ex: dados carregados da API)
+  const lastResetViaturaId = useRef<string | undefined>(undefined)
+  const lastResetInitialValues = useRef<any>(null)
+  
   useEffect(() => {
-    // Só reseta se os valores iniciais mudaram significativamente (ex: carregou nova viatura)
-    if (initialValues && !form.formState.isDirty) {
-      form.reset(initialFormValues)
+    // Se estamos em modo de edição e temos initialValues válidos
+    if (viaturaId && initialValues && initialFormValues) {
+      // Verificar se os initialValues mudaram ou se é uma nova viatura
+      const initialValuesChanged = lastResetInitialValues.current !== initialValues
+      const viaturaChanged = lastResetViaturaId.current !== viaturaId
+      
+      if (initialValuesChanged || viaturaChanged) {
+        form.reset(initialFormValues)
+        lastResetViaturaId.current = viaturaId
+        lastResetInitialValues.current = initialValues
+      }
     }
-  }, [viaturaId])
+  }, [initialValues, initialFormValues, viaturaId, form])
 
   // Salvar dados do formulário no localStorage sempre que houver mudanças
   useEffect(() => {

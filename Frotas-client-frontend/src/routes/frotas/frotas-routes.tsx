@@ -37,6 +37,7 @@ import { ManutencoesCreatePage } from '@/pages/frotas/manutencoes/components/man
 import { ManutencoesUpdatePage } from '@/pages/frotas/manutencoes/components/manutencoes-update-page/manutencoes-update-page'
 import { ReservasOficinasPage } from '@/pages/frotas/reservas-oficinas/reservas-oficinas-page'
 import { UtilizacoesPage } from '@/pages/frotas/utilizacoes/utilizacoes-page'
+import { AbastecimentosPage } from '@/pages/frotas/abastecimentos/abastecimentos-page'
 
 import { LicenseGuard } from '@/components/auth/license-guard'
 
@@ -143,6 +144,16 @@ export const frotasRoutes = [
     ),
     manageWindow: true,
     windowName: 'Utilizações',
+  },
+  {
+    path: 'frotas/abastecimentos',
+    element: (
+      <LicenseGuard requiredModule={frotas.id}>
+        <AbastecimentosPage />
+      </LicenseGuard>
+    ),
+    manageWindow: true,
+    windowName: 'Abastecimentos',
   },
   {
     path: 'frotas/configuracoes',

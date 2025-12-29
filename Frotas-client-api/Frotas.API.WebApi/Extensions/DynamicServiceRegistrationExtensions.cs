@@ -21,10 +21,24 @@ namespace Frotas.API.WebApi.Extensions
       var transientServices = AppDomain
         .CurrentDomain.GetAssemblies()
         .SelectMany(s => s.GetTypes())
-        .Where(transientServiceType.IsAssignableFrom)
         .Where(t => t.IsClass && !t.IsAbstract)
-        .Select(t => new { Service = t.GetInterfaces().FirstOrDefault(), Implementation = t })
-        .Where(t => t.Service != null);
+        .Where(t => t.GetInterfaces().Any(i => transientServiceType.IsAssignableFrom(i) && i != transientServiceType))
+        .SelectMany(t => t.GetInterfaces()
+          .Where(i => i != transientServiceType && i != scopedServiceType && i != singletonServiceType && i.Name.StartsWith("I") && i != typeof(object) && transientServiceType.IsAssignableFrom(i))
+          .Select(i => new { Service = i, Implementation = t }))
+        .Distinct();
+      
+      // Log para debug - verificar se AbastecimentoService está sendo encontrado
+      var abastecimentoTypes = AppDomain.CurrentDomain.GetAssemblies()
+        .SelectMany(s => s.GetTypes())
+        .Where(t => t.Name.Contains("Abastecimento") && !t.IsAbstract)
+        .ToList();
+      Console.WriteLine($"🔍 Tipos encontrados com 'Abastecimento': {abastecimentoTypes.Count}");
+      foreach (var type in abastecimentoTypes)
+      {
+        var interfaces = type.GetInterfaces().Where(i => i.Name.StartsWith("I") && i != transientServiceType).ToList();
+        Console.WriteLine($"  - {type.Name} (IsClass: {type.IsClass}, Interfaces: {string.Join(", ", interfaces.Select(i => i.Name))})");
+      }
 
       var scopedServices = AppDomain
         .CurrentDomain.GetAssemblies()
@@ -44,9 +58,15 @@ namespace Frotas.API.WebApi.Extensions
 
       foreach (var transientService in transientServices)
       {
-        if (transientServiceType.IsAssignableFrom(transientService.Service))
+        // Verificar se a interface do serviço implementa ITransientService (direta ou indiretamente)
+        if (transientService.Service != null && transientServiceType.IsAssignableFrom(transientService.Service))
         {
           _ = services.AddTransient(transientService.Service, transientService.Implementation);
+          // Log para verificar se IAbastecimentoService está sendo registrado
+          if (transientService.Service.Name.Contains("Abastecimento"))
+          {
+            Console.WriteLine($"✅ Registrado: {transientService.Service.Name} -> {transientService.Implementation.Name}");
+          }
         }
       }
 

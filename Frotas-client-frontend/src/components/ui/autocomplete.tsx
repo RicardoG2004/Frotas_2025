@@ -25,6 +25,7 @@ interface AutocompleteProps {
   }
   onCreateOption?: (inputValue: string) => void
   defaultVisibleCount?: number
+  dropdownAction?: React.ReactNode
 }
 
 export function Autocomplete({
@@ -38,6 +39,7 @@ export function Autocomplete({
   createOption,
   onCreateOption,
   defaultVisibleCount = 5,
+  dropdownAction,
 }: AutocompleteProps) {
   const [inputValue, setInputValue] = React.useState('')
   const [isOpen, setIsOpen] = React.useState(false)
@@ -336,6 +338,12 @@ export function Autocomplete({
                   options.length > defaultVisibleCount && (
                     <div className='px-3 py-2 text-xs text-muted-foreground text-center border-t bg-popover'>
                       Continue a digitar para ver mais opções...
+                    </div>
+                  )}
+                {/* Custom dropdown action button */}
+                {dropdownAction && (
+                  <div className='border-t bg-popover p-1'>
+                    {dropdownAction}
                     </div>
                   )}
               </CommandGroup>

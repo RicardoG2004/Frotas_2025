@@ -70,6 +70,7 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
     public DbSet<ManutencaoServico> ManutencaoServicos { get; set; }
     public DbSet<ReservaOficina> ReservasOficinas { get; set; }
     public DbSet<Utilizacao> Utilizacoes { get; set; }
+    public DbSet<Abastecimento> Abastecimentos { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -238,6 +239,19 @@ namespace Frotas.API.Infrastructure.Persistence.Contexts
         .OnDelete(DeleteBehavior.Restrict); // RESTRICT: Não apagar o funcionário
 
       modelBuilder.Entity<Utilizacao>()
+        .HasOne(x => x.Viatura)
+        .WithMany()
+        .HasForeignKey(x => x.ViaturaId)
+        .IsRequired()
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: Não apagar a viatura
+
+      modelBuilder.Entity<Abastecimento>()
+        .HasOne(x => x.Funcionario)
+        .WithMany()
+        .HasForeignKey(x => x.FuncionarioId)
+        .OnDelete(DeleteBehavior.Restrict); // RESTRICT: Não apagar o funcionário
+
+      modelBuilder.Entity<Abastecimento>()
         .HasOne(x => x.Viatura)
         .WithMany()
         .HasForeignKey(x => x.ViaturaId)
