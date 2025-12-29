@@ -91,6 +91,8 @@ import {
   Camera,
   X,
   Plug,
+  ArrowRight,
+  ArrowLeft,
 } from 'lucide-react'
 import { toast } from '@/utils/toast-utils'
 import { useTabManager } from '@/hooks/use-tab-manager'
@@ -1788,6 +1790,11 @@ export function ViaturaFormContainer({
   const [expandedMultas, setExpandedMultas] = useState<Set<string>>(new Set())
   // Estado para controlar qual inspeção está aberta no Dialog
   const [openInspecaoDialogIndex, setOpenInspecaoDialogIndex] = useState<number | null>(null)
+  // Estado para controlar se está usando a visualização alternativa (barra amarela)
+  const [usandoMatriculaAlternativa, setUsandoMatriculaAlternativa] = useState(false)
+  // Estado para os números na barra amarela
+  const [numeroAcimaTraco, setNumeroAcimaTraco] = useState<string>('12')
+  const [numeroAbaixoTraco, setNumeroAbaixoTraco] = useState<string>('34')
   
   const tipoPropulsao = form.watch('tipoPropulsao')
   const isElectricPropulsion = tipoPropulsao === 'eletrico'
@@ -1843,6 +1850,7 @@ export function ViaturaFormContainer({
       }
     }
   }, [initialValues, initialFormValues, viaturaId, form])
+
 
   // Salvar dados do formulário no localStorage sempre que houver mudanças
   useEffect(() => {
@@ -3664,13 +3672,13 @@ export function ViaturaFormContainer({
                     title='Dados principais'
                     description='Informações base de identificação e registo'
                   >
-                    <div className='grid items-start gap-4 md:grid-cols-[1.35fr_1.65fr] xl:grid-cols-[1.35fr_1.65fr_1.3fr]'>
+                    <div className='grid items-center gap-4 md:grid-cols-[0.8fr_2.2fr]'>
                       <div className='flex flex-col gap-4'>
                         <FormField
                           control={form.control}
                           name='imagem'
                           render={({ field }) => (
-                            <FormItem className='mt-8'>
+                            <FormItem className='mt-2'>
                               <FormLabel className='sr-only'>Foto da Viatura</FormLabel>
                               <FormControl>
                                 <FotoViaturaUploader
@@ -3684,160 +3692,263 @@ export function ViaturaFormContainer({
                           )}
                         />
                       </div>
-                      <div className='flex flex-col gap-4 md:pr-0'>
-                        <FormField
-                          control={form.control}
-                          name='numero'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Número Interno</FormLabel>
-                              <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='dataInicial'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Data de Registo</FormLabel>
-                              <FormControl>
-                                <DatePicker
-                                  value={field.value || undefined}
-                                  onChange={field.onChange}
-                                  placeholder='Selecione a data de registo'
-                                  className={FIELD_HEIGHT_CLASS}
-                                  allowClear
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='countryCode'
-                          render={({ field }) => (
-                            <FormItem className='relative z-50 w-full'>
-                              <FormLabel className='text-sm'>País</FormLabel>
-                              <FormControl>
-                                <ReactFlagsSelect
-                                  selected={field.value || 'PT'}
-                                  onSelect={(code) => {
-                                    // Limpa a matrícula quando o país muda
-                                    if (field.value !== code) {
-                                      form.setValue('matricula', '')
-                                    }
-                                    field.onChange(code)
-                                  }}
-                                  countries={europeanCountryCodes}
-                                  customLabels={europeanCountries}
-                                  searchable
-                                  searchPlaceholder='Procurar país...'
-                                  placeholder='Selecione um país'
-                                  className='flag-select'
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className='md:col-start-2 xl:col-start-3 flex flex-col gap-4 md:pl-0'>
-                        <FormField
-                          control={form.control}
-                          name='anoFabrico'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Ano de Fabrico</FormLabel>
-                              <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  min={1900}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='mesFabrico'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mês de Fabrico</FormLabel>
-                              <FormControl>
-                                <NumberInput
-                                  value={toNumberValue(field.value)}
-                                  onValueChange={(nextValue) => field.onChange(nextValue)}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                  ref={field.ref}
-                                  className={TEXT_INPUT_CLASS}
-                                  min={1}
-                                  max={12}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name='matricula'
-                          render={({ field }) => {
-                            const countryCode = form.watch('countryCode') || 'PT'
-                            const config = getLicensePlateConfig(countryCode)
-                            
-                            const handleMatriculaChange = (value: string) => {
-                              // Formata automaticamente baseado no país
-                              const formatted = formatLicensePlate(value, countryCode)
-                              field.onChange(formatted)
-                            }
-
-                            return (
+                      <div className='flex flex-col gap-4 pt-8'>
+                        {/* Primeira linha: Numero Interno, Mes Fabrico, Ano Fabrico, Data Registo */}
+                        <div className='grid gap-4 md:grid-cols-4'>
+                          <FormField
+                            control={form.control}
+                            name='numero'
+                            render={({ field }) => (
                               <FormItem>
-                                <FormLabel className='sr-only'>Matrícula</FormLabel>
+                                <FormLabel>Número Interno</FormLabel>
                                 <FormControl>
-                                  <div className='flex justify-center py-2'>
-                                    <LicensePlateDisplay
-                                      countryCode={countryCode}
-                                      plateId={field.value ?? ''}
-                                      height={80}
-                                      editable
-                                      onChange={handleMatriculaChange}
-                                      onBlur={field.onBlur}
-                                      name={field.name}
-                                      ref={field.ref}
-                                    />
-                                  </div>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                    className={TEXT_INPUT_CLASS}
+                                    min={0}
+                                  />
                                 </FormControl>
-                                {config && (
-                                  <p className='text-xs text-muted-foreground mt-1 text-center'>
-                                    {config.description}
-                                  </p>
-                                )}
                                 <FormMessage />
                               </FormItem>
-                            )
-                          }}
-                        />
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='mesFabrico'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Mês de Fabrico</FormLabel>
+                                <FormControl>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                    className={TEXT_INPUT_CLASS}
+                                    min={1}
+                                    max={12}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='anoFabrico'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Ano de Fabrico</FormLabel>
+                                <FormControl>
+                                  <NumberInput
+                                    value={toNumberValue(field.value)}
+                                    onValueChange={(nextValue) => field.onChange(nextValue)}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                    className={TEXT_INPUT_CLASS}
+                                    min={1900}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='dataInicial'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Data de Registo</FormLabel>
+                                <FormControl>
+                                  <DatePicker
+                                    value={field.value || undefined}
+                                    onChange={field.onChange}
+                                    placeholder='Selecione a data de registo'
+                                    className={FIELD_HEIGHT_CLASS}
+                                    allowClear
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        {/* Segunda linha: País e Matrícula lado a lado */}
+                        <div className='grid gap-4 md:grid-cols-2'>
+                          <FormField
+                            control={form.control}
+                            name='countryCode'
+                            render={({ field }) => (
+                              <FormItem className='relative z-50 w-full'>
+                                <FormLabel className='text-sm'>País</FormLabel>
+                                <FormControl>
+                                  <ReactFlagsSelect
+                                    selected={field.value || 'PT'}
+                                    onSelect={(code) => {
+                                      // Limpa a matrícula quando o país muda
+                                      if (field.value !== code) {
+                                        form.setValue('matricula', '')
+                                      }
+                                      field.onChange(code)
+                                    }}
+                                    countries={europeanCountryCodes}
+                                    customLabels={europeanCountries}
+                                    searchable
+                                    searchPlaceholder='Procurar país...'
+                                    placeholder='Selecione um país'
+                                    className='flag-select'
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name='matricula'
+                            render={({ field }) => {
+                              const countryCode = form.watch('countryCode') || 'PT'
+                              const isPortugal = countryCode.toUpperCase() === 'PT'
+                              
+                              const handleMatriculaChange = (value: string) => {
+                                // Não formata, apenas passa o valor diretamente
+                                field.onChange(value)
+                              }
+
+                              const handleNextPlate = () => {
+                                // Apenas ativa o modo alternativo, mantendo a mesma matrícula
+                                setUsandoMatriculaAlternativa(true)
+                              }
+
+                              const handlePreviousPlate = () => {
+                                // Apenas desativa o modo alternativo, mantendo a mesma matrícula
+                                setUsandoMatriculaAlternativa(false)
+                              }
+
+                              // Sempre mostra a matrícula atual do campo, independente do modo
+                              const matriculaAtual = field.value ?? ''
+
+                              return (
+                                <FormItem>
+                                  <FormLabel className='sr-only'>Matrícula</FormLabel>
+                                  <FormControl>
+                                    <div className='flex items-center justify-center gap-3 py-2'>
+                                      {isPortugal && (
+                                        <button
+                                          type='button'
+                                          onClick={handleNextPlate}
+                                          disabled={usandoMatriculaAlternativa}
+                                          className='flex items-center justify-center w-8 h-8 rounded-md text-lg font-semibold text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all'
+                                          title='Trocar para matrícula alternativa'
+                                        >
+                                          &lt;
+                                        </button>
+                                      )}
+                                      <div className='relative'>
+                                        <LicensePlateDisplay
+                                          countryCode={countryCode}
+                                          plateId={matriculaAtual}
+                                          height={80}
+                                          editable
+                                          onChange={handleMatriculaChange}
+                                          onBlur={field.onBlur}
+                                          name={field.name}
+                                          ref={field.ref}
+                                          className={isPortugal && usandoMatriculaAlternativa ? '[&_input]:!pl-[20px]' : ''}
+                                        />
+                                        {isPortugal && usandoMatriculaAlternativa && (
+                                          <>
+                                            <div 
+                                              className='absolute bg-yellow-500 pointer-events-none'
+                                              style={{
+                                                right: '5px', // Offset para não tocar na borda preta
+                                                top: '5px', // Offset para não tocar na borda preta
+                                                bottom: '5px', // Offset para não tocar na borda preta
+                                                width: `${80 * 0.35}px`, // Largura reduzida (45% da altura = ~36px)
+                                              }}
+                                            />
+                                            <div 
+                                              className='absolute bg-black pointer-events-none'
+                                              style={{
+                                                right: '9px', // Offset adicional para deixar espaço na borda direita
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                width: `${(80 * 0.35) - 8}px`, // Largura reduzida deixando espaço nas bordas
+                                                height: '2px',
+                                              }}
+                                            />
+                                            {/* Números acima do traço - Input editável */}
+                                            <input
+                                              type='text'
+                                              value={numeroAcimaTraco}
+                                              onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 2)
+                                                setNumeroAcimaTraco(value)
+                                              }}
+                                              className='absolute text-black font-semibold bg-transparent border-none outline-none text-center'
+                                              style={{
+                                                right: '5px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%) translateY(-18px)',
+                                                width: `${80 * 0.35}px`,
+                                                fontSize: '12px',
+                                                lineHeight: '1',
+                                                padding: 0,
+                                                zIndex: 20,
+                                              }}
+                                              maxLength={2}
+                                              placeholder='00'
+                                            />
+                                            {/* Números abaixo do traço - Input editável */}
+                                            <input
+                                              type='text'
+                                              value={numeroAbaixoTraco}
+                                              onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 2)
+                                                setNumeroAbaixoTraco(value)
+                                              }}
+                                              className='absolute text-black font-semibold bg-transparent border-none outline-none text-center'
+                                              style={{
+                                                right: '5px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%) translateY(18px)',
+                                                width: `${80 * 0.35}px`,
+                                                fontSize: '12px',
+                                                lineHeight: '1',
+                                                padding: 0,
+                                                zIndex: 20,
+                                              }}
+                                              maxLength={2}
+                                              placeholder='00'
+                                            />
+                                          </>
+                                        )}
+                                      </div>
+                                      {isPortugal && (
+                                        <button
+                                          type='button'
+                                          onClick={handlePreviousPlate}
+                                          disabled={!usandoMatriculaAlternativa}
+                                          className='flex items-center justify-center w-8 h-8 rounded-md text-lg font-semibold text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all'
+                                          title='Voltar para matrícula inicial'
+                                        >
+                                          &gt;
+                                        </button>
+                                      )}
+                                    </div>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </FormSection>
