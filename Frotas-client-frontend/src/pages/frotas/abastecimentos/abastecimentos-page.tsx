@@ -21,6 +21,7 @@ import { Autocomplete } from '@/components/ui/autocomplete'
 import { useMemo } from 'react'
 import { Input } from '@/components/ui/input'
 import { useGetViaturasSelect } from '@/pages/frotas/viaturas/queries/viaturas-queries'
+import { useGetCombustiveisSelect } from '@/pages/frotas/combustiveis/queries/combustiveis-queries'
 import { AbastecimentosService } from '@/lib/services/frotas/abastecimentos-service'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -50,6 +51,7 @@ interface SavedState {
   currentMonth?: string
   selectedFuncionarioId?: string
   selectedViaturaId?: string
+  selectedCombustivelId?: string
   data?: string
   kms?: string
   litros?: string
@@ -89,6 +91,7 @@ export function AbastecimentosPage() {
   const [calendarDayCounts, setCalendarDayCounts] = useState<Record<string, number>>({})
   const [selectedFuncionarioId, setSelectedFuncionarioId] = useState<string>(savedState?.selectedFuncionarioId || '')
   const [selectedViaturaId, setSelectedViaturaId] = useState<string>(savedState?.selectedViaturaId || '')
+  const [selectedCombustivelId, setSelectedCombustivelId] = useState<string>(savedState?.selectedCombustivelId || '')
   const [data, setData] = useState<string>(savedState?.data || '')
   const [kms, setKms] = useState<string>(savedState?.kms || '')
   const [litros, setLitros] = useState<string>(savedState?.litros || '')
@@ -108,6 +111,10 @@ export function AbastecimentosPage() {
   const { data: viaturasData } = useGetViaturasSelect()
   const viaturas = viaturasData || []
 
+  // Get combustiveis
+  const { data: combustiveisData } = useGetCombustiveisSelect()
+  const combustiveis = combustiveisData || []
+
   // Get abastecimentos by date
   const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
   const { data: abastecimentosData, refetch: refetchAbastecimentos } = useQuery<AbastecimentoDTO[] | null>({
@@ -121,6 +128,17 @@ export function AbastecimentosPage() {
     staleTime: 30000,
   })
   const abastecimentos: AbastecimentoDTO[] = abastecimentosData || []
+
+  // Get all abastecimentos to find last one by viatura
+  const { data: allAbastecimentosData } = useQuery<AbastecimentoDTO[] | null>({
+    queryKey: ['abastecimentos-all'],
+    queryFn: async () => {
+      const response = await AbastecimentosService('abastecimento').getAbastecimentos()
+      return response.info?.data || []
+    },
+    staleTime: 30000,
+  })
+  const allAbastecimentos: AbastecimentoDTO[] = allAbastecimentosData || []
 
   // Atualizar "heat counts" quando os dados chegam
   useEffect(() => {
@@ -162,12 +180,43 @@ export function AbastecimentosPage() {
     })
   }, [viaturas])
 
-  // Sincronizar campo data com calendário selecionado
+  // Prepare combustiveis options for Autocomplete
+  const combustivelOptions = useMemo(() => {
+    return combustiveis.map((combustivel) => ({
+      value: combustivel.id,
+      label: combustivel.nome || '',
+    }))
+  }, [combustiveis])
+
+  // Buscar último abastecimento da viatura e preencher campo data
   useEffect(() => {
-    if (selectedDate && !editingAbastecimentoId) {
+    if (selectedViaturaId && showAbastecimentoForm && !editingAbastecimentoId) {
+      const abastecimentosViatura = allAbastecimentos
+        .filter((a) => a.viaturaId === selectedViaturaId)
+        .sort((a, b) => {
+          const dateA = new Date(a.data).getTime()
+          const dateB = new Date(b.data).getTime()
+          return dateB - dateA // Ordenar do mais recente para o mais antigo
+        })
+      
+      if (abastecimentosViatura.length > 0) {
+        const ultimoAbastecimento = abastecimentosViatura[0]
+        const dataUltimoAbastecimento = ultimoAbastecimento.data.slice(0, 10) // Formato yyyy-MM-dd
+        setData(dataUltimoAbastecimento)
+        // Atualizar também a data selecionada no calendário
+        const dateObj = new Date(dataUltimoAbastecimento)
+        setSelectedDate(dateObj)
+        setCurrentMonth(dateObj)
+      }
+    }
+  }, [selectedViaturaId, showAbastecimentoForm, editingAbastecimentoId, allAbastecimentos])
+
+  // Sincronizar campo data com calendário selecionado (apenas quando não está editando e não está no formulário)
+  useEffect(() => {
+    if (selectedDate && !editingAbastecimentoId && !showAbastecimentoForm) {
       setData(format(selectedDate, 'yyyy-MM-dd'))
     }
-  }, [selectedDate, editingAbastecimentoId])
+  }, [selectedDate, editingAbastecimentoId, showAbastecimentoForm])
 
   // Salvar estado no localStorage
   useEffect(() => {
@@ -177,6 +226,7 @@ export function AbastecimentosPage() {
         currentMonth: currentMonth.toISOString(),
         selectedFuncionarioId,
         selectedViaturaId,
+        selectedCombustivelId,
         data,
         kms,
         litros,
@@ -190,6 +240,7 @@ export function AbastecimentosPage() {
     currentMonth,
     selectedFuncionarioId,
     selectedViaturaId,
+    selectedCombustivelId,
     data,
     kms,
     litros,
@@ -386,6 +437,7 @@ export function AbastecimentosPage() {
     setCurrentMonth(abastecimentoDate)
     setSelectedFuncionarioId(abastecimento.funcionarioId)
     setSelectedViaturaId(abastecimento.viaturaId)
+    setSelectedCombustivelId(abastecimento.combustivelId || '')
     setData(abastecimento.data ? abastecimento.data.slice(0, 10) : '')
     setKms(typeof abastecimento.kms === 'number' ? String(abastecimento.kms) : '')
     setLitros(typeof abastecimento.litros === 'number' ? String(abastecimento.litros) : '')
@@ -416,6 +468,7 @@ export function AbastecimentosPage() {
         data: data,
         funcionarioId: selectedFuncionarioId,
         viaturaId: selectedViaturaId,
+        combustivelId: selectedCombustivelId || undefined,
         kms: kms ? Number(kms) : undefined,
         litros: litros ? Number(litros) : undefined,
         valor: valor ? Number(valor) : undefined,
@@ -426,6 +479,7 @@ export function AbastecimentosPage() {
         data: data,
         funcionarioId: selectedFuncionarioId,
         viaturaId: selectedViaturaId,
+        combustivelId: selectedCombustivelId || undefined,
         kms: kms ? Number(kms) : undefined,
         litros: litros ? Number(litros) : undefined,
         valor: valor ? Number(valor) : undefined,
@@ -435,10 +489,6 @@ export function AbastecimentosPage() {
   }
 
   const handleAddAbastecimento = () => {
-    if (!selectedDate) {
-      toast.error('Por favor, selecione uma data')
-      return
-    }
     if (!selectedFuncionarioId) {
       toast.error('Por favor, selecione um funcionário')
       return
@@ -447,8 +497,8 @@ export function AbastecimentosPage() {
       toast.error('Por favor, selecione uma viatura')
       return
     }
-    setData(format(selectedDate, 'yyyy-MM-dd'))
     setShowAbastecimentoForm(true)
+    // A data será preenchida automaticamente pelo useEffect com a data do último abastecimento da viatura
   }
 
   const handleCancelAbastecimento = () => {
@@ -458,6 +508,7 @@ export function AbastecimentosPage() {
     setKms('')
     setLitros('')
     setValor('')
+    setSelectedCombustivelId('')
   }
 
   const handleDeleteAbastecimento = (abastecimento: AbastecimentoDTO) => {
@@ -936,31 +987,33 @@ export function AbastecimentosPage() {
                                     </div>
                                   )}
 
-                                  <div className='flex items-start gap-2 min-w-0 flex-shrink-0'>
-                                    <div className='min-w-0 flex-1'>
-                                      <p className='text-xs font-medium text-muted-foreground mb-1'>Dados</p>
-                                      <div className='border-t border-border/50 pt-1 space-y-1'>
-                                        {abastecimento.kms && (
-                                          <p className='text-xs text-foreground'>
-                                            <Gauge className='h-3 w-3 inline mr-1' />
-                                            {abastecimento.kms} km
+                                  {abastecimento.combustivel && (
+                                    <div className='flex items-start gap-2 min-w-0 flex-shrink-0 w-32'>
+                                      <Fuel className='h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-1' />
+                                      <div className='min-w-0 flex-1'>
+                                        <p className='text-xs font-medium text-muted-foreground mb-1'>Combustível</p>
+                                        <div className='border-t border-border/50 pt-1'>
+                                          <p className='text-sm font-semibold text-foreground truncate'>
+                                            {abastecimento.combustivel.nome}
                                           </p>
-                                        )}
-                                        {abastecimento.litros && (
-                                          <p className='text-xs text-foreground'>
-                                            <Fuel className='h-3 w-3 inline mr-1' />
-                                            {abastecimento.litros} L
-                                          </p>
-                                        )}
-                                        {abastecimento.valor && (
-                                          <p className='text-xs text-foreground'>
-                                            <DollarSign className='h-3 w-3 inline mr-1' />
-                                            {abastecimento.valor.toFixed(2)} €
-                                          </p>
-                                        )}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
+                                  )}
+
+                                  {abastecimento.valor && (
+                                    <div className='flex items-start gap-2 min-w-0 flex-shrink-0 w-32'>
+                                      <DollarSign className='h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-1' />
+                                      <div className='min-w-0 flex-1'>
+                                        <p className='text-xs font-medium text-muted-foreground mb-1'>Valor</p>
+                                        <div className='border-t border-border/50 pt-1'>
+                                          <p className='text-sm font-semibold text-foreground truncate'>
+                                            {abastecimento.valor.toFixed(2)} €
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
 
                                   <div className='flex items-center gap-1.5 flex-shrink-0'>
                                     <Button
@@ -991,8 +1044,8 @@ export function AbastecimentosPage() {
                       )}
                     </div>
                   ) : (
-                    <div className='flex items-start justify-center min-h-[400px] pt-10 pb-6'>
-                      <div className='w-full max-w-3xl'>
+                    <div className='flex items-center justify-center min-h-[500px] pt-2 pb-6'>
+                      <div className='w-full max-w-2xl'>
                         <div className='grid grid-cols-2 md:grid-cols-4 gap-2'>
                           <div className='space-y-1 col-span-2'>
                             <Label htmlFor='data' className='text-xs font-medium flex items-center gap-1.5'>
@@ -1019,8 +1072,8 @@ export function AbastecimentosPage() {
 
                         <div className='my-3 h-px bg-border/60' />
 
-                        <div className='grid grid-cols-1 lg:grid-cols-6 gap-2 items-end'>
-                          <div className='space-y-1 lg:col-span-4'>
+                        <div className='grid grid-cols-1 lg:grid-cols-2 gap-2 items-end'>
+                          <div className='space-y-1'>
                             <Label htmlFor='viatura-select' className='text-xs font-medium flex items-center gap-1.5'>
                               <Car className='h-3 w-3' />
                               Viatura
@@ -1032,35 +1085,34 @@ export function AbastecimentosPage() {
                               <Autocomplete
                                 options={viaturaOptions}
                                 value={selectedViaturaId}
-                                onValueChange={setSelectedViaturaId}
-                                placeholder='Selecione ou pesquise viatura'
+                                onValueChange={() => {}}
+                                placeholder='Selecione uma viatura abaixo do calendário'
                                 emptyText='Nenhuma viatura encontrada.'
-                                className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm pl-10 pr-16 py-2'
+                                className='h-9 border cursor-not-allowed transition-colors rounded-md shadow-sm text-sm pl-10 pr-4 py-2'
+                                defaultVisibleCount={8}
+                                disabled={true}
+                              />
+                            </div>
+                          </div>
+
+                          <div className='space-y-1'>
+                            <Label htmlFor='combustivel-select' className='text-xs font-medium flex items-center gap-1.5'>
+                              <Fuel className='h-3 w-3' />
+                              Combustível
+                            </Label>
+                            <div className='relative'>
+                              <div className='absolute left-3 top-1/2 -translate-y-1/2 z-[100] pointer-events-none flex items-center'>
+                                <Fuel className='h-3.5 w-3.5 text-muted-foreground' />
+                              </div>
+                              <Autocomplete
+                                options={combustivelOptions}
+                                value={selectedCombustivelId}
+                                onValueChange={setSelectedCombustivelId}
+                                placeholder='Selecione ou pesquise combustível'
+                                emptyText='Nenhum combustível encontrado.'
+                                className='h-9 border hover:border-primary/50 transition-colors rounded-md shadow-sm text-sm pl-10 pr-4 py-2'
                                 defaultVisibleCount={8}
                               />
-                              <div className='absolute right-9 top-1/2 -translate-y-1/2 flex gap-0.5 z-10'>
-                                <Button
-                                  type='button'
-                                  variant='ghost'
-                                  size='sm'
-                                  onClick={handleViewViatura}
-                                  className='h-6 w-6 p-0 hover:bg-accent'
-                                  title='Ver Viatura'
-                                  disabled={!selectedViaturaId}
-                                >
-                                  <Eye className='h-3 w-3' />
-                                </Button>
-                                <Button
-                                  type='button'
-                                  variant='ghost'
-                                  size='sm'
-                                  onClick={handleCreateViatura}
-                                  className='h-6 w-6 p-0 hover:bg-accent'
-                                  title='Criar Viatura'
-                                >
-                                  <Plus className='h-3 w-3' />
-                                </Button>
-                              </div>
                             </div>
                           </div>
                         </div>

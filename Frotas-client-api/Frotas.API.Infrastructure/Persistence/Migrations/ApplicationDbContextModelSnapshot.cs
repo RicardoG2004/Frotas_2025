@@ -768,6 +768,56 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                     b.ToTable("Terceiro", "Base");
                 });
 
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Abastecimento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CombustivelId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FuncionarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("Kms")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Litros")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Valor")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ViaturaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CombustivelId");
+
+                    b.HasIndex("FuncionarioId");
+
+                    b.HasIndex("ViaturaId");
+
+                    b.ToTable("Abastecimento", "Frotas");
+                });
+
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Categoria", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2257,6 +2307,32 @@ namespace Frotas.API.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("CodigoPostal");
+                });
+
+            modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Abastecimento", b =>
+                {
+                    b.HasOne("Frotas.API.Domain.Entities.Frotas.Combustivel", "Combustivel")
+                        .WithMany()
+                        .HasForeignKey("CombustivelId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Frotas.API.Domain.Entities.Base.Funcionario", "Funcionario")
+                        .WithMany()
+                        .HasForeignKey("FuncionarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Frotas.API.Domain.Entities.Frotas.Viatura", "Viatura")
+                        .WithMany()
+                        .HasForeignKey("ViaturaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Combustivel");
+
+                    b.Navigation("Funcionario");
+
+                    b.Navigation("Viatura");
                 });
 
             modelBuilder.Entity("Frotas.API.Domain.Entities.Frotas.Manutencao", b =>

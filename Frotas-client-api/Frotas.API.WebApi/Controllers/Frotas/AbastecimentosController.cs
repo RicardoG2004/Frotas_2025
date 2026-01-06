@@ -113,11 +113,18 @@ namespace Frotas.API.WebApi.Controllers.Frotas
           return BadRequest(Response<Guid>.Fail("ID de viatura inválido. A viatura é obrigatória."));
         }
 
+        Guid? combustivelId = null;
+        if (!string.IsNullOrWhiteSpace(dto.CombustivelId) && Guid.TryParse(dto.CombustivelId, out Guid parsedCombustivelId))
+        {
+          combustivelId = parsedCombustivelId;
+        }
+
         CreateAbastecimentoRequest request = new()
         {
           Data = data,
           FuncionarioId = funcionarioId,
           ViaturaId = viaturaId,
+          CombustivelId = combustivelId,
           Kms = dto.Kms,
           Litros = dto.Litros,
           Valor = dto.Valor,
@@ -146,6 +153,7 @@ namespace Frotas.API.WebApi.Controllers.Frotas
       public string Data { get; set; } = string.Empty;
       public string FuncionarioId { get; set; } = string.Empty;
       public string ViaturaId { get; set; } = string.Empty;
+      public string? CombustivelId { get; set; }
       public decimal? Kms { get; set; }
       public decimal? Litros { get; set; }
       public decimal? Valor { get; set; }

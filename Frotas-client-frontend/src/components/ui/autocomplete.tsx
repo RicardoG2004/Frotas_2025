@@ -284,7 +284,7 @@ export function Autocomplete({
                 {emptyText}
               </CommandEmpty>
             ) : (
-              <CommandGroup className='max-h-[300px] overflow-auto p-1'>
+              <CommandGroup className='max-h-[300px] overflow-auto p-1 documentation-scroll'>
                 {filteredOptions.map((option, index) => (
                   <div
                     key={option.value}

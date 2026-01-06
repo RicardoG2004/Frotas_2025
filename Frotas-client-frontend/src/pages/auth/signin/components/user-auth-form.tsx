@@ -27,8 +27,8 @@ export function UserAuthForm() {
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: 'cliente.cmb@globalsoft.pt',
-      password: 'Password123!',
+      email: 'cliente@movi.pt',
+      password: 'Cliente1234"',
     },
   })
 

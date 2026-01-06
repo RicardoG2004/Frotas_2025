@@ -7,7 +7,7 @@ start "Frotas API" cmd /k "cd /d C:\Projects\frotas-client-api && docker compose
 start "VSCode - Frotas API" code C:\Projects\frotas-client-api
 
 :: Segunda janela: licenses-api
-start "Licenses API" cmd /k "cd /d C:\Projects\licenses-project-api\GSLP.WebApi && dotnet watch"
+start "Licenses API" cmd /k "cd /d C:\Projects\licenses-project-api-main\GSLP.WebApi && dotnet watch"
 
 :: Terceira janela: gacloud-frontend
 start "Frotas Frontend" cmd /k "cd /d C:\Projects\frotas-client-frontend && npm run dev"

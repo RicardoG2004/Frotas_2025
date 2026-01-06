@@ -8,6 +8,7 @@ namespace Frotas.API.Application.Services.Frotas.AbastecimentoService.DTOs
     public required DateTime Data { get; set; }
     public required Guid FuncionarioId { get; set; }
     public required Guid ViaturaId { get; set; }
+    public Guid? CombustivelId { get; set; }
     public decimal? Kms { get; set; }
     public decimal? Litros { get; set; }
     public decimal? Valor { get; set; }

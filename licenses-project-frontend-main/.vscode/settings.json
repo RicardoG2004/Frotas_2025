@@ -1,0 +1,18 @@
+{
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#00b894",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#00b89499",
+    "titleBar.inactiveForeground": "#ffffffcc",
+    "statusBar.background": "#00b894",
+    "statusBar.foreground": "#ffffff",
+    "statusBar.debuggingBackground": "#00b894",
+    "statusBar.debuggingForeground": "#ffffff",
+    "statusBar.noFolderBackground": "#00b894",
+    "activityBar.activeBackground": "#00b89433",
+    "activityBar.activeBorder": "#00b894",
+    "panel.border": "#00b894",
+    "sideBar.border": "#00b89433"
+  },
+  "window.title": "LIC APP - ${dirty}${activeEditorShort}${separator}${rootName}"
+}

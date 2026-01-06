@@ -15,6 +15,7 @@ namespace Frotas.API.Application.Services.Frotas.AbastecimentoService.Specificat
     {
       _ = Query.Include(x => x.Funcionario);
       _ = Query.Include(x => x.Viatura);
+      _ = Query.Include(x => x.Combustivel);
 
       if (filters != null && filters.Count != 0)
       {

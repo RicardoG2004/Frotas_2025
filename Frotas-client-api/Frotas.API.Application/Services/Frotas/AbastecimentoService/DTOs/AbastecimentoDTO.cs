@@ -1,6 +1,7 @@
 using Frotas.API.Application.Common.Marker;
 using Frotas.API.Application.Services.Base.FuncionarioService.DTOs;
 using Frotas.API.Application.Services.Frotas.ViaturaService.DTOs;
+using Frotas.API.Application.Services.Frotas.CombustivelService.DTOs;
 
 namespace Frotas.API.Application.Services.Frotas.AbastecimentoService.DTOs
 {
@@ -12,6 +13,8 @@ namespace Frotas.API.Application.Services.Frotas.AbastecimentoService.DTOs
     public FuncionarioDTO? Funcionario { get; set; }
     public Guid ViaturaId { get; set; }
     public ViaturaDTO? Viatura { get; set; }
+    public Guid? CombustivelId { get; set; }
+    public CombustivelDTO? Combustivel { get; set; }
     public decimal? Kms { get; set; }
     public decimal? Litros { get; set; }
     public decimal? Valor { get; set; }

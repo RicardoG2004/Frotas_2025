@@ -310,6 +310,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.localizacoes.id}
         actionType={actionTypes.AuthVer}
       >
         <LocalizacoesPage />
@@ -323,6 +324,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.localizacoes.id}
         actionType={actionTypes.AuthAdd}
       >
         <LocalizacoesCreatePage />
@@ -336,6 +338,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.localizacoes.id}
         actionType={actionTypes.AuthChg}
       >
         <LocalizacoesUpdatePage />
@@ -391,7 +394,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.conservatorias.id}
         actionType={actionTypes.AuthVer}
       >
         <ConservatoriasPage />
@@ -405,7 +408,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.conservatorias.id}
         actionType={actionTypes.AuthAdd}
       >
         <ConservatoriasCreatePage />
@@ -419,7 +422,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.conservatorias.id}
         actionType='AuthChg'
       >
         <ConservatoriasUpdatePage />
@@ -433,7 +436,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.delegacoes.id}
         actionType={actionTypes.AuthVer}
       >
         <DelegacoesPage />
@@ -447,7 +450,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.delegacoes.id}
         actionType={actionTypes.AuthAdd}
       >
         <DelegacoesCreatePage />
@@ -461,7 +464,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.delegacoes.id}
         actionType='AuthChg'
       >
         <DelegacoesUpdatePage />
@@ -475,7 +478,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.garantias.id}
         actionType={actionTypes.AuthVer}
       >
         <GarantiasPage />
@@ -489,7 +492,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.garantias.id}
         actionType={actionTypes.AuthAdd}
       >
         <GarantiasCreatePage />
@@ -503,7 +506,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.garantias.id}
         actionType={actionTypes.AuthChg}
       >
         <GarantiasUpdatePage />
@@ -515,7 +518,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/entidades',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.entidades.id}
+        actionType={actionTypes.AuthVer}
+      >
         <EntidadesPage />
       </LicenseGuard>
     ),
@@ -525,7 +532,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/entidades/create',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.entidades.id}
+        actionType={actionTypes.AuthAdd}
+      >
         <EntidadesCreatePage />
       </LicenseGuard>
     ),
@@ -535,7 +546,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/entidades/update',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.entidades.id}
+        actionType={actionTypes.AuthChg}
+      >
         <EntidadesUpdatePage />
       </LicenseGuard>
     ),
@@ -587,7 +602,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/fornecedores',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.fornecedores.id}
+        actionType={actionTypes.AuthVer}
+      >
         <FornecedoresPage />
       </LicenseGuard>
     ),
@@ -597,7 +616,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/fornecedores/create',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.fornecedores.id}
+        actionType={actionTypes.AuthAdd}
+      >
         <FornecedoresCreatePage />
       </LicenseGuard>
     ),
@@ -607,7 +630,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/fornecedores/update',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.fornecedores.id}
+        actionType={actionTypes.AuthChg}
+      >
         <FornecedoresUpdatePage />
       </LicenseGuard>
     ),
@@ -617,7 +644,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/fses',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.fses.id}
+        actionType={actionTypes.AuthVer}
+      >
         <FsesPage />
       </LicenseGuard>
     ),
@@ -627,7 +658,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/fses/create',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.fses.id}
+        actionType={actionTypes.AuthAdd}
+      >
         <FsesCreatePage />
       </LicenseGuard>
     ),
@@ -637,7 +672,11 @@ export const utilitariosRoutes = [
   {
     path: 'utilitarios/tabelas/configuracoes/fses/update',
     element: (
-      <LicenseGuard requiredModule={utilitarios.id}>
+      <LicenseGuard
+        requiredModule={utilitarios.id}
+        requiredPermission={utilitarios.permissions.fses.id}
+        actionType={actionTypes.AuthChg}
+      >
         <FsesUpdatePage />
       </LicenseGuard>
     ),
@@ -720,7 +759,7 @@ export const utilitariosRoutes = [
       <LicenseGuard
         requiredModule={utilitarios.id}
         requiredPermission={utilitarios.permissions.taxasIva.id}
-        actionType='AuthChg'
+        actionType={actionTypes.AuthChg}
       >
         <TaxasIvaUpdatePage />
       </LicenseGuard>
@@ -733,7 +772,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.setores.id}
         actionType={actionTypes.AuthVer}
       >
         <SetoresPage />
@@ -747,7 +786,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.setores.id}
         actionType={actionTypes.AuthAdd}
       >
         <SetoresCreatePage />
@@ -761,8 +800,8 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
-        actionType='AuthChg'
+        requiredPermission={utilitarios.permissions.setores.id}
+        actionType={actionTypes.AuthChg}
       >
         <SetoresUpdatePage />
       </LicenseGuard>
@@ -775,7 +814,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.terceiros.id}
         actionType={actionTypes.AuthVer}
       >
         <TerceirosPage />
@@ -789,7 +828,7 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
+        requiredPermission={utilitarios.permissions.terceiros.id}
         actionType={actionTypes.AuthAdd}
       >
         <TerceirosCreatePage />
@@ -803,8 +842,8 @@ export const utilitariosRoutes = [
     element: (
       <LicenseGuard
         requiredModule={utilitarios.id}
-        requiredPermission={''}
-        actionType='AuthChg'
+        requiredPermission={utilitarios.permissions.terceiros.id}
+        actionType={actionTypes.AuthChg}
       >
         <TerceirosUpdatePage />
       </LicenseGuard>

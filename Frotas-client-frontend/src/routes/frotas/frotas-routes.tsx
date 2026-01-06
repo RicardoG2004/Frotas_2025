@@ -56,7 +56,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/viaturas',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.viaturas.id} actionType={actionTypes.AuthVer}>
         <ViaturasPage />
       </LicenseGuard>
     ),
@@ -68,6 +68,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.viaturas.id}
         actionType={actionTypes.AuthAdd}
       >
         <ViaturasCreatePage />
@@ -81,6 +82,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.viaturas.id}
         actionType={actionTypes.AuthChg}
       >
         <ViaturasUpdatePage />
@@ -92,7 +94,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/manutencoes',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.manutencoes.id} actionType={actionTypes.AuthVer}>
         <ManutencoesPage />
       </LicenseGuard>
     ),
@@ -104,6 +106,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.manutencoes.id}
         actionType={actionTypes.AuthAdd}
       >
         <ManutencoesCreatePage />
@@ -117,6 +120,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.manutencoes.id}
         actionType={actionTypes.AuthChg}
       >
         <ManutencoesUpdatePage />
@@ -128,7 +132,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/reservas-oficinas',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.reservasOficinas.id} actionType={actionTypes.AuthVer}>
         <ReservasOficinasPage />
       </LicenseGuard>
     ),
@@ -138,7 +142,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/utilizacoes',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.utilizacoes.id} actionType={actionTypes.AuthVer}>
         <UtilizacoesPage />
       </LicenseGuard>
     ),
@@ -148,7 +152,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/abastecimentos',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.abastecimentos.id} actionType={actionTypes.AuthVer}>
         <AbastecimentosPage />
       </LicenseGuard>
     ),
@@ -158,27 +162,19 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.pecas.id} actionType={actionTypes.AuthVer}>
         <div></div>
       </LicenseGuard>
     ),
     windowName: 'Configurações',
   },
   {
-    path: 'frotas/outros',
-    element: (
-      <LicenseGuard requiredModule={frotas.id}>
-        <div></div>
-      </LicenseGuard>
-    ),
-    manageWindow: false,
-    windowName: 'Outros',
-  },
-  {
     path: 'frotas/configuracoes/pecas',
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.pecas.id}
+        actionType={actionTypes.AuthVer}
       >
         <PecasPage />
       </LicenseGuard>
@@ -191,6 +187,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.pecas.id}
         actionType={actionTypes.AuthAdd}
       >
         <PecasCreatePage />
@@ -204,6 +201,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.pecas.id}
         actionType={actionTypes.AuthChg}
       >
         <PecasUpdatePage />
@@ -217,6 +215,8 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.servicos.id}
+        actionType={actionTypes.AuthVer}
       >
         <ServicosPage />
       </LicenseGuard>
@@ -229,6 +229,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.servicos.id}
         actionType={actionTypes.AuthAdd}
       >
         <ServicosCreatePage />
@@ -242,6 +243,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.servicos.id}
         actionType={actionTypes.AuthChg}
       >
         <ServicosUpdatePage />
@@ -253,7 +255,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/marcas',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.marcas.id} actionType={actionTypes.AuthVer}>
         <MarcasPage />
       </LicenseGuard>
     ),
@@ -263,7 +265,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/marcas/create',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.marcas.id} actionType={actionTypes.AuthAdd}>
         <MarcasCreatePage />
       </LicenseGuard>
     ),
@@ -273,7 +275,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/marcas/update',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.marcas.id} actionType={actionTypes.AuthChg}>
         <MarcasUpdatePage />
       </LicenseGuard>
     ),
@@ -283,7 +285,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/tipo-viaturas',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.tiposViatura.id} actionType={actionTypes.AuthVer}>
         <TipoViaturasPage />
       </LicenseGuard>
     ),
@@ -293,7 +295,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/cores',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.cores.id} actionType={actionTypes.AuthVer}>
         <CoresPage />
       </LicenseGuard>
     ),
@@ -305,6 +307,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.tiposViatura.id}
         actionType={actionTypes.AuthAdd}
       >
         <TipoViaturasCreatePage />
@@ -316,7 +319,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/cores/create',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.cores.id} actionType={actionTypes.AuthAdd}>
         <CoresCreatePage />
       </LicenseGuard>
     ),
@@ -328,6 +331,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.tiposViatura.id}
         actionType={actionTypes.AuthChg}
       >
         <TipoViaturasUpdatePage />
@@ -339,7 +343,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/cores/update',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.cores.id} actionType={actionTypes.AuthChg}>
         <CoresUpdatePage />
       </LicenseGuard>
     ),
@@ -349,7 +353,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/modelos',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.modelos.id} actionType={actionTypes.AuthVer}>
         <ModelosPage />
       </LicenseGuard>
     ),
@@ -359,7 +363,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/modelos/create',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.modelos.id} actionType={actionTypes.AuthAdd}>
         <ModelosCreatePage />
       </LicenseGuard>
     ),
@@ -369,7 +373,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/modelos/update',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.modelos.id} actionType={actionTypes.AuthChg}>
         <ModelosUpdatePage />
       </LicenseGuard>
     ),
@@ -379,7 +383,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/categorias',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.categorias.id} actionType={actionTypes.AuthVer}>
         <CategoriasPage />
       </LicenseGuard>
     ),
@@ -389,7 +393,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/categorias/create',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.categorias.id} actionType={actionTypes.AuthAdd}>
         <CategoriasCreatePage />
       </LicenseGuard>
     ),
@@ -399,7 +403,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/categorias/update',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.categorias.id} actionType={actionTypes.AuthChg}>
         <CategoriasUpdatePage />
       </LicenseGuard>
     ),
@@ -409,7 +413,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/seguradoras',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.seguradoras.id} actionType={actionTypes.AuthVer}>
         <SeguradorasPage />
       </LicenseGuard>
     ),
@@ -419,7 +423,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/seguradoras/create',
     element: (
-      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthAdd}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.seguradoras.id} actionType={actionTypes.AuthAdd}>
         <SeguradorasCreatePage />
       </LicenseGuard>
     ),
@@ -429,7 +433,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/seguradoras/update',
     element: (
-      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthChg}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.seguradoras.id} actionType={actionTypes.AuthChg}>
         <SeguradorasUpdatePage />
       </LicenseGuard>
     ),
@@ -439,7 +443,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/seguros',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.seguros.id} actionType={actionTypes.AuthVer}>
         <SegurosPage />
       </LicenseGuard>
     ),
@@ -449,7 +453,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/seguros/create',
     element: (
-      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthAdd}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.seguros.id} actionType={actionTypes.AuthAdd}>
         <SegurosCreatePage />
       </LicenseGuard>
     ),
@@ -459,7 +463,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/seguros/update',
     element: (
-      <LicenseGuard requiredModule={frotas.id} actionType={actionTypes.AuthChg}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.seguros.id} actionType={actionTypes.AuthChg}>
         <SegurosUpdatePage />
       </LicenseGuard>
     ),
@@ -469,7 +473,7 @@ export const frotasRoutes = [
   {
     path: 'frotas/configuracoes/equipamentos',
     element: (
-      <LicenseGuard requiredModule={frotas.id}>
+      <LicenseGuard requiredModule={frotas.id} requiredPermission={frotas.permissions.equipamentos.id} actionType={actionTypes.AuthVer}>
         <EquipamentosPage />
       </LicenseGuard>
     ),
@@ -481,6 +485,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.equipamentos.id}
         actionType={actionTypes.AuthAdd}
       >
         <EquipamentosCreatePage />
@@ -494,6 +499,7 @@ export const frotasRoutes = [
     element: (
       <LicenseGuard
         requiredModule={frotas.id}
+        requiredPermission={frotas.permissions.equipamentos.id}
         actionType={actionTypes.AuthChg}
       >
         <EquipamentosUpdatePage />

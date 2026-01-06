@@ -87,7 +87,7 @@ export default function Sidebar({ className }: SidebarProps) {
           role={isMinimized ? 'button' : 'button'}
           aria-label={isMinimized ? 'Expand sidebar' : 'Go to dashboard'}
         >
-          <LogoLumaAdapt
+          {/* <LogoLumaAdapt
             width={isMinimized ? 32 : 95}
             className={cn(
               'text-primary',
@@ -102,7 +102,7 @@ export default function Sidebar({ className }: SidebarProps) {
                 : ['group-hover:scale-[0.98]', 'group-hover:opacity-90']
             )}
             disableLink={true}
-          />
+          /> */}
         </div>
         {!isMinimized && (
           <button

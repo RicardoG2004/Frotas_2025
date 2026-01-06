@@ -112,6 +112,7 @@ namespace Frotas.API.Application.Services.Frotas.AbastecimentoService
           Data = request.Data,
           FuncionarioId = request.FuncionarioId,
           ViaturaId = request.ViaturaId,
+          CombustivelId = request.CombustivelId,
           Kms = request.Kms,
           Litros = request.Litros,
           Valor = request.Valor,

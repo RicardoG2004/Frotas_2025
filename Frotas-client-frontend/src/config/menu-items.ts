@@ -38,10 +38,10 @@ export const roleMenuItems = {
     //   ],
     // },
     {
-      title: 'taxas-e-licencas',
-      href: '/taxas-e-licencas',
+      title: 'Frotas',
+      href: '/',
       icon: 'folder',
-      label: 'Taxas e Licenças',
+      label: 'Frotas',
       items: [
         {
           title: 'frotas',
@@ -181,7 +181,7 @@ export const roleHeaderMenus = {
                   vibrant: 'bg-indigo-600',
                   neon: 'bg-orange-400',
                 },
-                funcionalidadeId: '',
+                funcionalidadeId: modules.utilitarios.permissions.localizacoes.id,
               },
             ],
           },
@@ -201,7 +201,7 @@ export const roleHeaderMenus = {
                   vibrant: 'bg-green-800',
                   neon: 'bg-yellow-400',
                 },
-                funcionalidadeId: '',
+                funcionalidadeId: modules.utilitarios.permissions.conservatorias.id,
               },
               {
                 label: 'Delegacoes',
@@ -214,7 +214,7 @@ export const roleHeaderMenus = {
                   vibrant: 'bg-green-800',
                   neon: 'bg-yellow-400',
                 },
-                funcionalidadeId: '',
+                funcionalidadeId: modules.utilitarios.permissions.delegacoes.id,
               },
               {
                 label: 'Garantias',
@@ -227,7 +227,7 @@ export const roleHeaderMenus = {
                   vibrant: 'bg-green-800',
                   neon: 'bg-yellow-400',
                 },
-                funcionalidadeId: '',
+                funcionalidadeId: modules.utilitarios.permissions.garantias.id,
               },
               {
                 label: 'Entidades',
@@ -324,7 +324,7 @@ export const roleHeaderMenus = {
                   vibrant: 'bg-green-900',
                   neon: 'bg-orange-400',
                 },
-                funcionalidadeId: '',
+                funcionalidadeId: modules.utilitarios.permissions.setores.id,
               },
               {
                 label: 'Outros Devedores/Credores',
@@ -366,7 +366,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-purple-600 shadow-[0_0_35px_rgba(147,51,234,0.85)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.pecas.id,
           },
           {
             label: 'Serviços',
@@ -382,7 +382,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-purple-700 shadow-[0_0_40px_rgba(126,34,206,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.servicos.id,
           },
           {
             label: 'Marcas',
@@ -398,7 +398,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-violet-500 shadow-[0_0_35px_rgba(139,92,246,0.9)]',
             },
-            funcionalidadeId: '', // Removed permission check temporarily
+            funcionalidadeId: modules.frotas.permissions.marcas.id, // Removed permission check temporarily
           },
           {
             label: 'Modelos',
@@ -414,7 +414,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-indigo-500 shadow-[0_0_40px_rgba(99,102,241,0.9)]',
             },
-            funcionalidadeId: '', // Removed permission check temporarily
+            funcionalidadeId: modules.frotas.permissions.modelos.id, // Removed permission check temporarily
           },
           {
             label: 'Categorias',
@@ -430,7 +430,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.9)]',
             },
-            funcionalidadeId: '', // Removed permission check temporarily
+            funcionalidadeId: modules.frotas.permissions.categorias.id, // Removed permission check temporarily
           },
           {
             label: 'Tipos de Viatura',
@@ -446,7 +446,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-sky-500 shadow-[0_0_40px_rgba(56,189,248,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.tiposViatura.id,
           },
           {
             label: 'Cores',
@@ -462,7 +462,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.cores.id,
           },
           {
             label: 'Seguradoras',
@@ -478,7 +478,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-cyan-500 shadow-[0_0_40px_rgba(34,211,238,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.seguradoras.id,
           },
           {
             label: 'Seguros',
@@ -494,7 +494,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-teal-500 shadow-[0_0_40px_rgba(45,212,191,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.seguros.id,
           },
           {
             label: 'Equipamentos',
@@ -510,7 +510,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.9)]',
             },
-            funcionalidadeId: '', // Removed permission check temporarily
+            funcionalidadeId: modules.frotas.permissions.equipamentos.id, // Removed permission check temporarily
           },
         ],
       },
@@ -534,7 +534,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-violet-500 shadow-[0_0_35px_rgba(139,92,246,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.viaturas.id,
           },
           {
             label: 'Utilizações',
@@ -550,7 +550,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-blue-700 shadow-[0_0_40px_rgba(37,99,235,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.utilizacoes.id,
           },
           {
             label: 'Abastecimentos',
@@ -566,7 +566,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.abastecimentos.id,
           },
         ],
       },
@@ -590,7 +590,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.manutencoes.id,
           },
           {
             label: 'Reservas de Oficinas',
@@ -606,7 +606,7 @@ export const roleHeaderMenus = {
               'neon-cyberpunk':
                 'bg-purple-700 shadow-[0_0_40px_rgba(126,34,206,0.9)]',
             },
-            funcionalidadeId: '',
+            funcionalidadeId: modules.frotas.permissions.reservasOficinas.id,
           },
         ],
       },

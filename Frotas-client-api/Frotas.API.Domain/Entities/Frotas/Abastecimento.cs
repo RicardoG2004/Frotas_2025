@@ -12,9 +12,10 @@ namespace Frotas.API.Domain.Entities.Frotas
     public Funcionario Funcionario { get; set; }
     public Guid ViaturaId { get; set; }
     public Viatura Viatura { get; set; }
+    public Guid? CombustivelId { get; set; }
+    public Combustivel? Combustivel { get; set; }
     public decimal? Kms { get; set; }
     public decimal? Litros { get; set; }
     public decimal? Valor { get; set; }
   }
 }
-

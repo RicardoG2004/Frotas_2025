@@ -1,0 +1,23 @@
+{
+  // Identificação visual do projeto Licenses App
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#2E8B57",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#2E8B5799",
+    "titleBar.inactiveForeground": "#ffffffcc",
+
+    "statusBar.background": "#2E8B57",
+    "statusBar.foreground": "#ffffff",
+    "statusBar.debuggingBackground": "#2E8B57",
+    "statusBar.debuggingForeground": "#ffffff",
+    "statusBar.noFolderBackground": "#2E8B57",
+
+    "activityBar.activeBackground": "#2E8B5733",
+    "activityBar.activeBorder": "#2E8B57",
+
+    "panel.border": "#2E8B57",
+    "sideBar.border": "#2E8B5733"
+  },
+
+  "window.title": "LIC API - ${dirty}${activeEditorShort}${separator}${rootName}"
+}

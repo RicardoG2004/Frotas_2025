@@ -401,10 +401,12 @@ namespace Frotas.API.Infrastructure.Mapper
       _ = CreateMap<Abastecimento, AbastecimentoDTO>();
       _ = CreateMap<CreateAbastecimentoRequest, Abastecimento>()
         .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
-        .ForMember(dest => dest.Viatura, opt => opt.Ignore());
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore())
+        .ForMember(dest => dest.Combustivel, opt => opt.Ignore());
       _ = CreateMap<UpdateAbastecimentoRequest, Abastecimento>()
         .ForMember(dest => dest.Funcionario, opt => opt.Ignore())
-        .ForMember(dest => dest.Viatura, opt => opt.Ignore());
+        .ForMember(dest => dest.Viatura, opt => opt.Ignore())
+        .ForMember(dest => dest.Combustivel, opt => opt.Ignore());
 
       // add new entity mappings here...
     }
